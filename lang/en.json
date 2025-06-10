@@ -1,0 +1,66 @@
+{
+    "WODSYSTEM": {
+        "Mortal": "Mortal",
+        "Attributes": {
+            "Physical": "Physical",
+            "Social": "Social",
+            "Mental": "Mental",
+            "Strength": "Strength",
+            "Dexterity": "Dexterity",
+            "Stamina": "Stamina",
+            "Charisma": "Charisma",
+            "Manipulation": "Manipulation",
+            "Appearance": "Appearance",
+            "Perception": "Perception",
+            "Intelligence": "Intelligence",
+            "Wits": "Wits"
+        },
+        "Abilities": {
+            "Talents": "Talents",
+            "Skills": "Skills",
+            "Knowledges": "Knowledges",
+            "Alertness": "Alertness",
+            "Athletics": "Athletics",
+            "Awareness": "Awareness",
+            "Brawl": "Brawl",
+            "Empathy": "Empathy",
+            "Expression": "Expression",
+            "Intimidation": "Intimidation",
+            "Leadership": "Leadership",
+            "Streetwise": "Streetwise",
+            "Subterfuge": "Subterfuge",
+            "AnimalKen": "Animal Ken",
+            "Crafts": "Crafts",
+            "Drive": "Drive",
+            "Etiquette": "Etiquette",
+            "Firearms": "Firearms",
+            "Larceny": "Larceny",
+            "Melee": "Melee",
+            "Performance": "Performance",
+            "Stealth": "Stealth",
+            "Survival": "Survival",
+            "Academics": "Academics",
+            "Computer": "Computer",
+            "Finance": "Finance",
+            "Investigation": "Investigation",
+            "Law": "Law",
+            "Medicine": "Medicine",
+            "Occult": "Occult",
+            "Politics": "Politics",
+            "Science": "Science",
+            "Technology": "Technology"
+        },
+        "Advantages": {
+            "Willpower": "Willpower",
+            "Permanent": "Permanent",
+            "Temporary": "Temporary",
+            "Merits": "Merits",
+            "Flaws": "Flaws"
+        },
+        "Health": {
+            "Current": "Current Health",
+            "Maximum": "Maximum Health",
+            "Aggravated": "Aggravated Damage"
+        }
+    }
+} 

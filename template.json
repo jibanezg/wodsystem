@@ -1,0 +1,206 @@
+{
+    "Actor": {
+        "types": ["Mortal", "Vampire", "Demon"],
+        "baseTraits": {
+            "attributes": {
+                "physical": {
+                    "Strength": 1,
+                    "Dexterity": 1,
+                    "Stamina": 1
+                },
+                "social": {
+                    "Charisma": 1,
+                    "Manipulation": 1,
+                    "Appearance": 1
+                },
+                "mental": {
+                    "Perception": 1,
+                    "Intelligence": 1,
+                    "Wits": 1
+                }
+            },
+            "abilities": {
+                "talents": {
+                    "Alertness": 0,
+                    "Athletics": 0,
+                    "Awareness": 0,
+                    "Brawl": 0,
+                    "Empathy": 0,
+                    "Expression": 0,
+                    "Intimidation": 0,
+                    "Leadership": 0,
+                    "Streetwise": 0,
+                    "Subterfuge": 0
+                },
+                "skills": {
+                    "Animal Ken": 0,
+                    "Crafts": 0,
+                    "Drive": 0,
+                    "Etiquette": 0,
+                    "Firearms": 0,
+                    "Larceny": 0,
+                    "Melee": 0,
+                    "Performance": 0,
+                    "Stealth": 0,
+                    "Survival": 0
+                },
+                "knowledges": {
+                    "Academics": 0,
+                    "Computer": 0,
+                    "Finance": 0,
+                    "Investigation": 0,
+                    "Law": 0,
+                    "Medicine": 0,
+                    "Occult": 0,
+                    "Politics": 0,
+                    "Science": 0,
+                    "Technology": 0
+                }
+            },
+            "advantages": {
+                "backgrounds": {
+                    "Allies": 0,
+                    "Alternate Identity": 0,
+                    "Black Hand Membership": 0,
+                    "Contacts": 0,
+                    "Fame": 0,
+                    "Generation": 0,
+                    "Herd": 0,
+                    "Influence": 0,
+                    "Mentor": 0,
+                    "Resources": 0,
+                    "Retainers": 0,
+                    "Rituals": 0,
+                    "Status": 0
+                },
+                "virtues": {
+                    "Conscience": 3,
+                    "Self-Control": 3,
+                    "Courage": 3
+                },
+                "numina": {}
+            },
+            "miscellaneous": {
+                "humanity": {
+                    "current": 7,
+                    "maximum": 10
+                },
+                "willpower": {
+                    "permanent": 3,
+                    "temporary": 3
+                },
+                "health": {
+                    "current": 7,
+                    "maximum": 7
+                },
+                "merits": [],
+                "flaws": []
+            }
+        },
+        "creatureTypes": {
+            "Mortal": {
+                "name": "Mortal",
+                "label": "Mortal",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add":{
+                        "advantages": {
+                            "numina": {}
+                        }
+                    }
+                }
+            },
+            "Vampire": {
+                "name": "Vampire",
+                "label": "Vampire",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "abilities": {
+                            "talents": {
+                                "Animalism": 0
+                            },
+                            "skills": {
+                                "Vampiric Lore": 0
+                            }
+                        },
+                        "advantages": {
+                            "Disciplines": {
+                                    "Animalism": 0,
+                                    "Auspex": 0,
+                                    "Celerity": 0,
+                                    "Dominate": 0,
+                                    "Fortitude": 0,
+                                    "Obfuscate": 0,
+                                    "Potence": 0,
+                                    "Presence": 0,
+                                    "Protean": 0
+                            }
+                        },
+                        "miscellaneous": {
+                            "blood": {
+                                "current": 10,
+                                "maximum": 10
+                            }
+                        }
+                    }
+                }
+            },
+            "Demon": {
+                "name": "Demon",
+                "label": "Demon",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "abilities": {
+                            "talents": {
+                                "Demonic Presence": 0
+                            },
+                            "skills": {
+                                "Infernal Lore": 0,
+                                "Corruption": 0
+                            },
+                            "knowledges": {
+                                "Hellish Secrets": 0
+                            }
+                        },
+                        "advantages": {
+                            "numina": {
+                                "Powers": {
+                                    "Infernal Might": 0,
+                                    "Hellfire": 0,
+                                    "Corruption": 0,
+                                    "Summoning": 0
+                                }
+                            }
+                        },
+                        "miscellaneous": {
+                            "essence": {
+                                "current": 15,
+                                "maximum": 15
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "system": {
+            "isCreated": false
+        }
+    },
+    "Item": {
+        "types": ["Trait"],
+        "templates": {
+            "Trait": {
+                "name": "Trait",
+                "label": "Trait",
+                "system": {
+                    "value": 0,
+                    "type": "",
+                    "category": "",
+                    "max": 0
+                }
+            }
+        }
+    }
+} 
