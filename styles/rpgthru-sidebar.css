@@ -1,0 +1,338 @@
+/* RPGThru Sidebar Styles */
+.rpgthru-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #2b2b2b;
+    color: #ffffff;
+}
+
+.rpgthru-sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #8b0000;
+}
+
+.rpgthru-sidebar-header h3 {
+    margin: 0 0 5px 0;
+    color: #8b0000;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.rpgthru-sidebar-header p {
+    margin: 0;
+    color: #cccccc;
+    font-size: 0.9em;
+}
+
+.rpgthru-sidebar-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Connect Section */
+.rpgthru-connect-section {
+    background: #333333;
+    border: 1px solid #555555;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.rpgthru-api-key-section {
+    margin-bottom: 20px;
+}
+
+.rpgthru-api-key-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.rpgthru-api-key-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.rpgthru-api-key-input-group input {
+    flex: 1;
+    min-width: 0; /* Allow flex item to shrink below content size */
+    padding: 8px 12px;
+    border: 1px solid #555555;
+    border-radius: 4px;
+    background: #444444;
+    color: #ffffff;
+    font-family: monospace;
+    font-size: 0.9em;
+    height: 36px;
+}
+
+.rpgthru-api-key-input-group input:focus {
+    outline: none;
+    border-color: #8b0000;
+    box-shadow: 0 0 5px rgba(139, 0, 0, 0.3);
+}
+
+.rpgthru-clear-api-key {
+    flex-shrink: 0; /* Prevent button from shrinking */
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: #6c757d;
+    border: 1px solid #555555;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rpgthru-clear-api-key:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+}
+
+.rpgthru-api-key-section small {
+    display: block;
+    color: #aaaaaa;
+    font-size: 0.8em;
+    margin-bottom: 8px;
+}
+
+.rpgthru-api-key-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+    margin-top: 8px;
+}
+
+.rpgthru-api-key-indicator {
+    font-size: 1.1em;
+}
+
+.rpgthru-api-key-text {
+    color: #cccccc;
+}
+
+.rpgthru-connect-btn {
+    width: 100%;
+    padding: 12px 16px;
+    background: #8b0000;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 15px;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rpgthru-connect-btn:hover:not(:disabled) {
+    background: #a00000;
+}
+
+.rpgthru-connect-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.rpgthru-disconnect-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: #6c757d;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.rpgthru-disconnect-btn:hover {
+    background: #5a6268;
+}
+
+.rpgthru-description {
+    color: #cccccc;
+    font-size: 0.9em;
+    text-align: center;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Loading states */
+.rpgthru-connect-btn.loading {
+    background: #ffc107;
+    color: #000000;
+}
+
+.rpgthru-connect-btn.success {
+    background: #28a745;
+}
+
+.rpgthru-connect-btn.error {
+    background: #dc3545;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .rpgthru-sidebar-content {
+        padding: 15px;
+    }
+    
+    .rpgthru-api-key-input-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+    }
+    
+    .rpgthru-clear-api-key {
+        align-self: flex-end;
+        width: auto;
+        height: auto;
+        padding: 6px 12px;
+    }
+}
+
+/* Iframe Section */
+.rpgthru-iframe-section {
+    display: none !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.rpgthru-iframe-header {
+    padding: 10px !important;
+    border-bottom: 1px solid #555 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+.rpgthru-iframe-header span {
+    color: #fff !important;
+    font-weight: bold !important;
+}
+
+.rpgthru-iframe-container {
+    flex: 1 !important;
+    position: relative !important;
+    min-height: 400px !important;
+    width: 100% !important;
+}
+
+.rpgthru-iframe-placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    background: #2b2b2b !important;
+    color: #ccc !important;
+    font-size: 1.1em !important;
+}
+
+.rpgthru-iframe-placeholder div {
+    text-align: center !important;
+}
+
+.rpgthru-iframe-placeholder i {
+    font-size: 2em !important;
+    margin-bottom: 10px !important;
+    color: #8b0000 !important;
+}
+
+.rpgthru-iframe {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    background: #fff !important;
+}
+
+/* AGGRESSIVE styling to make RPGThru tab tiny */
+#sidebar-tabs .item[data-tab="rpgthru"],
+.sidebar-tabs .item[data-tab="rpgthru"],
+nav.sidebar-tabs .item[data-tab="rpgthru"],
+.directory-tabs .item[data-tab="rpgthru"] {
+    /* Force tiny size */
+    padding: 2px 6px !important;
+    margin: 0 !important;
+    font-size: 0.7em !important;
+    line-height: 1 !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    width: auto !important;
+    min-width: auto !important;
+    max-width: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    font-weight: normal !important;
+    color: #ccc !important;
+    transition: all 0.2s ease !important;
+}
+
+#sidebar-tabs .item[data-tab="rpgthru"]:hover,
+.sidebar-tabs .item[data-tab="rpgthru"]:hover,
+nav.sidebar-tabs .item[data-tab="rpgthru"]:hover,
+.directory-tabs .item[data-tab="rpgthru"]:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+#sidebar-tabs .item[data-tab="rpgthru"].active,
+.sidebar-tabs .item[data-tab="rpgthru"].active,
+nav.sidebar-tabs .item[data-tab="rpgthru"].active,
+.directory-tabs .item[data-tab="rpgthru"].active {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border-left: 3px solid #ff6b6b !important;
+}
+
+#sidebar-tabs .item[data-tab="rpgthru"] i,
+.sidebar-tabs .item[data-tab="rpgthru"] i,
+nav.sidebar-tabs .item[data-tab="rpgthru"] i,
+.directory-tabs .item[data-tab="rpgthru"] i {
+    margin-right: 3px !important;
+    font-size: 0.8em !important;
+}
+
+#sidebar-tabs .item[data-tab="rpgthru"] span,
+.sidebar-tabs .item[data-tab="rpgthru"] span,
+nav.sidebar-tabs .item[data-tab="rpgthru"] span,
+.directory-tabs .item[data-tab="rpgthru"] span {
+    font-size: 0.7em !important;
+    font-weight: normal !important;
+} 

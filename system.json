@@ -19,7 +19,9 @@
     "wodsystem.js"
   ],
   "styles": [
-    "styles/mortal-sheet.css"
+    "styles/mortal-sheet.css",
+    "styles/rpgthru-app.css",
+    "styles/rpgthru-sidebar.css"
   ],
   "languages": [
     {

@@ -1,0 +1,36 @@
+{
+  "drivethrurpg": {
+    "baseUrl": "https://api.drivethrurpg.com/api/vBeta",
+    "timeout": 30000,
+    "tokenExpiryBuffer": 300000,
+    "defaultHeaders": {
+      "Content-Type": "application/json"
+    },
+    "auth": {
+      "endpoint": "/auth_key",
+      "method": "POST",
+      "paramName": "applicationKey",
+      "tokenHeader": "Authorization",
+      "tokenPrefix": "Bearer"
+    },
+    "endpoints": {
+      "vBeta": {
+        "orderProducts": {
+          "path": "/order_products",
+          "method": "GET",
+          "pagination": {
+            "page": 1,
+            "pageSize": 15
+          }
+        }
+      },
+      "v1": {
+        "baseUrl": "https://www.drivethrurpg.com/api/v1",
+        "customerProducts": {
+          "path": "/customers/{customerId}/products",
+          "method": "GET"
+        }
+      }
+    }
+  }
+} 
