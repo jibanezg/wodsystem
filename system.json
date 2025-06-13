@@ -16,12 +16,21 @@
   ],
   "relationships": [],
   "esmodules": [
-    "wodsystem.js"
+    "wodsystem.js",
+    "scripts/vector-database.js",
+    "scripts/rulespedia-framework.js",
+    "scripts/rulespedia-views.js",
+    "scripts/rulespedia.js"
   ],
   "styles": [
     "styles/mortal-sheet.css",
-    "styles/rpgthru-app.css",
-    "styles/rpgthru-sidebar.css"
+    "styles/rulespedia/rulespedia.css",
+    "styles/rulespedia/base.css",
+    "styles/rulespedia/views.css",
+    "styles/rulespedia/search.css",
+    "styles/rulespedia/buttons.css",
+    "styles/rulespedia/import.css",
+    "styles/rulespedia/manage.css"
   ],
   "languages": [
     {
@@ -36,6 +45,17 @@
     "units": "m"
   },
   "primaryTokenAttribute": "health",
+  "settings": [
+    {
+      "key": "rulespedia-vectors",
+      "name": "Rulespedia Vector Database",
+      "hint": "Internal storage for Rulespedia vector embeddings",
+      "type": "Object",
+      "default": null,
+      "scope": "world",
+      "config": false
+    }
+  ],
   "url": "https://github.com/yourusername/wodsystem",
   "manifest": "https://raw.githubusercontent.com/yourusername/wodsystem/main/system.json",
   "download": "https://github.com/yourusername/wodsystem/archive/refs/heads/main.zip",

@@ -1,0 +1,19 @@
+<div class="book-item">
+    <div class="book-icon">
+        <i class="fas fa-book"></i>
+    </div>
+    <div class="book-info">
+        <h4>{{bookName}}</h4>
+        <p class="book-filename">{{bookFilename}}</p>
+        <p class="book-size">{{bookSize}}</p>
+        <p class="book-date">Imported: {{bookDate}}</p>
+    </div>
+    <div class="book-actions">
+        <button class="action-button small" onclick="this.viewBook('{{bookFilename}}')" title="View">
+            <i class="fas fa-eye"></i>
+        </button>
+        <button class="action-button small danger" onclick="this.deleteBook('{{bookFilename}}')" title="Delete">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+</div> 

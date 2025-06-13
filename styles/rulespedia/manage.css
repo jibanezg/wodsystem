@@ -1,0 +1,57 @@
+/* Rulespedia Manage View Styles */
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .manage-section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    height: 100% !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .book-list {
+    flex: 1 !important;
+    background: #f9f9f9 !important;
+    border-radius: 0.375rem !important;
+    padding: 0.75rem !important;
+    border: 0.0625rem solid #e0e0e0 !important;
+    overflow-y: auto !important;
+    max-height: 60% !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .book-item {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0.5rem !important;
+    background: #fff !important;
+    border-radius: 0.25rem !important;
+    margin-bottom: 0.25rem !important;
+    border: 0.0625rem solid #e0e0e0 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .book-info {
+    flex: 1 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .book-name {
+    font-size: 0.6875rem !important;
+    font-weight: 500 !important;
+    color: #333 !important;
+    margin: 0 0 0.125rem 0 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .book-details {
+    font-size: 0.5rem !important;
+    color: #666 !important;
+    margin: 0 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .book-actions {
+    display: flex !important;
+    gap: 0.25rem !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .manage-actions {
+    display: flex !important;
+    gap: 0.375rem !important;
+    justify-content: center !important;
+} 

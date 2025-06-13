@@ -22,6 +22,16 @@
             "page": 1,
             "pageSize": 15
           }
+        },
+        "prepareDownload": {
+          "path": "/order_products/{product_id}/prepare",
+          "method": "GET",
+          "requiresAuth": true
+        },
+        "checkDownload": {
+          "path": "/order_products/{product_id}/check",
+          "method": "GET",
+          "requiresAuth": true
         }
       },
       "v1": {

@@ -1,0 +1,94 @@
+/* Rulespedia Search Styles */
+
+/* Rule Display Area - Big but not exaggerated */
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .rule-display-area {
+    flex: 1 !important;
+    min-height: 0 !important;
+    background: #f9f9f9 !important;
+    border-radius: 0.375rem !important;
+    padding: 0.75rem !important;
+    border: 0.0625rem solid #e0e0e0 !important;
+    margin-bottom: 0.375rem !important;
+    overflow-y: auto !important;
+    max-height: 60% !important;
+}
+
+/* Search Section - About 3/4 size of result area */
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .search-section {
+    margin-bottom: 0.375rem !important;
+    width: 90% !important;
+    align-self: flex-end !important;
+    flex-shrink: 0 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .search-input-container {
+    display: flex !important;
+    gap: 0.375rem !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .search-input {
+    flex: 1 !important;
+    padding: 0.5rem 0.625rem !important;
+    border: 0.125rem solid #e1e5e9 !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.6875rem !important;
+    background: #ffffff !important;
+    color: #2c3e50 !important;
+    transition: all 0.3s ease !important;
+    min-height: 2.5rem !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.06) !important;
+    font-weight: normal !important;
+    line-height: 1.2 !important;
+    resize: none !important;
+    overflow: hidden !important;
+    font-family: inherit !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .search-input:focus {
+    outline: none !important;
+    border-color: #3498db !important;
+    box-shadow: 0 0.125rem 0.5rem rgba(52, 152, 219, 0.15) !important;
+    transform: translateY(-0.03125rem) !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .search-input::placeholder {
+    color: #95a5a6 !important;
+    font-style: italic !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .send-button {
+    padding: 0 !important;
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 0.3125rem !important;
+    cursor: pointer !important;
+    font-size: 0.6875rem !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 2.5rem !important;
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    box-shadow: 0 0.125rem 0.375rem rgba(52, 152, 219, 0.3) !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .send-button:hover {
+    background: linear-gradient(135deg, #2980b9, #1f5f8b) !important;
+    transform: translateY(-0.0625rem) !important;
+    box-shadow: 0 0.1875rem 0.625rem rgba(52, 152, 219, 0.4) !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .send-button:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 0.0625rem 0.25rem rgba(52, 152, 219, 0.3) !important;
+} 

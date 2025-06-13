@@ -1,0 +1,66 @@
+<div class="view-header">
+  <button class="back-button" data-back="home">
+    <i class="fas fa-arrow-left"></i>
+    Back to Home
+  </button>
+  <h3>Settings</h3>
+</div>
+<div class="view-content">
+  <div class="settings-section">
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-cog"></i>
+        <h4>Search Settings</h4>
+      </div>
+      <div class="card-content">
+        <div class="setting-item">
+          <label for="search-results">Number of Search Results:</label>
+          <select id="search-results" class="setting-input">
+            <option value="3">3 results</option>
+            <option value="5" selected>5 results</option>
+            <option value="10">10 results</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <label for="embedding-model">Embedding Model:</label>
+          <select id="embedding-model" class="setting-input">
+            <option value="fallback">Fallback (Basic)</option>
+            <option value="xenova">Xenova (Advanced)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="settings-card">
+      <div class="card-header">
+        <i class="fas fa-database"></i>
+        <h4>Database Settings</h4>
+      </div>
+      <div class="card-content">
+        <div class="setting-item">
+          <label for="chunk-size">Text Chunk Size:</label>
+          <select id="chunk-size" class="setting-input">
+            <option value="small">Small (256 chars)</option>
+            <option value="medium" selected>Medium (512 chars)</option>
+            <option value="large">Large (1024 chars)</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <button class="action-button danger" id="clear-database">
+            <i class="fas fa-trash"></i>
+            Clear Database
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="action-buttons">
+      <button class="action-button primary" id="save-settings">
+        <i class="fas fa-save"></i>
+        Save Settings
+      </button>
+      <button class="action-button secondary" data-view="home">
+        <i class="fas fa-times"></i>
+        Cancel
+      </button>
+    </div>
+  </div>
+</div> 

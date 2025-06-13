@@ -1,0 +1,39 @@
+<div class="view-header">
+  <button class="back-button" data-back="home">
+    <i class="fas fa-arrow-left"></i>
+    Back to Home
+  </button>
+  <h3>Import Rulebooks</h3>
+</div>
+<div class="view-content">
+  <div class="import-section">
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-placeholder">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h4>Drop PDF files here</h4>
+        <p>or click to browse</p>
+      </div>
+    </div>
+    <div class="file-list" id="fileList" style="display: none;">
+      <div class="file-list-header">
+        <h4>Selected Files</h4>
+        <button class="clear-selection-button" id="clearSelection" title="Clear Selection">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="file-items"></div>
+    </div>
+    <div class="import-options">
+      <button class="action-button primary" id="importButton" disabled>
+        <i class="fas fa-upload"></i>
+        Import Selected Files
+      </button>
+    </div>
+    <div class="import-progress" id="importProgress" style="display: none;">
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+      <p class="progress-text">Processing...</p>
+    </div>
+  </div>
+</div> 

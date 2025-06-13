@@ -1,21 +1,28 @@
 import { MortalSheet } from "./module/actor/template/mortal-sheet.js";
 import { WodActor } from "./module/actor/data/wod-actor.js";
-import { RpgThruSettings } from "./module/rpgthru/settings.js";
-import { RpgThruTabManager } from "./scripts/rpgthru-tab-manager.js";
-import { RpgThruSidebar } from "./scripts/rpgthru-sidebar.js";
 import { registerHandlebarsHelpers } from "./scripts/utilities.js";
 
-// Import API scripts to make them globally available
-import "./scripts/api-utils.js";
-import "./scripts/api-client.js";
-import "./scripts/drivethrurpg-controller.js";
+// Import Vector Database
+import "./scripts/vector-database.js";
+
+// Import CSS Loader
+import "./scripts/css-loader.js";
+
+// Load framework files dynamically to ensure proper order
+async function loadRulespediaFramework() {
+    try {
+        await import("./scripts/rulespedia-framework.js");
+        await import("./scripts/rulespedia-views.js");
+        await import("./scripts/rulespedia.js");
+    } catch (error) {
+        console.error("WoD | Error loading Rulespedia framework:", error);
+    }
+}
+
+// Load the framework
+loadRulespediaFramework();
 
 Hooks.once("init", async function() {
-    console.log("WoD | Initializing World of Darkness System");
-    
-    // Initialize RPGThru settings
-    RpgThruSettings.init();
-    
     // Register Handlebars helpers
     registerHandlebarsHelpers();
 
@@ -28,33 +35,50 @@ Hooks.once("init", async function() {
         makeDefault: true
     });
     
-    console.log("WoD | System initialized");
-});
-
-// Initialize RPGThru UI components
-let rpgThruTabManager;
-let rpgThruSidebar;
-
-Hooks.on("ready", () => {
-    console.log("WoD | Ready hook triggered, initializing RPGThru UI");
-    
-    // Initialize RPGThru components
-    rpgThruTabManager = new RpgThruTabManager();
-    rpgThruSidebar = new RpgThruSidebar();
-    rpgThruSidebar.init();
-    
-    // Add RPGThru tab to sidebar
-    setTimeout(async () => {
-        const sidebar = $('#sidebar');
-        if (sidebar.length > 0) {
-            await rpgThruTabManager.addTabToSidebar(sidebar);
-        }
-    }, 1000);
-});
-
-// Add RPGThru tab when sidebar is rendered (only if not already added)
-Hooks.on("renderSidebar", async (app, html) => {
-    if (html && html instanceof jQuery && rpgThruTabManager && !rpgThruTabManager.isTabAdded) {
-        await rpgThruTabManager.addTabToSidebar(html);
+    // Register Rulespedia vector database setting programmatically
+    // This ensures the setting is available even if system.json hasn't been reloaded
+    if (!game.settings.settings.has('wodsystem.rulespedia-vectors')) {
+        game.settings.register('wodsystem', 'rulespedia-vectors', {
+            name: 'Rulespedia Vector Database',
+            hint: 'Internal storage for Rulespedia vector embeddings',
+            type: Object,
+            default: null,
+            scope: 'world',
+            config: false
+        });
+        console.log('WoD | Registered rulespedia-vectors setting programmatically');
     }
+});
+
+Hooks.on("ready", async () => {
+    // Load CSS files using the modular CSS loader
+    try {
+        if (window.rulespediaCSSLoader) {
+            await window.rulespediaCSSLoader.loadAllCSS();
+        } else {
+            console.error("WoD | RulespediaCSSLoader not available");
+        }
+    } catch (error) {
+        console.error("WoD | Error loading CSS:", error);
+    }
+    
+    // Initialize vector database
+    if (window.VectorDatabaseManager) {
+        window.rulespediaVectorDB = new window.VectorDatabaseManager();
+        window.rulespediaVectorDB.initialize().catch(error => {
+            console.error("WoD | Vector database initialization failed:", error);
+        });
+    }
+    
+    // Set up global rulespediaManager reference
+    // This will be set when the Rulespedia tab is created
+    Hooks.on('renderSidebarTab', (app, html) => {
+        if (app.options.id === 'rulespedia') {
+            // Find the Rulespedia instance and set it globally
+            const rulespediaElement = document.querySelector('[data-tab="rulespedia"]');
+            if (rulespediaElement && window.Rulespedia) {
+                // The Rulespedia instance should already be created by this point
+            }
+        }
+    });
 });

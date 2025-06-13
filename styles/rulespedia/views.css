@@ -1,0 +1,77 @@
+/* Rulespedia View Styles */
+
+/* View Headers */
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .view-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.25rem !important;
+    flex-shrink: 0 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .back-button {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    padding: 0.25rem 0.5rem !important;
+    border: 0.0625rem solid #e0e0e0 !important;
+    border-radius: 0.5rem !important;
+    background: #fff !important;
+    color: #666 !important;
+    text-decoration: none !important;
+    font-size: 0.625rem !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .back-button:hover {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .view-header h3 {
+    margin: 0 !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    color: #333 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .view-content {
+    background: #fff !important;
+    border-radius: 0.375rem !important;
+    padding: 0.5rem !important;
+    box-shadow: 0 0.0625rem 0.1875rem rgba(0,0,0,0.1) !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.375rem !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+}
+
+/* Placeholder Content */
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .placeholder-content {
+    text-align: center !important;
+    padding: 1rem !important;
+    color: #666 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .placeholder-icon {
+    font-size: 1.5rem !important;
+    color: #ccc !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .placeholder-content h4 {
+    margin: 0 0 0.375rem 0 !important;
+    font-size: 0.75rem !important;
+    color: #333 !important;
+}
+
+.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol .placeholder-content p {
+    margin: 0 !important;
+    color: #666 !important;
+    line-height: 1.4 !important;
+    font-size: 0.625rem !important;
+} 
