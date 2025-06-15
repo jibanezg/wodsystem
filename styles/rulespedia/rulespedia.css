@@ -1,32 +1,669 @@
-/* Rulespedia CSS - Loaded dynamically via RulespediaCSSLoader */
+/* Rulespedia Modern RPG Theme - Compact and Efficient */
 
-/* This file is a placeholder. The actual CSS is loaded dynamically from modular files:
- * - base.css
- * - views.css  
- * - search.css
- * - buttons.css
- * - import.css
- * - manage.css
- */
-
-/* Fallback styles in case dynamic loading fails */
-.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol {
-    background: #f5f5f5 !important;
-    color: #333 !important;
-    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    font-size: 12px !important;
-    display: none !important;
+:root {
+  --rpg-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+  --rpg-accent: #a9915f;
+  --rpg-accent2: #5f99a9;
+  --rpg-surface: rgba(30, 32, 34, 0.98);
+  --rpg-surface-light: rgba(60, 62, 65, 0.98);
+  --rpg-border: 1px solid #a9915f44;
+  --rpg-radius: 0.5rem;
+  --rpg-shadow: 0 1px 8px 0 #000a, 0 1px 0 #a9915f33;
+  --rpg-glow: 0 0 4px #a9915faa, 0 0 1px #5f99a9aa;
+  --rpg-font: 'Cinzel', 'Georgia', serif;
+  --rpg-font-ui: 'Inter', 'Segoe UI', sans-serif;
 }
 
-.tab.sidebar-tab.rulespedia-sidebar.directory.flexcol.active {
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-    width: 100% !important;
-    visibility: visible !important;
-    opacity: 1 !important;
+/* Apply to Foundry sidebar tab */
+.sidebar-tab[data-tab="rulespedia"] {
+  background: var(--rpg-bg) !important;
+  color: #f3e9d2 !important;
+  font-family: var(--rpg-font-ui);
+  height: 100%;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.rulespedia-tab-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.rulespedia-header {
+  padding: 0.5rem 0.8rem 0.2rem 0.8rem;
+  background: none;
+  text-align: center;
+  flex-shrink: 0;
+}
+.rulespedia-header h1 {
+  font-family: var(--rpg-font);
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: var(--rpg-accent);
+  margin: 0 0 0.1rem 0;
+  text-shadow: var(--rpg-glow);
+}
+.rulespedia-header p {
+  font-size: 0.75rem;
+  color: #bfae7c;
+  margin: 0;
+  font-family: var(--rpg-font-ui);
+}
+
+.rulespedia-main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.rulespedia-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.rulespedia-view {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  background: none;
+}
+.view-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  background: none;
+  padding: 0.2rem;
+}
+
+/* Home View - Ultra Compact */
+.home-view {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--rpg-surface);
+  border-radius: var(--rpg-radius);
+  box-shadow: var(--rpg-shadow);
+  margin: 0.2rem;
+  max-width: none;
+  width: auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.home-section {
+  background: var(--rpg-surface-light);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 4px #0005;
+  padding: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.quick-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-card {
+  flex: 1 1 45%;
+  min-width: 100px;
+  max-width: 150px;
+  background: var(--rpg-surface);
+  border: var(--rpg-border);
+  border-radius: var(--rpg-radius);
+  box-shadow: var(--rpg-shadow);
+  color: #f3e9d2;
+  padding: 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  font-size: 0.75rem;
+  border: none;
+  outline: none;
+}
+
+.action-card:hover {
+  box-shadow: 0 0 8px 1px var(--rpg-accent2), var(--rpg-shadow);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.action-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.action-card i {
+  font-size: 1.4rem;
+  color: var(--rpg-accent2);
+}
+
+.action-card span {
+  font-weight: 600;
+  color: var(--rpg-accent);
+}
+
+.stats-grid {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.stat-card {
+  flex: 1 1 30%;
+  min-width: 70px;
+  max-width: 100px;
+  background: var(--rpg-surface);
+  border: var(--rpg-border);
+  border-radius: var(--rpg-radius);
+  box-shadow: var(--rpg-shadow);
+  color: #f3e9d2;
+  padding: 0.4rem 0.3rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.stat-card i {
+  font-size: 1rem;
+  color: var(--rpg-accent2);
+  flex-shrink: 0;
+}
+
+.stat-number {
+  font-family: var(--rpg-font);
+  font-size: 0.9rem;
+  color: var(--rpg-accent);
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #bfae7c;
+}
+
+/* Import View - Ultra Compact */
+.import-view {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  background: var(--rpg-surface);
+  border-radius: var(--rpg-radius);
+  box-shadow: var(--rpg-shadow);
+  margin: 0.2rem;
+  max-width: none;
+  width: auto;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.import-section {
+  background: var(--rpg-surface-light);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 4px #0005;
+  padding: 0.4rem;
+  margin-bottom: 0.2rem;
+}
+
+.import-section h3 {
+  font-size: 0.8rem;
+  margin: 0 0 0.4rem 0;
+  color: var(--rpg-accent);
+}
+
+.import-progress {
+  background: var(--rpg-surface-light);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 4px #0005;
+  padding: 0.4rem;
+  margin-bottom: 0.2rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 6rem;
+}
+
+.import-progress h3 {
+  font-size: 0.8rem;
+  margin: 0 0 0.4rem 0;
+  color: var(--rpg-accent);
+}
+
+.progress-container {
+  margin-bottom: 0.4rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 0.4rem;
+  background: #232526;
+  border-radius: 0.2rem;
+  overflow: hidden;
+  margin-bottom: 0.2rem;
+  box-shadow: 0 1px 2px #0002 inset;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--rpg-accent2), var(--rpg-accent));
+  border-radius: 0.2rem;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--rpg-accent);
+}
+
+.import-log {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--rpg-surface);
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.4rem;
+  margin-top: 0.2rem;
+  font-size: 0.7rem;
+  color: #f3e9d2;
+  box-shadow: 0 1px 2px #0002;
+  min-height: 3rem;
+  max-height: 6rem;
+}
+
+.import-results {
+  background: var(--rpg-surface-light);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 4px #0005;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 8rem;
+}
+
+.import-results h3 {
+  font-size: 0.8rem;
+  margin: 0 0 0.4rem 0;
+  color: var(--rpg-accent);
+}
+
+.results-content {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 0.3rem;
+  min-height: 4rem;
+  max-height: 6rem;
+}
+
+.file-upload-area {
+  border: 2px dashed var(--rpg-accent2);
+  border-radius: var(--rpg-radius);
+  padding: 0.6rem 0.4rem;
+  text-align: center;
+  background: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+.file-upload-area:hover, .file-upload-area.dragover {
+  border-color: var(--rpg-accent);
+  box-shadow: 0 0 6px 1px var(--rpg-accent2);
+}
+.upload-prompt i {
+  font-size: 1.2rem;
+  color: var(--rpg-accent2);
+  margin-bottom: 0.2rem;
+}
+.upload-prompt p {
+  color: #bfae7c;
+  font-size: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+.select-files-btn {
+  background: var(--rpg-accent2);
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-family: var(--rpg-font-ui);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px #0003;
+}
+.select-files-btn:hover {
+  background: var(--rpg-accent);
+  color: #232526;
+}
+.import-options {
+  margin: 0.3rem 0 0.2rem 0;
+  padding: 0.3rem 0.4rem;
+  background: var(--rpg-surface);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 3px #0003;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: #f3e9d2;
+  cursor: pointer;
+  font-family: var(--rpg-font-ui);
+}
+.checkmark {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 1px solid var(--rpg-accent2);
+  border-radius: 0.15rem;
+  background: none;
+  display: inline-block;
+  position: relative;
+}
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+  background: var(--rpg-accent2);
+  border-color: var(--rpg-accent);
+}
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: bold;
+}
+.import-btn {
+  width: 100%;
+  background: var(--rpg-accent2);
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: var(--rpg-font-ui);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 3px #0003;
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+.import-btn:disabled {
+  background: #444a4f;
+  color: #bfae7c;
+  cursor: not-allowed;
+}
+.import-btn:not(:disabled):hover {
+  background: var(--rpg-accent);
+  color: #232526;
+}
+.selected-files {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.3rem;
+  max-height: 4rem;
+  overflow-y: auto;
+}
+.file-item {
+  background: var(--rpg-surface-light);
+  border-radius: 0.3rem;
+  padding: 0.25rem 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: #f3e9d2;
+  box-shadow: 0 1px 2px #0002;
+}
+.file-name {
+  font-weight: 600;
+  color: var(--rpg-accent);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 0.3rem;
+}
+.file-size {
+  color: #bfae7c;
+  font-size: 0.65rem;
+  flex-shrink: 0;
+}
+.result-item {
+  background: var(--rpg-surface);
+  border-radius: 0.3rem;
+  padding: 0.25rem 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: #f3e9d2;
+  box-shadow: 0 1px 2px #0002;
+  margin-bottom: 0.15rem;
+}
+.result-item.success {
+  border-left: 2px solid var(--rpg-accent2);
+}
+.result-item.error {
+  border-left: 2px solid #c0392b;
+}
+.filename {
+  font-weight: 600;
+  color: var(--rpg-accent);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.status {
+  font-size: 0.75rem;
+  color: #bfae7c;
+  flex-shrink: 0;
+}
+.chunks {
+  color: var(--rpg-accent2);
+  font-size: 0.7rem;
+}
+.error-message {
+  color: #c0392b;
+  font-size: 0.7rem;
+  margin-left: 0.3rem;
+}
+
+/* Manage View */
+.manage-view {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0.8rem;
+  padding: 1rem 0.8rem 0.8rem 0.8rem;
+  background: var(--rpg-surface);
+  border-radius: var(--rpg-radius);
+  box-shadow: var(--rpg-shadow);
+  margin: 0.3rem;
+  max-width: none;
+  width: auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+.manage-header h2 {
+  font-family: var(--rpg-font);
+  color: var(--rpg-accent);
+  font-size: 1.1rem;
+  margin-bottom: 0.1rem;
+}
+.manage-header p {
+  color: #bfae7c;
+  font-size: 0.85rem;
+  margin: 0 0 0.8rem 0;
+}
+.books-section {
+  background: var(--rpg-surface-light);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 8px #0005;
+  padding: 0.8rem 0.7rem;
+  margin-bottom: 0.3rem;
+}
+.books-section h3 {
+  font-size: 0.9rem;
+  margin: 0 0 0.6rem 0;
+  color: var(--rpg-accent);
+}
+.books-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 1.5rem;
+}
+.no-books-content {
+  text-align: center;
+  color: #bfae7c;
+  padding: 1rem 0;
+}
+.no-books-content i {
+  font-size: 1.8rem;
+  color: var(--rpg-accent2);
+  margin-bottom: 0.3rem;
+}
+.management-actions {
+  background: var(--rpg-surface-light);
+  border-radius: var(--rpg-radius);
+  box-shadow: 0 1px 8px #0005;
+  padding: 0.8rem 0.7rem;
+  margin-bottom: 0.3rem;
+}
+.action-buttons {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.action-btn {
+  background: var(--rpg-accent2);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.85rem;
+  font-family: var(--rpg-font-ui);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px #0003;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.action-btn.danger {
+  background: #c0392b;
+}
+.action-btn:hover {
+  background: var(--rpg-accent);
+  color: #232526;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .home-view, .import-view, .manage-view {
+    padding: 0.3rem;
+    gap: 0.3rem;
+  }
+
+  .rulespedia-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .rulespedia-header p {
+    font-size: 0.8rem;
+  }
+  
+  /* Import view responsive adjustments */
+  .import-progress {
+    min-height: 5rem;
+  }
+  
+  .import-log {
+    min-height: 2.5rem;
+    max-height: 4rem;
+  }
+}
+@media (max-width: 600px) {
+  .home-view, .import-view, .manage-view {
+    padding: 0.2rem;
+    gap: 0.2rem;
+  }
+
+  .home-section, .import-section, .books-section, .management-actions {
+    padding: 0.3rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .quick-actions, .stats-grid, .action-buttons {
+    gap: 0.2rem;
+  }
+
+  .stat-card, .action-card {
+    padding: 0.3rem;
+  }
+
+  .rulespedia-header {
+    padding: 0.4rem;
+  }
+
+  .rulespedia-header h1 {
+    font-size: 1rem;
+  }
+
+  .rulespedia-header p {
+    font-size: 0.7rem;
+  }
+  
+  /* Import view mobile adjustments */
+  .import-progress {
+    min-height: 4rem;
+    padding: 0.3rem;
+  }
+  
+  .import-log {
+    min-height: 2rem;
+    max-height: 3rem;
+    font-size: 0.65rem;
+  }
+  
+  .import-section h3, .import-progress h3 {
+    font-size: 0.75rem;
+  }
 } 

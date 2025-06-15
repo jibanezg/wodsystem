@@ -2,8 +2,45 @@ import { MortalSheet } from "./module/actor/template/mortal-sheet.js";
 import { WodActor } from "./module/actor/data/wod-actor.js";
 import { registerHandlebarsHelpers } from "./scripts/utilities.js";
 
-// Import Vector Database
-import "./scripts/vector-database.js";
+// Import Content Store
+import "./scripts/content-store.js";
+
+// Import LLM Services
+console.log('WoD | Starting LLM imports...');
+Promise.all([
+    import("./scripts/llm-prompts.js").then(() => {
+        console.log('WoD | LLM Prompts imported successfully');
+    }).catch(error => {
+        console.error('WoD | Failed to import LLM Prompts:', error);
+    }),
+    import("./scripts/llm-service.js").then(() => {
+        console.log('WoD | LLM Service imported successfully');
+    }).catch(error => {
+        console.error('WoD | Failed to import LLM Service:', error);
+    }),
+    import("./scripts/browser-llm-provider.js").then(() => {
+        console.log('WoD | Browser LLM Provider imported successfully');
+    }).catch(error => {
+        console.error('WoD | Failed to import Browser LLM Provider:', error);
+    }),
+    import("./scripts/tensorflow-llm-provider.js").then(() => {
+        console.log('WoD | TensorFlow LLM Provider imported successfully');
+    }).catch(error => {
+        console.error('WoD | Failed to import TensorFlow LLM Provider:', error);
+    }),
+    import("./scripts/rule-discovery-service.js").then(() => {
+        console.log('WoD | Rule Discovery Service imported successfully');
+    }).catch(error => {
+        console.error('WoD | Failed to import Rule Discovery Service:', error);
+    })
+]).then(() => {
+    console.log('WoD | LLM imports completed');
+}).catch(error => {
+    console.error('WoD | Some LLM imports failed:', error);
+});
+
+// Import Rulespedia Services
+import "./scripts/rulespedia-services.js";
 
 // Import CSS Loader
 import "./scripts/css-loader.js";
@@ -35,18 +72,17 @@ Hooks.once("init", async function() {
         makeDefault: true
     });
     
-    // Register Rulespedia vector database setting programmatically
+    // Register Rulespedia content store setting programmatically
     // This ensures the setting is available even if system.json hasn't been reloaded
-    if (!game.settings.settings.has('wodsystem.rulespedia-vectors')) {
-        game.settings.register('wodsystem', 'rulespedia-vectors', {
-            name: 'Rulespedia Vector Database',
-            hint: 'Internal storage for Rulespedia vector embeddings',
+    if (!game.settings.settings.has('wodsystem.rulespedia-content')) {
+        game.settings.register('wodsystem', 'rulespedia-content', {
+            name: 'Rulespedia Content Store',
+            hint: 'Internal storage for Rulespedia text chunks and TF-IDF data',
             type: Object,
             default: null,
             scope: 'world',
             config: false
         });
-        console.log('WoD | Registered rulespedia-vectors setting programmatically');
     }
 });
 
@@ -62,11 +98,11 @@ Hooks.on("ready", async () => {
         console.error("WoD | Error loading CSS:", error);
     }
     
-    // Initialize vector database
-    if (window.VectorDatabaseManager) {
-        window.rulespediaVectorDB = new window.VectorDatabaseManager();
-        window.rulespediaVectorDB.initialize().catch(error => {
-            console.error("WoD | Vector database initialization failed:", error);
+    // Initialize content store
+    if (window.ContentStore) {
+        window.rulespediaContentStore = new window.ContentStore();
+        window.rulespediaContentStore.initialize().catch(error => {
+            console.error("WoD | Content store initialization failed:", error);
         });
     }
     

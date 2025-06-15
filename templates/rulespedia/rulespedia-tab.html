@@ -1,38 +1,44 @@
-<div class="rulespedia-wizard-container">
-    <!-- Navigation Header -->
+<div class="rulespedia-tab-content">
     <div class="rulespedia-header">
-        <div class="rulespedia-breadcrumb" id="breadcrumb">
-            <!-- Breadcrumb will be populated by the view manager -->
-        </div>
-        <div class="rulespedia-title">
-            <h2><i class="fas fa-book"></i> Rulespedia</h2>
-        </div>
+        <h1>Rulespedia</h1>
+        <p>Intelligent RPG Rulebook Analysis</p>
     </div>
-
-    <!-- Main Content Area -->
-    <div class="rulespedia-content">
-        <!-- View containers will be created dynamically by the view manager -->
-        <div class="rulespedia-view active" data-view="home">
-            <div class="view-content">
-                <!-- Home view content will be rendered here -->
+    
+    <div class="rulespedia-main">
+        <div class="rulespedia-content">
+            <!-- Home View -->
+            <div class="rulespedia-view" data-view="home" style="display: none;">
+                <div class="view-content">
+                    <!-- Home view content will be inserted here -->
+                </div>
             </div>
-        </div>
-        
-        <div class="rulespedia-view" data-view="import">
-            <div class="view-content">
-                <!-- Import view content will be rendered here -->
+            
+            <!-- Import View -->
+            <div class="rulespedia-view" data-view="import" style="display: none;">
+                <div class="view-content">
+                    <!-- Import view content will be inserted here -->
+                </div>
             </div>
-        </div>
-        
-        <div class="rulespedia-view" data-view="manage">
-            <div class="view-content">
-                <!-- Manage view content will be rendered here -->
+            
+            <!-- Search View -->
+            <div class="rulespedia-view" data-view="search" style="display: none;">
+                <div class="view-content">
+                    <!-- Search view content will be inserted here -->
+                </div>
             </div>
-        </div>
-        
-        <div class="rulespedia-view" data-view="settings">
-            <div class="view-content">
-                <!-- Settings view content will be rendered here -->
+            
+            <!-- Manage View -->
+            <div class="rulespedia-view" data-view="manage" style="display: none;">
+                <div class="view-content">
+                    <!-- Manage view content will be inserted here -->
+                </div>
+            </div>
+            
+            <!-- Settings View -->
+            <div class="rulespedia-view" data-view="settings" style="display: none;">
+                <div class="view-content">
+                    <!-- Settings view content will be inserted here -->
+                </div>
             </div>
         </div>
     </div>

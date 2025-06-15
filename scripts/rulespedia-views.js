@@ -1,294 +1,648 @@
 /**
- * Rulespedia Views
- * Specific view implementations for the Rulespedia system
+ * Rulespedia Views - UI Framework Components
+ * Handles rendering and user interactions for the Rulespedia system
+ * Framework layer - no business logic here, no HTML templates here
  */
 
 /**
- * Home View - Main landing page
- */
-class HomeView extends RuleView {
-    constructor() {
-        super('home', 'Home', 'fas fa-home');
-        this.setTemplatePath('systems/wodsystem/templates/rulespedia/rulespedia-home.html');
-    }
-
-    onRender() {
-        this.initializeSearch();
-    }
-
-    initializeSearch() {
-        const searchInput = document.getElementById('semantic-search');
-        const sendButton = document.getElementById('send-button');
-        
-        if (searchInput && sendButton) {
-            // Auto-resize textarea
-            const autoResize = () => {
-                searchInput.style.height = 'auto';
-                searchInput.style.height = Math.min(searchInput.scrollHeight, 6 * 16) + 'px';
-            };
-            
-            searchInput.addEventListener('input', autoResize);
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.performSearch();
-                }
-            });
-            
-            sendButton.addEventListener('click', () => {
-                this.performSearch();
-            });
-            
-            autoResize();
-        }
-    }
-
-    async performSearch() {
-        const searchInput = document.getElementById('semantic-search');
-        const query = searchInput.value.trim();
-        
-        if (!query) {
-            ui.notifications.warn('Please enter a search query.');
-            return;
-        }
-        
-        await this.showTemplate('search-loading.html');
-        
-        try {
-            // Get the framework instance and perform real search
-            const framework = window.rulespediaFramework;
-            if (!framework) {
-                throw new Error('Rulespedia framework not available');
-            }
-            
-            const result = await framework.performSemanticSearch(query);
-            await this.displaySearchResult(result);
-        } catch (error) {
-            console.error('Search error:', error);
-            await this.showTemplate('search-error.html', { message: 'Search failed: ' + error.message });
-        }
-    }
-
-    async showTemplate(templateFile, context = {}) {
-        const ruleContent = document.getElementById('ruleContent');
-        if (!ruleContent) return;
-        const path = `systems/wodsystem/templates/rulespedia/${templateFile}`;
-        const response = await fetch(path);
-        let html = await response.text();
-        // Simple variable replacement for {{var}}
-        for (const [key, value] of Object.entries(context)) {
-            html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
-        }
-        ruleContent.innerHTML = html;
-    }
-
-    async displaySearchResult(result) {
-        if (result && result.content) {
-            await this.showTemplate('search-result.html', {
-                content: result.content,
-                source: result.source || ''
-            });
-        } else {
-            await this.showTemplate('search-no-results.html');
-        }
-    }
-
-    async showError(message) {
-        await this.showTemplate('search-error.html', { message });
-    }
-}
-
-/**
- * Import View - For importing new rulebooks
+ * Import View - Handles book import UI
  */
 class ImportView extends RuleView {
-    constructor() {
+    constructor(serviceManager) {
         super('import', 'Import Books', 'fas fa-upload');
-        this.setTemplatePath('systems/wodsystem/templates/rulespedia/rulespedia-import.html');
-        this.selectedFiles = [];
+        this.serviceManager = serviceManager;
+        this.importService = serviceManager ? serviceManager.getImportService() : null;
+        this.bookManagementService = serviceManager ? serviceManager.getBookManagementService() : null;
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/import-view.html');
+        this.isInitialized = false;
+        this.eventListeners = [];
     }
 
+    /**
+     * Called after the view is rendered
+     */
     onRender() {
-        // Use setTimeout to ensure DOM is fully rendered
+        // Don't clear content here - let the parent class handle template loading
+        // The template will be loaded first, then we can set up event listeners
+        
+        // Wait a bit for the DOM to be ready, then initialize
         setTimeout(() => {
-            console.log('ImportView: Initializing upload...');
-            this.initializeUpload();
+            if (!this.isInitialized) {
+                this.initialize();
+                this.isInitialized = true;
+            }
+        }, 10);
+    }
+
+    /**
+     * Called when the view is activated
+     */
+    onActivate() {
+        // Only initialize if not already done and DOM is ready
+        setTimeout(() => {
+            if (!this.isInitialized) {
+                this.initialize();
+                this.isInitialized = true;
+            }
+        }, 10);
+    }
+
+    /**
+     * Called when the view is deactivated
+     */
+    onDeactivate() {
+        // Clean up event listeners to prevent duplicates
+        this.cleanupEventListeners();
+        this.isInitialized = false;
+    }
+
+    /**
+     * Clean up event listeners
+     */
+    cleanupEventListeners() {
+        this.eventListeners.forEach(listener => {
+            if (listener.element && listener.type && listener.handler) {
+                listener.element.removeEventListener(listener.type, listener.handler);
+            }
+        });
+        this.eventListeners = [];
+    }
+
+    /**
+     * Add event listener with tracking
+     */
+    addTrackedEventListener(element, type, handler) {
+        element.addEventListener(type, handler);
+        this.eventListeners.push({ element, type, handler });
+    }
+
+    /**
+     * Initialize event handlers
+     */
+    initialize() {
+        this.setupFileUpload();
+        this.setupImportButton();
+        this.setupProgressTracking();
+    }
+
+    /**
+     * Setup file upload functionality
+     */
+    setupFileUpload() {
+        console.log('ImportView: Setting up file upload functionality');
+        
+        // Wait a bit more for DOM to be fully ready
+        setTimeout(() => {
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('fileUploadArea');
+            const selectBtn = document.querySelector('.select-files-btn');
+            const selectedFiles = document.getElementById('selectedFiles');
+            const selectedFilesSection = document.getElementById('selectedFilesSection');
+            const startImportBtn = document.getElementById('startImport');
+
+            console.log('ImportView: Found elements:', {
+                fileInput: !!fileInput,
+                uploadArea: !!uploadArea,
+                selectBtn: !!selectBtn,
+                selectedFiles: !!selectedFiles,
+                selectedFilesSection: !!selectedFilesSection,
+                startImportBtn: !!startImportBtn
+            });
+
+            if (!fileInput || !uploadArea || !selectBtn) {
+                console.error('ImportView: Required elements not found for file upload setup', {
+                    fileInput: !!fileInput,
+                    uploadArea: !!uploadArea,
+                    selectBtn: !!selectBtn
+                });
+                return;
+            }
+
+            // File selection button
+            this.addTrackedEventListener(selectBtn, 'click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('ImportView: Select files button clicked');
+                
+                // Use Foundry's FilePicker
+                const fp = new FilePicker({
+                    type: "file",
+                    current: "",
+                    callback: (path) => {
+                        console.log('ImportView: FilePicker callback with path:', path);
+                        // Handle the selected file path
+                        this.handleFileSelectionFromPath(path);
+                    },
+                    extensions: [".pdf"],
+                    button: selectBtn
+                });
+                fp.browse();
+            });
+
+            // Also make the upload area clickable
+            this.addTrackedEventListener(uploadArea, 'click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('ImportView: Upload area clicked');
+                
+                // Use Foundry's FilePicker
+                const fp = new FilePicker({
+                    type: "file",
+                    current: "",
+                    callback: (path) => {
+                        console.log('ImportView: Upload area FilePicker callback with path:', path);
+                        // Handle the selected file path
+                        this.handleFileSelectionFromPath(path);
+                    },
+                    extensions: [".pdf"],
+                    button: uploadArea
+                });
+                fp.browse();
+            });
+
+            // File input change
+            this.addTrackedEventListener(fileInput, 'change', (e) => {
+                console.log('ImportView: File input changed, files:', e.target.files);
+                this.handleFileSelection(e.target.files);
+            });
+
+            // Drag and drop
+            this.addTrackedEventListener(uploadArea, 'dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            this.addTrackedEventListener(uploadArea, 'dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+
+            this.addTrackedEventListener(uploadArea, 'drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                console.log('ImportView: Files dropped:', e.dataTransfer.files);
+                this.handleFileSelection(e.dataTransfer.files);
+            });
+            
+            console.log('ImportView: File upload setup complete');
         }, 100);
     }
 
-    initializeUpload() {
-        if (!this.container) {
-            console.error('ImportView: No container available!');
+    /**
+     * Handle file selection from Foundry's FilePicker path
+     */
+    async handleFileSelectionFromPath(path) {
+        console.log('ImportView: Handling file selection from path:', path);
+        
+        try {
+            // Get the file from the path using Foundry's API
+            const response = await fetch(path);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch file: ${response.status}`);
+            }
+            
+            const blob = await response.blob();
+            const file = new File([blob], path.split('/').pop(), { type: 'application/pdf' });
+            
+            console.log('ImportView: Created file from path:', file);
+            this.handleFileSelection([file]);
+            
+        } catch (error) {
+            console.error('ImportView: Error handling file from path:', error);
+            this.showMessage('Error loading file. Please try again.', 'error');
+        }
+    }
+
+    /**
+     * Handle file selection
+     */
+    async handleFileSelection(files) {
+        const selectedFiles = document.getElementById('selectedFiles');
+        const selectedFilesSection = document.getElementById('selectedFilesSection');
+        const startImportBtn = document.getElementById('startImport');
+        
+        console.log('ImportView: File selection triggered', { 
+            totalFiles: files.length,
+            selectedFilesElement: !!selectedFiles,
+            selectedFilesSection: !!selectedFilesSection,
+            startImportBtn: !!startImportBtn
+        });
+        
+        // DEBUG: Check if elements exist
+        if (!selectedFiles) {
+            console.error('ImportView: selectedFiles element not found!');
+            console.log('All elements with "selected" in id:', document.querySelectorAll('[id*="selected"]'));
+            console.log('All elements with "file" in id:', document.querySelectorAll('[id*="file"]'));
             return;
         }
         
-        const uploadArea = this.container.querySelector('#uploadArea');
-        const importButton = this.container.querySelector('#importButton');
-        const clearSelectionButton = this.container.querySelector('#clearSelection');
-        
-        console.log('ImportView: Found elements:', { uploadArea: !!uploadArea, importButton: !!importButton, clearSelectionButton: !!clearSelectionButton });
-        
-        if (uploadArea) {
-            // Remove any existing event listeners to prevent duplication
-            uploadArea.removeEventListener('dragover', this.handleDragOver);
-            uploadArea.removeEventListener('dragleave', this.handleDragLeave);
-            uploadArea.removeEventListener('drop', this.handleDrop);
-            uploadArea.removeEventListener('click', this.handleUploadClick);
-            
-            // Bind event handlers to prevent context issues
-            this.handleDragOver = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                uploadArea.classList.add('dragover');
-            };
-            
-            this.handleDragLeave = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                uploadArea.classList.remove('dragover');
-            };
-            
-            this.handleDrop = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                uploadArea.classList.remove('dragover');
-                this.handleFiles(e.dataTransfer.files);
-            };
-            
-            this.handleUploadClick = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('ImportView: Upload area clicked, opening file picker...');
-                this.openFilePicker();
-            };
-            
-            // Add event listeners
-            uploadArea.addEventListener('dragover', this.handleDragOver);
-            uploadArea.addEventListener('dragleave', this.handleDragLeave);
-            uploadArea.addEventListener('drop', this.handleDrop);
-            uploadArea.addEventListener('click', this.handleUploadClick);
-            
-            // Handle import button
-            if (importButton) {
-                importButton.removeEventListener('click', this.handleImportClick);
-                this.handleImportClick = this.handleImportClick.bind(this);
-                importButton.addEventListener('click', this.handleImportClick);
-            }
-            
-            // Handle clear selection button
-            if (clearSelectionButton) {
-                clearSelectionButton.removeEventListener('click', this.handleClearSelection);
-                this.handleClearSelection = this.handleClearSelection.bind(this);
-                clearSelectionButton.addEventListener('click', this.handleClearSelection);
-            }
-            
-            console.log('ImportView: Upload initialization complete');
-        } else {
-            console.error('ImportView: Upload area not found!');
+        if (!selectedFilesSection) {
+            console.error('ImportView: selectedFilesSection element not found!');
+            return;
         }
-    }
+        
+        if (!startImportBtn) {
+            console.error('ImportView: startImport button not found!');
+            return;
+        }
+        
+        if (files.length === 0) return;
 
-    async openFilePicker() {
-        console.log('ImportView: openFilePicker called');
+        // Filter for PDF files
+        const pdfFiles = Array.from(files).filter(file => 
+            file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
+        );
+        
+        console.log('ImportView: PDF files filtered', { 
+            pdfFilesCount: pdfFiles.length,
+            pdfFiles: pdfFiles.map(f => ({ name: f.name, size: f.size }))
+        });
+
+        if (pdfFiles.length === 0) {
+            this.showMessage('Please select PDF files only.', 'error');
+            return;
+        }
+
+        // Use template for file items
         try {
-            const files = await new Promise((resolve) => {
-                console.log('ImportView: Creating file input...');
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.pdf';
-                input.multiple = true;
-                input.style.display = 'none';
-                
-                input.addEventListener('change', (e) => {
-                    console.log('ImportView: File input change event triggered');
-                    resolve(e.target.files);
-                });
-                
-                console.log('ImportView: Clicking file input...');
-                input.click();
-            });
-            
-            console.log('ImportView: Files selected:', files ? files.length : 0);
-            if (files && files.length > 0) {
-                this.handleFiles(files);
-            }
-        } catch (error) {
-            console.error('ImportView: Error opening file picker:', error);
-            ui.notifications.error('Failed to open file picker');
-        }
-    }
-
-    handleFileChange(e) {
-        this.handleFiles(e.target.files);
-    }
-
-    handleImportClick() {
-        this.importFiles();
-    }
-
-    handleFiles(files) {
-        this.selectedFiles = Array.from(files).filter(file => file.type === 'application/pdf');
-        this.updateFileList();
-        this.updateImportButton();
-        
-        // Show success message
-        if (this.selectedFiles.length > 0) {
-            ui.notifications.info(`Selected ${this.selectedFiles.length} PDF file(s) for import`);
-        }
-    }
-
-    updateFileList() {
-        const uploadArea = this.container.querySelector('#uploadArea');
-        const fileList = this.container.querySelector('#fileList');
-        
-        if (this.selectedFiles.length > 0) {
-            // Hide upload area and show file list in its place
-            if (uploadArea) {
-                uploadArea.style.setProperty('display', 'none', 'important');
-            }
-            if (fileList) {
-                fileList.style.setProperty('display', 'flex', 'important');
-                fileList.style.setProperty('flex', '1', 'important');
-                this.loadFileItems(fileList.querySelector('.file-items'));
-            }
-        } else {
-            // Show upload area and hide file list
-            if (uploadArea) {
-                uploadArea.style.setProperty('display', 'flex', 'important');
-            }
-            if (fileList) {
-                fileList.style.setProperty('display', 'none', 'important');
-            }
-        }
-    }
-
-    async loadFileItems(container) {
-        const path = 'systems/wodsystem/templates/rulespedia/file-item.html';
-        try {
-            const response = await fetch(path);
-            if (!response.ok) throw new Error('Failed to load file item template');
-            const template = await response.text();
-            
-            const fileItemsHTML = this.selectedFiles.map(file => {
-                let html = template;
-                html = html.replace(/{{fileName}}/g, file.name);
-                html = html.replace(/{{fileSize}}/g, this.formatFileSize(file.size));
-                return html;
+            const fileItemTemplate = await this.loadTemplateFile('systems/wodsystem/templates/rulespedia/file-item.html');
+            const fileItemsHtml = pdfFiles.map(file => {
+                return fileItemTemplate
+                    .replace('{{fileName}}', file.name)
+                    .replace('{{fileSize}}', this.formatFileSize(file.size));
             }).join('');
             
-            container.innerHTML = fileItemsHTML;
+            console.log('ImportView: Generated file items HTML', { 
+                htmlLength: fileItemsHtml.length,
+                fileItemsCount: pdfFiles.length
+            });
+            
+            selectedFiles.innerHTML = fileItemsHtml;
+            selectedFilesSection.style.display = 'block';
+            startImportBtn.disabled = false;
+            
+            // Store files for import
+            this.selectedFiles = pdfFiles;
+            
         } catch (error) {
-            console.error('Error loading file items:', error);
+            console.error('ImportView: Error loading file item template:', error);
+            // Fallback to simple template
+            try {
+                const simpleTemplate = await this.loadTemplateFile('systems/wodsystem/templates/rulespedia/file-item-simple.html');
+                const fallbackHtml = pdfFiles.map(file => {
+                    return simpleTemplate
+                        .replace('{{fileName}}', file.name)
+                        .replace('{{fileSize}}', this.formatFileSize(file.size));
+                }).join('');
+                
+                selectedFiles.innerHTML = fallbackHtml;
+            } catch (fallbackError) {
+                console.error('ImportView: Error loading fallback template:', fallbackError);
+                // Ultimate fallback - just text
+                selectedFiles.innerHTML = pdfFiles.map(file => 
+                    `${file.name} (${this.formatFileSize(file.size)})`
+                ).join('\n');
+            }
+            selectedFilesSection.style.display = 'block';
+            startImportBtn.disabled = false;
+            this.selectedFiles = pdfFiles;
         }
     }
 
-    updateImportButton() {
-        const importButton = this.container.querySelector('#importButton');
-        if (importButton) {
-            importButton.disabled = this.selectedFiles.length === 0;
+    /**
+     * Setup import button
+     */
+    setupImportButton() {
+        // Wait a bit more for DOM to be fully ready
+        setTimeout(() => {
+            const startImportBtn = document.getElementById('startImport');
+            
+            if (!startImportBtn) {
+                console.error('ImportView: Start import button not found');
+                return;
+            }
+            
+            this.addTrackedEventListener(startImportBtn, 'click', async () => {
+                if (!this.selectedFiles || this.selectedFiles.length === 0) {
+                    this.showMessage('Please select files to import.', 'error');
+                    return;
+                }
+
+                await this.startImport();
+            });
+        }, 50);
+    }
+
+    /**
+     * Start the import process
+     */
+    async startImport() {
+        if (!this.importService) {
+            this.showMessage('Import service not available. Please refresh the page.', 'error');
+            return;
+        }
+
+        try {
+            this.showImportProgress();
+            this.clearImportLog();
+            
+            // Initialize progress tracking
+            let currentProgress = 0;
+            const totalSteps = this.selectedFiles.length + 2; // +2 for LLM init and rule discovery
+            let currentStep = 0;
+            
+            // Step 1: Try to initialize LLM Service (optional)
+            this.addToImportLog('Checking LLM service availability...', 'info');
+            this.updateProgress(5); // 5% for starting
+            let llmAvailable = false;
+            try {
+                await this.initializeLLMService();
+                llmAvailable = true;
+                this.addToImportLog('✓ LLM service ready', 'success');
+            } catch (error) {
+                console.warn('LLM service not available, proceeding without AI features:', error.message);
+                this.addToImportLog('⚠ LLM service not available - proceeding with basic import (no AI rule discovery)', 'warning');
+            }
+            
+            currentStep++;
+            currentProgress = (currentStep / totalSteps) * 90; // Reserve 10% for rule discovery
+            this.updateProgress(currentProgress);
+            
+            const results = [];
+            
+            // Step 2: Import books
+            for (let i = 0; i < this.selectedFiles.length; i++) {
+                const file = this.selectedFiles[i];
+                
+                // Update progress for starting this file
+                const fileStartProgress = currentProgress + (i / this.selectedFiles.length) * 70; // 70% for file imports
+                this.updateProgress(fileStartProgress);
+                this.addToImportLog(`Importing ${file.name}...`);
+                
+                try {
+                    // Create a progress callback for this file
+                    const fileProgressCallback = (progress) => {
+                        // Map file progress from 0-100% to the file's allocated range
+                        const fileProgress = fileStartProgress + (progress * 70 / this.selectedFiles.length);
+                        this.updateProgress(fileProgress);
+                    };
+                    
+                    const result = await this.importService.importBook(file, { progressCallback: fileProgressCallback });
+                    results.push(result);
+                    this.addToImportLog(`✓ Successfully imported ${file.name} (${result.chunks} chunks)`);
+                } catch (error) {
+                    console.error(`Import failed for ${file.name}:`, error);
+                    this.addToImportLog(`✗ Failed to import ${file.name}: ${error.message}`, 'error');
+                    results.push({
+                        success: false,
+                        filename: file.name,
+                        error: error.message
+                    });
+                }
+            }
+            
+            // Step 3: Run rule discovery if we have successful imports and LLM is available
+            const successfulImports = results.filter(r => r.success);
+            if (successfulImports.length > 0 && llmAvailable) {
+                this.updateProgress(90); // 90% for starting rule discovery
+                this.addToImportLog('Starting AI rule discovery...', 'info');
+                await this.runRuleDiscovery();
+            } else if (successfulImports.length > 0) {
+                this.addToImportLog('✓ Import complete - books are ready for manual search', 'success');
+            }
+            
+            this.updateProgress(100);
+            await this.showImportResults(results);
+            
+        } catch (error) {
+            console.error('Import process failed:', error);
+            this.addToImportLog(`Import process failed: ${error.message}`, 'error');
         }
     }
 
+    /**
+     * Initialize LLM Service with TensorFlow provider
+     */
+    async initializeLLMService() {
+        try {
+            if (!this.serviceManager) {
+                throw new Error('Service manager not available');
+            }
+
+            // Get LLM service (this will trigger lazy initialization)
+            const llmService = this.serviceManager.getLLMService();
+            
+            // Check if TensorFlowLLMProvider is available
+            if (typeof TensorFlowLLMProvider === 'undefined') {
+                throw new Error('TensorFlowLLMProvider not available - tensorflow-llm-provider.js may not be loaded');
+            }
+            
+            // Create TensorFlow LLM provider
+            const tensorflowProvider = new TensorFlowLLMProvider({
+                modelName: 'pattern-recognition',
+                useQuantized: true,
+                progressCallback: (progress) => {
+                    const percent = Math.round(progress * 100);
+                    this.addToImportLog(`Loading TensorFlow model: ${percent}%`, 'info');
+                }
+            });
+            
+            // Set the provider
+            llmService.setProvider(tensorflowProvider);
+            
+            // Initialize the service and wait for it to be ready
+            await llmService.initialize();
+            
+            // Double-check that the service is actually initialized
+            if (!llmService.isInitialized) {
+                throw new Error('LLM service failed to initialize properly');
+            }
+            
+            // Check if service is in fallback mode
+            if (llmService.fallbackMode) {
+                this.addToImportLog('✓ LLM service initialized in fallback mode (keyword-based analysis)', 'warning');
+            } else {
+                this.addToImportLog('✓ LLM service initialized successfully with TensorFlow pattern recognition', 'success');
+            }
+            
+            // Test the service to make sure it's working
+            try {
+                const testResponse = await llmService.generate('test', { maxTokens: 10 });
+                if (!testResponse) {
+                    throw new Error('LLM service test failed - no response generated');
+                }
+                this.addToImportLog('✓ LLM service test successful', 'success');
+            } catch (testError) {
+                console.warn('LLM service test failed:', testError.message);
+                this.addToImportLog('⚠ LLM service test failed, but continuing with import', 'warning');
+            }
+            
+        } catch (error) {
+            console.error('Failed to initialize LLM service:', error);
+            this.addToImportLog(`✗ LLM service initialization failed: ${error.message}`, 'error');
+            throw error;
+        }
+    }
+
+    /**
+     * Run rule discovery on imported content
+     */
+    async runRuleDiscovery() {
+        try {
+            // Get rule discovery service (this will trigger lazy initialization)
+            const ruleDiscoveryService = this.serviceManager.getRuleDiscoveryService();
+            
+            // Update progress to show rule discovery is starting
+            this.updateProgress(90);
+            this.addToImportLog('Starting AI rule discovery...', 'info');
+            
+            // Run discovery on all imported books with progress updates
+            const discoveryResults = await ruleDiscoveryService.discoverRules();
+            
+            // Update progress to show rule discovery is complete
+            this.updateProgress(95);
+            
+            // Get the actual rule chunks array
+            const ruleChunks = ruleDiscoveryService.getRuleChunks();
+            
+            this.addToImportLog(`✓ Rule discovery complete: ${discoveryResults.ruleChunks} rules found`, 'success');
+            
+            // Log some discovered rules for user feedback
+            const topRules = ruleChunks.slice(0, 5);
+            if (topRules.length > 0) {
+                this.addToImportLog('Top discovered rules:', 'info');
+                topRules.forEach((rule, index) => {
+                    this.addToImportLog(`  ${index + 1}. ${rule.ruleName} (confidence: ${Math.round(rule.confidence * 100)}%)`, 'info');
+                });
+            }
+            
+        } catch (error) {
+            console.error('Rule discovery failed:', error);
+            this.addToImportLog(`✗ Rule discovery failed: ${error.message}`, 'error');
+            // Don't throw - rule discovery failure shouldn't stop the import
+        }
+    }
+
+    /**
+     * Setup progress tracking
+     */
+    setupProgressTracking() {
+        // Progress tracking is handled in the import methods
+    }
+
+    /**
+     * Show import progress
+     */
+    showImportProgress() {
+        const importProgress = document.getElementById('importProgress');
+        
+        if (importProgress) {
+            importProgress.style.display = 'flex';
+        }
+    }
+
+    /**
+     * Update progress bar
+     */
+    updateProgress(percentage) {
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        
+        if (progressFill) {
+            progressFill.style.width = `${percentage}%`;
+        }
+        if (progressText) {
+            progressText.textContent = `${Math.round(percentage)}%`;
+        }
+    }
+
+    /**
+     * Add message to import log
+     */
+    async addToImportLog(message, type = 'info') {
+        const importLog = document.getElementById('importLog');
+        if (!importLog) return;
+
+        try {
+            // Simple fallback using template
+            try {
+                const logTemplate = await this.loadTemplateFile('systems/wodsystem/templates/rulespedia/log-entry.html');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = logTemplate
+                    .replace('{{type}}', type)
+                    .replace('{{timestamp}}', timestamp)
+                    .replace('{{message}}', message);
+                importLog.insertAdjacentHTML('beforeend', logEntry);
+                importLog.scrollTop = importLog.scrollHeight;
+            } catch (fallbackError) {
+                console.error('Error loading log template:', fallbackError);
+                // Ultimate fallback - just text
+                const timestamp = new Date().toLocaleTimeString();
+                importLog.insertAdjacentHTML('beforeend', `[${timestamp}] ${message}\n`);
+                importLog.scrollTop = importLog.scrollHeight;
+            }
+        } catch (error) {
+            console.error('Error adding to import log:', error);
+            // Simple fallback using template
+            try {
+                const logTemplate = await this.loadTemplateFile('systems/wodsystem/templates/rulespedia/log-entry.html');
+                const timestamp = new Date().toLocaleTimeString();
+                const logEntry = logTemplate
+                    .replace('{{type}}', type)
+                    .replace('{{timestamp}}', timestamp)
+                    .replace('{{message}}', message);
+                importLog.insertAdjacentHTML('beforeend', logEntry);
+                importLog.scrollTop = importLog.scrollHeight;
+            } catch (fallbackError) {
+                console.error('Error loading log template:', fallbackError);
+                // Ultimate fallback - just text
+                const timestamp = new Date().toLocaleTimeString();
+                importLog.insertAdjacentHTML('beforeend', `[${timestamp}] ${message}\n`);
+                importLog.scrollTop = importLog.scrollHeight;
+            }
+        }
+    }
+
+    /**
+     * Clear import log
+     */
+    clearImportLog() {
+        const importLog = document.getElementById('importLog');
+        if (importLog) {
+            importLog.innerHTML = '';
+        }
+    }
+
+    /**
+     * Show import results as log entries
+     */
+    async showImportResults(results) {
+        // Add a separator line
+        await this.addToImportLog('─'.repeat(40), 'info');
+        await this.addToImportLog('Import Results Summary:', 'info');
+        
+        // Add each result as a log entry
+        for (const result of results) {
+            const filename = result.filename || result.name || 'Unknown';
+            const status = result.success ? 'Success' : 'Failed';
+            const chunks = result.chunks ? ` (${result.chunks} chunks)` : '';
+            const error = result.error ? ` - ${result.error}` : '';
+            
+            const message = `${filename}: ${status}${chunks}${error}`;
+            const type = result.success ? 'success' : 'error';
+            
+            await this.addToImportLog(message, type);
+        }
+        
+        // Add summary
+        const successful = results.filter(r => r.success).length;
+        const total = results.length;
+        await this.addToImportLog(`─`.repeat(40), 'info');
+        await this.addToImportLog(`Import complete: ${successful}/${total} files imported successfully`, successful > 0 ? 'success' : 'error');
+    }
+
+    /**
+     * Format file size
+     */
     formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -297,530 +651,152 @@ class ImportView extends RuleView {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    async importFiles() {
-        if (this.selectedFiles.length === 0) return;
-        
-        const importButton = this.container.querySelector('#importButton');
-        const importProgress = this.container.querySelector('#importProgress');
-        
-        if (importButton && importProgress) {
-            importButton.disabled = true;
-            importProgress.style.display = 'block';
-            
-            try {
-                for (let i = 0; i < this.selectedFiles.length; i++) {
-                    const file = this.selectedFiles[i];
-                    await this.importFile(file, i + 1, this.selectedFiles.length);
-                }
-                
-                ui.notifications.info(`Successfully imported ${this.selectedFiles.length} file(s)`);
-                this.selectedFiles = [];
-                this.updateFileList();
-                this.updateImportButton();
-                
-            } catch (error) {
-                console.error('Import error:', error);
-                ui.notifications.error('Import failed: ' + error.message);
-            } finally {
-                importButton.disabled = false;
-                importProgress.style.display = 'none';
-            }
-        }
+    /**
+     * Show message
+     */
+    showMessage(message, type = 'info') {
+        // Simple message display - could be enhanced with a proper notification system
+        console.log(`${type.toUpperCase()}: ${message}`);
     }
 
-    async importFile(file, current, total) {
-        console.log(`ImportView: Starting import of ${file.name} (${current}/${total})`);
-        
-        // Update progress
-        const progressText = this.container.querySelector('.progress-text');
-        if (progressText) {
-            progressText.textContent = `Processing ${file.name} (${current}/${total})...`;
-        }
-        
-        try {
-            console.log(`ImportView: Extracting text from PDF...`);
-            // Extract text from PDF
-            const extractedText = await this.extractTextFromPDF(file);
-            console.log(`ImportView: Extracted ${extractedText.length} characters of text`);
-            
-            console.log(`ImportView: Splitting text into chunks...`);
-            // Split text into chunks for better vector search
-            const textChunks = this.splitTextIntoChunks(extractedText, file.name);
-            console.log(`ImportView: Created ${textChunks.length} chunks`);
-            
-            console.log(`ImportView: Storing chunks in vector database...`);
-            // Generate embeddings and store in vector database
-            await this.storeTextInVectorDB(textChunks, file.name);
-            
-            console.log(`ImportView: Successfully imported ${file.name}`);
-            
-            return {
-                success: true,
-                filename: file.name,
-                chunks: textChunks.length
-            };
-        } catch (error) {
-            console.error(`ImportView: Error importing ${file.name}:`, error);
-            throw new Error(`Failed to import ${file.name}: ${error.message}`);
-        }
-    }
-
-    async extractTextFromPDF(file) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Try to load PDF.js
-                try {
-                    await this.loadPDFJS();
-                } catch (error) {
-                    console.warn('PDF.js failed to load, using fallback method:', error);
-                    // Use fallback method
-                    const fallbackText = await this.extractTextFallback(file);
-                    resolve(fallbackText);
-                    return;
-                }
-                
-                const reader = new FileReader();
-                
-                reader.onload = async (e) => {
-                    try {
-                        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-                        
-                        if (!pdfjsLib) {
-                            throw new Error('PDF.js library not available after loading');
-                        }
-                        
-                        const arrayBuffer = e.target.result;
-                        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                        
-                        let fullText = '';
-                        
-                        // Extract text from each page
-                        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                            const page = await pdf.getPage(pageNum);
-                            const textContent = await page.getTextContent();
-                            
-                            // Combine text items
-                            const pageText = textContent.items
-                                .map(item => item.str)
-                                .join(' ');
-                            
-                            fullText += pageText + '\n';
-                        }
-                        
-                        resolve(fullText);
-                    } catch (error) {
-                        console.warn('PDF.js extraction failed, using fallback:', error);
-                        // Try fallback method
-                        const fallbackText = await this.extractTextFallback(file);
-                        resolve(fallbackText);
-                    }
-                };
-                
-                reader.onerror = () => reject(new Error('Failed to read file'));
-                reader.readAsArrayBuffer(file);
-                
-            } catch (error) {
-                reject(new Error(`PDF text extraction failed: ${error.message}`));
-            }
-        });
-    }
-
-    async extractTextFallback(file) {
-        // Simple fallback: return filename and basic info
-        // This is a placeholder - in a real implementation you might use a different PDF library
-        return `PDF Document: ${file.name}\nSize: ${this.formatFileSize(file.size)}\n\n[Text extraction not available - please ensure PDF.js is loaded properly]`;
-    }
-
-    async loadPDFJS() {
-        // Check if PDF.js is already loaded
-        if (window['pdfjs-dist/build/pdf']) {
+    /**
+     * Test function to manually show selected files (for debugging)
+     */
+    testShowSelectedFiles() {
+        const selectedFiles = document.getElementById('selectedFiles');
+        if (!selectedFiles) {
+            console.error('ImportView: selectedFiles element not found');
             return;
         }
         
-        // Load PDF.js from CDN
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-            
-            script.onload = () => {
-                // Set the worker source
-                window['pdfjs-dist/build/pdf'].GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-                console.log('PDF.js loaded successfully');
-                resolve();
+        console.log('ImportView: Testing manual display of selected files');
+        
+        // Use template for test content
+        try {
+            const testFile = {
+                name: 'TEST FILE.pdf',
+                size: 1258291 // 1.2 MB in bytes
             };
             
-            script.onerror = () => {
-                reject(new Error('Failed to load PDF.js from CDN'));
-            };
-            
-            document.head.appendChild(script);
-        });
-    }
-
-    splitTextIntoChunks(text, filename) {
-        const chunks = [];
-        
-        // Step 1: Clean up the text
-        let cleanText = text
-            .replace(/\r\n/g, '\n')  // Normalize line endings
-            .replace(/\r/g, '\n')    // Convert remaining carriage returns
-            .replace(/\n{3,}/g, '\n\n'); // Remove excessive blank lines
-        
-        // Step 2: Split into sections based on common RPG book patterns
-        const sections = this.splitIntoSections(cleanText);
-        
-        // Step 3: Process each section into chunks
-        sections.forEach((section, sectionIndex) => {
-            const sectionChunks = this.processSectionIntoChunks(section, filename, sectionIndex);
-            chunks.push(...sectionChunks);
-        });
-        
-        console.log(`Split "${filename}" into ${chunks.length} smart chunks`);
-        return chunks;
-    }
-    
-    splitIntoSections(text) {
-        const sections = [];
-        const lines = text.split('\n');
-        let currentSection = { title: 'Introduction', content: [] };
-        
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
-            
-            // Check if this line looks like a heading
-            if (this.isHeading(line)) {
-                // Save the previous section if it has content
-                if (currentSection.content.length > 0) {
-                    sections.push(currentSection);
-                }
-                
-                // Start a new section
-                currentSection = {
-                    title: line,
-                    content: []
-                };
-            } else if (line.length > 0) {
-                // Add content to current section
-                currentSection.content.push(line);
-            }
-        }
-        
-        // Add the last section
-        if (currentSection.content.length > 0) {
-            sections.push(currentSection);
-        }
-        
-        return sections;
-    }
-    
-    isHeading(line) {
-        // Check if a line looks like a heading
-        const headingPatterns = [
-            /^[A-Z][A-Z\s]+$/,           // ALL CAPS
-            /^[A-Z][a-z]+(\s+[A-Z][a-z]+)*$/, // Title Case
-            /^\d+\.\s+[A-Z]/,            // Numbered sections
-            /^[A-Z][a-z]+:/,             // Ends with colon
-            /^Chapter\s+\d+/i,           // Chapter headings
-            /^Section\s+\d+/i,           // Section headings
-            /^Part\s+\d+/i,              // Part headings
-            /^[IVX]+\.\s+[A-Z]/,         // Roman numerals
-            /^[A-Z][A-Z\s]{3,}$/         // Short ALL CAPS (3+ chars)
-        ];
-        
-        return headingPatterns.some(pattern => pattern.test(line)) && line.length < 100;
-    }
-    
-    processSectionIntoChunks(section, filename, sectionIndex) {
-        const chunks = [];
-        const content = section.content.join('\n');
-        const maxChunkSize = 800; // Smaller chunks for better precision
-        const overlap = 100; // Smaller overlap
-        
-        // If the section is small enough, keep it as one chunk
-        if (content.length <= maxChunkSize) {
-            chunks.push({
-                text: this.formatChunkText(section.title, content),
-                filename: filename,
-                chunkIndex: chunks.length,
-                sectionTitle: section.title,
-                sectionIndex: sectionIndex
-            });
-            return chunks;
-        }
-        
-        // Split large sections into smaller chunks
-        let start = 0;
-        while (start < content.length) {
-            const end = Math.min(start + maxChunkSize, content.length);
-            let chunkContent = content.substring(start, end);
-            
-            // Try to break at paragraph boundaries
-            if (end < content.length) {
-                const lastParagraph = chunkContent.lastIndexOf('\n\n');
-                const lastSentence = chunkContent.lastIndexOf('. ');
-                const breakPoint = Math.max(lastParagraph + 2, lastSentence + 1);
-                
-                if (breakPoint > start + maxChunkSize * 0.6) {
-                    chunkContent = content.substring(start, breakPoint);
-                    start = breakPoint - overlap;
-                } else {
-                    start = end - overlap;
-                }
-            } else {
-                start = end;
-            }
-            
-            if (chunkContent.trim()) {
-                chunks.push({
-                    text: this.formatChunkText(section.title, chunkContent.trim()),
-                    filename: filename,
-                    chunkIndex: chunks.length,
-                    sectionTitle: section.title,
-                    sectionIndex: sectionIndex
+            this.loadTemplateFile('systems/wodsystem/templates/rulespedia/file-item.html')
+                .then(template => {
+                    const testHtml = template
+                        .replace('{{fileName}}', testFile.name)
+                        .replace('{{fileSize}}', this.formatFileSize(testFile.size));
+                    
+                    selectedFiles.innerHTML = testHtml;
+                    console.log('ImportView: Test content added using template');
+                })
+                .catch(error => {
+                    console.error('ImportView: Error loading template for test:', error);
+                    // Fallback to simple template
+                    this.loadTemplateFile('systems/wodsystem/templates/rulespedia/file-item-simple.html')
+                        .then(simpleTemplate => {
+                            const testHtml = simpleTemplate
+                                .replace('{{fileName}}', testFile.name)
+                                .replace('{{fileSize}}', this.formatFileSize(testFile.size));
+                            selectedFiles.innerHTML = testHtml;
+                        })
+                        .catch(fallbackError => {
+                            console.error('ImportView: Error loading fallback template:', fallbackError);
+                            // Ultimate fallback - just text
+                            selectedFiles.innerHTML = `${testFile.name} (${this.formatFileSize(testFile.size)})`;
+                        });
                 });
-            }
+        } catch (error) {
+            console.error('ImportView: Error in test function:', error);
         }
-        
-        return chunks;
-    }
-    
-    formatChunkText(sectionTitle, content) {
-        // Format the chunk with section title for context
-        if (sectionTitle && sectionTitle !== 'Introduction') {
-            return `[${sectionTitle}]\n\n${content}`;
-        }
-        return content;
     }
 
-    async storeTextInVectorDB(textChunks, filename) {
-        console.log(`ImportView: Storing ${textChunks.length} chunks for ${filename}`);
-        
-        // Get the vector database manager - try multiple sources
-        const vectorDB = window.rulespediaVectorDB || window.rulespediaManager?.getVectorDB();
-        
-        if (!vectorDB) {
-            console.error('ImportView: Vector database not available');
-            throw new Error('Vector database not available');
-        }
-        
-        console.log(`ImportView: Found vector database, storing chunks...`);
-        
-        // Store each chunk with embeddings
-        for (const chunk of textChunks) {
-            try {
-                console.log(`ImportView: Storing chunk ${chunk.chunkIndex} (${chunk.text.length} characters)`);
-                
-                // Use the correct method: addDocument
-                const result = await vectorDB.addDocument(
-                    `${filename}_chunk_${chunk.chunkIndex}`,
-                    chunk.text,
-                    {
-                        filename: filename,
-                        chunkIndex: chunk.chunkIndex,
-                        sectionTitle: chunk.sectionTitle,
-                        sectionIndex: chunk.sectionIndex,
-                        source: 'pdf_import',
-                        timestamp: new Date().toISOString()
-                    }
-                );
-                
-                console.log(`ImportView: Successfully stored chunk ${chunk.chunkIndex}`);
-                
-            } catch (error) {
-                console.error(`ImportView: Error storing chunk ${chunk.chunkIndex} from ${filename}:`, error);
-                // Continue with other chunks even if one fails
+    /**
+     * Load a template file
+     * @param {string} templatePath - Path to the template file
+     */
+    async loadTemplateFile(templatePath) {
+        try {
+            const response = await fetch(templatePath);
+            if (!response.ok) {
+                throw new Error(`Failed to load template: ${response.status}`);
             }
+            return await response.text();
+        } catch (error) {
+            console.error(`ImportView: Error loading template ${templatePath}:`, error);
+            throw error;
         }
-        
-        console.log(`ImportView: Completed storing ${textChunks.length} chunks for ${filename}`);
-    }
-
-    handleClearSelection() {
-        this.selectedFiles = [];
-        this.updateFileList();
-        this.updateImportButton();
-        ui.notifications.info('File selection cleared');
     }
 }
 
 /**
- * Manage View - For managing imported rulebooks
+ * Search View - Handles search UI
+ */
+class SearchView extends RuleView {
+    constructor(serviceManager) {
+        super('search', 'Search Rules', 'fas fa-search');
+        this.serviceManager = serviceManager;
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/search-view.html');
+    }
+
+    /**
+     * Called after the view is rendered
+     */
+    onRender() {
+        // Initialize any view-specific logic here
+    }
+
+    /**
+     * Called when the view is activated
+     */
+    onActivate() {
+        // Initialize any activation logic here
+    }
+}
+
+/**
+ * Manage View - Handles book management UI
  */
 class ManageView extends RuleView {
-    constructor() {
+    constructor(serviceManager) {
         super('manage', 'Manage Books', 'fas fa-database');
-        this.setTemplatePath('systems/wodsystem/templates/rulespedia/rulespedia-manage.html');
-        this.rulebooks = [];
+        this.serviceManager = serviceManager;
+        this.bookManagementService = serviceManager ? serviceManager.getBookManagementService() : null;
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/manage-view.html');
     }
 
+    /**
+     * Called after the view is rendered
+     */
     onRender() {
-        this.loadRulebooks();
-        this.setupClearDatabaseButton();
+        this.initialize();
     }
 
-    setupClearDatabaseButton() {
-        const clearButton = document.getElementById('clearDatabaseButton');
-        if (clearButton) {
-            clearButton.addEventListener('click', () => {
-                this.handleClearDatabase();
-            });
-        }
-    }
-    
-    async handleClearDatabase() {
-        const confirmed = await new Promise((resolve) => {
-            new Dialog({
-                title: 'Clear Database',
-                content: `<p>Are you sure you want to clear the entire database? This will remove all imported rulebooks and their search data. This action cannot be undone.</p>`,
-                buttons: {
-                    clear: {
-                        label: 'Clear Database',
-                        icon: '<i class="fas fa-trash"></i>',
-                        callback: () => resolve(true)
-                    },
-                    cancel: {
-                        label: 'Cancel',
-                        icon: '<i class="fas fa-times"></i>',
-                        callback: () => resolve(false)
-                    }
-                },
-                default: 'cancel',
-                close: () => resolve(false)
-            }).render(true);
-        });
-        
-        if (confirmed) {
-            try {
-                // Get the vector database
-                const vectorDB = window.rulespediaVectorDB || window.rulespediaManager?.getVectorDB();
-                
-                if (!vectorDB) {
-                    throw new Error('Vector database not available');
-                }
-                
-                // Clear the database
-                await vectorDB.clear();
-                
-                // Update the UI
-                this.rulebooks = [];
-                this.updateBookList();
-                
-                ui.notifications.info('Database cleared successfully. You can now re-import your rulebooks with the improved system.');
-            } catch (error) {
-                console.error('Clear database error:', error);
-                ui.notifications.error('Failed to clear database: ' + error.message);
-            }
-        }
+    /**
+     * Called when the view is activated
+     */
+    onActivate() {
+        // Initialize event handlers when view becomes active
+        this.initialize();
     }
 
-    async loadRulebooks() {
-        try {
-            // This would load from the actual database
-            this.rulebooks = await this.mockLoadRulebooks();
-            this.updateBookList();
-        } catch (error) {
-            console.error('Error loading rulebooks:', error);
-        }
-    }
-
-    updateBookList() {
-        const bookList = document.getElementById('bookList');
-        if (bookList) {
-            if (this.rulebooks.length > 0) {
-                this.loadBookItems(bookList);
-            } else {
-                this.loadEmptyBookList(bookList);
-            }
-        }
-    }
-
-    async loadBookItems(container) {
-        const path = 'systems/wodsystem/templates/rulespedia/book-item.html';
-        const gridPath = 'systems/wodsystem/templates/rulespedia/book-grid.html';
-        try {
-            const response = await fetch(path);
-            if (!response.ok) throw new Error('Failed to load book item template');
-            const template = await response.text();
-            
-            const bookItemsHTML = this.rulebooks.map(book => {
-                let html = template;
-                html = html.replace(/{{bookName}}/g, book.name);
-                html = html.replace(/{{bookFilename}}/g, book.filename);
-                html = html.replace(/{{bookSize}}/g, book.size);
-                html = html.replace(/{{bookDate}}/g, book.imported);
-                return html;
-            }).join('');
-            
-            const gridResponse = await fetch(gridPath);
-            if (!gridResponse.ok) throw new Error('Failed to load book grid template');
-            let gridTemplate = await gridResponse.text();
-            gridTemplate = gridTemplate.replace(/{{bookItems}}/g, bookItemsHTML);
-            
-            container.innerHTML = gridTemplate;
-        } catch (error) {
-            console.error('Error loading book items:', error);
-        }
-    }
-
-    async loadEmptyBookList(container) {
-        const path = 'systems/wodsystem/templates/rulespedia/search-no-results.html';
-        try {
-            const response = await fetch(path);
-            if (!response.ok) throw new Error('Failed to load empty book list template');
-            const html = await response.text();
-            container.innerHTML = html;
-        } catch (error) {
-            console.error('Error loading empty book list:', error);
-        }
-    }
-
-    async viewBook(filename) {
-        // This would open the book viewer
-        ui.notifications.info(`Viewing ${filename}`);
-    }
-
-    async deleteBook(filename) {
-        const confirmed = await Dialog.confirm({
-            title: 'Delete Rulebook',
-            content: `Are you sure you want to delete "${filename}"? This action cannot be undone.`,
-            yes: 'Delete',
-            no: 'Cancel'
-        });
-        
-        if (confirmed) {
-            try {
-                // This would delete from the actual database
-                await this.mockDeleteBook(filename);
-                
-                // Remove from local list
-                this.rulebooks = this.rulebooks.filter(book => book.filename !== filename);
-                this.updateBookList();
-                
-                ui.notifications.info(`Successfully deleted ${filename}`);
-            } catch (error) {
-                console.error('Delete error:', error);
-                ui.notifications.error('Delete failed: ' + error.message);
-            }
-        }
-    }
-
-    // Mock methods for demonstration
-    async mockLoadRulebooks() {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return [
-            { name: 'Player\'s Handbook', filename: 'phb.pdf', size: '2.3 MB', imported: '2024-01-15' },
-            { name: 'Dungeon Master\'s Guide', filename: 'dmg.pdf', size: '1.8 MB', imported: '2024-01-10' },
-            { name: 'Monster Manual', filename: 'mm.pdf', size: '3.1 MB', imported: '2024-01-05' }
-        ];
-    }
-
-    async mockDeleteBook(filename) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return { success: true };
+    /**
+     * Initialize event handlers
+     */
+    initialize() {
+        // Additional initialization logic if needed
     }
 }
 
 // Export for use in other modules
-window.HomeView = HomeView;
 window.ImportView = ImportView;
-window.ManageView = ManageView; 
+window.SearchView = SearchView;
+window.ManageView = ManageView;
+
+// Make test function available globally for debugging
+window.testShowSelectedFiles = function() {
+    // Find the current import view instance
+    const importView = window.rulespediaImportView;
+    if (importView && importView.testShowSelectedFiles) {
+        importView.testShowSelectedFiles();
+    } else {
+        console.error('ImportView instance not found or test function not available');
+    }
+};

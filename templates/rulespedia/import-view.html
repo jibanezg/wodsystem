@@ -1,0 +1,44 @@
+<div class="import-view">
+    <!-- Upload Section -->
+    <div class="import-section">
+        <div class="file-upload-area" id="fileUploadArea">
+            <input type="file" id="fileInput" multiple accept=".pdf" style="display: none;">
+            <div class="upload-prompt">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Select PDF files or drag & drop</p>
+                <button type="button" class="select-files-btn">Select Files</button>
+            </div>
+        </div>
+        
+        <div class="import-options">
+            <label class="checkbox-label">
+                <input type="checkbox" id="overwriteExisting" checked>
+                <span class="checkmark"></span>
+                Overwrite existing
+            </label>
+        </div>
+        
+        <button type="button" id="startImport" class="import-btn" disabled>
+            <i class="fas fa-upload"></i>
+            Start Import
+        </button>
+    </div>
+    
+    <!-- Selected Files Section -->
+    <div class="import-section" id="selectedFilesSection" style="display: none;">
+        <h3>Files</h3>
+        <div class="selected-files" id="selectedFiles"></div>
+    </div>
+    
+    <!-- Progress Section -->
+    <div class="import-progress" id="importProgress" style="display: none;">
+        <h3>Progress & Results</h3>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+        </div>
+        <div class="import-log" id="importLog"></div>
+    </div>
+</div> 

@@ -1,11 +1,5 @@
 console.log('Rulespedia: Script file loaded!');
 
-// Debug: Check if framework classes are available
-console.log('Rulespedia: Checking framework availability...');
-console.log('Rulespedia: ViewManager available:', typeof window.ViewManager);
-console.log('Rulespedia: RuleView available:', typeof window.RuleView);
-console.log('Rulespedia: HomeView available:', typeof window.HomeView);
-
 // Fallback ViewManager if the main one is not available
 if (typeof window.ViewManager === 'undefined') {
     console.warn('Rulespedia: ViewManager not found, creating fallback...');
@@ -14,11 +8,9 @@ if (typeof window.ViewManager === 'undefined') {
             this.views = new Map();
             this.currentView = null;
             this.viewContainer = null;
-            console.log('Rulespedia: Using fallback ViewManager');
         }
         
         registerView(view) {
-            console.log('Rulespedia: Fallback ViewManager registering view:', view.name);
             this.views.set(view.name, view);
         }
         
@@ -27,7 +19,6 @@ if (typeof window.ViewManager === 'undefined') {
         }
         
         async navigateToView(viewName) {
-            console.log('Rulespedia: Fallback ViewManager navigating to:', viewName);
             const view = this.getView(viewName);
             if (!view) {
                 console.error('Rulespedia: View not found:', viewName);
@@ -82,7 +73,6 @@ if (typeof window.RuleView === 'undefined') {
             if (this.template) {
                 container.innerHTML = this.template;
                 this.container = container;
-                console.log('Rulespedia: Fallback RuleView rendered:', this.name);
             }
         }
         
@@ -156,7 +146,6 @@ class RulespediaTab {
      * Initialize the Rulespedia tab
      */
     static init() {
-        console.log('Rulespedia: Initializing tab...');
         const rulespediaTab = new RulespediaTab();
         rulespediaTab.registerTab();
         return rulespediaTab;
@@ -166,10 +155,8 @@ class RulespediaTab {
      * Register the tab with Foundry's sidebar
      */
     registerTab() {
-        console.log('Rulespedia: Registering tab...');
         // Wait for the sidebar to be ready
         Hooks.once('ready', () => {
-            console.log('Rulespedia: Ready hook triggered, adding tab...');
             // Add a small delay to ensure sidebar is fully rendered
             setTimeout(() => {
                 this.addTabToSidebar();
@@ -215,8 +202,29 @@ class RulespediaTab {
             }
             
             this.isActive = false;
-            console.log('Rulespedia: Tab hidden');
         }
+    }
+
+    /**
+     * Hide all other Foundry tabs when our tab is activated
+     */
+    hideOtherTabs() {
+        // Hide all other sidebar tabs
+        const allTabs = document.querySelectorAll('#sidebar .tab');
+        allTabs.forEach(tab => {
+            if (tab.getAttribute('data-tab') !== this.tabId) {
+                tab.style.display = 'none';
+                tab.classList.remove('active');
+            }
+        });
+        
+        // Remove active class from other tab buttons
+        const allTabButtons = document.querySelectorAll('#sidebar-tabs .item');
+        allTabButtons.forEach(button => {
+            if (button.getAttribute('data-tab') !== this.tabId) {
+                button.classList.remove('active');
+            }
+        });
     }
 
     /**
@@ -245,33 +253,17 @@ class RulespediaTab {
         tabButton.appendChild(icon);
         
         // Add click handler
-        tabButton.addEventListener('click', (event) => {
+        tabButton.addEventListener('click', async (event) => {
             event.preventDefault();
+            event.stopPropagation();
             
-            // Hide all other tabs first
-            const allTabs = document.querySelectorAll('.sidebar-tab');
-            allTabs.forEach(tab => {
-                tab.classList.remove('active');
-                tab.style.display = 'none';
-            });
-            
-            // Remove active class from all tab buttons
-            const allTabButtons = document.querySelectorAll('#sidebar-tabs .item');
-            allTabButtons.forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Show our tab
-            const ourTab = document.querySelector(`[data-tab="${this.tabId}"]`);
-            if (ourTab) {
-                ourTab.classList.add('active');
-                ourTab.style.display = 'flex';
-            }
+            // Hide all other tabs
+            this.hideTab();
             
             // Activate our tab button
             tabButton.classList.add('active');
             
-            this.activateTab();
+            await this.activateTab();
         });
 
         // Find the tabs list
@@ -295,10 +287,14 @@ class RulespediaTab {
         tabContent.className = 'tab sidebar-tab rulespedia-sidebar directory flexcol';
         tabContent.setAttribute('data-tab', this.tabId);
         tabContent.style.display = 'none'; // Keep hidden until user clicks
-        tabContent.style.position = 'relative'; // For debug positioning
+        
+        console.log('Rulespedia: Created tab content element:', tabContent);
+        console.log('Rulespedia: Tab content data-tab attribute:', tabContent.getAttribute('data-tab'));
         
         // Insert the content container directly into the sidebar
         sidebar.appendChild(tabContent);
+        console.log('Rulespedia: Tab content inserted into sidebar');
+        console.log('Rulespedia: Sidebar children count:', sidebar.children.length);
 
         // Load the template content
         this.loadTemplate(tabContent);
@@ -397,7 +393,41 @@ class RulespediaTab {
     /**
      * Activate the Rulespedia tab
      */
-    activateTab() {
+    async activateTab() {
+        console.log('Rulespedia: Activating tab...');
+        console.log('Rulespedia: Tab ID:', this.tabId);
+        
+        // Hide all other tabs first
+        this.hideOtherTabs();
+        
+        // Show the tab content - be more specific to avoid selecting the tab button
+        const tabContent = document.querySelector(`section[data-tab="${this.tabId}"], .sidebar-tab[data-tab="${this.tabId}"]`);
+        console.log('Rulespedia: Found tab content element:', tabContent);
+        
+        if (tabContent) {
+            console.log('Rulespedia: Tab content element classes:', tabContent.className);
+            console.log('Rulespedia: Tab content element parent:', tabContent.parentElement);
+            
+            // Show the tab content
+            tabContent.style.display = 'flex';
+            tabContent.classList.add('active');
+            
+            console.log('Rulespedia: Tab content activated');
+            
+            // Check if there's any content inside
+            console.log('Rulespedia: Tab content innerHTML length:', tabContent.innerHTML.length);
+            console.log('Rulespedia: Tab content children:', tabContent.children);
+        } else {
+            console.error('Rulespedia: Tab content not found!');
+            
+            // Let's see what elements exist with similar attributes
+            const allElements = document.querySelectorAll('[data-tab], .rulespedia-sidebar, .tab');
+            console.log('Rulespedia: All potential tab elements:', allElements);
+        }
+        
+        // Set active state
+        this.isActive = true;
+        
         // Check if CSS is loaded
         if (window.rulespediaCSSLoader) {
             // CSS loader is available, CSS should be loaded
@@ -415,71 +445,59 @@ class RulespediaTab {
             }
         }
         
-        // Initialize the framework
-        this.framework = new RulespediaFramework();
-        
-        // Set global reference for other modules to use
-        window.rulespediaFramework = this.framework;
-        
-        // Load the home view using the framework
-        this.framework.loadView('home').then(() => {
-            // Initialize search functionality after view is loaded
-            this.initializeSearch();
-        }).catch(error => {
-            console.error('Rulespedia: Error loading home view:', error);
-        });
+        // Use the existing framework from the Rulespedia instance
+        if (this.rulespedia && this.rulespedia.getFramework()) {
+            this.framework = this.rulespedia.getFramework();
+            
+            // Set global reference for other modules to use
+            window.rulespediaFramework = this.framework;
+            
+            // Set up view navigation event listeners
+            this.setupViewNavigation();
+            
+            // Load the home view by default using the framework
+            this.framework.loadView('home').then(() => {
+                console.log('Rulespedia: Home view loaded successfully');
+            }).catch(error => {
+                console.error('Rulespedia: Error loading home view:', error);
+                // Fallback to import view if home fails
+                this.framework.loadView('import').then(() => {
+                    console.log('Rulespedia: Import view loaded as fallback');
+                }).catch(fallbackError => {
+                    console.error('Rulespedia: Error loading fallback import view:', fallbackError);
+                });
+            });
+        } else {
+            console.error('Rulespedia: Framework not available from Rulespedia instance');
+        }
     }
 
     // Initialize search functionality and event listeners
     initializeSearch() {
-        const searchInput = document.getElementById('semantic-search');
-        const sendButton = document.getElementById('send-button');
-        
-        if (searchInput && sendButton) {
-            // Auto-resize textarea
-            const autoResize = () => {
-                searchInput.style.height = 'auto';
-                searchInput.style.height = Math.min(searchInput.scrollHeight, 6 * 16) + 'px'; // Max 6 lines
-            };
-            
-            // Handle input events
-            searchInput.addEventListener('input', autoResize);
-            searchInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    this.performSearch();
-                }
-            });
-            
-            // Handle send button click
-            sendButton.addEventListener('click', () => {
-                this.performSearch();
-            });
-            
-            // Initial resize
-            autoResize();
-        }
-
-        // Handle view navigation
-        this.setupViewNavigation();
+        // This method is no longer needed since we removed the search functionality
+        console.log('Rulespedia: Search functionality removed');
     }
 
     // Setup view navigation event listeners
     setupViewNavigation() {
-        // Handle action button clicks
+        console.log('Rulespedia: Setting up view navigation event listeners');
+        
+        // Handle action button clicks for navigation
         document.addEventListener('click', (event) => {
+            console.log('Rulespedia: Click event detected on:', event.target);
+            
             const target = event.target.closest('[data-view]');
+            console.log('Rulespedia: Found data-view target:', target);
+            
             if (target && this.framework) {
                 event.preventDefault();
                 event.stopPropagation();
                 
                 const viewName = target.getAttribute('data-view');
+                console.log('Rulespedia: Navigating to view:', viewName);
                 
                 this.framework.loadView(viewName).then(() => {
-                    // Re-initialize search functionality for the new view
-                    setTimeout(() => {
-                        this.initializeSearch();
-                    }, 100);
+                    console.log(`Rulespedia: Navigated to ${viewName} view`);
                 }).catch(error => {
                     console.error('Rulespedia: Error navigating to view:', error);
                 });
@@ -496,50 +514,25 @@ class RulespediaTab {
                 const backView = target.getAttribute('data-back');
                 
                 this.framework.loadView(backView).then(() => {
-                    // Re-initialize search functionality for the new view
-                    setTimeout(() => {
-                        this.initializeSearch();
-                    }, 100);
+                    console.log(`Rulespedia: Navigated back to ${backView} view`);
                 }).catch(error => {
                     console.error('Rulespedia: Error navigating back:', error);
                 });
             }
         });
     }
-
-    // Perform semantic search
-    async performSearch() {
-        const searchInput = document.getElementById('semantic-search');
-        const query = searchInput.value.trim();
-        
-        if (!query) {
-            ui.notifications.warn('Please enter a search query.');
-            return;
-        }
-        
-        // Show loading state
-        this.showLoadingState();
-        
-        try {
-            // Call the search function from the framework
-            const result = await this.framework.performSemanticSearch(query);
-            this.displaySearchResult(result);
-        } catch (error) {
-            console.error('Search error:', error);
-            this.showError('Search failed: ' + error.message);
-        }
-    }
 }
 
 /**
- * Main Rulespedia class using the new framework
+ * Main Rulespedia class using the new framework and service layer
  */
 class Rulespedia {
     constructor(container) {
         this.container = container;
         this.viewManager = null;
-        this.vectorDB = null;
-        this.embeddingModel = null;
+        this.contentStore = null;
+        this.serviceManager = null;
+        this.framework = null;
         this.isInitialized = false;
     }
 
@@ -547,14 +540,14 @@ class Rulespedia {
         if (this.isInitialized) return;
         
         try {
-            // Initialize vector database
-            await this.initializeVectorDB();
+            // Initialize content store
+            await this.initializeContentStore();
             
-            // Initialize embedding model
-            await this.initializeEmbeddingModel();
+            // Initialize service manager
+            await this.initializeServiceManager();
             
-            // Register views
-            this.registerViews();
+            // Initialize framework
+            await this.initializeFramework();
             
             // Set up event listeners
             this.setupEventListeners();
@@ -566,48 +559,98 @@ class Rulespedia {
         }
     }
 
-    registerViews() {
-        // Views are registered by the framework
-    }
-
-    async initializeVectorDB() {
-        if (window.VectorDatabaseManager) {
-            this.vectorDB = new window.VectorDatabaseManager();
-            await this.vectorDB.initialize();
+    async initializeContentStore() {
+        if (window.ContentStore) {
+            this.contentStore = new window.ContentStore();
+            await this.contentStore.initialize();
         }
     }
 
-    async initializeEmbeddingModel() {
-        if (this.vectorDB && this.vectorDB.embeddingModel) {
-            this.embeddingModel = this.vectorDB.embeddingModel;
+    async initializeServiceManager() {
+        if (window.RulespediaServiceManager && this.contentStore) {
+            this.serviceManager = new window.RulespediaServiceManager(this.contentStore);
+            await this.serviceManager.initialize();
+            
+            // Set global reference for other modules to use
+            window.rulespediaServiceManager = this.serviceManager;
         }
+    }
+
+    async initializeFramework() {
+        if (window.RulespediaFramework) {
+            // Pass service manager to framework
+            this.framework = new window.RulespediaFramework(this.serviceManager);
+            
+            // Register event handlers with the framework
+            this.registerEventHandlers();
+        }
+    }
+
+    registerEventHandlers() {
+        if (!this.framework || !this.serviceManager) return;
+
+        // Register search event handler
+        this.framework.registerEventHandler('search', async (data) => {
+            const searchService = this.serviceManager.getSearchService();
+            return await searchService.performSearch(data.query, data.options);
+        });
+
+        // Register import event handler
+        this.framework.registerEventHandler('import', async (data) => {
+            const importService = this.serviceManager.getImportService();
+            return await importService.importBook(data.file, data.options);
+        });
+
+        // Register get books event handler
+        this.framework.registerEventHandler('getBooks', async (data) => {
+            const importService = this.serviceManager.getImportService();
+            return await importService.getImportedBooks();
+        });
+
+        // Register delete book event handler
+        this.framework.registerEventHandler('deleteBook', async (data) => {
+            const importService = this.serviceManager.getImportService();
+            return await importService.deleteBook(data.filename);
+        });
+
+        // Register get stats event handler
+        this.framework.registerEventHandler('getStats', async (data) => {
+            const bookManagementService = this.serviceManager.getBookManagementService();
+            return await bookManagementService.getBookStats();
+        });
+
+        // Register clear books event handler
+        this.framework.registerEventHandler('clearBooks', async (data) => {
+            const bookManagementService = this.serviceManager.getBookManagementService();
+            return await bookManagementService.clearAllBooks();
+        });
     }
 
     setupEventListeners() {
         // Event listeners are set up by the framework
     }
 
-    handleSearch() {
-        // Search is handled by the tab class
-    }
-
     async navigateToView(viewName) {
-        if (this.viewManager) {
-            return await this.viewManager.navigateToView(viewName);
+        if (this.framework) {
+            return await this.framework.loadView(viewName);
         }
         return false;
     }
 
     getViewManager() {
-        return this.viewManager;
+        return this.framework?.getViewManager();
     }
 
-    getVectorDB() {
-        return this.vectorDB;
+    getContentStore() {
+        return this.contentStore;
     }
 
-    getEmbeddingModel() {
-        return this.embeddingModel;
+    getServiceManager() {
+        return this.serviceManager;
+    }
+
+    getFramework() {
+        return this.framework;
     }
 }
 

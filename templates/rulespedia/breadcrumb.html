@@ -1,0 +1,18 @@
+<div class="breadcrumb">
+    <span class="breadcrumb-item" data-view="home">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </span>
+    {{#if parentView}}
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-item" data-view="{{parentView}}">
+        <i class="{{parentIcon}}"></i>
+        <span>{{parentTitle}}</span>
+    </span>
+    {{/if}}
+    <span class="breadcrumb-separator">/</span>
+    <span class="breadcrumb-item active" data-view="{{viewName}}">
+        <i class="{{viewIcon}}"></i>
+        <span>{{viewTitle}}</span>
+    </span>
+</div> 

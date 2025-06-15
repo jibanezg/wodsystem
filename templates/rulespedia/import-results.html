@@ -1,0 +1,33 @@
+<div class="import-results">
+    <h3>Import Results</h3>
+    <div class="results-content">
+        {{#each results}}
+        <div class="result-item {{#if success}}success{{else}}error{{/if}}">
+            <span class="filename">{{filename}}</span>
+            <span class="status">{{#if success}}✓ Success{{else}}✗ Failed{{/if}}</span>
+            {{#if chunks}}<span class="chunks">({{chunks}} chunks)</span>{{/if}}
+            {{#if error}}<span class="error-message">{{error}}</span>{{/if}}
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<div class="results-summary">
+    <div class="result-stat">
+        <span class="stat-number">{{successful}}</span>
+        <span class="stat-label">Successful</span>
+    </div>
+    <div class="result-stat">
+        <span class="stat-number">{{failed}}</span>
+        <span class="stat-label">Failed</span>
+    </div>
+</div>
+
+<div class="results-details">
+    {{#each results}}
+    <div class="result-item {{#if success}}success{{else}}error{{/if}}">
+        <span class="result-icon">{{#if success}}✓{{else}}✗{{/if}}</span>
+        <span class="result-filename">{{filename}}</span>
+        <span class="result-message">{{#if success}}{{message}}{{else}}{{error}}{{/if}}</span>
+    </div>
+ 

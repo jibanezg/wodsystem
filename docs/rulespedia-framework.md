@@ -249,23 +249,13 @@ actionButtons.forEach(button => {
 
 ## Accessing System Components
 
-### Vector Database
+### Content Store
 
 ```javascript
-const vectorDB = window.rulespediaManager.getVectorDB();
-if (vectorDB) {
-    // Use vector database
-    const results = await vectorDB.search(embedding, 5);
-}
-```
-
-### Embedding Model
-
-```javascript
-const embeddingModel = window.rulespediaManager.getEmbeddingModel();
-if (embeddingModel) {
-    // Use embedding model
-    const embedding = await embeddingModel.createEmbedding(text);
+const contentStore = window.rulespediaManager.getContentStore();
+if (contentStore) {
+    // Use content store
+    const results = await contentStore.search(query, 5);
 }
 ```
 

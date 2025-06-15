@@ -1,9 +1,17 @@
 <div class="search-result">
-    <h4>Search Result</h4>
-    <div class="result-content">
-        {{content}}
+    <div class="result-header">
+        <span class="result-title">{{title}}</span>
+        {{#if confidence}}
+        <span class="result-confidence">{{confidence}}%</span>
+        {{/if}}
     </div>
-    {{#if source}}
-    <div class="result-source"><small>Source: {{source}}</small></div>
-    {{/if}}
+    <div class="result-content">{{content}}</div>
+    <div class="result-meta">
+        {{#if source}}
+        <span class="result-source">{{source}}</span>
+        {{/if}}
+        {{#if type}}
+        <span class="result-type">{{type}}</span>
+        {{/if}}
+    </div>
 </div> 

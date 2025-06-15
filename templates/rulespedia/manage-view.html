@@ -1,0 +1,35 @@
+<div class="manage-view">
+    <div class="manage-header">
+        <h2>Manage Books</h2>
+        <p>View and manage imported rulebooks</p>
+    </div>
+    
+    <div class="books-section">
+        <h3>Imported Books</h3>
+        <div class="books-list" id="booksList">
+            <!-- Books will be loaded here -->
+        </div>
+        
+        <div class="no-books" id="noBooks" style="display: none;">
+            <div class="no-books-content">
+                <i class="fas fa-book"></i>
+                <h3>No Books Imported</h3>
+                <p>Import some rulebooks to get started.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="management-actions">
+        <h3>Actions</h3>
+        <div class="action-buttons">
+            <button type="button" id="refreshBooks" class="action-btn">
+                <i class="fas fa-sync"></i>
+                Refresh List
+            </button>
+            <button type="button" id="clearAllBooks" class="action-btn danger">
+                <i class="fas fa-trash"></i>
+                Clear All Books
+            </button>
+        </div>
+    </div>
+</div> 

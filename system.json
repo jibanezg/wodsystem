@@ -17,20 +17,20 @@
   "relationships": [],
   "esmodules": [
     "wodsystem.js",
-    "scripts/vector-database.js",
+    "scripts/content-store.js",
+    "scripts/llm-prompts.js",
+    "scripts/llm-service.js",
+    "scripts/browser-llm-provider.js",
+    "scripts/tensorflow-llm-provider.js",
+    "scripts/rule-discovery-service.js",
+    "scripts/rulespedia-services.js",
     "scripts/rulespedia-framework.js",
     "scripts/rulespedia-views.js",
     "scripts/rulespedia.js"
   ],
   "styles": [
     "styles/mortal-sheet.css",
-    "styles/rulespedia/rulespedia.css",
-    "styles/rulespedia/base.css",
-    "styles/rulespedia/views.css",
-    "styles/rulespedia/search.css",
-    "styles/rulespedia/buttons.css",
-    "styles/rulespedia/import.css",
-    "styles/rulespedia/manage.css"
+    "styles/rulespedia/rulespedia.css"
   ],
   "languages": [
     {
@@ -47,9 +47,9 @@
   "primaryTokenAttribute": "health",
   "settings": [
     {
-      "key": "rulespedia-vectors",
-      "name": "Rulespedia Vector Database",
-      "hint": "Internal storage for Rulespedia vector embeddings",
+      "key": "rulespedia-content",
+      "name": "Rulespedia Content Store",
+      "hint": "Internal storage for Rulespedia text chunks and TF-IDF data",
       "type": "Object",
       "default": null,
       "scope": "world",

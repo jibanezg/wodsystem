@@ -43,18 +43,13 @@ window.CSSLoader = CSSLoader;
 
 /**
  * Rulespedia CSS Loader
- * Dynamically loads modular CSS files for better performance
+ * Loads the main Rulespedia CSS file
  */
 
 class RulespediaCSSLoader {
     constructor() {
         this.cssFiles = [
-            'systems/wodsystem/styles/rulespedia/base.css',
-            'systems/wodsystem/styles/rulespedia/views.css',
-            'systems/wodsystem/styles/rulespedia/search.css',
-            'systems/wodsystem/styles/rulespedia/buttons.css',
-            'systems/wodsystem/styles/rulespedia/import.css',
-            'systems/wodsystem/styles/rulespedia/manage.css'
+            'systems/wodsystem/styles/rulespedia/rulespedia.css'
         ];
         this.loadedFiles = new Set();
     }
@@ -67,14 +62,7 @@ class RulespediaCSSLoader {
             const loadPromises = this.cssFiles.map(file => this.loadCSSFile(file));
             await Promise.all(loadPromises);
         } catch (error) {
-            console.error('RulespediaCSSLoader: Error loading modular CSS files:', error);
-            
-            // Fallback to main CSS file
-            try {
-                await this.loadCSSFile('systems/wodsystem/styles/rulespedia/rulespedia.css');
-            } catch (fallbackError) {
-                console.error('RulespediaCSSLoader: Fallback CSS also failed:', fallbackError);
-            }
+            console.error('RulespediaCSSLoader: Error loading CSS files:', error);
         }
     }
 
