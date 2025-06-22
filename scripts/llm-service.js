@@ -64,7 +64,30 @@ class LLMService {
 
         if (this.isInitialized) {
             console.log('LLMService: Already initialized.');
-            return;
+            if (window.DebugService) {
+                DebugService.setLLMStatus({
+                    alreadyInitialized: true,
+                    fallbackMode: this.fallbackMode,
+                    hasProvider: !!this.llmProvider,
+                    providerType: this.llmProvider?.constructor?.name || 'None'
+                });
+            }
+            
+            // Check if the provider actually has a loaded model
+            if (this.llmProvider && this.llmProvider.model === null) {
+                console.warn('LLMService: Provider model not loaded, re-initializing...');
+                if (window.DebugService) {
+                    DebugService.setLLMStatus({
+                        modelNotLoaded: true,
+                        reinitializing: true
+                    });
+                }
+                // Reset initialization state and try again
+                this.isInitialized = false;
+                this.fallbackMode = false;
+            } else {
+                return;
+            }
         }
         
         try {
@@ -121,6 +144,9 @@ class LLMService {
 
         // If in fallback mode, use fallback generation
         if (this.fallbackMode) {
+            if (window.DebugService) {
+                DebugService.llmGenerateEvent({ prompt, parameters, eventType: 'fallback' });
+            }
             return this.fallbackGeneration(prompt, parameters);
         }
 
@@ -131,7 +157,22 @@ class LLMService {
             ...parameters
         };
 
-        return await this.llmProvider.generate(prompt, finalParameters);
+        if (window.DebugService) {
+            DebugService.llmGenerateEvent({ prompt, parameters: finalParameters, eventType: 'call' });
+        }
+
+        try {
+            const response = await this.llmProvider.generate(prompt, finalParameters);
+            if (window.DebugService) {
+                DebugService.llmGenerateEvent({ prompt, parameters: finalParameters, response, eventType: 'response' });
+            }
+            return response;
+        } catch (err) {
+            if (window.DebugService) {
+                DebugService.llmGenerateEvent({ prompt, parameters: finalParameters, error: err, eventType: 'error' });
+            }
+            throw err;
+        }
     }
 
     /**

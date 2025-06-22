@@ -7,6 +7,9 @@ import "./scripts/content-store.js";
 
 // Import LLM Services
 Promise.all([
+    import("./scripts/debug-service.js").catch(error => {
+        console.error('WoD | Failed to import Debug Service:', error);
+    }),
     import("./scripts/llm-prompts.js").catch(error => {
         console.error('WoD | Failed to import LLM Prompts:', error);
     }),

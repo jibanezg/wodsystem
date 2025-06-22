@@ -35,13 +35,23 @@ class TensorFlowLLMProvider {
      */
     async loadTensorFlow() {
         if (this.tensorflowLoaded && window.tf) {
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'tf_already_loaded' });
+            }
             return window.tf;
         }
 
         // Check if TensorFlow.js is already loaded globally
         if (window.tf) {
             this.tensorflowLoaded = true;
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'tf_global' });
+            }
             return window.tf;
+        }
+
+        if (window.DebugService) {
+            DebugService.tensorflowEvent({ eventType: 'tf_load' });
         }
 
         // Try to load TensorFlow.js dynamically
@@ -56,13 +66,26 @@ class TensorFlowLLMProvider {
                     setTimeout(() => {
                         if (window.tf) {
                             this.tensorflowLoaded = true;
+                            if (window.DebugService) {
+                                DebugService.tensorflowEvent({ eventType: 'tf_cdn_success' });
+                            }
                             resolve();
                         } else {
-                            reject(new Error('TensorFlow.js loaded but tf object not available'));
+                            const error = new Error('TensorFlow.js loaded but tf object not available');
+                            if (window.DebugService) {
+                                DebugService.tensorflowEvent({ eventType: 'tf_object_missing', error });
+                            }
+                            reject(error);
                         }
                     }, 1000);
                 };
-                script.onerror = () => reject(new Error('Failed to load TensorFlow.js script'));
+                script.onerror = () => {
+                    const error = new Error('Failed to load TensorFlow.js script');
+                    if (window.DebugService) {
+                        DebugService.tensorflowEvent({ eventType: 'tf_cdn_failed', error });
+                    }
+                    reject(error);
+                };
                 document.head.appendChild(script);
             });
             
@@ -70,6 +93,9 @@ class TensorFlowLLMProvider {
             
         } catch (error) {
             console.warn('LLM: Failed to load TensorFlow.js from CDN:', error.message);
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'tf_cdn_failed', error });
+            }
             throw new Error('TensorFlow.js library not available. AI features will be disabled.');
         }
     }
@@ -79,25 +105,50 @@ class TensorFlowLLMProvider {
      */
     async initialize() {
         if (this.model) {
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'model_exists' });
+            }
             return;
         }
 
         this.isLoading = true;
         this.loadProgress = 0;
 
+        if (window.DebugService) {
+            DebugService.tensorflowEvent({ eventType: 'init_start' });
+        }
+
         try {
             // Load TensorFlow.js
             const tf = await this.loadTensorFlow();
             
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'tf_loaded', data: { tfVersion: tf.version } });
+            }
+            
             // Create a simple pattern recognition model
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'model_create' });
+            }
             await this.createPatternRecognitionModel(tf);
+            
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'model_created', data: { model: this.model } });
+            }
             
             this.isLoading = false;
             this.loadProgress = 100;
             
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'init_complete' });
+            }
+            
         } catch (error) {
             this.isLoading = false;
             console.error('LLM: Initialization failed:', error.message);
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ eventType: 'init_failed', error });
+            }
             throw error;
         }
     }
@@ -159,6 +210,18 @@ class TensorFlowLLMProvider {
      */
     async generate(prompt, parameters = {}) {
         if (!this.model) {
+            if (window.DebugService) {
+                DebugService.tensorflowEvent({ 
+                    eventType: 'model_not_loaded', 
+                    error: new Error('Model not loaded. Call initialize() first.'),
+                    data: { 
+                        isLoading: this.isLoading, 
+                        loadProgress: this.loadProgress,
+                        tensorflowLoaded: this.tensorflowLoaded,
+                        hasModel: !!this.model
+                    }
+                });
+            }
             throw new Error('Model not loaded. Call initialize() first.');
         }
 
