@@ -19,27 +19,82 @@ class LLMService {
      */
     setProvider(provider) {
         this.llmProvider = provider;
+        if (provider) {
+            console.log('LLMService: Provider set:', provider.constructor?.name || typeof provider);
+            if (window.DebugService) {
+                DebugService.setLLMStatus({
+                    providerSet: true,
+                    providerType: provider.constructor?.name || typeof provider,
+                    provider: provider
+                });
+            }
+        } else {
+            console.warn('LLMService: Provider set to null or undefined!');
+            if (window.DebugService) {
+                DebugService.setLLMStatus({
+                    providerSet: false,
+                    error: 'Provider set to null or undefined'
+                });
+            }
+        }
     }
 
     /**
      * Initialize the LLM service
      */
     async initialize() {
+        console.log('LLMService: Initialization started');
+        if (window.DebugService) {
+            DebugService.setLLMStatus({
+                initializationStarted: true,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
         if (!this.llmProvider) {
+            console.error('LLMService: No LLM provider set. Initialization aborted.');
+            if (window.DebugService) {
+                DebugService.setLLMStatus({
+                    initializationFailed: true,
+                    error: 'No LLM provider set'
+                });
+            }
             throw new Error('No LLM provider set. Use setProvider() first.');
         }
 
-        if (this.isInitialized) return;
+        if (this.isInitialized) {
+            console.log('LLMService: Already initialized.');
+            return;
+        }
         
         try {
             await this.llmProvider.initialize();
             this.isInitialized = true;
             this.fallbackMode = false;
+            console.log('LLMService: Initialization successful. Model/provider is ready.');
+            if (window.DebugService) {
+                DebugService.setLLMStatus({
+                    initializationSuccessful: true,
+                    isInitialized: true,
+                    fallbackMode: false,
+                    providerStatus: this.llmProvider.getStatus ? this.llmProvider.getStatus() : 'No getStatus method'
+                });
+            }
         } catch (error) {
-            console.warn('LLM: Initialization failed, using fallback mode:', error.message);
+            console.warn('LLMService: Initialization failed, using fallback mode:', error.message);
             // Set fallback mode - service will use fallback methods instead of AI
             this.isInitialized = true; // Still mark as initialized so other services can use it
             this.fallbackMode = true;
+            console.warn('LLMService: Fallback mode activated. All LLM calls will use fallback logic.');
+            if (window.DebugService) {
+                DebugService.setLLMStatus({
+                    initializationFailed: true,
+                    isInitialized: true,
+                    fallbackMode: true,
+                    error: error.message,
+                    errorStack: error.stack
+                });
+            }
         }
     }
 

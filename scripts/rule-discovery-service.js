@@ -100,6 +100,12 @@ class RuleDiscoveryService {
             // Show concise summary
             console.log(`RuleDiscovery: ${ruleChunks.length} rules identified from ${chunkTuples.length} chunks`);
             
+            // Log debug summary if DebugService is available
+            if (window.DebugService) {
+                const summary = DebugService.getSummary();
+                console.log('RuleDiscovery Debug Summary:', summary);
+            }
+            
             return {
                 success: true,
                 chunkAssociations: Object.keys(ruleChunkAssociations).length,
@@ -213,6 +219,21 @@ class RuleDiscoveryService {
                 
                 // Analyze with LLM
                 const analysis = await this.llmService.analyzeChunkForRules(chunkForAnalysis, logCallback);
+                
+                // Track chunk analysis stats for debugging
+                if (window.DebugService) {
+                    DebugService.addChunkStat({
+                        chunkId: chunkTuple.chunk_id,
+                        chunkCount: chunkTuple.chunk_count,
+                        isRule: analysis.isRule,
+                        confidence: analysis.confidence,
+                        ruleName: analysis.ruleName,
+                        ruleType: analysis.ruleType,
+                        associatedWords: chunkTuple.associatedWords,
+                        tfidfScore: chunkTuple.tfidf_score,
+                        llmFallbackMode: this.llmService.fallbackMode
+                    });
+                }
                 
                 // Add to priority queue if it's a rule with sufficient confidence
                 if (analysis.isRule && analysis.confidence >= this.MIN_RULE_CONFIDENCE) {
