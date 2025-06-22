@@ -169,66 +169,41 @@ class RulespediaTab {
      * Setup tab switching to handle when other tabs are clicked
      */
     setupTabSwitching() {
-        // Listen for clicks on other tab buttons
+        // Listen for clicks on other tab buttons to properly switch tabs
         document.addEventListener('click', (event) => {
             const tabButton = event.target.closest('#sidebar-tabs .item');
             if (tabButton && tabButton.getAttribute('data-tab') !== this.tabId) {
-                // Another tab was clicked, hide our tab
-                this.hideTab();
-            }
-        });
-
-        // Also listen for Foundry's internal tab changes
-        document.addEventListener('click', (event) => {
-            if (event.target.closest('.sidebar-tab') && !event.target.closest(`[data-tab="${this.tabId}"]`)) {
-                this.hideTab();
-            }
-        });
-    }
-
-    /**
-     * Hide the Rulespedia tab
-     */
-    hideTab() {
-        if (this.isActive) {
-            const ourTab = document.querySelector(`[data-tab="${this.tabId}"]`);
-            if (ourTab) {
-                ourTab.classList.remove('active');
-            }
-            
-            const ourTabButton = document.querySelector(`#sidebar-tabs [data-tab="${this.tabId}"]`);
-            if (ourTabButton) {
-                ourTabButton.classList.remove('active');
-            }
-            
-            this.isActive = false;
-        }
-    }
-
-    /**
-     * Hide all other Foundry tabs when our tab is activated
-     */
-    hideOtherTabs() {
-        // Hide all other sidebar tabs
-        const allTabs = document.querySelectorAll('#sidebar .tab');
-        allTabs.forEach(tab => {
-            if (tab.getAttribute('data-tab') !== this.tabId) {
-                tab.style.display = 'none';
-                tab.classList.remove('active');
-            }
-        });
-        
-        // Remove active class from other tab buttons
-        const allTabButtons = document.querySelectorAll('#sidebar-tabs .item');
-        allTabButtons.forEach(button => {
-            if (button.getAttribute('data-tab') !== this.tabId) {
-                button.classList.remove('active');
+                // Another tab was clicked, hide our tab content
+                const tabContent = document.querySelector(`section[data-tab="${this.tabId}"], .sidebar-tab[data-tab="${this.tabId}"]`);
+                if (tabContent) {
+                    tabContent.style.display = 'none';
+                    tabContent.classList.remove('active');
+                }
+                
+                // Remove active class from our tab button
+                const ourTabButton = document.querySelector(`#sidebar-tabs [data-tab="${this.tabId}"]`);
+                if (ourTabButton) {
+                    ourTabButton.classList.remove('active');
+                }
+                
+                // Show the clicked tab's content
+                const clickedTabId = tabButton.getAttribute('data-tab');
+                const clickedTabContent = document.querySelector(`section[data-tab="${clickedTabId}"], .sidebar-tab[data-tab="${clickedTabId}"]`);
+                if (clickedTabContent) {
+                    clickedTabContent.style.display = 'flex';
+                    clickedTabContent.classList.add('active');
+                }
+                
+                // Add active class to the clicked tab button
+                tabButton.classList.add('active');
+                
+                this.isActive = false;
             }
         });
     }
 
     /**
-     * Add the Rulespedia tab to the sidebar
+     * Add the tab to the sidebar
      */
     addTabToSidebar() {
         // Find the sidebar
@@ -251,18 +226,40 @@ class RulespediaTab {
         const icon = document.createElement('i');
         icon.className = this.tabIcon;
         tabButton.appendChild(icon);
-        
+
         // Add click handler
         tabButton.addEventListener('click', async (event) => {
             event.preventDefault();
             event.stopPropagation();
             
-            // Hide all other tabs
-            this.hideTab();
+            // Remove active class from all other tab buttons
+            const allTabButtons = document.querySelectorAll('#sidebar-tabs .item');
+            allTabButtons.forEach(btn => {
+                if (btn.getAttribute('data-tab') !== this.tabId) {
+                    btn.classList.remove('active');
+                }
+            });
             
-            // Activate our tab button
+            // Hide all other tab content first to prevent overlap
+            const allTabContent = document.querySelectorAll('.sidebar-tab, section[data-tab]');
+            allTabContent.forEach(tab => {
+                if (tab.getAttribute('data-tab') !== this.tabId) {
+                    tab.style.display = 'none';
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Show our tab content
+            const tabContent = document.querySelector(`section[data-tab="${this.tabId}"], .sidebar-tab[data-tab="${this.tabId}"]`);
+            if (tabContent) {
+                tabContent.style.display = 'flex';
+                tabContent.classList.add('active');
+            }
+            
+            // Add active class to our tab button for visual highlight
             tabButton.classList.add('active');
             
+            // Call our activation
             await this.activateTab();
         });
 
@@ -288,16 +285,19 @@ class RulespediaTab {
         tabContent.setAttribute('data-tab', this.tabId);
         tabContent.style.display = 'none'; // Keep hidden until user clicks
         
-        console.log('Rulespedia: Created tab content element:', tabContent);
-        console.log('Rulespedia: Tab content data-tab attribute:', tabContent.getAttribute('data-tab'));
-        
         // Insert the content container directly into the sidebar
         sidebar.appendChild(tabContent);
-        console.log('Rulespedia: Tab content inserted into sidebar');
-        console.log('Rulespedia: Sidebar children count:', sidebar.children.length);
 
         // Load the template content
         this.loadTemplate(tabContent);
+    }
+
+    /**
+     * Hide the Rulespedia tab - Let Foundry handle this
+     */
+    hideTab() {
+        // Let Foundry handle tab hiding - don't interfere
+        this.isActive = false;
     }
 
     /**
@@ -394,40 +394,9 @@ class RulespediaTab {
      * Activate the Rulespedia tab
      */
     async activateTab() {
-        console.log('Rulespedia: Activating tab...');
-        console.log('Rulespedia: Tab ID:', this.tabId);
-        
-        // Hide all other tabs first
-        this.hideOtherTabs();
-        
-        // Show the tab content - be more specific to avoid selecting the tab button
-        const tabContent = document.querySelector(`section[data-tab="${this.tabId}"], .sidebar-tab[data-tab="${this.tabId}"]`);
-        console.log('Rulespedia: Found tab content element:', tabContent);
-        
-        if (tabContent) {
-            console.log('Rulespedia: Tab content element classes:', tabContent.className);
-            console.log('Rulespedia: Tab content element parent:', tabContent.parentElement);
-            
-            // Show the tab content
-            tabContent.style.display = 'flex';
-            tabContent.classList.add('active');
-            
-            console.log('Rulespedia: Tab content activated');
-            
-            // Check if there's any content inside
-            console.log('Rulespedia: Tab content innerHTML length:', tabContent.innerHTML.length);
-            console.log('Rulespedia: Tab content children:', tabContent.children);
-        } else {
-            console.error('Rulespedia: Tab content not found!');
-            
-            // Let's see what elements exist with similar attributes
-            const allElements = document.querySelectorAll('[data-tab], .rulespedia-sidebar, .tab');
-            console.log('Rulespedia: All potential tab elements:', allElements);
-        }
-        
-        // Set active state
+        // Let Foundry handle tab display - just set our state
         this.isActive = true;
-        
+
         // Check if CSS is loaded
         if (window.rulespediaCSSLoader) {
             // CSS loader is available, CSS should be loaded
@@ -480,22 +449,14 @@ class RulespediaTab {
 
     // Setup view navigation event listeners
     setupViewNavigation() {
-        console.log('Rulespedia: Setting up view navigation event listeners');
-        
         // Handle action button clicks for navigation
         document.addEventListener('click', (event) => {
-            console.log('Rulespedia: Click event detected on:', event.target);
-            
             const target = event.target.closest('[data-view]');
-            console.log('Rulespedia: Found data-view target:', target);
-            
             if (target && this.framework) {
                 event.preventDefault();
                 event.stopPropagation();
                 
                 const viewName = target.getAttribute('data-view');
-                console.log('Rulespedia: Navigating to view:', viewName);
-                
                 this.framework.loadView(viewName).then(() => {
                     console.log(`Rulespedia: Navigated to ${viewName} view`);
                 }).catch(error => {

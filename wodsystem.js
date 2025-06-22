@@ -6,36 +6,23 @@ import { registerHandlebarsHelpers } from "./scripts/utilities.js";
 import "./scripts/content-store.js";
 
 // Import LLM Services
-console.log('WoD | Starting LLM imports...');
 Promise.all([
-    import("./scripts/llm-prompts.js").then(() => {
-        console.log('WoD | LLM Prompts imported successfully');
-    }).catch(error => {
+    import("./scripts/llm-prompts.js").catch(error => {
         console.error('WoD | Failed to import LLM Prompts:', error);
     }),
-    import("./scripts/llm-service.js").then(() => {
-        console.log('WoD | LLM Service imported successfully');
-    }).catch(error => {
+    import("./scripts/llm-service.js").catch(error => {
         console.error('WoD | Failed to import LLM Service:', error);
     }),
-    import("./scripts/browser-llm-provider.js").then(() => {
-        console.log('WoD | Browser LLM Provider imported successfully');
-    }).catch(error => {
+    import("./scripts/browser-llm-provider.js").catch(error => {
         console.error('WoD | Failed to import Browser LLM Provider:', error);
     }),
-    import("./scripts/tensorflow-llm-provider.js").then(() => {
-        console.log('WoD | TensorFlow LLM Provider imported successfully');
-    }).catch(error => {
+    import("./scripts/tensorflow-llm-provider.js").catch(error => {
         console.error('WoD | Failed to import TensorFlow LLM Provider:', error);
     }),
-    import("./scripts/rule-discovery-service.js").then(() => {
-        console.log('WoD | Rule Discovery Service imported successfully');
-    }).catch(error => {
+    import("./scripts/rule-discovery-service.js").catch(error => {
         console.error('WoD | Failed to import Rule Discovery Service:', error);
     })
-]).then(() => {
-    console.log('WoD | LLM imports completed');
-}).catch(error => {
+]).catch(error => {
     console.error('WoD | Some LLM imports failed:', error);
 });
 

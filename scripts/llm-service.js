@@ -3,8 +3,6 @@
  * Uses composition to support different LLM providers
  */
 
-console.log('LLMService: File is being loaded...');
-
 class LLMService {
     constructor(llmProvider = null) {
         this.llmProvider = llmProvider;
@@ -13,7 +11,6 @@ class LLMService {
             maxTokens: 2048,
             temperature: 0.1
         };
-        console.log('LLMService: Constructor called');
     }
 
     /**
@@ -22,7 +19,6 @@ class LLMService {
      */
     setProvider(provider) {
         this.llmProvider = provider;
-        console.log('LLM: Provider set');
     }
 
     /**
@@ -36,17 +32,14 @@ class LLMService {
         if (this.isInitialized) return;
         
         try {
-            console.log('LLM: Initializing service...');
             await this.llmProvider.initialize();
             this.isInitialized = true;
             this.fallbackMode = false;
-            console.log('LLM: Service initialized successfully');
         } catch (error) {
             console.warn('LLM: Initialization failed, using fallback mode:', error.message);
             // Set fallback mode - service will use fallback methods instead of AI
             this.isInitialized = true; // Still mark as initialized so other services can use it
             this.fallbackMode = true;
-            console.log('LLM: Fallback mode enabled - AI features will use keyword-based analysis');
         }
     }
 
@@ -73,7 +66,6 @@ class LLMService {
 
         // If in fallback mode, use fallback generation
         if (this.fallbackMode) {
-            console.log('LLM: Using fallback generation');
             return this.fallbackGeneration(prompt, parameters);
         }
 
@@ -112,7 +104,6 @@ class LLMService {
      */
     updateConfig(newConfig) {
         this.config = { ...this.config, ...newConfig };
-        console.log('LLMService: Configuration updated');
     }
 
     /**
@@ -123,7 +114,6 @@ class LLMService {
             await this.llmProvider.unload();
         }
         this.isInitialized = false;
-        console.log('LLMService: Unloaded');
     }
 
     /**
@@ -133,7 +123,6 @@ class LLMService {
      */
     async analyzeRuleTerms(highTfidfWords) {
         if (this.fallbackMode) {
-            console.log('LLM: Using fallback analysis for rule terms');
             return this.fallbackRuleAnalysis(highTfidfWords);
         }
 
@@ -142,8 +131,6 @@ class LLMService {
         }
 
         try {
-            console.log('LLM: Analyzing rule terms from', highTfidfWords.length, 'high TF-IDF words');
-            
             // Get prompt from LLMPrompts
             const prompt = LLMPrompts.getRuleTermsAnalysisPrompt(highTfidfWords);
 
@@ -155,19 +142,16 @@ class LLMService {
             // Try to parse JSON response
             try {
                 const analysis = JSON.parse(response);
-                console.log('LLM: Rule term analysis complete -', analysis.ruleTerms?.length || 0, 'rule terms,', analysis.suggestedTerms?.length || 0, 'suggested terms');
                 return {
                     ruleTerms: analysis.ruleTerms || [],
                     suggestedTerms: analysis.suggestedTerms || [],
                     reasoning: analysis.reasoning || 'Analysis completed'
                 };
             } catch (parseError) {
-                console.warn('LLM: Failed to parse JSON response, using fallback analysis');
                 return this.fallbackRuleAnalysis(highTfidfWords);
             }
 
         } catch (error) {
-            console.error('LLM: Rule term analysis failed:', error.message);
             return this.fallbackRuleAnalysis(highTfidfWords);
         }
     }
@@ -179,7 +163,6 @@ class LLMService {
      */
     async analyzeChunkForRules(chunkData) {
         if (this.fallbackMode) {
-            console.log('LLM: Using fallback analysis for chunk');
             return this.fallbackChunkAnalysis(chunkData);
         }
 
@@ -188,8 +171,6 @@ class LLMService {
         }
 
         try {
-            console.log('LLM: Analyzing chunk for rules...');
-            
             // Get prompt from LLMPrompts
             const prompt = LLMPrompts.getChunkAnalysisPrompt(chunkData);
 
@@ -201,7 +182,6 @@ class LLMService {
             // Try to parse JSON response
             try {
                 const analysis = JSON.parse(response);
-                console.log('LLM: Chunk analysis complete -', analysis.isRule ? 'Rule detected' : 'Not a rule', 'confidence:', Math.round(analysis.confidence * 100) + '%');
                 return {
                     isRule: analysis.isRule || false,
                     confidence: analysis.confidence || 0.5,
@@ -210,12 +190,10 @@ class LLMService {
                     reasoning: analysis.reasoning || 'Analysis completed'
                 };
             } catch (parseError) {
-                console.warn('LLM: Failed to parse JSON response, using fallback analysis');
                 return this.fallbackChunkAnalysis(chunkData);
             }
 
         } catch (error) {
-            console.error('LLM: Chunk analysis failed:', error.message);
             return this.fallbackChunkAnalysis(chunkData);
         }
     }
@@ -231,16 +209,13 @@ class LLMService {
         }
 
         try {
-            console.log('LLM: Summarizing rule...');
             const prompt = LLMPrompts.getRuleSummarizationPrompt(ruleText);
             const summary = await this.generate(prompt, {
                 maxTokens: 200,
                 temperature: 0.1
             });
-            console.log('LLM: Rule summarization complete');
             return summary;
         } catch (error) {
-            console.error('LLM: Rule summarization failed:', error.message);
             return 'Unable to summarize rule at this time.';
         }
     }
@@ -265,7 +240,6 @@ class LLMService {
             try {
                 return JSON.parse(response);
             } catch (parseError) {
-                console.warn('LLMService: Failed to parse categorization response');
                 return {
                     primaryCategory: 'general',
                     secondaryCategory: 'unknown',
@@ -274,7 +248,6 @@ class LLMService {
                 };
             }
         } catch (error) {
-            console.error('LLMService: Rule categorization failed:', error);
             return {
                 primaryCategory: 'general',
                 secondaryCategory: 'unknown',
@@ -302,7 +275,6 @@ class LLMService {
                 temperature: 0.1
             });
         } catch (error) {
-            console.error('LLMService: Rule clarification failed:', error);
             return 'Unable to clarify rule at this time.';
         }
     }
@@ -387,12 +359,212 @@ class LLMService {
             reasoning: 'Fallback keyword-based analysis'
         };
     }
+
+    /**
+     * Get rule-relevant words for RPG systems
+     * @returns {Array} Array of rule-relevant words
+     */
+    async getRuleRelevantWords() {
+        if (this.fallbackMode) {
+            return this.fallbackRuleRelevantWords();
+        }
+
+        if (!this.isInitialized) {
+            console.warn('LLM: Service not initialized, using fallback words');
+            return this.fallbackRuleRelevantWords();
+        }
+
+        if (!this.llmProvider) {
+            console.warn('LLM: No provider set, using fallback words');
+            return this.fallbackRuleRelevantWords();
+        }
+
+        try {
+            console.log('LLM: Getting rule-relevant words...');
+            
+            const prompt = `You are an expert on tabletop roleplaying games (TTRPGs). I need you to provide a comprehensive list of words that are commonly used in RPG rulebooks and game mechanics.
+
+CRITICAL REQUIREMENTS:
+1. Return ONLY a JSON array of strings
+2. Include ONLY words that are actually used in RPG rules and mechanics
+3. Focus on game-specific terminology, not general words
+4. Include words from various RPG systems (D&D, Pathfinder, World of Darkness, etc.)
+
+REQUIRED CATEGORIES (include multiple words from each):
+- Dice mechanics: dice, roll, d20, d6, d10, difficulty, target, success, failure, critical, fumble, advantage, disadvantage
+- Character mechanics: attribute, skill, ability, trait, level, experience, class, race, background, proficiency
+- Combat mechanics: attack, damage, hit, miss, armor, defense, initiative, turn, action, bonus, penalty, modifier
+- Game systems: rule, mechanic, system, check, test, save, throw, resistance, immunity, vulnerability
+- Magic/spells: spell, magic, casting, component, material, somatic, verbal, focus, ritual, incantation
+- Status effects: condition, stunned, paralyzed, poisoned, charmed, frightened, blinded, deafened
+- Movement/tactics: movement, range, area, distance, flank, cover, concealment, stealth, ambush
+- Equipment: weapon, armor, shield, item, gear, equipment, tool, implement, focus
+
+EXAMPLE RESPONSE FORMAT:
+["dice", "roll", "d20", "difficulty", "target", "success", "failure", "critical", "advantage", "disadvantage", "attribute", "skill", "ability", "level", "class", "attack", "damage", "armor", "initiative", "action", "bonus", "penalty", "modifier", "rule", "mechanic", "check", "save", "spell", "magic", "casting", "condition", "movement", "range", "weapon", "equipment"]
+
+DO NOT include general words like "pattern", "analysis", "completed", "detected", "confidence", "system" (unless referring to game systems specifically). Only include RPG-specific terminology.`;
+
+            const response = await this.generate(prompt, {
+                maxTokens: 500,
+                temperature: 0.1
+            });
+
+            console.log('LLM: Raw response:', response);
+
+            // Try to parse JSON response with multiple fallback strategies
+            let words = null;
+            
+            // Strategy 1: Direct JSON parse
+            try {
+                const parsed = JSON.parse(response);
+                if (Array.isArray(parsed)) {
+                    words = parsed;
+                }
+            } catch (parseError) {
+                console.log('LLM: Direct JSON parse failed, trying extraction...');
+            }
+
+            // Strategy 2: Extract JSON from text response
+            if (!words) {
+                try {
+                    const jsonMatch = response.match(/\[.*\]/s);
+                    if (jsonMatch) {
+                        const extracted = JSON.parse(jsonMatch[0]);
+                        if (Array.isArray(extracted)) {
+                            words = extracted;
+                        }
+                    }
+                } catch (extractError) {
+                    console.log('LLM: JSON extraction failed, trying text parsing...');
+                }
+            }
+
+            // Strategy 3: Parse comma-separated words from text
+            if (!words) {
+                try {
+                    // Look for patterns like "word1, word2, word3" or "word1 word2 word3"
+                    const wordPattern = /["']?([a-zA-Z][a-zA-Z0-9_-]*)["']?/g;
+                    const matches = response.match(wordPattern);
+                    if (matches && matches.length > 5) {
+                        words = matches.map(match => match.replace(/["']/g, '')).filter(word => word.length > 2);
+                    }
+                } catch (textError) {
+                    console.log('LLM: Text parsing failed...');
+                }
+            }
+
+            // Strategy 4: Extract words from markdown or formatted text
+            if (!words) {
+                try {
+                    // Remove markdown formatting and extract words
+                    const cleanText = response.replace(/[*`#\-]/g, ' ').replace(/\n/g, ' ');
+                    const wordMatches = cleanText.match(/\b[a-zA-Z][a-zA-Z0-9_-]*\b/g);
+                    if (wordMatches && wordMatches.length > 5) {
+                        words = wordMatches.filter(word => word.length > 2);
+                    }
+                } catch (markdownError) {
+                    console.log('LLM: Markdown parsing failed...');
+                }
+            }
+
+            if (words && words.length > 0) {
+                // Validate that we got meaningful RPG words
+                const validRPGWords = this.validateRPGWords(words);
+                
+                if (validRPGWords.length >= 20) {
+                    console.log('LLM: Retrieved', validRPGWords.length, 'valid rule-relevant words');
+                    return validRPGWords;
+                } else {
+                    console.warn('LLM: Retrieved words are not RPG-related enough, using fallback words');
+                    return this.fallbackRuleRelevantWords();
+                }
+            } else {
+                console.warn('LLM: Failed to parse response, using fallback words');
+                return this.fallbackRuleRelevantWords();
+            }
+
+        } catch (error) {
+            console.error('LLM: Failed to get rule-relevant words:', error.message);
+            return this.fallbackRuleRelevantWords();
+        }
+    }
+
+    /**
+     * Fallback rule-relevant words when LLM is not available
+     * @returns {Array} Array of fallback rule-relevant words
+     */
+    fallbackRuleRelevantWords() {
+        return [
+            'rule', 'dice', 'roll', 'difficulty', 'success', 'failure', 'check', 'test', 'mechanic', 'system',
+            'attack', 'damage', 'health', 'skill', 'ability', 'attribute', 'trait', 'modifier', 'bonus', 'penalty',
+            'resolution', 'target', 'threshold', 'advantage', 'disadvantage', 'critical', 'fumble', 'resistance',
+            'immunity', 'vulnerability', 'initiative', 'turn', 'action', 'reaction', 'movement', 'range', 'area',
+            'duration', 'concentration', 'saving', 'throw', 'armor', 'class', 'defense', 'evasion', 'dodge',
+            'parry', 'block', 'counter', 'riposte', 'feint', 'grapple', 'shove', 'trip', 'disarm', 'overrun',
+            'tumble', 'charge', 'withdraw', 'retreat', 'surrender', 'morale', 'fear', 'panic', 'rout', 'rally',
+            'inspire', 'leadership', 'command', 'tactics', 'strategy', 'formation', 'flank', 'rear', 'surround',
+            'ambush', 'stealth', 'concealment', 'cover', 'terrain', 'environment', 'weather', 'lighting',
+            'visibility', 'obscurement', 'fog', 'smoke', 'darkness', 'blindness', 'deafness', 'silence',
+            'paralysis', 'petrification', 'poison', 'disease', 'curse', 'blessing', 'enchantment', 'magic',
+            'spell', 'ritual', 'incantation', 'component', 'material', 'somatic', 'verbal', 'focus', 'cost',
+            'casting', 'concentration', 'duration', 'range', 'area', 'target', 'effect', 'save', 'resistance'
+        ];
+    }
+
+    /**
+     * Validate RPG-related words
+     * @param {Array} words - Array of words to validate
+     * @returns {Array} Validated RPG-related words
+     */
+    validateRPGWords(words) {
+        const validRPGWords = [];
+        
+        // Comprehensive list of RPG-related keywords to validate against
+        const rpgKeywords = [
+            // Dice mechanics
+            'dice', 'roll', 'd20', 'd6', 'd10', 'd12', 'd8', 'd4', 'd100', 'difficulty', 'target', 'success', 'failure', 'critical', 'fumble', 'advantage', 'disadvantage',
+            
+            // Character mechanics
+            'attribute', 'skill', 'ability', 'trait', 'level', 'experience', 'class', 'race', 'background', 'proficiency', 'character', 'player', 'npc',
+            
+            // Combat mechanics
+            'attack', 'damage', 'hit', 'miss', 'armor', 'defense', 'initiative', 'turn', 'action', 'bonus', 'penalty', 'modifier', 'combat', 'weapon', 'shield',
+            
+            // Game systems
+            'rule', 'mechanic', 'system', 'check', 'test', 'save', 'throw', 'resistance', 'immunity', 'vulnerability', 'game', 'play',
+            
+            // Magic/spells
+            'spell', 'magic', 'casting', 'component', 'material', 'somatic', 'verbal', 'focus', 'ritual', 'incantation', 'magical', 'enchantment',
+            
+            // Status effects
+            'condition', 'stunned', 'paralyzed', 'poisoned', 'charmed', 'frightened', 'blinded', 'deafened', 'status', 'effect',
+            
+            // Movement/tactics
+            'movement', 'range', 'area', 'distance', 'flank', 'cover', 'concealment', 'stealth', 'ambush', 'tactics', 'strategy',
+            
+            // Equipment
+            'item', 'gear', 'equipment', 'tool', 'implement', 'focus', 'weapon', 'armor', 'shield',
+            
+            // Common RPG terms
+            'campaign', 'adventure', 'quest', 'mission', 'objective', 'goal', 'reward', 'treasure', 'loot', 'gold', 'currency'
+        ];
+        
+        words.forEach(word => {
+            const lowerWord = word.toLowerCase();
+            // Check if the word contains any RPG-related keywords
+            if (rpgKeywords.some(keyword => lowerWord.includes(keyword) || keyword.includes(lowerWord))) {
+                validRPGWords.push(word);
+            }
+        });
+
+        return validRPGWords;
+    }
 }
 
 // Export for use in other modules
 try {
     window.LLMService = LLMService;
-    console.log('LLMService: File loaded and exported to window.LLMService');
 } catch (error) {
     console.error('LLMService: Failed to export to window:', error);
 } 

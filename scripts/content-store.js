@@ -108,7 +108,7 @@ class ContentStore {
      * @param {string} content - Document content
      * @param {Object} metadata - Additional metadata (filename, chunk_count, etc.)
      */
-    async addDocument(id, content, metadata = {}) {
+    async addDocument(id, content, batch = false, metadata = {}) {
         try {
             // Store the document chunk with enhanced metadata
             this.chunks.set(id, {
@@ -133,9 +133,9 @@ class ContentStore {
             this.tfidfData.corpusStats.totalWords += metadata.wordCount || content.split(/\s+/).filter(word => word.trim().length > 0).length;
             
             // Queue for background persistence
-            await this.saveContent();
-            
-            console.log(`ContentStore: Added chunk ${metadata.chunk_count} from ${metadata.filename} (${content.length} chars, ${metadata.wordCount || content.split(/\s+/).filter(word => word.trim().length > 0).length} words)`);
+            if (!batch) {
+                await this.saveContent();
+            }
             
             return true;
         } catch (error) {

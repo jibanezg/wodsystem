@@ -4,15 +4,60 @@
  * Framework layer - no business logic here, no HTML templates here
  */
 
+console.log('Rulespedia Views: Script file loaded!');
+
 /**
  * Import View - Handles book import UI
  */
 class ImportView extends RuleView {
-    constructor(serviceManager) {
+    constructor(serviceManager = null) {
         super('import', 'Import Books', 'fas fa-upload');
+        
         this.serviceManager = serviceManager;
-        this.importService = serviceManager ? serviceManager.getImportService() : null;
-        this.bookManagementService = serviceManager ? serviceManager.getBookManagementService() : null;
+        
+        // Try to get import service from service manager first
+        this.importService = null;
+        if (serviceManager) {
+            try {
+                this.importService = serviceManager.getImportService();
+                // Ensure LLM services are initialized
+                serviceManager.initializeLLMServices();
+            } catch (error) {
+                console.warn('ImportView: Failed to get ImportService from manager:', error);
+            }
+        }
+        
+        // If no service manager or import service, try to create one directly
+        if (!this.importService) {
+            try {
+                // Check if ContentStore is available
+                if (typeof window.ContentStore === 'undefined') {
+                    throw new Error('ContentStore not available');
+                }
+                
+                // Check if ImportService is available
+                if (typeof window.ImportService === 'undefined' && typeof window.RulespediaServices?.ImportService === 'undefined') {
+                    throw new Error('ImportService not available');
+                }
+                
+                const contentStore = new window.ContentStore();
+                const ImportServiceClass = window.ImportService || window.RulespediaServices?.ImportService;
+                this.importService = new ImportServiceClass(contentStore);
+            } catch (error) {
+                console.warn('ImportView: Failed to create ImportService directly:', error);
+                // Don't throw here - we'll handle this gracefully in the UI
+            }
+        }
+        
+        this.bookManagementService = null;
+        if (serviceManager) {
+            try {
+                this.bookManagementService = serviceManager.getBookManagementService();
+            } catch (error) {
+                console.warn('ImportView: Failed to get BookManagementService from manager:', error);
+            }
+        }
+        
         this.setTemplatePath('systems/wodsystem/templates/rulespedia/import-view.html');
         this.isInitialized = false;
         this.eventListeners = [];
@@ -89,8 +134,6 @@ class ImportView extends RuleView {
      * Setup file upload functionality
      */
     setupFileUpload() {
-        console.log('ImportView: Setting up file upload functionality');
-        
         // Wait a bit more for DOM to be fully ready
         setTimeout(() => {
             const fileInput = document.getElementById('fileInput');
@@ -100,21 +143,8 @@ class ImportView extends RuleView {
             const selectedFilesSection = document.getElementById('selectedFilesSection');
             const startImportBtn = document.getElementById('startImport');
 
-            console.log('ImportView: Found elements:', {
-                fileInput: !!fileInput,
-                uploadArea: !!uploadArea,
-                selectBtn: !!selectBtn,
-                selectedFiles: !!selectedFiles,
-                selectedFilesSection: !!selectedFilesSection,
-                startImportBtn: !!startImportBtn
-            });
-
             if (!fileInput || !uploadArea || !selectBtn) {
-                console.error('ImportView: Required elements not found for file upload setup', {
-                    fileInput: !!fileInput,
-                    uploadArea: !!uploadArea,
-                    selectBtn: !!selectBtn
-                });
+                console.error('ImportView: Required elements not found for file upload setup');
                 return;
             }
 
@@ -122,14 +152,12 @@ class ImportView extends RuleView {
             this.addTrackedEventListener(selectBtn, 'click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ImportView: Select files button clicked');
                 
                 // Use Foundry's FilePicker
                 const fp = new FilePicker({
                     type: "file",
                     current: "",
                     callback: (path) => {
-                        console.log('ImportView: FilePicker callback with path:', path);
                         // Handle the selected file path
                         this.handleFileSelectionFromPath(path);
                     },
@@ -143,14 +171,12 @@ class ImportView extends RuleView {
             this.addTrackedEventListener(uploadArea, 'click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('ImportView: Upload area clicked');
                 
                 // Use Foundry's FilePicker
                 const fp = new FilePicker({
                     type: "file",
                     current: "",
                     callback: (path) => {
-                        console.log('ImportView: Upload area FilePicker callback with path:', path);
                         // Handle the selected file path
                         this.handleFileSelectionFromPath(path);
                     },
@@ -162,7 +188,6 @@ class ImportView extends RuleView {
 
             // File input change
             this.addTrackedEventListener(fileInput, 'change', (e) => {
-                console.log('ImportView: File input changed, files:', e.target.files);
                 this.handleFileSelection(e.target.files);
             });
 
@@ -179,11 +204,8 @@ class ImportView extends RuleView {
             this.addTrackedEventListener(uploadArea, 'drop', (e) => {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
-                console.log('ImportView: Files dropped:', e.dataTransfer.files);
                 this.handleFileSelection(e.dataTransfer.files);
             });
-            
-            console.log('ImportView: File upload setup complete');
         }, 100);
     }
 
@@ -191,8 +213,6 @@ class ImportView extends RuleView {
      * Handle file selection from Foundry's FilePicker path
      */
     async handleFileSelectionFromPath(path) {
-        console.log('ImportView: Handling file selection from path:', path);
-        
         try {
             // Get the file from the path using Foundry's API
             const response = await fetch(path);
@@ -203,7 +223,6 @@ class ImportView extends RuleView {
             const blob = await response.blob();
             const file = new File([blob], path.split('/').pop(), { type: 'application/pdf' });
             
-            console.log('ImportView: Created file from path:', file);
             this.handleFileSelection([file]);
             
         } catch (error) {
@@ -220,18 +239,9 @@ class ImportView extends RuleView {
         const selectedFilesSection = document.getElementById('selectedFilesSection');
         const startImportBtn = document.getElementById('startImport');
         
-        console.log('ImportView: File selection triggered', { 
-            totalFiles: files.length,
-            selectedFilesElement: !!selectedFiles,
-            selectedFilesSection: !!selectedFilesSection,
-            startImportBtn: !!startImportBtn
-        });
-        
         // DEBUG: Check if elements exist
         if (!selectedFiles) {
             console.error('ImportView: selectedFiles element not found!');
-            console.log('All elements with "selected" in id:', document.querySelectorAll('[id*="selected"]'));
-            console.log('All elements with "file" in id:', document.querySelectorAll('[id*="file"]'));
             return;
         }
         
@@ -251,11 +261,6 @@ class ImportView extends RuleView {
         const pdfFiles = Array.from(files).filter(file => 
             file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')
         );
-        
-        console.log('ImportView: PDF files filtered', { 
-            pdfFilesCount: pdfFiles.length,
-            pdfFiles: pdfFiles.map(f => ({ name: f.name, size: f.size }))
-        });
 
         if (pdfFiles.length === 0) {
             this.showMessage('Please select PDF files only.', 'error');
@@ -270,11 +275,6 @@ class ImportView extends RuleView {
                     .replace('{{fileName}}', file.name)
                     .replace('{{fileSize}}', this.formatFileSize(file.size));
             }).join('');
-            
-            console.log('ImportView: Generated file items HTML', { 
-                htmlLength: fileItemsHtml.length,
-                fileItemsCount: pdfFiles.length
-            });
             
             selectedFiles.innerHTML = fileItemsHtml;
             selectedFilesSection.style.display = 'block';
@@ -309,27 +309,31 @@ class ImportView extends RuleView {
     }
 
     /**
-     * Setup import button
+     * Setup import button functionality
      */
     setupImportButton() {
         // Wait a bit more for DOM to be fully ready
         setTimeout(() => {
             const startImportBtn = document.getElementById('startImport');
-            
+
             if (!startImportBtn) {
-                console.error('ImportView: Start import button not found');
+                console.error('ImportView: startImport button not found');
                 return;
             }
-            
-            this.addTrackedEventListener(startImportBtn, 'click', async () => {
+
+            // Add click event listener
+            this.addTrackedEventListener(startImportBtn, 'click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 if (!this.selectedFiles || this.selectedFiles.length === 0) {
-                    this.showMessage('Please select files to import.', 'error');
+                    this.showMessage('No files selected', 'warning');
                     return;
                 }
-
+                
                 await this.startImport();
             });
-        }, 50);
+        }, 100);
     }
 
     /**
@@ -337,103 +341,84 @@ class ImportView extends RuleView {
      */
     async startImport() {
         if (!this.importService) {
-            this.showMessage('Import service not available. Please refresh the page.', 'error');
+            this.showMessage('Import service not available', 'error');
             return;
         }
 
         try {
             this.showImportProgress();
-            this.clearImportLog();
-            
-            // Initialize progress tracking
-            let currentProgress = 0;
-            const totalSteps = this.selectedFiles.length + 2; // +2 for LLM init and rule discovery
-            let currentStep = 0;
-            
-            // Step 1: Try to initialize LLM Service (optional)
-            this.addToImportLog('Checking LLM service availability...', 'info');
-            this.updateProgress(5); // 5% for starting
-            let llmAvailable = false;
-            try {
-                await this.initializeLLMService();
-                llmAvailable = true;
-                this.addToImportLog('✓ LLM service ready', 'success');
-            } catch (error) {
-                console.warn('LLM service not available, proceeding without AI features:', error.message);
-                this.addToImportLog('⚠ LLM service not available - proceeding with basic import (no AI rule discovery)', 'warning');
-            }
-            
-            currentStep++;
-            currentProgress = (currentStep / totalSteps) * 90; // Reserve 10% for rule discovery
-            this.updateProgress(currentProgress);
             
             const results = [];
             
-            // Step 2: Import books
-            for (let i = 0; i < this.selectedFiles.length; i++) {
-                const file = this.selectedFiles[i];
+            for (const file of this.selectedFiles) {
+                await this.addToImportLog(`Starting import of ${file.name} (${this.formatFileSize(file.size)})`, 'info');
                 
-                // Update progress for starting this file
-                const fileStartProgress = currentProgress + (i / this.selectedFiles.length) * 70; // 70% for file imports
-                this.updateProgress(fileStartProgress);
-                this.addToImportLog(`Importing ${file.name}...`);
+                const fileProgressCallback = (progress) => {
+                    const percent = Math.round(progress * 100);
+                    this.updateProgress(percent);
+                    this.addToImportLog(`Importing ${file.name}: ${percent}%`, 'info');
+                };
                 
                 try {
-                    // Create a progress callback for this file
-                    const fileProgressCallback = (progress) => {
-                        // Map file progress from 0-100% to the file's allocated range
-                        const fileProgress = fileStartProgress + (progress * 70 / this.selectedFiles.length);
-                        this.updateProgress(fileProgress);
-                    };
+                    const result = await this.importService.importBook(file, {
+                        progressCallback: fileProgressCallback
+                    });
                     
-                    const result = await this.importService.importBook(file, { progressCallback: fileProgressCallback });
                     results.push(result);
-                    this.addToImportLog(`✓ Successfully imported ${file.name} (${result.chunks} chunks)`);
-                } catch (error) {
-                    console.error(`Import failed for ${file.name}:`, error);
-                    this.addToImportLog(`✗ Failed to import ${file.name}: ${error.message}`, 'error');
+                    await this.addToImportLog(`✓ Successfully imported ${file.name}`, 'success');
+                    await this.addToImportLog(`  - ${result.chunks} chunks, ${result.totalWords} words`, 'info');
+                    await this.addToImportLog(`  - ${result.associations} word associations created`, 'info');
+                    
+                } catch (importError) {
+                    await this.addToImportLog(`✗ Failed to import ${file.name}: ${importError.message}`, 'error');
                     results.push({
                         success: false,
                         filename: file.name,
-                        error: error.message
+                        error: importError.message
                     });
                 }
             }
             
-            // Step 3: Run rule discovery if we have successful imports and LLM is available
-            const successfulImports = results.filter(r => r.success);
-            if (successfulImports.length > 0 && llmAvailable) {
-                this.updateProgress(90); // 90% for starting rule discovery
-                this.addToImportLog('Starting AI rule discovery...', 'info');
-                await this.runRuleDiscovery();
-            } else if (successfulImports.length > 0) {
-                this.addToImportLog('✓ Import complete - books are ready for manual search', 'success');
+            // Try to run rule discovery if LLM is available
+            try {
+                const llmInitialized = await this.initializeLLMService();
+                if (llmInitialized) {
+                    await this.addToImportLog('Running rule discovery analysis...', 'info');
+                    await this.runRuleDiscovery();
+                }
+            } catch (ruleError) {
+                await this.addToImportLog(`Rule discovery failed: ${ruleError.message}`, 'warning');
             }
             
+            // Ensure progress bar reaches 100% when import is complete
             this.updateProgress(100);
+            
             await this.showImportResults(results);
             
         } catch (error) {
-            console.error('Import process failed:', error);
-            this.addToImportLog(`Import process failed: ${error.message}`, 'error');
+            console.error('ImportView: Import failed:', error);
+            await this.addToImportLog(`Import failed: ${error.message}`, 'error');
+            this.showMessage('Import failed', 'error');
         }
     }
 
     /**
-     * Initialize LLM Service with TensorFlow provider
+     * Initialize LLM service for rule discovery
      */
     async initializeLLMService() {
+        if (!this.serviceManager) {
+            console.warn('ImportView: No service manager available - LLM features will be disabled');
+            return false;
+        }
+        
         try {
-            if (!this.serviceManager) {
-                throw new Error('Service manager not available');
-            }
-
             // Get LLM service (this will trigger lazy initialization)
             const llmService = this.serviceManager.getLLMService();
             
             // Check if TensorFlowLLMProvider is available
             if (typeof TensorFlowLLMProvider === 'undefined') {
-                throw new Error('TensorFlowLLMProvider not available - tensorflow-llm-provider.js may not be loaded');
+                console.warn('ImportView: TensorFlowLLMProvider not available - using fallback mode');
+                return false;
             }
             
             // Create TensorFlow LLM provider
@@ -452,34 +437,10 @@ class ImportView extends RuleView {
             // Initialize the service and wait for it to be ready
             await llmService.initialize();
             
-            // Double-check that the service is actually initialized
-            if (!llmService.isInitialized) {
-                throw new Error('LLM service failed to initialize properly');
-            }
-            
-            // Check if service is in fallback mode
-            if (llmService.fallbackMode) {
-                this.addToImportLog('✓ LLM service initialized in fallback mode (keyword-based analysis)', 'warning');
-            } else {
-                this.addToImportLog('✓ LLM service initialized successfully with TensorFlow pattern recognition', 'success');
-            }
-            
-            // Test the service to make sure it's working
-            try {
-                const testResponse = await llmService.generate('test', { maxTokens: 10 });
-                if (!testResponse) {
-                    throw new Error('LLM service test failed - no response generated');
-                }
-                this.addToImportLog('✓ LLM service test successful', 'success');
-            } catch (testError) {
-                console.warn('LLM service test failed:', testError.message);
-                this.addToImportLog('⚠ LLM service test failed, but continuing with import', 'warning');
-            }
-            
+            return true;
         } catch (error) {
-            console.error('Failed to initialize LLM service:', error);
-            this.addToImportLog(`✗ LLM service initialization failed: ${error.message}`, 'error');
-            throw error;
+            console.warn('ImportView: LLM service initialization failed:', error);
+            return false;
         }
     }
 
@@ -496,7 +457,7 @@ class ImportView extends RuleView {
             this.addToImportLog('Starting AI rule discovery...', 'info');
             
             // Run discovery on all imported books with progress updates
-            const discoveryResults = await ruleDiscoveryService.discoverRules();
+            const discoveryResults = await ruleDiscoveryService.analyzeRuleChunks();
             
             // Update progress to show rule discovery is complete
             this.updateProgress(95);
@@ -559,57 +520,19 @@ class ImportView extends RuleView {
      * Add message to import log
      */
     async addToImportLog(message, type = 'info') {
-        const importLog = document.getElementById('importLog');
-        if (!importLog) return;
-
-        try {
-            // Simple fallback using template
-            try {
-                const logTemplate = await this.loadTemplateFile('systems/wodsystem/templates/rulespedia/log-entry.html');
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = logTemplate
-                    .replace('{{type}}', type)
-                    .replace('{{timestamp}}', timestamp)
-                    .replace('{{message}}', message);
-                importLog.insertAdjacentHTML('beforeend', logEntry);
-                importLog.scrollTop = importLog.scrollHeight;
-            } catch (fallbackError) {
-                console.error('Error loading log template:', fallbackError);
-                // Ultimate fallback - just text
-                const timestamp = new Date().toLocaleTimeString();
-                importLog.insertAdjacentHTML('beforeend', `[${timestamp}] ${message}\n`);
-                importLog.scrollTop = importLog.scrollHeight;
-            }
-        } catch (error) {
-            console.error('Error adding to import log:', error);
-            // Simple fallback using template
-            try {
-                const logTemplate = await this.loadTemplateFile('systems/wodsystem/templates/rulespedia/log-entry.html');
-                const timestamp = new Date().toLocaleTimeString();
-                const logEntry = logTemplate
-                    .replace('{{type}}', type)
-                    .replace('{{timestamp}}', timestamp)
-                    .replace('{{message}}', message);
-                importLog.insertAdjacentHTML('beforeend', logEntry);
-                importLog.scrollTop = importLog.scrollHeight;
-            } catch (fallbackError) {
-                console.error('Error loading log template:', fallbackError);
-                // Ultimate fallback - just text
-                const timestamp = new Date().toLocaleTimeString();
-                importLog.insertAdjacentHTML('beforeend', `[${timestamp}] ${message}\n`);
-                importLog.scrollTop = importLog.scrollHeight;
-            }
-        }
-    }
-
-    /**
-     * Clear import log
-     */
-    clearImportLog() {
-        const importLog = document.getElementById('importLog');
-        if (importLog) {
-            importLog.innerHTML = '';
-        }
+        const logContainer = document.getElementById('importLog');
+        if (!logContainer) return;
+        
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.className = `log-entry ${type}`;
+        logEntry.innerHTML = `
+            <span class="timestamp">[${timestamp}]</span>
+            <span class="message">${message}</span>
+        `;
+        
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
     }
 
     /**
@@ -669,8 +592,6 @@ class ImportView extends RuleView {
             return;
         }
         
-        console.log('ImportView: Testing manual display of selected files');
-        
         // Use template for test content
         try {
             const testFile = {
@@ -685,7 +606,6 @@ class ImportView extends RuleView {
                         .replace('{{fileSize}}', this.formatFileSize(testFile.size));
                     
                     selectedFiles.innerHTML = testHtml;
-                    console.log('ImportView: Test content added using template');
                 })
                 .catch(error => {
                     console.error('ImportView: Error loading template for test:', error);
@@ -723,6 +643,30 @@ class ImportView extends RuleView {
             console.error(`ImportView: Error loading template ${templatePath}:`, error);
             throw error;
         }
+    }
+}
+
+/**
+ * Home View - Handles home page UI
+ */
+class HomeView extends RuleView {
+    constructor() {
+        super('home', 'Home', 'fas fa-home');
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/home-view.html');
+    }
+
+    /**
+     * Called after the view is rendered
+     */
+    onRender() {
+        // Initialize any view-specific logic here
+    }
+
+    /**
+     * Called when the view is activated
+     */
+    onActivate() {
+        // Initialize any activation logic here
     }
 }
 
@@ -785,10 +729,36 @@ class ManageView extends RuleView {
     }
 }
 
+/**
+ * Settings View - Handles settings UI
+ */
+class SettingsView extends RuleView {
+    constructor() {
+        super('settings', 'Settings', 'fas fa-cog');
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/settings-view.html');
+    }
+
+    /**
+     * Called after the view is rendered
+     */
+    onRender() {
+        // Initialize any view-specific logic here
+    }
+
+    /**
+     * Called when the view is activated
+     */
+    onActivate() {
+        // Initialize any activation logic here
+    }
+}
+
 // Export for use in other modules
+window.HomeView = HomeView;
 window.ImportView = ImportView;
 window.SearchView = SearchView;
 window.ManageView = ManageView;
+window.SettingsView = SettingsView;
 
 // Make test function available globally for debugging
 window.testShowSelectedFiles = function() {

@@ -3,8 +3,6 @@
  * Uses TensorFlow.js for client-side model inference with pattern recognition capabilities
  */
 
-console.log('TensorFlowLLMProvider: File is being loaded...');
-
 class TensorFlowLLMProvider {
     constructor(modelConfig = {}) {
         this.model = null;
@@ -43,14 +41,11 @@ class TensorFlowLLMProvider {
         // Check if TensorFlow.js is already loaded globally
         if (window.tf) {
             this.tensorflowLoaded = true;
-            console.log('LLM: TensorFlow.js found globally');
             return window.tf;
         }
 
         // Try to load TensorFlow.js dynamically
         try {
-            console.log('LLM: Loading TensorFlow.js from CDN...');
-            
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js';
             script.type = 'text/javascript';
@@ -58,11 +53,9 @@ class TensorFlowLLMProvider {
             
             await new Promise((resolve, reject) => {
                 script.onload = () => {
-                    console.log('LLM: TensorFlow.js script loaded, checking for tf object...');
                     setTimeout(() => {
                         if (window.tf) {
                             this.tensorflowLoaded = true;
-                            console.log('LLM: TensorFlow.js loaded successfully from CDN');
                             resolve();
                         } else {
                             reject(new Error('TensorFlow.js loaded but tf object not available'));
@@ -86,7 +79,6 @@ class TensorFlowLLMProvider {
      */
     async initialize() {
         if (this.model) {
-            console.log('LLM: Already initialized');
             return;
         }
 
@@ -94,8 +86,6 @@ class TensorFlowLLMProvider {
         this.loadProgress = 0;
 
         try {
-            console.log('LLM: Starting TensorFlow.js initialization...');
-            
             // Load TensorFlow.js
             const tf = await this.loadTensorFlow();
             
@@ -104,7 +94,6 @@ class TensorFlowLLMProvider {
             
             this.isLoading = false;
             this.loadProgress = 100;
-            console.log('LLM: TensorFlow.js model initialized successfully');
             
         } catch (error) {
             this.isLoading = false;
@@ -117,8 +106,6 @@ class TensorFlowLLMProvider {
      * Create a simple pattern recognition model using TensorFlow.js
      */
     async createPatternRecognitionModel(tf) {
-        console.log('LLM: Creating pattern recognition model...');
-        
         // Create a simple neural network for text classification
         this.model = tf.sequential({
             layers: [
@@ -145,8 +132,6 @@ class TensorFlowLLMProvider {
             loss: 'binaryCrossentropy',
             metrics: ['accuracy']
         });
-
-        console.log('LLM: Pattern recognition model created successfully');
     }
 
     /**
@@ -178,8 +163,6 @@ class TensorFlowLLMProvider {
         }
 
         try {
-            console.log('LLM: Generating response using pattern recognition...');
-            
             // Extract features from the prompt
             const features = this.extractFeatures(prompt);
             
@@ -197,11 +180,10 @@ class TensorFlowLLMProvider {
             // Generate response based on prompt type and confidence
             const response = this.generateResponseFromPattern(prompt, features, confidence[0]);
             
-            console.log('LLM: Pattern recognition generation complete');
             return response;
             
         } catch (error) {
-            console.error('LLM: Generation failed:', error.message);
+            console.error('LLM: Generation failed:', error);
             throw error;
         }
     }
@@ -317,20 +299,23 @@ class TensorFlowLLMProvider {
         if (this.model) {
             this.model.dispose();
             this.model = null;
-            console.log('LLM: TensorFlow.js model unloaded');
         }
+        this.isLoading = false;
+        this.loadProgress = 0;
     }
 
     /**
      * Update configuration
-     * @param {Object} newConfig - New configuration parameters
+     * @param {Object} newConfig - New configuration
      */
     updateConfig(newConfig) {
         this.config = { ...this.config, ...newConfig };
-        console.log('LLM: Configuration updated');
     }
 }
 
-// Export for use in other modules
-window.TensorFlowLLMProvider = TensorFlowLLMProvider;
-console.log('TensorFlowLLMProvider: File loaded and exported to window.TensorFlowLLMProvider'); 
+// Export to window
+try {
+    window.TensorFlowLLMProvider = TensorFlowLLMProvider;
+} catch (error) {
+    console.error('TensorFlowLLMProvider: Failed to export to window:', error);
+} 

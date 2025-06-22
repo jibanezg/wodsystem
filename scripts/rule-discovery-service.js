@@ -1,6 +1,6 @@
 /**
- * Rule Discovery Service - Implements intelligent rule discovery algorithm
- * Uses LLM to identify rule-related terms and classify chunks
+ * Rule Discovery Service - Simplified for post-import analysis
+ * Analyzes chunks that contain rule-relevant words to identify actual rules
  */
 
 console.log('RuleDiscoveryService: File is being loaded...');
@@ -12,7 +12,6 @@ class RuleDiscoveryService {
         this.isInitialized = false;
         
         // Configuration
-        this.HIGH_TFIDF_THRESHOLD = 0.7; // 70% threshold for high TF-IDF words
         this.MIN_RULE_CONFIDENCE = 0.6; // Minimum confidence for rule classification
         
         // Priority queue for rule chunks (ordered by chunk number)
@@ -26,11 +25,7 @@ class RuleDiscoveryService {
         if (this.isInitialized) return;
         
         try {
-            // Note: LLM service will be initialized manually during import
-            // We don't need to initialize it here
-            
             this.isInitialized = true;
-            console.log('RuleDiscovery: Service initialized');
         } catch (error) {
             console.error('RuleDiscovery: Initialization failed:', error.message);
             throw error;
@@ -38,209 +33,112 @@ class RuleDiscoveryService {
     }
 
     /**
-     * Discover rules from imported books
+     * Analyze chunks that contain rule-relevant words to identify actual rules
      * @param {string} filename - Optional filename filter
-     * @returns {Object} Discovery results
+     * @returns {Object} Analysis results
      */
-    async discoverRules(filename = null) {
-        // Check if LLM service is initialized and ready
+    async analyzeRuleChunks(filename = null) {
+        // Check if LLM service is available
         if (!this.llmService) {
-            throw new Error('LLM service not available');
+            console.warn('RuleDiscovery: LLM service not available, skipping rule discovery');
+            return {
+                success: false,
+                message: 'LLM service not available',
+                chunkAssociations: 0,
+                chunkTuples: 0,
+                ruleChunks: 0
+            };
         }
         
+        // Check if LLM service is initialized and ready
         if (!this.llmService.isInitialized) {
             console.warn('RuleDiscovery: LLM service not initialized, attempting to initialize...');
             try {
                 await this.llmService.initialize();
             } catch (initError) {
-                console.error('RuleDiscovery: Failed to initialize LLM service:', initError.message);
-                throw new Error('LLM service initialization failed. Please try again.');
-            }
-        }
-
-        console.log('RuleDiscovery: Starting rule discovery...');
-        
-        try {
-            // Step 1: Get high TF-IDF words (70%+ threshold)
-            const highTfidfWords = await this.getHighTfidfWords(filename);
-            console.log('RuleDiscovery: Found', highTfidfWords.length, 'high TF-IDF words');
-            
-            // Step 2: Send to LLM for rule term analysis
-            let ruleAnalysis;
-            try {
-                ruleAnalysis = await this.llmService.analyzeRuleTerms(highTfidfWords);
-                console.log('RuleDiscovery: LLM identified', ruleAnalysis.ruleTerms.length, 'rule terms');
-                console.log('RuleDiscovery: LLM suggested', ruleAnalysis.suggestedTerms.length, 'additional terms');
-            } catch (llmError) {
-                console.error('RuleDiscovery: LLM analysis failed:', llmError.message);
-                // Use fallback analysis
-                ruleAnalysis = {
-                    ruleTerms: [],
-                    suggestedTerms: [],
-                    reasoning: 'Fallback analysis due to LLM error'
+                console.warn('RuleDiscovery: Failed to initialize LLM service:', initError.message);
+                return {
+                    success: false,
+                    message: 'LLM service initialization failed',
+                    chunkAssociations: 0,
+                    chunkTuples: 0,
+                    ruleChunks: 0
                 };
             }
+        }
+        
+        // Check if LLM service has a provider
+        if (!this.llmService.llmProvider) {
+            console.warn('RuleDiscovery: LLM service has no provider, skipping rule discovery');
+            return {
+                success: false,
+                message: 'LLM service has no provider',
+                chunkAssociations: 0,
+                chunkTuples: 0,
+                ruleChunks: 0
+            };
+        }
+        
+        try {
+            // Step 1: Get chunks that contain rule-relevant words
+            const ruleChunkAssociations = await this.getRuleChunkAssociations(filename);
             
-            // Step 3: Combine rule terms and suggested terms
-            const allRuleTerms = this.combineRuleTerms(ruleAnalysis);
-            console.log('RuleDiscovery: Total rule terms to search:', allRuleTerms.length);
-            
-            // Step 4: Get chunks associated with rule terms
-            const ruleChunkAssociations = await this.getRuleChunkAssociations(allRuleTerms, filename);
-            console.log('RuleDiscovery: Found', Object.keys(ruleChunkAssociations).length, 'rule term associations');
-            
-            // Step 5: Create tuple list of chunk numbers and documents
+            // Step 2: Create tuple list of chunk numbers and documents
             const chunkTuples = this.createChunkTuples(ruleChunkAssociations);
-            console.log('RuleDiscovery: Created', chunkTuples.length, 'chunk tuples for analysis');
             
-            // Step 6: Analyze chunks with LLM and build priority queue
+            // Step 3: Analyze chunks with LLM and build priority queue
             const ruleChunks = await this.analyzeChunksAndBuildQueue(chunkTuples);
-            console.log(`RuleDiscoveryService: Identified ${ruleChunks.length} rule chunks`);
             
             // Store results
             this.ruleChunks = ruleChunks;
             
             return {
                 success: true,
-                highTfidfWords: highTfidfWords.length,
-                ruleTerms: ruleAnalysis.ruleTerms,
-                suggestedTerms: ruleAnalysis.suggestedTerms,
-                allRuleTerms: allRuleTerms,
                 chunkAssociations: Object.keys(ruleChunkAssociations).length,
                 chunkTuples: chunkTuples.length,
-                ruleChunks: ruleChunks.length,
-                reasoning: ruleAnalysis.reasoning
+                ruleChunks: ruleChunks.length
             };
             
         } catch (error) {
-            console.error('RuleDiscoveryService: Rule discovery failed:', error);
-            throw error;
+            console.error('RuleDiscoveryService: Rule chunk analysis failed:', error);
+            return {
+                success: false,
+                message: error.message,
+                chunkAssociations: 0,
+                chunkTuples: 0,
+                ruleChunks: 0
+            };
         }
     }
 
     /**
-     * Get high TF-IDF words from the content store
+     * Get chunks associated with rule-relevant words from the content store
      * @param {string} filename - Optional filename filter
-     * @returns {Array} Array of high TF-IDF words with scores
+     * @returns {Object} Word-chunk associations for rule-relevant words
      */
-    async getHighTfidfWords(filename = null) {
-        const highTfidfWords = [];
+    async getRuleChunkAssociations(filename = null) {
+        const ruleChunkAssociations = {};
         
         // Get unique files to process
         const filesToProcess = filename ? [filename] : this.contentStore.getUniqueFiles();
-        console.log(`RuleDiscovery: Processing ${filesToProcess.length} files for high TF-IDF words`);
         
         for (const file of filesToProcess) {
-            console.log(`RuleDiscovery: Processing file: ${file}`);
             const tfidfData = this.contentStore.getTFIDFDataForFile(file);
             
-            if (!tfidfData) {
-                console.log(`RuleDiscovery: No TF-IDF data found for file: ${file}`);
+            if (!tfidfData || !tfidfData.wordChunkAssociations) {
                 continue;
             }
             
-            if (!tfidfData.wordChunkAssociations) {
-                console.log(`RuleDiscovery: No word-chunk associations found for file: ${file}`);
-                continue;
-            }
-            
-            console.log(`RuleDiscovery: Found ${Object.keys(tfidfData.wordChunkAssociations).length} word-chunk associations for ${file}`);
-            
-            // Log all word-chunk associations for this file
-            console.log(`RuleDiscovery: ALL WORD-CHUNK ASSOCIATIONS FOR ${file}:`);
-            const sortedWords = Object.keys(tfidfData.wordChunkAssociations).sort((a, b) => {
-                const maxScoreA = Math.max(...tfidfData.wordChunkAssociations[a].map(assoc => assoc.tfidf_score));
-                const maxScoreB = Math.max(...tfidfData.wordChunkAssociations[b].map(assoc => assoc.tfidf_score));
-                return maxScoreB - maxScoreA; // Sort by highest score first
-            });
-            
-            sortedWords.forEach(word => {
-                const associations = tfidfData.wordChunkAssociations[word];
-                const maxTfidf = Math.max(...associations.map(a => a.tfidf_score));
-                const avgTfidf = associations.reduce((sum, a) => sum + a.tfidf_score, 0) / associations.length;
-                
-                console.log(`  "${word}": ${associations.length} chunks, max TF-IDF: ${maxTfidf.toFixed(4)}, avg TF-IDF: ${avgTfidf.toFixed(4)}`);
-                
-                // Check if this word meets the threshold
-                if (maxTfidf >= this.HIGH_TFIDF_THRESHOLD) {
-                    console.log(`    ✓ MEETS THRESHOLD (${this.HIGH_TFIDF_THRESHOLD})`);
-                    highTfidfWords.push({
-                        word: word,
-                        tfidf: maxTfidf,
-                        associations: associations.length,
-                        filename: file
-                    });
-                } else {
-                    console.log(`    ✗ BELOW THRESHOLD (${this.HIGH_TFIDF_THRESHOLD})`);
-                }
-                
-                // Show top 3 chunks for this word
-                associations.slice(0, 3).forEach(assoc => {
-                    console.log(`    - Chunk ${assoc.chunk_count}: TF-IDF ${assoc.tfidf_score.toFixed(4)}, context: ${assoc.sectionContext}`);
-                });
-            });
-            
-            // Extract words with high TF-IDF scores
+            // All word-chunk associations in the store are already for rule-relevant words
+            // (since we only store associations for rule-relevant words during import)
             for (const [word, associations] of Object.entries(tfidfData.wordChunkAssociations)) {
                 if (associations.length > 0) {
-                    const maxTfidf = Math.max(...associations.map(a => a.tfidf_score));
-                    
-                    if (maxTfidf >= this.HIGH_TFIDF_THRESHOLD) {
-                        highTfidfWords.push({
-                            word: word,
-                            tfidf: maxTfidf,
-                            associations: associations.length,
-                            filename: file
-                        });
-                    }
+                    ruleChunkAssociations[word] = associations;
                 }
             }
         }
         
-        console.log(`RuleDiscovery: High TF-IDF threshold: ${this.HIGH_TFIDF_THRESHOLD}`);
-        console.log(`RuleDiscovery: Found ${highTfidfWords.length} words meeting threshold`);
-        
-        // Sort by TF-IDF score (highest first)
-        const sortedHighTfidfWords = highTfidfWords.sort((a, b) => b.tfidf - a.tfidf);
-        
-        // Log the top words found
-        console.log(`RuleDiscovery: TOP HIGH TF-IDF WORDS FOUND:`);
-        sortedHighTfidfWords.slice(0, 20).forEach((wordData, index) => {
-            console.log(`  ${index + 1}. "${wordData.word}": TF-IDF ${wordData.tfidf.toFixed(4)}, ${wordData.associations} chunks, file: ${wordData.filename}`);
-        });
-        
-        return sortedHighTfidfWords;
-    }
-
-    /**
-     * Combine rule terms and suggested terms
-     * @param {Object} ruleAnalysis - LLM analysis result
-     * @returns {Array} Combined array of rule terms
-     */
-    combineRuleTerms(ruleAnalysis) {
-        const allTerms = new Set();
-        
-        // Add rule terms identified by LLM
-        ruleAnalysis.ruleTerms.forEach(term => allTerms.add(term.toLowerCase()));
-        
-        // Add suggested terms
-        ruleAnalysis.suggestedTerms.forEach(term => allTerms.add(term.toLowerCase()));
-        
-        // Add common rule-related terms if not already present
-        const commonRuleTerms = ['rule', 'system', 'mechanic', 'dice', 'roll', 'difficulty', 'success', 'failure'];
-        commonRuleTerms.forEach(term => allTerms.add(term));
-        
-        return Array.from(allTerms);
-    }
-
-    /**
-     * Get chunk associations for rule terms
-     * @param {Array} ruleTerms - Array of rule terms
-     * @param {string} filename - Optional filename filter
-     * @returns {Object} Word-chunk associations
-     */
-    async getRuleChunkAssociations(ruleTerms, filename = null) {
-        return this.contentStore.getWordChunkAssociations(ruleTerms, filename);
+        return ruleChunkAssociations;
     }
 
     /**
@@ -283,8 +181,6 @@ class RuleDiscoveryService {
     async analyzeChunksAndBuildQueue(chunkTuples) {
         const ruleChunks = [];
         
-        console.log(`RuleDiscoveryService: Analyzing ${chunkTuples.length} chunks with LLM...`);
-        
         for (let i = 0; i < chunkTuples.length; i++) {
             const chunkTuple = chunkTuples[i];
             
@@ -319,19 +215,13 @@ class RuleDiscoveryService {
                     });
                 }
                 
-                // Progress logging
-                if ((i + 1) % 10 === 0 || i === chunkTuples.length - 1) {
-                    console.log(`RuleDiscoveryService: Analyzed ${i + 1}/${chunkTuples.length} chunks, found ${ruleChunks.length} rules`);
-                }
-                
             } catch (error) {
-                console.error(`RuleDiscoveryService: Error analyzing chunk ${chunkTuple.chunk_id}:`, error);
-                // Continue with other chunks
+                console.warn(`RuleDiscoveryService: Error analyzing chunk ${chunkTuple.chunk_id}:`, error);
+                continue;
             }
         }
         
-        // Sort by chunk number (priority queue order)
-        return ruleChunks.sort((a, b) => a.chunk_count - b.chunk_count);
+        return ruleChunks;
     }
 
     /**
@@ -410,7 +300,6 @@ class RuleDiscoveryService {
      */
     clearRules() {
         this.ruleChunks = [];
-        console.log('RuleDiscoveryService: Cleared discovered rules');
     }
 
     /**
@@ -422,7 +311,6 @@ class RuleDiscoveryService {
             isInitialized: this.isInitialized,
             ruleChunksCount: this.ruleChunks.length,
             config: {
-                highTfidfThreshold: this.HIGH_TFIDF_THRESHOLD,
                 minRuleConfidence: this.MIN_RULE_CONFIDENCE
             }
         };

@@ -1,5 +1,4 @@
-/**
- * Rulespedia Services - Core service implementations
+/** * Rulespedia Services - Core service implementations
  * Provides search, import, and book management functionality
  */
 
@@ -9,6 +8,172 @@ console.log('RulespediaServices: window.LLMService:', typeof window.LLMService);
 console.log('RulespediaServices: window.RuleDiscoveryService:', typeof window.RuleDiscoveryService);
 console.log('RulespediaServices: window.BrowserLLMProvider:', typeof window.BrowserLLMProvider);
 console.log('RulespediaServices: window.LLMPrompts:', typeof window.LLMPrompts);
+
+/**
+ * Rule Words Manager - Extensible system for managing RPG rule terminology
+ * Supports multiple game systems and automatic game detection
+ */
+class RuleWordsManager {
+    constructor() {
+        // Game-specific rule word sets
+        this.registry = {
+            // Common RPG terms (always included)
+            common: [
+                'rule', 'dice', 'roll', 'difficulty', 'success', 'failure', 
+                'check', 'test', 'mechanic', 'system', 'attack', 'damage', 'health',
+                'skill', 'ability', 'attribute', 'trait', 'modifier', 'bonus', 'penalty',
+                'resolution', 'target', 'threshold', 'advantage', 'disadvantage', 'critical',
+                'fumble', 'resistance', 'immunity', 'vulnerability', 'initiative', 'turn',
+                'action', 'reaction', 'movement', 'range', 'area', 'duration', 'concentration',
+                'saving', 'throw', 'armor', 'class', 'defense', 'evasion', 'dodge', 'parry',
+                'block', 'counter', 'riposte', 'feint', 'grapple', 'shove', 'trip', 'disarm',
+                'overrun', 'tumble', 'charge', 'withdraw', 'retreat', 'surrender', 'morale',
+                'fear', 'panic', 'rout', 'rally', 'inspire', 'leadership', 'command', 'tactics',
+                'strategy', 'formation', 'flank', 'rear', 'surround', 'ambush', 'stealth',
+                'concealment', 'cover', 'terrain', 'environment', 'weather', 'lighting',
+                'visibility', 'obscurement', 'fog', 'smoke', 'darkness', 'blindness',
+                'deafness', 'silence', 'paralysis', 'petrification', 'poison', 'disease',
+                'curse', 'blessing', 'enchantment', 'magic', 'spell', 'ritual', 'incantation',
+                'component', 'material', 'somatic', 'verbal', 'focus', 'cost', 'casting',
+                'effect', 'save', 'resistance'
+            ],
+            
+            // World of Darkness specific terms
+            worldOfDarkness: [
+                'vampire', 'werewolf', 'mage', 'changeling', 'wraith', 'mummy', 'promethean',
+                'blood', 'rage', 'gnosis', 'banality', 'shadow', 'pathos', 'azoth', 'torment',
+                'generation', 'clan', 'tribe', 'tradition', 'seeming', 'kith', 'lineage',
+                'disciplines', 'gifts', 'spheres', 'arts', 'realms', 'arcanoi', 'refinements',
+                'auspice', 'breed', 'totem', 'pack', 'caern', 'node', 'chantry', 'freehold',
+                'shadowlands', 'underworld', 'pandemonium', 'high umbra', 'middle umbra',
+                'low umbra', 'dreaming', 'banality', 'glamour', 'chimerical', 'banal',
+                'fae', 'sidhe', 'sluagh', 'boggan', 'nocker', 'pooka', 'redcap', 'satyr',
+                'troll', 'eshu', 'nunnehi', 'inanimae', 'thallain', 'adhene', 'gallain'
+            ],
+            
+            // D&D/Pathfinder specific terms
+            dndPathfinder: [
+                'spell', 'magic', 'casting', 'component', 'material', 'somatic', 'verbal',
+                'focus', 'ritual', 'incantation', 'class', 'race', 'level', 'experience',
+                'proficiency', 'advantage', 'disadvantage', 'inspiration', 'hit points',
+                'armor class', 'saving throw', 'ability score', 'skill check', 'attack roll',
+                'damage roll', 'critical hit', 'critical miss', 'natural 20', 'natural 1',
+                'spell slot', 'spell level', 'cantrip', 'concentration', 'spell save dc',
+                'spell attack bonus', 'magic item', 'artifact', 'legendary', 'rare', 'uncommon',
+                'common', 'attunement', 'charges', 'recharge', 'legendary resistance',
+                'legendary action', 'lair action', 'regional effect', 'mythic', 'epic'
+            ],
+            
+            // Generic combat terms
+            combat: [
+                'initiative', 'turn', 'action', 'reaction', 'movement', 'range', 'area',
+                'distance', 'flank', 'cover', 'concealment', 'stealth', 'ambush', 'charge',
+                'withdraw', 'retreat', 'surrender', 'morale', 'fear', 'panic', 'rout',
+                'rally', 'inspire', 'leadership', 'command', 'tactics', 'strategy',
+                'formation', 'flank', 'rear', 'surround', 'overrun', 'tumble', 'grapple',
+                'shove', 'trip', 'disarm', 'parry', 'block', 'counter', 'riposte', 'feint'
+            ]
+        };
+        
+        // Game detection patterns
+        this.detectionPatterns = {
+            worldOfDarkness: [
+                'vampire', 'werewolf', 'mage', 'changeling', 'wraith', 'mummy', 'promethean',
+                'white wolf', 'world of darkness', 'blood', 'rage', 'gnosis', 'banality',
+                'shadow', 'pathos', 'generation', 'clan', 'tribe', 'tradition', 'seeming',
+                'kith', 'disciplines', 'gifts', 'spheres', 'arts', 'realms', 'arcanoi'
+            ],
+            dndPathfinder: [
+                'dungeons', 'dragons', 'pathfinder', 'd&d', 'd20', 'spell', 'class', 'race',
+                'level', 'experience', 'proficiency', 'advantage', 'disadvantage', 'hit points',
+                'armor class', 'saving throw', 'ability score', 'skill check', 'attack roll',
+                'damage roll', 'critical hit', 'natural 20', 'natural 1', 'spell slot'
+            ]
+        };
+    }
+    
+    /**
+     * Get all relevant rule words for a specific document
+     * @param {string} documentText - The document text to analyze
+     * @returns {Array} Array of rule-relevant words
+     */
+    getRuleWordsForDocument(documentText) {
+        const detectedGames = this.detectGames(documentText);
+        const relevantWordSets = ['common']; // Always include common
+        
+        // Add detected game-specific word sets
+        detectedGames.forEach(game => {
+            if (this.registry[game]) {
+                relevantWordSets.push(game);
+            }
+        });
+        
+        // Combine all relevant word sets
+        const allRuleWords = new Set();
+        relevantWordSets.forEach(setName => {
+            this.registry[setName].forEach(word => allRuleWords.add(word));
+        });
+        
+        return Array.from(allRuleWords);
+    }
+    
+    /**
+     * Detect games from document content
+     * @param {string} documentText - The document text to analyze
+     * @returns {Array} Array of detected game names
+     */
+    detectGames(documentText) {
+        const detectedGames = [];
+        const lowerText = documentText.toLowerCase();
+        
+        Object.entries(this.detectionPatterns).forEach(([game, patterns]) => {
+            const matchCount = patterns.filter(pattern => 
+                lowerText.includes(pattern.toLowerCase())
+            ).length;
+            
+            if (matchCount >= 2) { // Require at least 2 matches
+                detectedGames.push(game);
+            }
+        });
+        
+        return detectedGames;
+    }
+    
+    /**
+     * Easy extension method - add new rule word set
+     * @param {string} categoryName - Name of the category
+     * @param {Array} words - Array of words for this category
+     */
+    addRuleWordSet(categoryName, words) {
+        this.registry[categoryName] = words;
+    }
+    
+    /**
+     * Easy extension method - add new detection patterns
+     * @param {string} gameName - Name of the game
+     * @param {Array} patterns - Array of detection patterns
+     */
+    addDetectionPatterns(gameName, patterns) {
+        this.detectionPatterns[gameName] = patterns;
+    }
+    
+    /**
+     * Get all available rule word categories
+     * @returns {Array} Array of category names
+     */
+    getAvailableCategories() {
+        return Object.keys(this.registry);
+    }
+    
+    /**
+     * Get rule words for a specific category
+     * @param {string} categoryName - Name of the category
+     * @returns {Array} Array of words for this category
+     */
+    getRuleWordsForCategory(categoryName) {
+        return this.registry[categoryName] || [];
+    }
+}
 
 /**
  * Rulespedia Services
@@ -64,17 +229,21 @@ class SearchService {
  * Import Service - Handles book import operations
  */
 class ImportService {
-    constructor(contentStore) {
+    constructor(contentStore, serviceManager = null) {
         this.contentStore = contentStore;
+        this.serviceManager = serviceManager;
+        
+        // Initialize the Rule Words Manager
+        this.ruleWordsManager = new RuleWordsManager();
         
         // Token-based chunking configuration
         this.TARGET_CHUNK_SIZE = 2000; // words
-        this.MIN_CHUNK_SIZE = 1000; // words
+        this.MIN_CHUNK_SIZE = 100; // words
         this.MAX_CHUNK_SIZE = 3000; // words
-        this.OVERLAP_SIZE = 200; // words for context continuity
+        this.OVERLAP_SIZE = 500; // words for context continuity
         
         // TF-IDF configuration
-        this.TFIDF_THRESHOLD = 0.7; // Minimum confidence threshold for word-chunk associations
+        this.TFIDF_THRESHOLD = 0.05; // Minimum confidence threshold for word-chunk associations
         this.STOP_WORDS = new Set([
             'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
             'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
@@ -98,74 +267,136 @@ class ImportService {
         const progressCallback = options.progressCallback || (() => {});
         
         try {
-            console.log(`ImportService: Starting import of ${file.name}`);
-            console.log(`ImportService: File size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+            progressCallback(0.05); // 5% - Starting
             
-            progressCallback(0.1); // 10% - Starting
+            // Load Porter Stemmer library
+            try {
+                await this.loadPorterStemmer();
+            } catch (error) {
+                console.warn('ImportService: Failed to load Porter Stemmer, using fallback normalization');
+            }
+            
+            progressCallback(0.1); // 10% - Libraries loaded
             
             // Extract text from PDF
             const extractedText = await this.extractTextFromPDF(file, progressCallback);
-            console.log(`ImportService: Extracted ${extractedText.length} characters of text`);
-            console.log(`ImportService: Extracted ${extractedText.split(/\s+/).filter(w => w.trim().length > 0).length} words`);
             
-            progressCallback(0.25); // 25% - Text extraction complete
+            progressCallback(0.15); // 15% - Text extraction complete
             
             // Step 1: Pre-process text and calculate IDF
             const processedData = this.preprocessTextAndCalculateIDF(extractedText, file.name);
-            console.log(`ImportService: Pre-processed text and calculated IDF for ${processedData.uniqueWords.size} unique words`);
             
-            progressCallback(0.35); // 35% - Text processing complete
+            progressCallback(0.25); // 25% - Text processing complete
             
             // Step 2: Split text into token-based chunks with progress tracking
             const chunkingProgressCallback = (chunkProgress) => {
-                // Map chunking progress from 35% to 60% (25% of total progress)
-                const overallProgress = 0.35 + (chunkProgress * 0.25);
+                // Map chunking progress from 25% to 50% (25% of total progress)
+                const overallProgress = 0.25 + (chunkProgress * 0.25);
                 progressCallback(overallProgress);
             };
             
             const textChunks = this.splitTextIntoTokenChunks(extractedText, file.name, chunkingProgressCallback);
-            console.log(`ImportService: Created ${textChunks.length} token-based chunks`);
             
-            progressCallback(0.65); // 65% - Chunking complete
+            progressCallback(0.55); // 55% - Chunking complete
             
-            // Step 3: Calculate TF-IDF and create word-chunk associations
-            const tfidfData = this.calculateTFIDFAndAssociations(textChunks, processedData.idfScores);
-            console.log(`ImportService: Calculated TF-IDF and created ${Object.keys(tfidfData.wordChunkAssociations).length} word-chunk associations`);
+            // Step 2.5: Validate chunk quality and filter out low-quality chunks
+            const qualityChunks = this.validateChunkQuality(textChunks);
             
-            progressCallback(0.85); // 85% - TF-IDF calculation complete
+            if (qualityChunks.length === 0) {
+                throw new Error('No quality chunks found after filtering. The PDF may not contain rule content or the extraction needs improvement.');
+            }
+            
+            // Step 3: Get rule-relevant words using RuleWordsManager
+            let ruleRelevantWords = [];
+            try {
+                // Use RuleWordsManager to get rule-relevant words based on document content
+                ruleRelevantWords = this.ruleWordsManager.getRuleWordsForDocument(extractedText);
+                
+                // Get rule-relevant words from RuleWordsManager
+                const ruleWordsManager = new RuleWordsManager();
+                ruleRelevantWords = ruleWordsManager.getRuleWordsForDocument(extractedText);
+                
+                // Try to get additional words from LLM if available
+                if (this.serviceManager?.getLLMService()) {
+                    try {
+                        const llmService = this.serviceManager.getLLMService();
+                        if (llmService) {
+                            const llmWords = await llmService.getRuleRelevantWords();
+                            
+                            // Combine and deduplicate
+                            const allWords = [...ruleRelevantWords, ...llmWords];
+                            ruleRelevantWords = [...new Set(allWords)];
+                        }
+                    } catch (error) {
+                        console.warn('ImportService: LLM word generation failed, using RuleWordsManager only:', error);
+                    }
+                }
+            } catch (error) {
+                console.warn('ImportService: Failed to get rule-relevant words, using fallback:', error);
+                // Fallback to basic rule words
+                ruleRelevantWords = [
+                    'rule', 'dice', 'roll', 'difficulty', 'success', 'failure', 'check', 'test', 'mechanic', 'system',
+                    'attack', 'damage', 'health', 'skill', 'ability', 'attribute', 'trait', 'modifier', 'bonus', 'penalty'
+                ];
+            }
+            
+            progressCallback(0.6); // 60% - Rule-relevant words obtained
+            
+            // Step 4: Calculate TF-IDF and create word-chunk associations for rule-relevant words only
+            const tfidfData = this.calculateTFIDFAndAssociations(qualityChunks, processedData.idfScores, ruleRelevantWords);
+            
+            progressCallback(0.65); // 65% - TF-IDF calculation complete
             
             // Log chunk statistics
-            const totalWords = textChunks.reduce((sum, chunk) => sum + chunk.wordCount, 0);
-            const avgChunkSize = Math.round(totalWords / textChunks.length);
-            const minChunkSize = Math.min(...textChunks.map(c => c.wordCount));
-            const maxChunkSize = Math.max(...textChunks.map(c => c.wordCount));
+            const totalWords = qualityChunks.reduce((sum, chunk) => sum + chunk.wordCount, 0);
+            const avgChunkSize = Math.round(totalWords / qualityChunks.length);
+            const minChunkSize = Math.min(...qualityChunks.map(c => c.wordCount));
+            const maxChunkSize = Math.max(...qualityChunks.map(c => c.wordCount));
             
-            console.log(`ImportService: Chunk statistics:`);
-            console.log(`  Total words: ${totalWords.toLocaleString()}`);
-            console.log(`  Average chunk size: ${avgChunkSize} words`);
-            console.log(`  Min chunk size: ${minChunkSize} words`);
-            console.log(`  Max chunk size: ${maxChunkSize} words`);
-            console.log(`  Target chunk size: ${this.TARGET_CHUNK_SIZE} words`);
+            // Step 5: Store in content store
+            const chunkingStoringProgressCallback = (chunkProgress) => {
+                // Map storing progress from 65% to 95% (30% of total progress)
+                const overallProgress = 0.65 + (chunkProgress * 0.30);
+                progressCallback(overallProgress);
+            };
             
-            // Store chunks and TF-IDF data in content store
-            await this.storeTextInContentStore(textChunks, file.name, tfidfData);
+            await this.storeTextInContentStore(qualityChunks, file.name, tfidfData, chunkingStoringProgressCallback);
+            
+            progressCallback(0.95); // 95% - Storage complete
+            
+            // Step 6: Analyze chunks for rules (optional) - make it non-blocking
+            try {
+                if (typeof window.RuleDiscoveryService !== 'undefined') {
+                    // Use the service manager's rule discovery service instead of creating a new instance
+                    const ruleDiscoveryService = this.serviceManager?.getRuleDiscoveryService();
+                    if (ruleDiscoveryService) {
+                        // Make rule discovery non-blocking - don't await it
+                        ruleDiscoveryService.analyzeRuleChunks(file.name).then(result => {
+                            if (!result.success) {
+                                console.warn('ImportService: Rule discovery analysis failed:', result.message);
+                            }
+                        }).catch(error => {
+                            console.warn('ImportService: Rule discovery analysis failed:', error);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.warn('ImportService: Rule discovery analysis failed:', error);
+            }
             
             progressCallback(1.0); // 100% - Complete
             
             return {
                 success: true,
-                message: `Successfully imported ${file.name}`,
                 filename: file.name,
-                chunks: textChunks.length,
+                chunks: qualityChunks.length,
                 totalWords: totalWords,
-                averageChunkSize: avgChunkSize,
-                minChunkSize: minChunkSize,
-                maxChunkSize: maxChunkSize,
-                uniqueWords: processedData.uniqueWords.size,
-                wordChunkAssociations: Object.keys(tfidfData.wordChunkAssociations).length
+                associations: Object.keys(tfidfData.wordChunkAssociations).length,
+                message: `Successfully imported ${file.name} with ${qualityChunks.length} chunks and ${Object.keys(tfidfData.wordChunkAssociations).length} word associations`
             };
+            
         } catch (error) {
-            console.error('ImportService: Import error:', error);
+            console.error('ImportService: Import failed:', error);
             throw error;
         }
     }
@@ -200,8 +431,6 @@ class ImportService {
                         const arrayBuffer = e.target.result;
                         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                         
-                        console.log(`PDF loaded: ${pdf.numPages} pages`);
-                        
                         let fullText = '';
                         let pageStats = [];
                         
@@ -234,11 +463,6 @@ class ImportService {
                                 const pageProgress = 0.1 + (pageNum / pdf.numPages) * 0.2; // 10-30% for text extraction
                                 progressCallback(pageProgress);
                                 
-                                // Log progress every 10 pages
-                                if (pageNum % 10 === 0) {
-                                    console.log(`Extracted page ${pageNum}/${pdf.numPages}`);
-                                }
-                                
                             } catch (pageError) {
                                 console.warn(`Error extracting page ${pageNum}:`, pageError);
                                 pageStats.push({
@@ -254,12 +478,6 @@ class ImportService {
                         const totalPages = pdf.numPages;
                         const pagesWithContent = pageStats.filter(p => p.hasContent).length;
                         const totalTextLength = fullText.length;
-                        
-                        console.log(`PDF extraction complete:`);
-                        console.log(`  Total pages: ${totalPages}`);
-                        console.log(`  Pages with content: ${pagesWithContent}`);
-                        console.log(`  Total text length: ${totalTextLength.toLocaleString()} characters`);
-                        console.log(`  Average text per page: ${Math.round(totalTextLength / totalPages)} characters`);
                         
                         if (pagesWithContent < totalPages * 0.5) {
                             console.warn(`⚠️  Warning: Only ${pagesWithContent}/${totalPages} pages have content. This may indicate extraction issues.`);
@@ -306,11 +524,9 @@ class ImportService {
             let pageText = '';
             let currentLine = '';
             let lastY = null;
-            let lastX = null;
             
             for (const item of sortedItems) {
                 const text = item.str;
-                const x = item.transform[4];
                 const y = item.transform[5];
                 
                 // Skip empty text
@@ -319,25 +535,23 @@ class ImportService {
                 // Check if this is a new line (significant Y difference)
                 const isNewLine = lastY === null || Math.abs(y - lastY) > 10;
                 
-                // Check if this is a new word (significant X difference)
-                const isNewWord = lastX === null || (x - lastX) > 20;
-                
                 if (isNewLine) {
                     // Start a new line
                     if (currentLine.trim()) {
                         pageText += currentLine.trim() + '\n';
                     }
                     currentLine = text;
-                } else if (isNewWord) {
-                    // Add space between words
-                    currentLine += ' ' + text;
                 } else {
-                    // Same word, just append
+                    // Same line - add the text element
                     currentLine += text;
                 }
                 
+                // Add space after each text element unless it ends with punctuation
+                if (!/[.!?,;:]$/.test(text)) {
+                    currentLine += ' ';
+                }
+                
                 lastY = y;
-                lastX = x + (item.width || 0);
             }
             
             // Add the last line
@@ -354,14 +568,70 @@ class ImportService {
     }
 
     /**
-     * Clean extracted text
+     * Clean extracted text from PDF
+     * @param {string} text - Raw extracted text
+     * @returns {string} Cleaned text
      */
     cleanExtractedText(text) {
-        return text
-            .replace(/\r\n/g, '\n')  // Normalize line endings
-            .replace(/\r/g, '\n')    // Convert remaining carriage returns
-            .replace(/\n{3,}/g, '\n\n') // Remove excessive blank lines
+        if (!text) return '';
+        
+        let cleaned = text;
+        
+        // Remove common PDF artifacts and metadata, but preserve structure
+        const metadataPatterns = [
+            // Page numbers and section numbers (but keep them if they're part of headings)
+            /\b(?:page|p\.?)\s*\d+/gi,
+            /\b(?:section|sec\.?)\s*\d+/gi,
+            /\b(?:chapter|chap\.?)\s*\d+/gi,
+            /\b(?:part|pt\.?)\s*\d+/gi,
+            
+            // Common metadata words (but be more careful)
+            /\b(?:credits?|copyright|all rights reserved|published by|written by|edited by|art by|layout by)\b/gi,
+            
+            // Common PDF artifacts
+            /\b(?:e|kstatikos|mutuality|unmutuality)\b/gi,
+            
+            // Single letters and very short fragments (but preserve them in context)
+            /\b[a-zA-Z]\b/g,
+            
+            // Multiple consecutive spaces (but preserve single spaces)
+            /[ \t]+/g,
+            
+            // Multiple consecutive newlines (but preserve single newlines)
+            /\n\s*\n\s*\n+/g
+        ];
+        
+        // Apply cleaning patterns more carefully
+        metadataPatterns.forEach(pattern => {
+            cleaned = cleaned.replace(pattern, ' ');
+        });
+        
+        // Remove lines that are mostly numbers or very short, but preserve structure
+        const lines = cleaned.split('\n');
+        const filteredLines = lines.filter(line => {
+            const trimmed = line.trim();
+            if (trimmed.length === 0) return false;
+            
+            // Remove lines that are mostly numbers (but keep page numbers in context)
+            const words = trimmed.split(/\s+/);
+            const numberWords = words.filter(word => /^\d+$/.test(word));
+            if (numberWords.length > words.length * 0.7) return false; // More lenient threshold
+            
+            // Remove very short lines (likely headers or artifacts)
+            if (trimmed.length < 5 && words.length < 2) return false; // More lenient
+            
+            return true;
+        });
+        
+        cleaned = filteredLines.join('\n');
+        
+        // Final cleanup - preserve line breaks
+        cleaned = cleaned
+            .replace(/[ \t]+/g, ' ') // Normalize spaces but preserve newlines
+            .replace(/\n\s*\n/g, '\n\n') // Normalize multiple line breaks to double line breaks
             .trim();
+        
+        return cleaned;
     }
 
     /**
@@ -406,33 +676,31 @@ class ImportService {
     }
 
     /**
-     * Split text into token-based chunks with sequential numbering
-     * @param {string} text - Full text to chunk
-     * @param {string} filename - Source filename
-     * @param {Function} progressCallback - Optional progress callback
-     * @returns {Array} Array of chunk objects with sequential numbering
+     * Split text into token-based chunks with section-based grouping
+     * @param {string} text - Text to split
+     * @param {string} filename - Filename for chunk identification
+     * @param {Function} progressCallback - Progress callback function
+     * @returns {Array} Array of text chunks
      */
     splitTextIntoTokenChunks(text, filename, progressCallback = () => {}) {
-        console.log(`ImportService: Starting token-based chunking for ${filename}`);
-        
         // Clean the text first
         let cleanText = this.cleanExtractedText(text);
         
         // Split into words for token-based chunking
         const words = cleanText.split(/\s+/).filter(word => word.trim().length > 0);
-        console.log(`ImportService: Total words to chunk: ${words.length.toLocaleString()}`);
         
         // Get section boundaries for context preservation
         const sectionBoundaries = this.getSectionBoundaries(cleanText);
-        console.log(`ImportService: Found ${sectionBoundaries.length} section boundaries`);
         
         const chunks = [];
         let currentChunkCount = 0;
         let startWordIndex = 0;
         
+        // Track chunks by section for section-based grouping
+        const sectionChunks = new Map(); // sectionTitle -> array of chunks
+        
         // Estimate total chunks for progress calculation
         const estimatedTotalChunks = Math.ceil(words.length / this.TARGET_CHUNK_SIZE);
-        console.log(`ImportService: Estimated ${estimatedTotalChunks} chunks to create`);
         
         // Token-based chunking across the entire document
         while (startWordIndex < words.length) {
@@ -467,17 +735,33 @@ class ImportService {
                 cleanText
             );
             
-            // Create chunk with sequential numbering
+            // Create chunk with section-based grouping
             currentChunkCount++;
-            chunks.push({
-                chunk_count: currentChunkCount,
+            
+            // Initialize section tracking if needed
+            if (!sectionChunks.has(sectionContext)) {
+                sectionChunks.set(sectionContext, []);
+            }
+            
+            // Add chunk to its section
+            const sectionChunkArray = sectionChunks.get(sectionContext);
+            const sectionChunkIndex = sectionChunkArray.length + 1; // 1-based index within section
+            
+            const chunk = {
+                chunk_count: currentChunkCount, // Keep for backward compatibility
+                section_id: sectionContext, // Section identifier
+                section_chunk_index: sectionChunkIndex, // Position within section
+                section_total_chunks: 0, // Will be updated after all chunks are created
                 chunk: this.formatChunkText(sectionContext, chunkContent),
                 filename: filename,
                 sectionContext: sectionContext,
                 wordCount: chunkContent.split(/\s+/).filter(w => w.trim().length > 0).length,
                 startWordIndex: startWordIndex,
                 endWordIndex: Math.min(startWordIndex + targetSize, words.length)
-            });
+            };
+            
+            sectionChunkArray.push(chunk);
+            chunks.push(chunk);
             
             // Update progress every 10 chunks or when we have a good estimate
             if (currentChunkCount % 10 === 0 || currentChunkCount === estimatedTotalChunks) {
@@ -486,11 +770,16 @@ class ImportService {
             }
         }
         
+        // Update section_total_chunks for all chunks
+        for (const [sectionTitle, sectionChunkArray] of sectionChunks) {
+            const totalChunksInSection = sectionChunkArray.length;
+            for (const chunk of sectionChunkArray) {
+                chunk.section_total_chunks = totalChunksInSection;
+            }
+        }
+        
         // Final progress update
         progressCallback(1.0);
-        
-        console.log(`ImportService: Created ${chunks.length} token-based chunks for ${filename}`);
-        console.log(`ImportService: Average chunk size: ${Math.round(chunks.reduce((sum, c) => sum + c.wordCount, 0) / chunks.length)} words`);
         
         return chunks;
     }
@@ -501,15 +790,222 @@ class ImportService {
      * @returns {Array} Array of section boundary objects
      */
     getSectionBoundaries(text) {
+        // First, try to detect table of contents
+        const tocSections = this.detectTableOfContents(text);
+        
+        if (tocSections.length > 0) {
+            return this.convertTOCToBoundaries(tocSections, text);
+        }
+        
+        // Fallback to heading detection if no TOC found
+        const headingBoundaries = this.detectHeadingsInText(text);
+        return headingBoundaries;
+    }
+    
+    /**
+     * Convert TOC sections to word-based boundaries
+     * @param {Array} tocSections - TOC sections with page numbers
+     * @param {string} text - Full text
+     * @returns {Array} Array of section boundary objects
+     */
+    convertTOCToBoundaries(tocSections, text) {
         const boundaries = [];
         const lines = text.split('\n');
+        let currentWordIndex = 0;
+        
+        // Find page markers in the text
+        const pageMarkers = this.findPageMarkers(lines);
+        
+        if (pageMarkers.length > 0) {
+            // Use actual page markers
+            for (const tocSection of tocSections) {
+                // Find the page marker for this section
+                const pageMarker = pageMarkers.find(marker => marker.pageNumber === tocSection.pageNumber);
+                
+                if (pageMarker) {
+                    boundaries.push({
+                        title: tocSection.title,
+                        startWordIndex: pageMarker.wordIndex,
+                        lineIndex: pageMarker.lineIndex,
+                        pageNumber: tocSection.pageNumber
+                    });
+                } else {
+                    console.warn(`ImportService: Could not find page ${tocSection.pageNumber} for section "${tocSection.title}"`);
+                }
+            }
+        } else {
+            // Fallback: estimate page positions based on TOC order
+            const estimatedBoundaries = this.estimatePagePositions(tocSections, text);
+            boundaries.push(...estimatedBoundaries);
+        }
+        
+        return boundaries;
+    }
+    
+    /**
+     * Estimate page positions when page markers aren't available
+     * @param {Array} tocSections - TOC sections with page numbers
+     * @param {string} text - Full text
+     * @returns {Array} Array of estimated section boundary objects
+     */
+    estimatePagePositions(tocSections, text) {
+        const boundaries = [];
+        const lines = text.split('\n');
+        const totalLines = lines.length;
+        
+        // Sort TOC sections by page number
+        const sortedSections = [...tocSections].sort((a, b) => a.pageNumber - b.pageNumber);
+        
+        for (let i = 0; i < sortedSections.length; i++) {
+            const section = sortedSections[i];
+            const nextSection = sortedSections[i + 1];
+            
+            // Estimate position based on page number ratio
+            let estimatedLineIndex;
+            if (nextSection) {
+                // Estimate position between current and next page
+                const pageRange = nextSection.pageNumber - section.pageNumber;
+                const lineRange = totalLines;
+                const estimatedRatio = (section.pageNumber - sortedSections[0].pageNumber) / (sortedSections[sortedSections.length - 1].pageNumber - sortedSections[0].pageNumber);
+                estimatedLineIndex = Math.floor(estimatedRatio * lineRange);
+            } else {
+                // Last section - estimate near the end
+                estimatedLineIndex = Math.floor(totalLines * 0.9);
+            }
+            
+            // Calculate word index for this line
+            let wordIndex = 0;
+            for (let j = 0; j < estimatedLineIndex && j < lines.length; j++) {
+                const wordsInLine = lines[j].split(/\s+/).filter(word => word.trim().length > 0).length;
+                wordIndex += wordsInLine + 1; // +1 for newline
+            }
+            
+            boundaries.push({
+                title: section.title,
+                startWordIndex: wordIndex,
+                lineIndex: estimatedLineIndex,
+                pageNumber: section.pageNumber,
+                estimated: true
+            });
+        }
+        
+        return boundaries;
+    }
+    
+    /**
+     * Find page markers in the text
+     * @param {Array} lines - Array of text lines
+     * @returns {Array} Array of page marker objects
+     */
+    findPageMarkers(lines) {
+        const pageMarkers = [];
         let currentWordIndex = 0;
         
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
             
+            // Look for various page number patterns
+            const pagePatterns = [
+                // Just a number on its own line
+                /^(\d+)$/,
+                // Page X format
+                /^page\s+(\d+)$/i,
+                /^p\.?\s*(\d+)$/i,
+                // Number with dots or dashes
+                /^[.\-]*(\d+)[.\-]*$/,
+                // Number at end of line
+                /^.*\s+(\d+)$/,
+                // Number at beginning of line
+                /^(\d+)\s+.*$/,
+                // Number in brackets or parentheses
+                /^[\[\(](\d+)[\]\)]$/,
+                /^.*[\[\(](\d+)[\]\)].*$/
+            ];
+            
+            for (const pattern of pagePatterns) {
+                const pageMatch = line.match(pattern);
+                if (pageMatch) {
+                    const pageNumber = parseInt(pageMatch[1]);
+                    if (pageNumber >= 1 && pageNumber <= 1000) {
+                        // Check if this looks like a real page marker (not part of content)
+                        const isLikelyPageMarker = this.isLikelyPageMarker(line, pageNumber);
+                        if (isLikelyPageMarker) {
+                            pageMarkers.push({
+                                pageNumber: pageNumber,
+                                wordIndex: currentWordIndex,
+                                lineIndex: i,
+                                line: line
+                            });
+                            break; // Don't match multiple patterns for the same line
+                        }
+                    }
+                }
+            }
+            
+            // Count words in this line
+            const wordsInLine = line.split(/\s+/).filter(word => word.trim().length > 0).length;
+            currentWordIndex += wordsInLine + 1; // +1 for newline
+        }
+        
+        return pageMarkers;
+    }
+    
+    /**
+     * Check if a line is likely to be a page marker
+     * @param {string} line - Line to check
+     * @param {number} pageNumber - Page number found
+     * @returns {boolean} True if likely a page marker
+     */
+    isLikelyPageMarker(line, pageNumber) {
+        const trimmed = line.trim();
+        
+        // If it's just the number, it's likely a page marker
+        if (trimmed === pageNumber.toString()) {
+            return true;
+        }
+        
+        // If it's "Page X" or "p. X", it's likely a page marker
+        if (/^page\s+\d+$/i.test(trimmed) || /^p\.?\s*\d+$/i.test(trimmed)) {
+            return true;
+        }
+        
+        // If it's mostly dots/dashes with a number, it's likely a page marker
+        if (/^[.\-]*\d+[.\-]*$/.test(trimmed)) {
+            return true;
+        }
+        
+        // If it's a number in brackets/parentheses, it's likely a page marker
+        if (/^[\[\(]\d+[\]\)]$/.test(trimmed)) {
+            return true;
+        }
+        
+        // If the line is very short and contains the page number prominently, it might be a page marker
+        if (trimmed.length < 20 && trimmed.includes(pageNumber.toString())) {
+            // Check if the page number is at the end or beginning
+            if (trimmed.endsWith(pageNumber.toString()) || trimmed.startsWith(pageNumber.toString())) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Detect headings in text to create section boundaries
+     * @param {string} text - Full text to analyze
+     * @returns {Array} Array of section boundary objects
+     */
+    detectHeadingsInText(text) {
+        const lines = text.split('\n');
+        const boundaries = [];
+        let currentWordIndex = 0;
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Skip empty lines
             if (line.length === 0) {
-                currentWordIndex += 1; // Account for newline
+                currentWordIndex += 1; // +1 for newline
                 continue;
             }
             
@@ -525,6 +1021,10 @@ class ImportService {
             // Count words in this line
             const wordsInLine = line.split(/\s+/).filter(word => word.trim().length > 0).length;
             currentWordIndex += wordsInLine + 1; // +1 for newline
+        }
+        
+        if (boundaries.length === 0) {
+            console.warn('ImportService: No section boundaries found! All chunks will default to "Introduction"');
         }
         
         return boundaries;
@@ -632,25 +1132,20 @@ class ImportService {
     /**
      * Store text chunks in content store
      */
-    async storeTextInContentStore(textChunks, filename, tfidfData) {
-        console.log(`ImportService: Storing ${textChunks.length} chunks for ${filename}`);
-        
+    async storeTextInContentStore(textChunks, filename, tfidfData, progressCallback) {
         if (!this.contentStore) {
             console.error('ImportService: Content store not available');
             throw new Error('Content store not available');
         }
         
-        console.log(`ImportService: Found content store, storing chunks...`);
-        
         // Store each chunk
         for (const chunk of textChunks) {
             try {
-                console.log(`ImportService: Storing chunk ${chunk.chunk_count} (${chunk.chunk.length} characters, ${chunk.wordCount} words)`);
-                
-                // Use the correct method: addDocument
+                // Use the correct method: addDocument with metadata as fourth parameter
                 const result = await this.contentStore.addDocument(
                     `${filename}_chunk_${chunk.chunk_count}`,
                     chunk.chunk,
+                    true, // batch parameter - don't save after each chunk
                     {
                         filename: filename,
                         chunk_count: chunk.chunk_count,
@@ -660,8 +1155,10 @@ class ImportService {
                         endWordIndex: chunk.endWordIndex
                     }
                 );
-                
-                console.log(`ImportService: Successfully stored chunk ${chunk.chunk_count}`);
+                if (chunk.chunk_count % 10 === 0 || chunk.chunk_count === textChunks.length) {
+                    const chunkProgress = Math.min(chunk.chunk_count / textChunks.length, 1.0);
+                    progressCallback(chunkProgress);
+                }
                 
             } catch (error) {
                 console.error(`ImportService: Error storing chunk ${chunk.chunk_count} from ${filename}:`, error);
@@ -669,21 +1166,30 @@ class ImportService {
             }
         }
         
-        // Store TF-IDF data
-        await this.contentStore.addDocument(
-            `${filename}_tfidf_data`,
-            JSON.stringify(tfidfData),
-            {
-                filename: filename,
-                chunk_count: 'tfidf_data',
-                sectionContext: 'TF-IDF Data',
-                wordCount: Object.keys(tfidfData.wordChunkAssociations).length,
-                startWordIndex: 0,
-                endWordIndex: Object.keys(tfidfData.wordChunkAssociations).length - 1
-            }
-        );
+        // Store TF-IDF data - make it non-blocking
+        try {
+            await this.contentStore.addDocument(
+                `${filename}_tfidf_data`,
+                JSON.stringify(tfidfData),
+                true, // batch parameter - don't save immediately
+                {
+                    filename: filename,
+                    chunk_count: 'tfidf_data',
+                    sectionContext: 'TF-IDF Data',
+                    wordCount: Object.keys(tfidfData.wordChunkAssociations).length,
+                    startWordIndex: 0,
+                    endWordIndex: Object.keys(tfidfData.wordChunkAssociations).length - 1
+                }
+            );
+        } catch (error) {
+            console.error('ImportService: Error storing TF-IDF data:', error);
+            // Continue even if TF-IDF storage fails
+        }
         
-        console.log(`ImportService: Completed storing all chunks for ${filename}`);
+        // Save all data in background - don't await this
+        this.contentStore.saveContent().catch(error => {
+            console.error('ImportService: Error saving content to storage:', error);
+        });
     }
 
     /**
@@ -718,9 +1224,11 @@ class ImportService {
 
     /**
      * Check if a line is a heading
+     * @param {string} line - Line to check
+     * @returns {boolean} True if this is a heading
      */
     isHeading(line) {
-        // Generic heading detection for any type of document
+        // Structural heading patterns for RPG rulebooks
         const headingPatterns = [
             // Chapter patterns
             /^Chapter\s+\d+/i,
@@ -732,21 +1240,18 @@ class ImportService {
             /^Section\s+\d+/i,
             /^SECTION\s+\d+/,
             
-            // All caps headings (common in many documents)
-            /^[A-Z][A-Z\s]{3,}$/,
-            
             // Numbered headings
             /^\d+\.\s+[A-Z]/,
             /^\d+\)\s+[A-Z]/,
-            
-            // Short, bold-looking headings
-            /^[A-Z][a-z]+$/,
             
             // Headings with colons
             /^[A-Z][^:]*:$/,
             
             // Headings that are alone on a line and look important
-            /^[A-Z][a-zA-Z\s]{2,20}$/
+            /^[A-Z][a-zA-Z\s]{2,20}$/,
+            
+            // Page headers (often in all caps)
+            /^[A-Z\s]{5,}$/
         ];
         
         // Check if line matches any heading pattern
@@ -766,22 +1271,17 @@ class ImportService {
      * @returns {Object} Processed data with clean text, unique words, and IDF scores
      */
     preprocessTextAndCalculateIDF(text, filename) {
-        console.log(`ImportService: Pre-processing text for ${filename}`);
-        
         // Clean the text
         let cleanText = this.cleanExtractedText(text);
         
         // Tokenize and normalize words
         const words = this.tokenizeAndNormalize(cleanText);
-        console.log(`ImportService: Tokenized ${words.length} words`);
         
         // Remove stop words
         const filteredWords = words.filter(word => !this.STOP_WORDS.has(word));
-        console.log(`ImportService: After stop word removal: ${filteredWords.length} words`);
         
         // Get unique words
         const uniqueWords = new Set(filteredWords);
-        console.log(`ImportService: Unique words: ${uniqueWords.size}`);
         
         // Calculate IDF scores
         const idfScores = this.calculateIDFScores(filteredWords, uniqueWords);
@@ -809,22 +1309,119 @@ class ImportService {
     }
 
     /**
-     * Normalize a word (basic stemming)
+     * Normalize a word using Porter Stemmer library
      * @param {string} word - Word to normalize
      * @returns {string} Normalized word
      */
     normalizeWord(word) {
-        // Basic stemming: remove common suffixes
-        const suffixes = ['s', 'es', 'ed', 'ing', 'ly', 'er', 'est'];
+        // Use the actual porter-stemmer library
+        if (typeof window.stemmer !== 'undefined') {
+            return window.stemmer(word);
+        }
         
-        for (const suffix of suffixes) {
-            if (word.endsWith(suffix) && word.length > suffix.length + 2) {
-                word = word.slice(0, -suffix.length);
-                break;
+        // Fallback to basic normalization if library not loaded
+        return word.toLowerCase();
+    }
+
+    /**
+     * Load Porter Stemmer library
+     */
+    async loadPorterStemmer() {
+        if (window.stemmer) {
+            return; // Already loaded
+        }
+        
+        const stemmerUrls = [
+            'https://unpkg.com/porter-stemmer@2.0.1/porter-stemmer.js',
+            'https://cdn.jsdelivr.net/npm/porter-stemmer@2.0.1/porter-stemmer.js',
+            'https://unpkg.com/porter-stemmer@2.0.1/src/porter-stemmer.js',
+            'https://cdn.jsdelivr.net/npm/porter-stemmer@2.0.1/src/porter-stemmer.js',
+            'https://cdn.jsdelivr.net/npm/compromise@14.10.0/builds/compromise.min.js'
+        ];
+        
+        for (const url of stemmerUrls) {
+            try {
+                await this.loadScriptFromCDN(url);
+                
+                if (window.stemmer) {
+                    return;
+                }
+                
+                // For compromise.js, set up the stemmer function
+                if (window.nlp && !window.stemmer) {
+                    window.stemmer = function(word) {
+                        return window.nlp(word).normalize().out('root');
+                    };
+                    return;
+                }
+            } catch (error) {
+                continue;
             }
         }
         
-        return word;
+        // If all CDN sources fail, implement local stemmer
+        this.implementFallbackStemmer();
+    }
+    
+    /**
+     * Load script from CDN
+     */
+    loadScriptFromCDN(cdnUrl) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = cdnUrl;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`Failed to load from ${cdnUrl}`));
+            document.head.appendChild(script);
+        });
+    }
+    
+    /**
+     * Implement a simple fallback stemmer
+     */
+    implementFallbackStemmer() {
+        // Simple Porter Stemmer implementation for common English suffixes
+        window.stemmer = function(word) {
+            if (word.length < 3) return word;
+            
+            // Convert to lowercase
+            word = word.toLowerCase();
+            
+            // Step 1: Remove common plural and past tense endings
+            if (word.endsWith('ies')) {
+                word = word.slice(0, -3) + 'y';
+            } else if (word.endsWith('ied')) {
+                word = word.slice(0, -3) + 'y';
+            } else if (word.endsWith('ing')) {
+                word = word.slice(0, -3);
+            } else if (word.endsWith('ed')) {
+                word = word.slice(0, -2);
+            } else if (word.endsWith('s')) {
+                word = word.slice(0, -1);
+            }
+            
+            // Step 2: Remove common suffixes
+            const suffixes = ['er', 'est', 'ly', 'ful', 'less', 'ness', 'ment', 'tion', 'sion', 'al', 'able', 'ible'];
+            for (const suffix of suffixes) {
+                if (word.endsWith(suffix) && word.length > suffix.length + 2) {
+                    word = word.slice(0, -suffix.length);
+                    break;
+                }
+            }
+            
+            // Step 3: Remove common prefixes
+            const prefixes = ['un', 're', 'in', 'im', 'il', 'ir', 'dis', 'en', 'em'];
+            for (const prefix of prefixes) {
+                if (word.startsWith(prefix) && word.length > prefix.length + 2) {
+                    word = word.slice(prefix.length);
+                    break;
+                }
+            }
+            
+            return word;
+        };
+        
+        console.log('ImportService: Fallback stemmer implemented');
     }
 
     /**
@@ -834,8 +1431,6 @@ class ImportService {
      * @returns {Map} Map of word to IDF score
      */
     calculateIDFScores(words, uniqueWords) {
-        console.log(`ImportService: Calculating IDF scores for ${uniqueWords.size} unique words`);
-        
         const idfScores = new Map();
         const totalWords = words.length;
         
@@ -852,28 +1447,28 @@ class ImportService {
             idfScores.set(word, idf);
         }
         
-        console.log(`ImportService: IDF calculation complete. Sample scores:`);
-        const sampleWords = Array.from(uniqueWords).slice(0, 5);
-        sampleWords.forEach(word => {
-            console.log(`  "${word}": ${idfScores.get(word).toFixed(3)}`);
-        });
-        
         return idfScores;
     }
 
     /**
-     * Calculate TF-IDF scores and create word-chunk associations
+     * Calculate TF-IDF scores and create word-chunk associations for rule-relevant words only
      * @param {Array} chunks - Array of text chunks
      * @param {Map} idfScores - IDF scores for all words
+     * @param {Array} ruleRelevantWords - Array of rule-relevant words
      * @returns {Object} TF-IDF data and word-chunk associations
      */
-    calculateTFIDFAndAssociations(chunks, idfScores) {
-        console.log(`ImportService: Calculating TF-IDF scores for ${chunks.length} chunks`);
-        
+    calculateTFIDFAndAssociations(chunks, idfScores, ruleRelevantWords) {
         const wordChunkAssociations = {};
         const chunkTFIDFScores = [];
         
+        // === DEBUGGING: Check stemmer availability ===
+        // Normalize rule-relevant words (apply stemming to match processed words)
+        const normalizedRuleWords = new Set(ruleRelevantWords.map(word => this.normalizeWord(word)));
+        
         // Process each chunk
+        let totalChunksProcessed = 0;
+        let chunksWithRuleWords = 0;
+        
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
             const chunk = chunks[chunkIndex];
             const chunkWords = this.tokenizeAndNormalize(chunk.chunk);
@@ -887,6 +1482,7 @@ class ImportService {
             
             const chunkScores = {};
             const totalWordsInChunk = filteredChunkWords.length;
+            let chunkHasRuleWords = false;
             
             // Calculate TF-IDF for each word in this chunk
             for (const [word, frequency] of wordFrequencies) {
@@ -901,8 +1497,8 @@ class ImportService {
                     frequency: frequency
                 };
                 
-                // Check if this word-chunk association meets the threshold
-                if (tfidf >= this.TFIDF_THRESHOLD) {
+                // Only create associations for rule-relevant words that meet the threshold
+                if (normalizedRuleWords.has(word) && tfidf >= this.TFIDF_THRESHOLD) {
                     if (!wordChunkAssociations[word]) {
                         wordChunkAssociations[word] = [];
                     }
@@ -910,17 +1506,28 @@ class ImportService {
                     wordChunkAssociations[word].push({
                         chunk_count: chunk.chunk_count,
                         chunk_id: `${chunk.filename}_chunk_${chunk.chunk_count}`,
+                        section_id: chunk.section_id,
+                        section_chunk_index: chunk.section_chunk_index,
+                        section_total_chunks: chunk.section_total_chunks,
                         tfidf_score: tfidf,
                         confidence: Math.min(tfidf, 1.0), // Normalize to 0-1
                         sectionContext: chunk.sectionContext
                     });
+                    
+                    chunkHasRuleWords = true;
                 }
+            }
+            
+            if (chunkHasRuleWords) {
+                chunksWithRuleWords++;
             }
             
             chunkTFIDFScores.push({
                 chunk_count: chunk.chunk_count,
                 scores: chunkScores
             });
+            
+            totalChunksProcessed++;
         }
         
         // Sort word-chunk associations by TF-IDF score (highest first)
@@ -928,125 +1535,295 @@ class ImportService {
             wordChunkAssociations[word].sort((a, b) => b.tfidf_score - a.tfidf_score);
         }
         
-        // COMPREHENSIVE LOGGING - Show all word-chunk associations
-        console.log(`ImportService: TF-IDF calculation complete.`);
-        console.log(`ImportService: TF-IDF threshold: ${this.TFIDF_THRESHOLD}`);
-        console.log(`ImportService: Total word-chunk associations found: ${Object.keys(wordChunkAssociations).length}`);
-        
-        // Log all word-chunk associations with their scores
-        console.log(`ImportService: ALL WORD-CHUNK ASSOCIATIONS:`);
-        const sortedWords = Object.keys(wordChunkAssociations).sort((a, b) => {
-            const maxScoreA = Math.max(...wordChunkAssociations[a].map(assoc => assoc.tfidf_score));
-            const maxScoreB = Math.max(...wordChunkAssociations[b].map(assoc => assoc.tfidf_score));
-            return maxScoreB - maxScoreA; // Sort by highest score first
-        });
-        
-        sortedWords.forEach(word => {
-            const associations = wordChunkAssociations[word];
-            const maxScore = Math.max(...associations.map(assoc => assoc.tfidf_score));
-            const avgScore = associations.reduce((sum, assoc) => sum + assoc.tfidf_score, 0) / associations.length;
-            console.log(`  "${word}": ${associations.length} chunks, max score: ${maxScore.toFixed(4)}, avg score: ${avgScore.toFixed(4)}`);
-            
-            // Show top 3 chunks for this word
-            associations.slice(0, 3).forEach(assoc => {
-                console.log(`    - Chunk ${assoc.chunk_count}: score ${assoc.tfidf_score.toFixed(4)}, context: ${assoc.sectionContext}`);
-            });
-        });
-        
-        // Log sample chunk scores for debugging
-        console.log(`ImportService: SAMPLE CHUNK SCORES (first 3 chunks):`);
-        chunkTFIDFScores.slice(0, 3).forEach(chunkScore => {
-            console.log(`  Chunk ${chunkScore.chunk_count}:`);
-            const sortedScores = Object.entries(chunkScore.scores)
-                .sort((a, b) => b[1].tfidf - a[1].tfidf)
-                .slice(0, 10); // Top 10 words
-            
-            sortedScores.forEach(([word, score]) => {
-                console.log(`    "${word}": TF=${score.tf.toFixed(4)}, IDF=${score.idf.toFixed(4)}, TF-IDF=${score.tfidf.toFixed(4)}, freq=${score.frequency}`);
-            });
-        });
-        
-        // Log IDF score statistics
-        console.log(`ImportService: IDF SCORE STATISTICS:`);
-        const idfValues = Array.from(idfScores.values());
-        const maxIdf = Math.max(...idfValues);
-        const minIdf = Math.min(...idfValues);
-        const avgIdf = idfValues.reduce((sum, val) => sum + val, 0) / idfValues.length;
-        console.log(`  Max IDF: ${maxIdf.toFixed(4)}`);
-        console.log(`  Min IDF: ${minIdf.toFixed(4)}`);
-        console.log(`  Avg IDF: ${avgIdf.toFixed(4)}`);
-        
-        // Show top 20 IDF scores
-        const topIdfWords = Array.from(idfScores.entries())
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 20);
-        console.log(`  Top 20 IDF scores:`);
-        topIdfWords.forEach(([word, idf]) => {
-            console.log(`    "${word}": ${idf.toFixed(4)}`);
-        });
-        
         return {
             wordChunkAssociations: wordChunkAssociations,
             chunkTFIDFScores: chunkTFIDFScores,
-            idfScores: Object.fromEntries(idfScores)
+            idfScores: Object.fromEntries(idfScores),
+            ruleRelevantWords: ruleRelevantWords
         };
     }
-}
-
-/**
- * Book Management Service - Handles book-related operations
- */
-class BookManagementService {
-    constructor(contentStore) {
-        this.contentStore = contentStore;
-    }
 
     /**
-     * Get book statistics
+     * Validate chunk quality and filter out low-quality chunks
+     * @param {Array} chunks - Array of text chunks
+     * @returns {Array} Filtered array of quality chunks
      */
-    async getBookStats() {
-        try {
-            if (!this.contentStore) {
-                return { 
-                    totalBooks: 0, 
-                    totalChunks: 0, 
-                    totalWords: 0,
-                    averageChunkSize: 0,
-                    isInitialized: false 
-                };
+    validateChunkQuality(chunks) {
+        const qualityChunks = [];
+        let filteredCount = 0;
+        
+        for (const chunk of chunks) {
+            const words = chunk.chunk.split(/\s+/).filter(word => word.trim().length > 0);
+            
+            // Skip chunks with too few words
+            if (words.length < 50) {
+                filteredCount++;
+                continue;
             }
-
-            const stats = this.contentStore.getStats();
-            return {
-                totalBooks: stats.uniqueFiles,
-                totalChunks: stats.totalChunks,
-                totalWords: stats.totalWords,
-                averageChunkSize: stats.averageChunkSize,
-                isInitialized: stats.isInitialized,
-                files: stats.files
-            };
-        } catch (error) {
-            console.error('BookManagementService: Error getting stats:', error);
-            throw error;
+            
+            // Calculate meaningful word ratio (words longer than 2 characters)
+            const meaningfulWords = words.filter(word => word.length > 2);
+            const meaningfulRatio = meaningfulWords.length / words.length;
+            
+            // Skip chunks with low meaningful word ratio
+            if (meaningfulRatio < 0.3) {
+                filteredCount++;
+                continue;
+            }
+            
+            // Check for rule-relevant words in the chunk
+            const chunkLower = chunk.chunk.toLowerCase();
+            const hasRuleWords = this.ruleWordsManager.registry.common.some(word => 
+                chunkLower.includes(word.toLowerCase())
+            );
+            
+            // Skip chunks that don't contain any rule-relevant words
+            if (!hasRuleWords) {
+                filteredCount++;
+                continue;
+            }
+            
+            qualityChunks.push(chunk);
         }
+        
+        return qualityChunks;
     }
 
     /**
-     * Get chunks for a specific book
-     * @param {string} filename - Filename to get chunks for
-     * @returns {Array} Array of chunks ordered by chunk_count
+     * Find related chunks within the same section
+     * @param {string} filename - Filename to search in
+     * @param {string} sectionId - Section identifier
+     * @param {number} currentChunkIndex - Current chunk's section index
+     * @param {number} maxDistance - Maximum distance to search (default: 3)
+     * @returns {Array} Array of related chunks
      */
-    async getBookChunks(filename) {
+    findRelatedChunksInSection(filename, sectionId, currentChunkIndex, maxDistance = 3) {
         try {
             if (!this.contentStore) {
                 return [];
             }
 
-            return this.contentStore.getChunksForFile(filename);
+            const chunks = this.contentStore.getChunksForFile(filename);
+            const relatedChunks = [];
+
+            for (const chunk of chunks) {
+                // Check if chunk is in the same section
+                if (chunk.section_id === sectionId) {
+                    const distance = Math.abs(chunk.section_chunk_index - currentChunkIndex);
+                    
+                    // Include chunks within the specified distance
+                    if (distance <= maxDistance && distance > 0) {
+                        relatedChunks.push({
+                            ...chunk,
+                            distance: distance,
+                            is_adjacent: distance === 1
+                        });
+                    }
+                }
+            }
+
+            // Sort by distance (closest first)
+            relatedChunks.sort((a, b) => a.distance - b.distance);
+
+            return relatedChunks;
         } catch (error) {
-            console.error('BookManagementService: Error getting book chunks:', error);
-            throw error;
+            console.error('ImportService: Error finding related chunks:', error);
+            return [];
         }
+    }
+
+    /**
+     * Find all chunks in a specific section
+     * @param {string} filename - Filename to search in
+     * @param {string} sectionId - Section identifier
+     * @returns {Array} Array of chunks in the section, ordered by section_chunk_index
+     */
+    findChunksInSection(filename, sectionId) {
+        try {
+            if (!this.contentStore) {
+                return [];
+            }
+
+            const chunks = this.contentStore.getChunksForFile(filename);
+            const sectionChunks = chunks
+                .filter(chunk => chunk.section_id === sectionId)
+                .sort((a, b) => a.section_chunk_index - b.section_chunk_index);
+
+            return sectionChunks;
+        } catch (error) {
+            console.error('ImportService: Error finding chunks in section:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get section statistics for a file
+     * @param {string} filename - Filename to analyze
+     * @returns {Object} Section statistics
+     */
+    getSectionStatistics(filename) {
+        try {
+            if (!this.contentStore) {
+                return { sections: [], totalChunks: 0 };
+            }
+
+            const chunks = this.contentStore.getChunksForFile(filename);
+            const sectionStats = new Map();
+
+            for (const chunk of chunks) {
+                const sectionId = chunk.section_id || 'Unknown';
+                
+                if (!sectionStats.has(sectionId)) {
+                    sectionStats.set(sectionId, {
+                        section_id: sectionId,
+                        chunk_count: 0,
+                        total_words: 0,
+                        first_chunk: chunk.chunk_count,
+                        last_chunk: chunk.chunk_count
+                    });
+                }
+
+                const stats = sectionStats.get(sectionId);
+                stats.chunk_count++;
+                stats.total_words += chunk.wordCount || 0;
+                stats.last_chunk = chunk.chunk_count;
+            }
+
+            const sections = Array.from(sectionStats.values())
+                .sort((a, b) => a.first_chunk - b.first_chunk);
+
+            return {
+                sections: sections,
+                totalChunks: chunks.length,
+                totalSections: sections.length
+            };
+        } catch (error) {
+            console.error('ImportService: Error getting section statistics:', error);
+            return { sections: [], totalChunks: 0 };
+        }
+    }
+
+    /**
+     * Detect and parse table of contents to create section boundaries
+     * @param {string} text - Full text to analyze
+     * @returns {Array} Array of section boundary objects with page numbers
+     */
+    detectTableOfContents(text) {
+        const lines = text.split('\n');
+        const tocSections = [];
+        let inTOC = false;
+        let tocStartLine = -1;
+        let tocEndLine = -1;
+        
+        // Find TOC boundaries
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            // Look for TOC start patterns
+            if (!inTOC && this.isTOCStart(line)) {
+                inTOC = true;
+                tocStartLine = i;
+                continue;
+            }
+            
+            // Look for TOC end patterns
+            if (inTOC && this.isTOCEnd(line)) {
+                tocEndLine = i;
+                    break;
+                }
+            }
+            
+        if (tocStartLine === -1) {
+            return [];
+        }
+        
+        if (tocEndLine === -1) {
+            tocEndLine = lines.length; // TOC goes to end of document
+        }
+        
+        return tocSections;
+    }
+    
+    /**
+     * Check if a line indicates the start of table of contents
+     * @param {string} line - Line to check
+     * @returns {boolean} True if this is TOC start
+     */
+    isTOCStart(line) {
+        const tocStartPatterns = [
+            /^table\s+of\s+contents/i,
+            /^contents/i,
+            /^table\s+des\s+matières/i,
+            /^inhaltsverzeichnis/i,
+            /^indice/i,
+            /^índice/i,
+            /^目录/i,
+            /^目次/i
+        ];
+        
+        return tocStartPatterns.some(pattern => pattern.test(line));
+    }
+    
+    /**
+     * Check if a line indicates the end of table of contents
+     * @param {string} line - Line to check
+     * @returns {boolean} True if this is TOC end
+     */
+    isTOCEnd(line) {
+        const tocEndPatterns = [
+            /^chapter\s+\d+/i,
+            /^part\s+\d+/i,
+            /^section\s+\d+/i,
+            /^introduction/i,
+            /^preface/i,
+            /^foreword/i,
+            /^acknowledgments/i,
+            /^about\s+the\s+author/i
+        ];
+        
+        return tocEndPatterns.some(pattern => pattern.test(line));
+    }
+    
+    /**
+     * Parse a single TOC entry line
+     * @param {string} line - TOC line to parse
+     * @returns {Object|null} Parsed TOC entry or null if not a valid entry
+     */
+    parseTOCEntry(line) {
+        // Common TOC patterns
+        const tocPatterns = [
+            // "Chapter 1: Introduction ................ 15"
+            /^(.+?)\s*[.\s]*(\d+)$/,
+            // "Chapter 1: Introduction 15"
+            /^(.+?)\s+(\d+)$/,
+            // "Introduction ................ 15"
+            /^(.+?)\s*[.\s]*(\d+)$/,
+            // "1. Introduction 15"
+            /^\d+\.\s*(.+?)\s+(\d+)$/,
+            // "1) Introduction 15"
+            /^\d+\)\s*(.+?)\s+(\d+)$/
+        ];
+        
+        for (const pattern of tocPatterns) {
+            const match = line.match(pattern);
+            if (match) {
+                const title = match[1].trim();
+                const pageNumber = parseInt(match[2]);
+                
+                // Skip if title is too short or page number is invalid
+                if (title.length < 3 || pageNumber < 1 || pageNumber > 1000) {
+                    continue;
+                }
+                
+                return {
+                    title: title,
+                    pageNumber: pageNumber,
+                    line: line
+                };
+            }
+        }
+        
+        return null;
     }
 
     /**
@@ -1080,6 +1857,73 @@ class BookManagementService {
             throw error;
         }
     }
+
+    /**
+     * Get section statistics for all books
+     * @returns {Object} Section statistics for all books
+     */
+    async getSectionStatistics() {
+        try {
+            if (!this.contentStore) {
+                return { books: {} };
+            }
+
+            const files = this.contentStore.getUniqueFiles();
+            const bookStats = {};
+
+            for (const filename of files) {
+                const importService = new ImportService(this.contentStore);
+                bookStats[filename] = importService.getSectionStatistics(filename);
+            }
+
+            return { books: bookStats };
+        } catch (error) {
+            console.error('BookManagementService: Error getting section statistics:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Find related chunks within the same section
+     * @param {string} filename - Filename to search in
+     * @param {string} sectionId - Section identifier
+     * @param {number} currentChunkIndex - Current chunk's section index
+     * @param {number} maxDistance - Maximum distance to search
+     * @returns {Array} Array of related chunks
+     */
+    async findRelatedChunksInSection(filename, sectionId, currentChunkIndex, maxDistance = 3) {
+        try {
+            if (!this.contentStore) {
+                return [];
+            }
+
+            const importService = new ImportService(this.contentStore);
+            return importService.findRelatedChunksInSection(filename, sectionId, currentChunkIndex, maxDistance);
+        } catch (error) {
+            console.error('BookManagementService: Error finding related chunks:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Find all chunks in a specific section
+     * @param {string} filename - Filename to search in
+     * @param {string} sectionId - Section identifier
+     * @returns {Array} Array of chunks in the section
+     */
+    async findChunksInSection(filename, sectionId) {
+        try {
+            if (!this.contentStore) {
+                return [];
+            }
+
+            const importService = new ImportService(this.contentStore);
+            return importService.findChunksInSection(filename, sectionId);
+        } catch (error) {
+            console.error('BookManagementService: Error finding chunks in section:', error);
+            throw error;
+        }
+    }
 }
 
 /**
@@ -1089,7 +1933,7 @@ class RulespediaServiceManager {
     constructor(contentStore) {
         this.contentStore = contentStore;
         this.searchService = new SearchService(contentStore);
-        this.importService = new ImportService(contentStore);
+        this.importService = new ImportService(contentStore, this);
         this.bookManagementService = new BookManagementService(contentStore);
         
         // Initialize LLM and Rule Discovery services lazily
@@ -1108,40 +1952,59 @@ class RulespediaServiceManager {
             return;
         }
 
-        console.log('RulespediaServiceManager: Initializing LLM services...');
-        console.log('RulespediaServiceManager: window.LLMService available:', typeof window.LLMService !== 'undefined');
-        console.log('RulespediaServiceManager: window.RuleDiscoveryService available:', typeof window.RuleDiscoveryService !== 'undefined');
-        console.log('RulespediaServiceManager: window.BrowserLLMProvider available:', typeof window.BrowserLLMProvider !== 'undefined');
-        console.log('RulespediaServiceManager: window.LLMPrompts available:', typeof window.LLMPrompts !== 'undefined');
-        
         // Check if LLM service is available
         if (typeof window.LLMService !== 'undefined') {
             try {
-                console.log('RulespediaServiceManager: Creating LLM service...');
                 this.llmService = new window.LLMService();
-                console.log('RulespediaServiceManager: LLM service created successfully');
+                
+                // Try to set up a provider - check for available providers
+                let provider = null;
+                
+                // Check for TensorFlow LLM provider
+                if (typeof window.TensorFlowLLMProvider !== 'undefined') {
+                    try {
+                        provider = new window.TensorFlowLLMProvider();
+                    } catch (error) {
+                        console.warn('RulespediaServiceManager: Failed to create TensorFlowLLMProvider:', error.message);
+                    }
+                }
+                
+                // Check for Browser LLM provider as fallback
+                if (!provider && typeof window.BrowserLLMProvider !== 'undefined') {
+                    try {
+                        provider = new window.BrowserLLMProvider();
+                    } catch (error) {
+                        console.warn('RulespediaServiceManager: Failed to create BrowserLLMProvider:', error.message);
+                    }
+                }
+                
+                // Set the provider if we found one
+                if (provider) {
+                    this.llmService.setProvider(provider);
+                    // Initialize the service
+                    this.llmService.initialize().catch(error => {
+                        console.warn('RulespediaServiceManager: LLM service initialization failed:', error.message);
+                    });
+                } else {
+                    console.warn('RulespediaServiceManager: No LLM provider available, LLM features will be disabled');
+                }
                 
                 // Check if Rule Discovery service is also available
                 if (typeof window.RuleDiscoveryService !== 'undefined') {
-                    console.log('RulespediaServiceManager: Creating rule discovery service...');
                     this.ruleDiscoveryService = new window.RuleDiscoveryService(this.contentStore, this.llmService);
-                    console.log('RulespediaServiceManager: Rule discovery service created successfully');
                 } else {
                     console.warn('RulespediaServiceManager: RuleDiscoveryService not available, rule discovery features will be disabled');
                 }
                 
                 this.llmServicesInitialized = true;
-                console.log('RulespediaServiceManager: LLM services initialized successfully');
                 
             } catch (error) {
                 console.warn('RulespediaServiceManager: Failed to initialize LLMService:', error.message);
-                console.error('RulespediaServiceManager: Full error:', error);
                 this.llmService = null;
                 this.llmServicesInitialized = true; // Mark as initialized to avoid repeated attempts
             }
         } else {
             console.warn('RulespediaServiceManager: LLMService not available, LLM features will be disabled');
-            console.log('RulespediaServiceManager: Available window objects:', Object.keys(window).filter(key => key.includes('LLM') || key.includes('Rule') || key.includes('Browser')));
             this.llmServicesInitialized = true; // Mark as initialized to avoid repeated attempts
         }
     }
@@ -1175,7 +2038,8 @@ class RulespediaServiceManager {
         this.initializeLLMServices();
         
         if (!this.llmService) {
-            throw new Error('LLMService not available. LLM features are disabled. To enable AI features, ensure llm-service.js and related files are loaded.');
+            console.warn('RulespediaServiceManager: LLMService not available. LLM features are disabled. To enable AI features, ensure llm-service.js and related files are loaded.');
+            return null;
         }
         
         // Check if LLM service is in fallback mode
@@ -1194,7 +2058,8 @@ class RulespediaServiceManager {
         this.initializeLLMServices();
         
         if (!this.ruleDiscoveryService) {
-            throw new Error('RuleDiscoveryService not available. AI rule discovery features are disabled. To enable AI features, ensure rule-discovery-service.js and related files are loaded.');
+            console.warn('RulespediaServiceManager: RuleDiscoveryService not available. AI rule discovery features are disabled. To enable AI features, ensure rule-discovery-service.js and related files are loaded.');
+            return null;
         }
         return this.ruleDiscoveryService;
     }
@@ -1234,8 +2099,206 @@ class RulespediaServiceManager {
     }
 }
 
+/**
+ * Book Management Service - Handles book management operations
+ */
+class BookManagementService {
+    constructor(contentStore) {
+        this.contentStore = contentStore;
+    }
+
+    /**
+     * Get book statistics
+     * @returns {Object} Book statistics
+     */
+    async getBookStats() {
+        try {
+            if (!this.contentStore) {
+                return { books: [], totalChunks: 0, totalFiles: 0 };
+            }
+
+            const files = this.contentStore.getUniqueFiles();
+            const bookStats = [];
+
+            for (const filename of files) {
+                const chunks = this.contentStore.getChunksForFile(filename);
+                const totalWords = chunks.reduce((sum, chunk) => sum + (chunk.wordCount || 0), 0);
+                
+                bookStats.push({
+                    filename: filename,
+                    chunks: chunks.length,
+                    totalWords: totalWords,
+                    importedAt: chunks[0]?.importedAt || new Date().toISOString()
+                });
+            }
+
+            const totalChunks = bookStats.reduce((sum, book) => sum + book.chunks, 0);
+            const totalWords = bookStats.reduce((sum, book) => sum + book.totalWords, 0);
+
+            return {
+                books: bookStats,
+                totalChunks: totalChunks,
+                totalFiles: files.length,
+                totalWords: totalWords
+            };
+        } catch (error) {
+            console.error('BookManagementService: Error getting book stats:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get all chunks ordered by chunk_count
+     * @returns {Array} Array of all chunks ordered by chunk_count
+     */
+    async getAllChunksOrdered() {
+        try {
+            if (!this.contentStore) {
+                return [];
+            }
+
+            return this.contentStore.getAllChunksOrdered();
+        } catch (error) {
+            console.error('BookManagementService: Error getting all chunks:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Clear all books
+     */
+    async clearAllBooks() {
+        try {
+            if (this.contentStore) {
+                await this.contentStore.clear();
+            }
+            return { success: true, message: 'All books cleared successfully' };
+        } catch (error) {
+            console.error('BookManagementService: Error clearing books:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get section statistics for all books
+     * @returns {Object} Section statistics for all books
+     */
+    async getSectionStatistics() {
+        try {
+            if (!this.contentStore) {
+                return { books: {} };
+            }
+
+            const files = this.contentStore.getUniqueFiles();
+            const bookStats = {};
+
+            for (const filename of files) {
+                const importService = new ImportService(this.contentStore);
+                bookStats[filename] = importService.getSectionStatistics(filename);
+            }
+
+            return { books: bookStats };
+        } catch (error) {
+            console.error('BookManagementService: Error getting section statistics:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Find related chunks within the same section
+     * @param {string} filename - Filename to search in
+     * @param {string} sectionId - Section identifier
+     * @param {number} currentChunkIndex - Current chunk's section index
+     * @param {number} maxDistance - Maximum distance to search
+     * @returns {Array} Array of related chunks
+     */
+    async findRelatedChunksInSection(filename, sectionId, currentChunkIndex, maxDistance = 3) {
+        try {
+            if (!this.contentStore) {
+                return [];
+            }
+
+            const importService = new ImportService(this.contentStore);
+            return importService.findRelatedChunksInSection(filename, sectionId, currentChunkIndex, maxDistance);
+        } catch (error) {
+            console.error('BookManagementService: Error finding related chunks:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Find all chunks in a specific section
+     * @param {string} filename - Filename to search in
+     * @param {string} sectionId - Section identifier
+     * @returns {Array} Array of chunks in the section
+     */
+    async findChunksInSection(filename, sectionId) {
+        try {
+            if (!this.contentStore) {
+                return [];
+            }
+
+            const importService = new ImportService(this.contentStore);
+            return importService.findChunksInSection(filename, sectionId);
+        } catch (error) {
+            console.error('BookManagementService: Error finding chunks in section:', error);
+            throw error;
+        }
+    }
+}
+
 // Export for use in other modules
-window.SearchService = SearchService;
-window.ImportService = ImportService;
-window.BookManagementService = BookManagementService;
-window.RulespediaServiceManager = RulespediaServiceManager; 
+try {
+    if (typeof window !== 'undefined') {
+        // Export to namespace
+        window.RulespediaServices = {
+            SearchService,
+            ImportService,
+            BookManagementService,
+            RulespediaServiceManager,
+            RuleWordsManager
+        };
+        
+        // Also export individual classes for direct access
+        window.SearchService = SearchService;
+        window.ImportService = ImportService;
+        window.BookManagementService = BookManagementService;
+        window.RulespediaServiceManager = RulespediaServiceManager;
+        window.RuleWordsManager = RuleWordsManager;
+        
+        console.log('RulespediaServices: All services exported to window.RulespediaServices and individual window properties');
+    }
+} catch (error) {
+    console.error('RulespediaServices: Failed to export to window:', error);
+    // Try to export individual services even if some fail
+    try {
+        if (typeof window !== 'undefined') {
+            window.RulespediaServices = {};
+            
+            if (typeof SearchService !== 'undefined') {
+                window.RulespediaServices.SearchService = SearchService;
+                window.SearchService = SearchService;
+            }
+            if (typeof ImportService !== 'undefined') {
+                window.RulespediaServices.ImportService = ImportService;
+                window.ImportService = ImportService;
+            }
+            if (typeof BookManagementService !== 'undefined') {
+                window.RulespediaServices.BookManagementService = BookManagementService;
+                window.BookManagementService = BookManagementService;
+            }
+            if (typeof RulespediaServiceManager !== 'undefined') {
+                window.RulespediaServices.RulespediaServiceManager = RulespediaServiceManager;
+                window.RulespediaServiceManager = RulespediaServiceManager;
+            }
+            if (typeof RuleWordsManager !== 'undefined') {
+                window.RulespediaServices.RuleWordsManager = RuleWordsManager;
+                window.RuleWordsManager = RuleWordsManager;
+            }
+            
+            console.log('RulespediaServices: Partial services exported to window.RulespediaServices and individual window properties');
+        }
+    } catch (partialError) {
+        console.error('RulespediaServices: Failed to export even partial services:', partialError);
+    }
+} 

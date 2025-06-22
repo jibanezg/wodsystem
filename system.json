@@ -26,7 +26,8 @@
     "scripts/rulespedia-services.js",
     "scripts/rulespedia-framework.js",
     "scripts/rulespedia-views.js",
-    "scripts/rulespedia.js"
+    "scripts/rulespedia.js",
+    "scripts/rulespedia-test.js"
   ],
   "styles": [
     "styles/mortal-sheet.css",
