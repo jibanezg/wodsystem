@@ -454,7 +454,9 @@ class ImportView extends RuleView {
             this.addToImportLog('Starting AI rule discovery...', 'info');
             
             // Run discovery on all imported books with progress updates
-            const discoveryResults = await ruleDiscoveryService.analyzeRuleChunks();
+            const discoveryResults = await ruleDiscoveryService.analyzeRuleChunks(null, (fallbackMessage) => {
+                this.addToImportLog(`⚠️ ${fallbackMessage}`, 'warning');
+            });
             
             // Update progress to show rule discovery is complete
             this.updateProgress(95);
@@ -462,7 +464,13 @@ class ImportView extends RuleView {
             // Get the actual rule chunks array
             const ruleChunks = ruleDiscoveryService.getRuleChunks();
             
-            this.addToImportLog(`✓ Rule discovery complete: ${discoveryResults.ruleChunks} rules found`, 'success');
+            // Show concise summary instead of verbose logging
+            if (discoveryResults.success) {
+                const llmMode = discoveryResults.llmMode || 'Unknown';
+                this.addToImportLog(`✓ AI Rule Discovery: ${discoveryResults.ruleChunks} rules identified (${llmMode})`, 'success');
+            } else {
+                this.addToImportLog(`⚠️ Rule discovery: ${discoveryResults.message}`, 'warning');
+            }
             
         } catch (error) {
             console.error('Rule discovery failed:', error);

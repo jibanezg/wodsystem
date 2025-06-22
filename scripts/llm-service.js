@@ -159,14 +159,17 @@ class LLMService {
     /**
      * Analyze a chunk to determine if it contains rules
      * @param {Object} chunkData - Chunk data for analysis
+     * @param {Function} logCallback - Optional callback for logging fallback usage
      * @returns {Object} Analysis result with rule classification
      */
-    async analyzeChunkForRules(chunkData) {
+    async analyzeChunkForRules(chunkData, logCallback = null) {
         if (this.fallbackMode) {
+            if (logCallback) logCallback('Using fallback analysis (fallback mode active)');
             return this.fallbackChunkAnalysis(chunkData);
         }
 
         if (!this.isInitialized) {
+            if (logCallback) logCallback('Using fallback analysis (service not initialized)');
             throw new Error('LLMService not initialized');
         }
 
@@ -190,10 +193,12 @@ class LLMService {
                     reasoning: analysis.reasoning || 'Analysis completed'
                 };
             } catch (parseError) {
+                if (logCallback) logCallback('Using fallback analysis (JSON parse failed)');
                 return this.fallbackChunkAnalysis(chunkData);
             }
 
         } catch (error) {
+            if (logCallback) logCallback('Using fallback analysis (LLM generation failed)');
             return this.fallbackChunkAnalysis(chunkData);
         }
     }

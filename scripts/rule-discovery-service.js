@@ -35,9 +35,10 @@ class RuleDiscoveryService {
     /**
      * Analyze chunks that contain rule-relevant words to identify actual rules
      * @param {string} filename - Optional filename filter
+     * @param {Function} logCallback - Optional callback for logging fallback usage
      * @returns {Object} Analysis results
      */
-    async analyzeRuleChunks(filename = null) {
+    async analyzeRuleChunks(filename = null, logCallback = null) {
         // Check if LLM service is available
         if (!this.llmService) {
             console.warn('RuleDiscovery: LLM service not available, skipping rule discovery');
@@ -79,6 +80,10 @@ class RuleDiscoveryService {
             };
         }
         
+        // Log whether we're using actual LLM or fallback mode
+        const llmMode = this.llmService.fallbackMode ? 'Fallback Analysis' : 'AI Analysis';
+        console.log(`RuleDiscovery: Using ${llmMode} for rule discovery`);
+        
         try {
             // Step 1: Get chunks that contain rule-relevant words
             const ruleChunkAssociations = await this.getRuleChunkAssociations(filename);
@@ -87,16 +92,20 @@ class RuleDiscoveryService {
             const chunkTuples = this.createChunkTuples(ruleChunkAssociations);
             
             // Step 3: Analyze chunks with LLM and build priority queue
-            const ruleChunks = await this.analyzeChunksAndBuildQueue(chunkTuples);
+            const ruleChunks = await this.analyzeChunksAndBuildQueue(chunkTuples, logCallback);
             
             // Store results
             this.ruleChunks = ruleChunks;
+            
+            // Show concise summary
+            console.log(`RuleDiscovery: ${ruleChunks.length} rules identified from ${chunkTuples.length} chunks`);
             
             return {
                 success: true,
                 chunkAssociations: Object.keys(ruleChunkAssociations).length,
                 chunkTuples: chunkTuples.length,
-                ruleChunks: ruleChunks.length
+                ruleChunks: ruleChunks.length,
+                llmMode: llmMode
             };
             
         } catch (error) {
@@ -176,9 +185,10 @@ class RuleDiscoveryService {
     /**
      * Analyze chunks with LLM and build priority queue
      * @param {Array} chunkTuples - Array of chunk tuples
+     * @param {Function} logCallback - Optional callback for logging fallback usage
      * @returns {Array} Priority queue of rule chunks
      */
-    async analyzeChunksAndBuildQueue(chunkTuples) {
+    async analyzeChunksAndBuildQueue(chunkTuples, logCallback = null) {
         const ruleChunks = [];
         
         for (let i = 0; i < chunkTuples.length; i++) {
@@ -202,7 +212,7 @@ class RuleDiscoveryService {
                 };
                 
                 // Analyze with LLM
-                const analysis = await this.llmService.analyzeChunkForRules(chunkForAnalysis);
+                const analysis = await this.llmService.analyzeChunkForRules(chunkForAnalysis, logCallback);
                 
                 // Add to priority queue if it's a rule with sufficient confidence
                 if (analysis.isRule && analysis.confidence >= this.MIN_RULE_CONFIDENCE) {
