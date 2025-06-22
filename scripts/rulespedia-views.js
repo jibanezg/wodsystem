@@ -356,7 +356,6 @@ class ImportView extends RuleView {
                 const fileProgressCallback = (progress) => {
                     const percent = Math.round(progress * 100);
                     this.updateProgress(percent);
-                    this.addToImportLog(`Importing ${file.name}: ${percent}%`, 'info');
                 };
                 
                 try {
@@ -366,8 +365,6 @@ class ImportView extends RuleView {
                     
                     results.push(result);
                     await this.addToImportLog(`✓ Successfully imported ${file.name}`, 'success');
-                    await this.addToImportLog(`  - ${result.chunks} chunks, ${result.totalWords} words`, 'info');
-                    await this.addToImportLog(`  - ${result.associations} word associations created`, 'info');
                     
                 } catch (importError) {
                     await this.addToImportLog(`✗ Failed to import ${file.name}: ${importError.message}`, 'error');
@@ -466,15 +463,6 @@ class ImportView extends RuleView {
             const ruleChunks = ruleDiscoveryService.getRuleChunks();
             
             this.addToImportLog(`✓ Rule discovery complete: ${discoveryResults.ruleChunks} rules found`, 'success');
-            
-            // Log some discovered rules for user feedback
-            const topRules = ruleChunks.slice(0, 5);
-            if (topRules.length > 0) {
-                this.addToImportLog('Top discovered rules:', 'info');
-                topRules.forEach((rule, index) => {
-                    this.addToImportLog(`  ${index + 1}. ${rule.ruleName} (confidence: ${Math.round(rule.confidence * 100)}%)`, 'info');
-                });
-            }
             
         } catch (error) {
             console.error('Rule discovery failed:', error);
