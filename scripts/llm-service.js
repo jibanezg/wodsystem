@@ -213,46 +213,6 @@ class LLMService {
     }
 
     /**
-     * Analyze high TF-IDF words to identify rule-related terms
-     * @param {Array} highTfidfWords - Array of high TF-IDF words with scores
-     * @returns {Object} Analysis result with rule terms and suggested terms
-     */
-    async analyzeRuleTerms(highTfidfWords) {
-        if (this.fallbackMode) {
-            return this.fallbackRuleAnalysis(highTfidfWords);
-        }
-
-        if (!this.isInitialized) {
-            throw new Error('LLMService not initialized');
-        }
-
-        try {
-            // Get prompt from LLMPrompts
-            const prompt = LLMPrompts.getRuleTermsAnalysisPrompt(highTfidfWords);
-
-            const response = await this.generate(prompt, {
-                maxTokens: 500,
-                temperature: 0.1
-            });
-
-            // Try to parse JSON response
-            try {
-                const analysis = JSON.parse(response);
-                return {
-                    ruleTerms: analysis.ruleTerms || [],
-                    suggestedTerms: analysis.suggestedTerms || [],
-                    reasoning: analysis.reasoning || 'Analysis completed'
-                };
-            } catch (parseError) {
-                return this.fallbackRuleAnalysis(highTfidfWords);
-            }
-
-        } catch (error) {
-            return this.fallbackRuleAnalysis(highTfidfWords);
-        }
-    }
-
-    /**
      * Analyze a chunk to determine if it contains rules
      * @param {Object} chunkData - Chunk data for analysis
      * @param {Function} logCallback - Optional callback for logging fallback usage
@@ -300,87 +260,6 @@ class LLMService {
     }
 
     /**
-     * Summarize a rule
-     * @param {string} ruleText - The rule text to summarize
-     * @returns {string} Summarized rule
-     */
-    async summarizeRule(ruleText) {
-        if (!this.isInitialized) {
-            throw new Error('LLMService not initialized');
-        }
-
-        try {
-            const prompt = LLMPrompts.getRuleSummarizationPrompt(ruleText);
-            const summary = await this.generate(prompt, {
-                maxTokens: 200,
-                temperature: 0.1
-            });
-            return summary;
-        } catch (error) {
-            return 'Unable to summarize rule at this time.';
-        }
-    }
-
-    /**
-     * Categorize a rule
-     * @param {string} ruleText - The rule text to categorize
-     * @returns {Object} Categorization result
-     */
-    async categorizeRule(ruleText) {
-        if (!this.isInitialized) {
-            throw new Error('LLMService not initialized');
-        }
-
-        try {
-            const prompt = LLMPrompts.getRuleCategorizationPrompt(ruleText);
-            const response = await this.generate(prompt, {
-                maxTokens: 200,
-                temperature: 0.1
-            });
-
-            try {
-                return JSON.parse(response);
-            } catch (parseError) {
-                return {
-                    primaryCategory: 'general',
-                    secondaryCategory: 'unknown',
-                    confidence: 0.5,
-                    reasoning: 'Fallback categorization'
-                };
-            }
-        } catch (error) {
-            return {
-                primaryCategory: 'general',
-                secondaryCategory: 'unknown',
-                confidence: 0.5,
-                reasoning: 'Error during categorization'
-            };
-        }
-    }
-
-    /**
-     * Clarify a rule based on a specific question
-     * @param {string} ruleText - The rule text to clarify
-     * @param {string} question - The specific question about the rule
-     * @returns {string} Clarification response
-     */
-    async clarifyRule(ruleText, question) {
-        if (!this.isInitialized) {
-            throw new Error('LLMService not initialized');
-        }
-
-        try {
-            const prompt = LLMPrompts.getRuleClarificationPrompt(ruleText, question);
-            return await this.generate(prompt, {
-                maxTokens: 400,
-                temperature: 0.1
-            });
-        } catch (error) {
-            return 'Unable to clarify rule at this time.';
-        }
-    }
-
-    /**
      * Fallback generation when LLM is not available
      * @param {string} prompt - The prompt to analyze
      * @param {Object} parameters - Generation parameters
@@ -412,34 +291,6 @@ class LLMService {
             response: 'Fallback response - AI features not available',
             reasoning: 'Using keyword-based analysis due to AI service unavailability'
         });
-    }
-
-    /**
-     * Fallback rule analysis when LLM fails
-     * @param {Array} highTfidfWords - Array of high TF-IDF words
-     * @returns {Object} Fallback analysis result
-     */
-    fallbackRuleAnalysis(highTfidfWords) {
-        const ruleTerms = [];
-        const suggestedTerms = [];
-        
-        // Simple keyword-based analysis
-        const ruleKeywords = ['rule', 'dice', 'roll', 'difficulty', 'success', 'failure', 'check', 'test', 'mechanic', 'system'];
-        
-        highTfidfWords.forEach(wordData => {
-            const word = wordData.word.toLowerCase();
-            if (ruleKeywords.some(keyword => word.includes(keyword))) {
-                ruleTerms.push(wordData.word);
-            } else if (word.length > 3 && wordData.tfidf > 0.5) {
-                suggestedTerms.push(wordData.word);
-            }
-        });
-
-        return {
-            ruleTerms: ruleTerms,
-            suggestedTerms: suggestedTerms.slice(0, 10),
-            reasoning: 'Fallback keyword-based analysis'
-        };
     }
 
     /**

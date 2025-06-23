@@ -376,17 +376,6 @@ class ImportView extends RuleView {
                 }
             }
             
-            // Try to run rule discovery if LLM is available
-            try {
-                const llmInitialized = await this.initializeLLMService();
-                if (llmInitialized) {
-                    await this.addToImportLog('Running rule discovery analysis...', 'info');
-                    await this.runRuleDiscovery();
-                }
-            } catch (ruleError) {
-                await this.addToImportLog(`Rule discovery failed: ${ruleError.message}`, 'warning');
-            }
-            
             // Ensure progress bar reaches 100% when import is complete
             this.updateProgress(100);
             
@@ -396,86 +385,6 @@ class ImportView extends RuleView {
             console.error('ImportView: Import failed:', error);
             await this.addToImportLog(`Import failed: ${error.message}`, 'error');
             this.showMessage('Import failed', 'error');
-        }
-    }
-
-    /**
-     * Initialize LLM service for rule discovery
-     */
-    async initializeLLMService() {
-        if (!this.serviceManager) {
-            console.warn('ImportView: No service manager available - LLM features will be disabled');
-            return false;
-        }
-        
-        try {
-            // Get LLM service (this will trigger lazy initialization)
-            const llmService = this.serviceManager.getLLMService();
-            
-            // Check if TensorFlowLLMProvider is available
-            if (typeof TensorFlowLLMProvider === 'undefined') {
-                console.warn('ImportView: TensorFlowLLMProvider not available - using fallback mode');
-                return false;
-            }
-            
-            // Create TensorFlow LLM provider
-            const tensorflowProvider = new TensorFlowLLMProvider({
-                modelName: 'pattern-recognition',
-                useQuantized: true,
-                progressCallback: (progress) => {
-                    const percent = Math.round(progress * 100);
-                    this.addToImportLog(`Loading TensorFlow model: ${percent}%`, 'info');
-                }
-            });
-            
-            // Set the provider
-            llmService.setProvider(tensorflowProvider);
-            
-            // Initialize the service and wait for it to be ready
-            await llmService.initialize();
-            
-            return true;
-        } catch (error) {
-            console.warn('ImportView: LLM service initialization failed:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Run rule discovery on imported content
-     */
-    async runRuleDiscovery() {
-        try {
-            // Get rule discovery service (this will trigger lazy initialization)
-            const ruleDiscoveryService = this.serviceManager.getRuleDiscoveryService();
-            
-            // Update progress to show rule discovery is starting
-            this.updateProgress(90);
-            this.addToImportLog('Starting AI rule discovery...', 'info');
-            
-            // Run discovery on all imported books with progress updates
-            const discoveryResults = await ruleDiscoveryService.analyzeRuleChunks(null, (fallbackMessage) => {
-                this.addToImportLog(`⚠️ ${fallbackMessage}`, 'warning');
-            });
-            
-            // Update progress to show rule discovery is complete
-            this.updateProgress(95);
-            
-            // Get the actual rule chunks array
-            const ruleChunks = ruleDiscoveryService.getRuleChunks();
-            
-            // Show concise summary instead of verbose logging
-            if (discoveryResults.success) {
-                const llmMode = discoveryResults.llmMode || 'Unknown';
-                this.addToImportLog(`✓ AI Rule Discovery: ${discoveryResults.ruleChunks} rules identified (${llmMode})`, 'success');
-            } else {
-                this.addToImportLog(`⚠️ Rule discovery: ${discoveryResults.message}`, 'warning');
-            }
-            
-        } catch (error) {
-            console.error('Rule discovery failed:', error);
-            this.addToImportLog(`✗ Rule discovery failed: ${error.message}`, 'error');
-            // Don't throw - rule discovery failure shouldn't stop the import
         }
     }
 
@@ -544,19 +453,31 @@ class ImportView extends RuleView {
             const filename = result.filename || result.name || 'Unknown';
             const status = result.success ? 'Success' : 'Failed';
             const chunks = result.chunks ? ` (${result.chunks} chunks)` : '';
+            const rules = result.rulesDiscovered ? `, ${result.rulesDiscovered} rules discovered` : '';
             const error = result.error ? ` - ${result.error}` : '';
             
-            const message = `${filename}: ${status}${chunks}${error}`;
+            const message = `${filename}: ${status}${chunks}${rules}${error}`;
             const type = result.success ? 'success' : 'error';
             
             await this.addToImportLog(message, type);
+            
+            // Add rule discovery details if available
+            if (result.rulesDiscovered !== undefined) {
+                const ruleStatus = result.ruleDiscoverySuccess ? '✓' : '⚠️';
+                const ruleMessage = `  ${ruleStatus} Rule Discovery: ${result.rulesDiscovered} rules (${result.ruleDiscoveryMessage})`;
+                await this.addToImportLog(ruleMessage, result.ruleDiscoverySuccess ? 'success' : 'warning');
+            }
         }
         
         // Add summary
         const successful = results.filter(r => r.success).length;
         const total = results.length;
+        const totalRules = results.reduce((sum, r) => sum + (r.rulesDiscovered || 0), 0);
         await this.addToImportLog(`─`.repeat(40), 'info');
         await this.addToImportLog(`Import complete: ${successful}/${total} files imported successfully`, successful > 0 ? 'success' : 'error');
+        if (totalRules > 0) {
+            await this.addToImportLog(`Total rules discovered: ${totalRules}`, 'success');
+        }
     }
 
     /**
@@ -576,52 +497,6 @@ class ImportView extends RuleView {
     showMessage(message, type = 'info') {
         // Simple message display - could be enhanced with a proper notification system
         console.log(`${type.toUpperCase()}: ${message}`);
-    }
-
-    /**
-     * Test function to manually show selected files (for debugging)
-     */
-    testShowSelectedFiles() {
-        const selectedFiles = document.getElementById('selectedFiles');
-        if (!selectedFiles) {
-            console.error('ImportView: selectedFiles element not found');
-            return;
-        }
-        
-        // Use template for test content
-        try {
-            const testFile = {
-                name: 'TEST FILE.pdf',
-                size: 1258291 // 1.2 MB in bytes
-            };
-            
-            this.loadTemplateFile('systems/wodsystem/templates/rulespedia/file-item.html')
-                .then(template => {
-                    const testHtml = template
-                        .replace('{{fileName}}', testFile.name)
-                        .replace('{{fileSize}}', this.formatFileSize(testFile.size));
-                    
-                    selectedFiles.innerHTML = testHtml;
-                })
-                .catch(error => {
-                    console.error('ImportView: Error loading template for test:', error);
-                    // Fallback to simple template
-                    this.loadTemplateFile('systems/wodsystem/templates/rulespedia/file-item-simple.html')
-                        .then(simpleTemplate => {
-                            const testHtml = simpleTemplate
-                                .replace('{{fileName}}', testFile.name)
-                                .replace('{{fileSize}}', this.formatFileSize(testFile.size));
-                            selectedFiles.innerHTML = testHtml;
-                        })
-                        .catch(fallbackError => {
-                            console.error('ImportView: Error loading fallback template:', fallbackError);
-                            // Ultimate fallback - just text
-                            selectedFiles.innerHTML = `${testFile.name} (${this.formatFileSize(testFile.size)})`;
-                        });
-                });
-        } catch (error) {
-            console.error('ImportView: Error in test function:', error);
-        }
     }
 
     /**
@@ -755,14 +630,3 @@ window.ImportView = ImportView;
 window.SearchView = SearchView;
 window.ManageView = ManageView;
 window.SettingsView = SettingsView;
-
-// Make test function available globally for debugging
-window.testShowSelectedFiles = function() {
-    // Find the current import view instance
-    const importView = window.rulespediaImportView;
-    if (importView && importView.testShowSelectedFiles) {
-        importView.testShowSelectedFiles();
-    } else {
-        console.error('ImportView instance not found or test function not available');
-    }
-};

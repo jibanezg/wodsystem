@@ -264,6 +264,7 @@ class ImportService {
      * @param {Object} options - Import options
      */
     async importBook(file, options = {}) {
+        const startTime = Date.now();
         const progressCallback = options.progressCallback || (() => {});
         
         try {
@@ -353,6 +354,9 @@ class ImportService {
             const minChunkSize = Math.min(...qualityChunks.map(c => c.wordCount));
             const maxChunkSize = Math.max(...qualityChunks.map(c => c.wordCount));
             
+            // Show concise chunk summary
+            console.log(`ImportService: ${qualityChunks.length} quality chunks created (${avgChunkSize} avg words)`);
+            
             // Step 5: Store in content store
             const chunkingStoringProgressCallback = (chunkProgress) => {
                 // Map storing progress from 65% to 95% (30% of total progress)
@@ -362,29 +366,71 @@ class ImportService {
             
             await this.storeTextInContentStore(qualityChunks, file.name, tfidfData, chunkingStoringProgressCallback);
             
-            progressCallback(0.95); // 95% - Storage complete
+            progressCallback(0.85); // 85% - Storage complete
             
-            // Step 6: Analyze chunks for rules (optional) - make it non-blocking
+            // Step 6: Analyze chunks for rules (REQUIRED - this is the core purpose)
+            let ruleDiscoveryResults = null;
             try {
                 if (typeof window.RuleDiscoveryService !== 'undefined') {
-                    // Use the service manager's rule discovery service instead of creating a new instance
+                    // Use the service manager's rule discovery service
                     const ruleDiscoveryService = this.serviceManager?.getRuleDiscoveryService();
                     if (ruleDiscoveryService) {
-                        // Make rule discovery non-blocking - don't await it
-                        ruleDiscoveryService.analyzeRuleChunks(file.name).then(result => {
-                            if (!result.success) {
-                                console.warn('ImportService: Rule discovery analysis failed:', result.message);
-                            }
-                        }).catch(error => {
-                            console.warn('ImportService: Rule discovery analysis failed:', error);
-                        });
+                        // Make rule discovery blocking - this is the core functionality
+                        const ruleDiscoveryProgressCallback = (discoveryProgress) => {
+                            // Map rule discovery progress from 85% to 100% (15% of total progress)
+                            const overallProgress = 0.85 + (discoveryProgress * 0.15);
+                            progressCallback(overallProgress);
+                        };
+                        
+                        // Run rule discovery with progress tracking
+                        ruleDiscoveryResults = await ruleDiscoveryService.analyzeRuleChunks(file.name, (fallbackMessage) => {
+                            console.warn('ImportService: Rule discovery fallback:', fallbackMessage);
+                        }, ruleDiscoveryProgressCallback);
+                        
+                        if (!ruleDiscoveryResults.success) {
+                            console.warn('ImportService: Rule discovery analysis failed:', ruleDiscoveryResults.message);
+                        } else {
+                            console.log(`ImportService: Rule discovery complete - ${ruleDiscoveryResults.ruleChunks} rules identified`);
+                        }
+                    } else {
+                        console.warn('ImportService: Rule discovery service not available');
+                        ruleDiscoveryResults = {
+                            success: false,
+                            message: 'Rule discovery service not available',
+                            ruleChunks: 0
+                        };
                     }
+                } else {
+                    console.warn('ImportService: RuleDiscoveryService not defined');
+                    ruleDiscoveryResults = {
+                        success: false,
+                        message: 'RuleDiscoveryService not defined',
+                        ruleChunks: 0
+                    };
                 }
             } catch (error) {
-                console.warn('ImportService: Rule discovery analysis failed:', error);
+                console.error('ImportService: Rule discovery analysis failed:', error);
+                ruleDiscoveryResults = {
+                    success: false,
+                    message: error.message,
+                    ruleChunks: 0
+                };
             }
             
             progressCallback(1.0); // 100% - Complete
+            
+            // Log performance statistics
+            const duration = Date.now() - startTime;
+            if (window.rulespediaStats) {
+                window.rulespediaStats.logPerformanceStats('importBook', duration, {
+                    filename: file.name,
+                    chunks: qualityChunks.length,
+                    totalWords: totalWords
+                });
+                
+                // Also log content store statistics
+                window.rulespediaStats.logContentStoreStats(this.contentStore);
+            }
             
             return {
                 success: true,
@@ -392,7 +438,10 @@ class ImportService {
                 chunks: qualityChunks.length,
                 totalWords: totalWords,
                 associations: Object.keys(tfidfData.wordChunkAssociations).length,
-                message: `Successfully imported ${file.name} with ${qualityChunks.length} chunks and ${Object.keys(tfidfData.wordChunkAssociations).length} word associations`
+                rulesDiscovered: ruleDiscoveryResults?.ruleChunks || 0,
+                ruleDiscoverySuccess: ruleDiscoveryResults?.success || false,
+                ruleDiscoveryMessage: ruleDiscoveryResults?.message || 'No rule discovery performed',
+                message: `Successfully imported ${file.name} with ${qualityChunks.length} chunks, ${Object.keys(tfidfData.wordChunkAssociations).length} word associations, and ${ruleDiscoveryResults?.ruleChunks || 0} rules discovered`
             };
             
         } catch (error) {

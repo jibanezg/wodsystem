@@ -36,9 +36,10 @@ class RuleDiscoveryService {
      * Analyze chunks that contain rule-relevant words to identify actual rules
      * @param {string} filename - Optional filename filter
      * @param {Function} logCallback - Optional callback for logging fallback usage
+     * @param {Function} progressCallback - Optional callback for progress tracking
      * @returns {Object} Analysis results
      */
-    async analyzeRuleChunks(filename = null, logCallback = null) {
+    async analyzeRuleChunks(filename = null, logCallback = null, progressCallback = null) {
         // Check if LLM service is available
         if (!this.llmService) {
             console.warn('RuleDiscovery: LLM service not available, skipping rule discovery');
@@ -92,7 +93,7 @@ class RuleDiscoveryService {
             const chunkTuples = this.createChunkTuples(ruleChunkAssociations);
             
             // Step 3: Analyze chunks with LLM and build priority queue
-            const ruleChunks = await this.analyzeChunksAndBuildQueue(chunkTuples, logCallback);
+            const ruleChunks = await this.analyzeChunksAndBuildQueue(chunkTuples, logCallback, progressCallback);
             
             // Store results
             this.ruleChunks = ruleChunks;
@@ -192,13 +193,20 @@ class RuleDiscoveryService {
      * Analyze chunks with LLM and build priority queue
      * @param {Array} chunkTuples - Array of chunk tuples
      * @param {Function} logCallback - Optional callback for logging fallback usage
+     * @param {Function} progressCallback - Optional callback for progress tracking
      * @returns {Array} Priority queue of rule chunks
      */
-    async analyzeChunksAndBuildQueue(chunkTuples, logCallback = null) {
+    async analyzeChunksAndBuildQueue(chunkTuples, logCallback = null, progressCallback = null) {
         const ruleChunks = [];
         
         for (let i = 0; i < chunkTuples.length; i++) {
             const chunkTuple = chunkTuples[i];
+            
+            // Report progress if callback provided
+            if (progressCallback) {
+                const progress = (i + 1) / chunkTuples.length;
+                progressCallback(progress);
+            }
             
             try {
                 // Get the actual chunk content

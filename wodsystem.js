@@ -31,6 +31,7 @@ Promise.all([
 
 // Import Rulespedia Services
 import "./scripts/rulespedia-services.js";
+import "./scripts/rulespedia-statistics.js";
 
 // Import CSS Loader
 import "./scripts/css-loader.js";
