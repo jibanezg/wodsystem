@@ -258,7 +258,7 @@ class ViewManager {
      * @param {string} viewName - Name of the view
      * @param {string} parentView - Parent view name
      */
-    async getBreadcrumbHTML(viewName, parentView = 'home') {
+    async getBreadcrumbHTML(viewName, parentView = 'dashboard') {
         const view = this.getView(viewName);
         if (!view) {
             return '';
@@ -342,13 +342,22 @@ class RulespediaFramework {
      */
     initializeViews() {
         // Check if the actual view classes are available, otherwise use fallbacks
-        if (typeof window.HomeView !== 'undefined' && window.HomeView.name !== 'FallbackHomeView') {
-            const homeView = new window.HomeView();
-            this.viewManager.registerView(homeView);
+        if (typeof window.DashboardView !== 'undefined' && window.DashboardView.name !== 'FallbackDashboardView') {
+            const dashboardView = new window.DashboardView(this.serviceManager);
+            this.viewManager.registerView(dashboardView);
         } else {
-            const homeView = new RuleView('home', 'Home', 'fas fa-home');
-            homeView.setTemplatePath('systems/wodsystem/templates/rulespedia/home-view.html');
-            this.viewManager.registerView(homeView);
+            const dashboardView = new RuleView('dashboard', 'Dashboard', 'fas fa-tachometer-alt');
+            dashboardView.setTemplatePath('systems/wodsystem/templates/rulespedia/dashboard-view.html');
+            this.viewManager.registerView(dashboardView);
+        }
+        
+        if (typeof window.CreateRulesView !== 'undefined') {
+            const createRulesView = new window.CreateRulesView(this.serviceManager);
+            this.viewManager.registerView(createRulesView);
+        } else {
+            const createRulesView = new RuleView('create-rules', 'Create Rules', 'fas fa-magic');
+            createRulesView.setTemplatePath('systems/wodsystem/templates/rulespedia/create-rules-view.html');
+            this.viewManager.registerView(createRulesView);
         }
         
         if (typeof window.SearchView !== 'undefined' && window.SearchView.name !== 'FallbackSearchView') {
@@ -374,7 +383,7 @@ class RulespediaFramework {
         }
         
         if (typeof window.ManageView !== 'undefined' && window.ManageView.name !== 'FallbackManageView') {
-            const manageView = new window.ManageView();
+            const manageView = new window.ManageView(this.serviceManager);
             this.viewManager.registerView(manageView);
         } else {
             const manageView = new RuleView('manage', 'Manage Books', 'fas fa-database');

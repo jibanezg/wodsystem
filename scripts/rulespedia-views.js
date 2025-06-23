@@ -518,26 +518,116 @@ class ImportView extends RuleView {
 }
 
 /**
- * Home View - Handles home page UI
+ * Dashboard View - Main entry point for Rulespedia system definition
  */
-class HomeView extends RuleView {
-    constructor() {
-        super('home', 'Home', 'fas fa-home');
-        this.setTemplatePath('systems/wodsystem/templates/rulespedia/home-view.html');
+class DashboardView extends RuleView {
+    constructor(serviceManager) {
+        super('dashboard', 'Dashboard', 'fas fa-tachometer-alt');
+        this.serviceManager = serviceManager;
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/dashboard-view.html');
     }
 
     /**
      * Called after the view is rendered
      */
     onRender() {
-        // Initialize any view-specific logic here
+        this.initializeDashboard();
     }
 
     /**
      * Called when the view is activated
      */
     onActivate() {
-        // Initialize any activation logic here
+        this.initializeDashboard();
+    }
+
+    /**
+     * Initialize dashboard functionality
+     */
+    initializeDashboard() {
+        this.setupNavigationButtons();
+        this.updateSystemStats();
+    }
+
+    /**
+     * Setup navigation buttons to other views
+     */
+    setupNavigationButtons() {
+        // Manage Books button
+        const manageBooksBtn = document.getElementById('manageBooksBtn');
+        if (manageBooksBtn) {
+            this.addTrackedEventListener(manageBooksBtn, 'click', () => {
+                this.navigateToView('manage');
+            });
+        }
+
+        // Create Rules button
+        const createRulesBtn = document.getElementById('createRulesBtn');
+        if (createRulesBtn) {
+            this.addTrackedEventListener(createRulesBtn, 'click', () => {
+                this.navigateToView('create-rules');
+            });
+        }
+    }
+
+    /**
+     * Navigate to a specific view
+     */
+    navigateToView(viewName) {
+        // Trigger view change through the main Rulespedia system
+        if (window.rulespedia && window.rulespedia.switchToView) {
+            window.rulespedia.switchToView(viewName);
+        } else {
+            console.warn('DashboardView: Unable to navigate - rulespedia system not available');
+        }
+    }
+
+    /**
+     * Update system statistics display
+     */
+    async updateSystemStats() {
+        const statsContainer = document.getElementById('systemStats');
+        if (!statsContainer) return;
+
+        try {
+            let stats = {
+                booksImported: 0,
+                totalChunks: 0,
+                rulesDiscovered: 0,
+                systemName: 'No System Defined'
+            };
+
+            // Get book management service for stats
+            if (this.serviceManager) {
+                const bookManagementService = this.serviceManager.getBookManagementService();
+                if (bookManagementService) {
+                    const bookStats = await bookManagementService.getBookStats();
+                    stats.booksImported = bookStats.totalBooks || 0;
+                    stats.totalChunks = bookStats.totalChunks || 0;
+                }
+
+                // Get rule discovery service for rule stats
+                const ruleDiscoveryService = this.serviceManager.getRuleDiscoveryService();
+                if (ruleDiscoveryService) {
+                    const ruleStats = ruleDiscoveryService.getRuleStats();
+                    stats.rulesDiscovered = ruleStats.totalRules || 0;
+                }
+            }
+
+            // Update the stats display using template
+            const statsHTML = await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/dashboard-stats.html', {
+                booksImported: stats.booksImported,
+                totalChunks: stats.totalChunks,
+                rulesDiscovered: stats.rulesDiscovered,
+                systemRules: '-'
+            });
+
+            statsContainer.innerHTML = statsHTML;
+
+        } catch (error) {
+            console.error('DashboardView: Error updating stats:', error);
+            statsContainer.innerHTML = '<div class="error">Unable to load system statistics</div>';
+        }
     }
 }
 
@@ -624,8 +714,533 @@ class SettingsView extends RuleView {
     }
 }
 
+/**
+ * Create Rules View - Visual rule definition interface
+ */
+class CreateRulesView extends RuleView {
+    constructor(serviceManager) {
+        super('create-rules', 'Create Rules', 'fas fa-magic');
+        this.serviceManager = serviceManager;
+        this.setTemplatePath('systems/wodsystem/templates/rulespedia/create-rules-view.html');
+        
+        // Rule definition state
+        this.currentRule = {
+            name: '',
+            type: 'general',
+            description: '',
+            components: [],
+            source: 'manual' // 'manual' or 'extracted'
+        };
+        
+        this.ruleComponents = [];
+        this.extractedRules = [];
+    }
+
+    /**
+     * Called after the view is rendered
+     */
+    onRender() {
+        this.initializeRuleBuilder();
+    }
+
+    /**
+     * Called when the view is activated
+     */
+    onActivate() {
+        this.initializeRuleBuilder();
+    }
+
+    /**
+     * Initialize the rule builder interface
+     */
+    initializeRuleBuilder() {
+        this.setupRuleForm();
+        this.setupComponentBuilder();
+        this.setupExtractionOptions();
+        this.loadExtractedRules();
+    }
+
+    /**
+     * Setup the main rule form
+     */
+    setupRuleForm() {
+        // Rule name input
+        const ruleNameInput = document.getElementById('ruleName');
+        if (ruleNameInput) {
+            this.addTrackedEventListener(ruleNameInput, 'input', (e) => {
+                this.currentRule.name = e.target.value;
+                this.updateRulePreview();
+            });
+        }
+
+        // Rule type selector
+        const ruleTypeSelect = document.getElementById('ruleType');
+        if (ruleTypeSelect) {
+            this.addTrackedEventListener(ruleTypeSelect, 'change', (e) => {
+                this.currentRule.type = e.target.value;
+                this.updateRulePreview();
+            });
+        }
+
+        // Rule description textarea
+        const ruleDescriptionTextarea = document.getElementById('ruleDescription');
+        if (ruleDescriptionTextarea) {
+            this.addTrackedEventListener(ruleDescriptionTextarea, 'input', (e) => {
+                this.currentRule.description = e.target.value;
+                this.updateRulePreview();
+            });
+        }
+
+        // Save rule button
+        const saveRuleBtn = document.getElementById('saveRuleBtn');
+        if (saveRuleBtn) {
+            this.addTrackedEventListener(saveRuleBtn, 'click', () => {
+                this.saveRule();
+            });
+        }
+
+        // Clear rule button
+        const clearRuleBtn = document.getElementById('clearRuleBtn');
+        if (clearRuleBtn) {
+            this.addTrackedEventListener(clearRuleBtn, 'click', async () => {
+                await this.clearRule();
+            });
+        }
+    }
+
+    /**
+     * Setup the component builder interface
+     */
+    setupComponentBuilder() {
+        // Add component buttons
+        const addInputBtn = document.getElementById('addInputBtn');
+        if (addInputBtn) {
+            this.addTrackedEventListener(addInputBtn, 'click', async () => {
+                await this.addComponent('input');
+            });
+        }
+
+        const addRollBtn = document.getElementById('addRollBtn');
+        if (addRollBtn) {
+            this.addTrackedEventListener(addRollBtn, 'click', async () => {
+                await this.addComponent('roll');
+            });
+        }
+
+        const addConditionBtn = document.getElementById('addConditionBtn');
+        if (addConditionBtn) {
+            this.addTrackedEventListener(addConditionBtn, 'click', async () => {
+                await this.addComponent('condition');
+            });
+        }
+
+        const addOutputBtn = document.getElementById('addOutputBtn');
+        if (addOutputBtn) {
+            this.addTrackedEventListener(addOutputBtn, 'click', async () => {
+                await this.addComponent('output');
+            });
+        }
+    }
+
+    /**
+     * Setup extraction options
+     */
+    setupExtractionOptions() {
+        // Auto-extract button
+        const autoExtractBtn = document.getElementById('autoExtractBtn');
+        if (autoExtractBtn) {
+            this.addTrackedEventListener(autoExtractBtn, 'click', () => {
+                this.autoExtractRules();
+            });
+        }
+
+        // Manual extract button
+        const manualExtractBtn = document.getElementById('manualExtractBtn');
+        if (manualExtractBtn) {
+            this.addTrackedEventListener(manualExtractBtn, 'click', () => {
+                this.manualExtractRules();
+            });
+        }
+    }
+
+    /**
+     * Add a component to the current rule
+     */
+    async addComponent(componentType) {
+        const component = {
+            id: Date.now() + Math.random(),
+            type: componentType,
+            config: this.getDefaultConfig(componentType)
+        };
+
+        this.currentRule.components.push(component);
+        await this.renderComponent(component);
+        await this.updateRulePreview();
+    }
+
+    /**
+     * Get default configuration for a component type
+     */
+    getDefaultConfig(componentType) {
+        switch (componentType) {
+            case 'input':
+                return {
+                    name: '',
+                    type: 'text',
+                    required: true,
+                    defaultValue: '',
+                    validation: ''
+                };
+            case 'roll':
+                return {
+                    dice: 'd20',
+                    modifier: 0,
+                    target: 'variable',
+                    targetValue: '',
+                    successType: 'above'
+                };
+            case 'condition':
+                return {
+                    operator: 'equals',
+                    leftOperand: '',
+                    rightOperand: '',
+                    action: 'continue'
+                };
+            case 'output':
+                return {
+                    type: 'text',
+                    content: '',
+                    target: 'result'
+                };
+            default:
+                return {};
+        }
+    }
+
+    /**
+     * Render a component in the components list
+     */
+    async renderComponent(component) {
+        const componentsContainer = document.getElementById('ruleComponents');
+        if (!componentsContainer) return;
+
+        try {
+            // Load component wrapper template
+            const componentWrapperTemplate = await window.templateLoader.loadTemplate('systems/wodsystem/templates/rulespedia/rule-component.html');
+            
+            // Get component configuration HTML
+            const componentConfigHTML = await this.getComponentConfigHTML(component);
+            
+            // Render the component wrapper
+            const componentHTML = window.templateLoader.renderString(componentWrapperTemplate, {
+                componentTypeLabel: this.getComponentTypeLabel(component.type),
+                componentId: component.id,
+                componentConfigHTML: componentConfigHTML
+            });
+
+            const componentElement = document.createElement('div');
+            componentElement.className = 'rule-component';
+            componentElement.id = `component-${component.id}`;
+            componentElement.innerHTML = componentHTML;
+
+            componentsContainer.appendChild(componentElement);
+        } catch (error) {
+            console.error('CreateRulesView: Error rendering component:', error);
+            // Fallback to simple component
+            const fallbackElement = document.createElement('div');
+            fallbackElement.className = 'rule-component';
+            fallbackElement.id = `component-${component.id}`;
+            fallbackElement.innerHTML = `
+                <div class="component-header">
+                    <span class="component-type">${this.getComponentTypeLabel(component.type)}</span>
+                    <button class="remove-component" onclick="this.removeComponent('${component.id}')">×</button>
+                </div>
+                <div class="component-config">
+                    <p>Error loading component configuration</p>
+                </div>
+            `;
+            componentsContainer.appendChild(fallbackElement);
+        }
+    }
+
+    /**
+     * Get component type label
+     */
+    getComponentTypeLabel(type) {
+        const labels = {
+            'input': '📥 Input',
+            'roll': '🎲 Roll',
+            'condition': '🔀 Condition',
+            'output': '📤 Output'
+        };
+        return labels[type] || type;
+    }
+
+    /**
+     * Get component configuration HTML
+     */
+    async getComponentConfigHTML(component) {
+        try {
+            switch (component.type) {
+                case 'input':
+                    return await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/component-input.html', {
+                        componentId: component.id,
+                        name: component.config.name || '',
+                        textSelected: component.config.type === 'text',
+                        numberSelected: component.config.type === 'number',
+                        selectSelected: component.config.type === 'select'
+                    });
+                    
+                case 'roll':
+                    return await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/component-roll.html', {
+                        componentId: component.id,
+                        dice: component.config.dice || '',
+                        modifier: component.config.modifier || 0
+                    });
+                    
+                case 'condition':
+                    return await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/component-condition.html', {
+                        componentId: component.id,
+                        equalsSelected: component.config.operator === 'equals',
+                        greaterSelected: component.config.operator === 'greater',
+                        lessSelected: component.config.operator === 'less',
+                        leftOperand: component.config.leftOperand || '',
+                        rightOperand: component.config.rightOperand || ''
+                    });
+                    
+                case 'output':
+                    return await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/component-output.html', {
+                        componentId: component.id,
+                        textSelected: component.config.type === 'text',
+                        numberSelected: component.config.type === 'number',
+                        booleanSelected: component.config.type === 'boolean',
+                        content: component.config.content || ''
+                    });
+                    
+                default:
+                    return '<p>Unknown component type</p>';
+            }
+        } catch (error) {
+            console.error('CreateRulesView: Error loading component config template:', error);
+            return '<p>Error loading component configuration</p>';
+        }
+    }
+
+    /**
+     * Update component configuration
+     */
+    async updateComponentConfig(componentId, key, value) {
+        const component = this.currentRule.components.find(c => c.id === componentId);
+        if (component) {
+            component.config[key] = value;
+            await this.updateRulePreview();
+        }
+    }
+
+    /**
+     * Remove a component
+     */
+    async removeComponent(componentId) {
+        this.currentRule.components = this.currentRule.components.filter(c => c.id !== componentId);
+        const componentElement = document.getElementById(`component-${componentId}`);
+        if (componentElement) {
+            componentElement.remove();
+        }
+        await this.updateRulePreview();
+    }
+
+    /**
+     * Update the rule preview
+     */
+    async updateRulePreview() {
+        const previewContainer = document.getElementById('rulePreview');
+        if (!previewContainer) return;
+
+        try {
+            const jsonOutput = JSON.stringify(this.currentRule, null, 2);
+            
+            const previewHTML = await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/rule-preview.html', {
+                jsonOutput: jsonOutput
+            });
+            
+            previewContainer.innerHTML = previewHTML;
+        } catch (error) {
+            console.error('CreateRulesView: Error updating rule preview:', error);
+            // Fallback to simple preview
+            const jsonOutput = JSON.stringify(this.currentRule, null, 2);
+            previewContainer.innerHTML = `
+                <div class="preview-header">
+                    <h4>Rule JSON Preview</h4>
+                </div>
+                <pre><code>${jsonOutput}</code></pre>
+            `;
+        }
+    }
+
+    /**
+     * Save the current rule
+     */
+    async saveRule() {
+        if (!this.currentRule.name.trim()) {
+            this.showMessage('Please enter a rule name', 'error');
+            return;
+        }
+
+        if (this.currentRule.components.length === 0) {
+            this.showMessage('Please add at least one component', 'error');
+            return;
+        }
+
+        try {
+            // Here you would save the rule to your system
+            // For now, we'll just show a success message
+            this.showMessage(`Rule "${this.currentRule.name}" saved successfully!`, 'success');
+            
+            // Clear the form for the next rule
+            await this.clearRule();
+            
+        } catch (error) {
+            console.error('Error saving rule:', error);
+            this.showMessage('Error saving rule: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * Clear the current rule
+     */
+    async clearRule() {
+        this.currentRule = {
+            name: '',
+            type: 'general',
+            description: '',
+            components: [],
+            source: 'manual'
+        };
+
+        // Clear form fields
+        const ruleNameInput = document.getElementById('ruleName');
+        if (ruleNameInput) ruleNameInput.value = '';
+
+        const ruleTypeSelect = document.getElementById('ruleType');
+        if (ruleTypeSelect) ruleTypeSelect.value = 'general';
+
+        const ruleDescriptionTextarea = document.getElementById('ruleDescription');
+        if (ruleDescriptionTextarea) ruleDescriptionTextarea.value = '';
+
+        // Clear components
+        const componentsContainer = document.getElementById('ruleComponents');
+        if (componentsContainer) componentsContainer.innerHTML = '';
+
+        await this.updateRulePreview();
+    }
+
+    /**
+     * Load extracted rules from imported books
+     */
+    async loadExtractedRules() {
+        const extractedRulesContainer = document.getElementById('extractedRules');
+        if (!extractedRulesContainer) return;
+
+        try {
+            if (this.serviceManager) {
+                const ruleDiscoveryService = this.serviceManager.getRuleDiscoveryService();
+                if (ruleDiscoveryService) {
+                    const ruleChunks = ruleDiscoveryService.getRuleChunks();
+                    
+                    if (ruleChunks.length === 0) {
+                        extractedRulesContainer.innerHTML = '<p class="no-rules">No rules extracted yet. Import some books first!</p>';
+                        return;
+                    }
+
+                    const rulesHTML = await Promise.all(ruleChunks.map(async (rule, index) => {
+                        try {
+                            const ruleItemHTML = await window.templateLoader.renderTemplate('systems/wodsystem/templates/rulespedia/extracted-rule-item.html', {
+                                ruleName: rule.ruleName || `Rule ${index + 1}`,
+                                confidencePercent: Math.round(rule.confidence * 100),
+                                ruleType: rule.ruleType || 'general',
+                                rulePreview: rule.chunk.substring(0, 100) + '...'
+                            });
+                            
+                            return `<div class="extracted-rule" onclick="this.selectExtractedRule(${index})">${ruleItemHTML}</div>`;
+                        } catch (error) {
+                            console.error('CreateRulesView: Error rendering extracted rule item:', error);
+                            // Fallback to simple rule item
+                            return `
+                                <div class="extracted-rule" onclick="this.selectExtractedRule(${index})">
+                                    <div class="rule-header">
+                                        <span class="rule-name">${rule.ruleName || `Rule ${index + 1}`}</span>
+                                        <span class="rule-confidence">${Math.round(rule.confidence * 100)}%</span>
+                                    </div>
+                                    <div class="rule-type">${rule.ruleType || 'general'}</div>
+                                    <div class="rule-preview">${rule.chunk.substring(0, 100)}...</div>
+                                </div>
+                            `;
+                        }
+                    }));
+
+                    extractedRulesContainer.innerHTML = rulesHTML.join('');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading extracted rules:', error);
+            extractedRulesContainer.innerHTML = '<p class="error">Error loading extracted rules</p>';
+        }
+    }
+
+    /**
+     * Select an extracted rule for use
+     */
+    async selectExtractedRule(index) {
+        if (this.serviceManager) {
+            const ruleDiscoveryService = this.serviceManager.getRuleDiscoveryService();
+            if (ruleDiscoveryService) {
+                const ruleChunks = ruleDiscoveryService.getRuleChunks();
+                const selectedRule = ruleChunks[index];
+                
+                if (selectedRule) {
+                    // Populate the form with extracted rule data
+                    this.currentRule.name = selectedRule.ruleName || `Extracted Rule ${index + 1}`;
+                    this.currentRule.type = selectedRule.ruleType || 'general';
+                    this.currentRule.description = selectedRule.chunk;
+                    this.currentRule.source = 'extracted';
+                    
+                    // Update form fields
+                    const ruleNameInput = document.getElementById('ruleName');
+                    if (ruleNameInput) ruleNameInput.value = this.currentRule.name;
+
+                    const ruleTypeSelect = document.getElementById('ruleType');
+                    if (ruleTypeSelect) ruleTypeSelect.value = this.currentRule.type;
+
+                    const ruleDescriptionTextarea = document.getElementById('ruleDescription');
+                    if (ruleDescriptionTextarea) ruleDescriptionTextarea.value = this.currentRule.description;
+
+                    await this.updateRulePreview();
+                    this.showMessage(`Selected extracted rule: ${this.currentRule.name}`, 'info');
+                }
+            }
+        }
+    }
+
+    /**
+     * Auto-extract rules from imported books
+     */
+    async autoExtractRules() {
+        this.showMessage('Auto-extraction feature coming soon!', 'info');
+        // This would use LLM to automatically generate rule components from extracted content
+    }
+
+    /**
+     * Manual extract rules with user guidance
+     */
+    async manualExtractRules() {
+        this.showMessage('Manual extraction feature coming soon!', 'info');
+        // This would provide a guided interface for extracting rules from specific content
+    }
+}
+
 // Export for use in other modules
-window.HomeView = HomeView;
+window.DashboardView = DashboardView;
+window.CreateRulesView = CreateRulesView;
 window.ImportView = ImportView;
 window.SearchView = SearchView;
 window.ManageView = ManageView;

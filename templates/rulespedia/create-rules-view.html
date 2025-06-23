@@ -1,0 +1,120 @@
+<div class="create-rules-container">
+    <div class="rules-header">
+        <h2>⚙️ Create Game Rules</h2>
+        <p>Build custom game rules using visual components. Extract rules from imported books or create them manually.</p>
+    </div>
+
+    <div class="rules-layout">
+        <!-- Left Panel: Rule Builder -->
+        <div class="rule-builder-panel">
+            <div class="panel-header">
+                <h3>📝 Rule Builder</h3>
+            </div>
+
+            <!-- Basic Rule Information -->
+            <div class="rule-form-section">
+                <h4>Basic Information</h4>
+                <div class="form-group">
+                    <label for="ruleName">Rule Name:</label>
+                    <input type="text" id="ruleName" placeholder="Enter rule name (e.g., 'Attack Roll', 'Skill Check')">
+                </div>
+                
+                <div class="form-group">
+                    <label for="ruleType">Rule Type:</label>
+                    <select id="ruleType">
+                        <option value="general">General</option>
+                        <option value="combat">Combat</option>
+                        <option value="skill">Skill</option>
+                        <option value="magic">Magic</option>
+                        <option value="social">Social</option>
+                        <option value="exploration">Exploration</option>
+                        <option value="character">Character</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ruleDescription">Description:</label>
+                    <textarea id="ruleDescription" placeholder="Describe what this rule does..."></textarea>
+                </div>
+            </div>
+
+            <!-- Component Builder -->
+            <div class="rule-form-section">
+                <h4>🎯 Rule Components</h4>
+                <p>Add components to define how your rule works:</p>
+                
+                <div class="component-buttons">
+                    <button id="addInputBtn" class="component-btn">
+                        <i class="fas fa-arrow-down"></i>
+                        Add Input
+                    </button>
+                    <button id="addRollBtn" class="component-btn">
+                        <i class="fas fa-dice"></i>
+                        Add Roll
+                    </button>
+                    <button id="addConditionBtn" class="component-btn">
+                        <i class="fas fa-code-branch"></i>
+                        Add Condition
+                    </button>
+                    <button id="addOutputBtn" class="component-btn">
+                        <i class="fas fa-arrow-up"></i>
+                        Add Output
+                    </button>
+                </div>
+
+                <div id="ruleComponents" class="components-list">
+                    <!-- Components will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="rule-actions">
+                <button id="saveRuleBtn" class="action-btn primary">
+                    <i class="fas fa-save"></i>
+                    Save Rule
+                </button>
+                <button id="clearRuleBtn" class="action-btn secondary">
+                    <i class="fas fa-eraser"></i>
+                    Clear Form
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Panel: Extracted Rules & Preview -->
+        <div class="rules-side-panel">
+            <!-- Extracted Rules Section -->
+            <div class="extracted-rules-section">
+                <div class="panel-header">
+                    <h3>📚 Extracted Rules</h3>
+                    <div class="extraction-actions">
+                        <button id="autoExtractBtn" class="small-btn">
+                            <i class="fas fa-magic"></i>
+                            Auto Extract
+                        </button>
+                        <button id="manualExtractBtn" class="small-btn">
+                            <i class="fas fa-hand-paper"></i>
+                            Manual Extract
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="extractedRules" class="extracted-rules-list">
+                    <p class="no-rules">No rules extracted yet. Import some books first!</p>
+                </div>
+            </div>
+
+            <!-- Rule Preview Section -->
+            <div class="rule-preview-section">
+                <div class="panel-header">
+                    <h3>👁️ Rule Preview</h3>
+                </div>
+                
+                <div id="rulePreview" class="rule-preview">
+                    <div class="preview-placeholder">
+                        <p>Start building your rule to see the JSON preview here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -87,12 +87,12 @@ if (typeof window.RuleView === 'undefined') {
 }
 
 // Fallback view classes if the main ones are not available
-if (typeof window.HomeView === 'undefined') {
-    console.warn('Rulespedia: HomeView not found, creating fallback...');
-    window.HomeView = class FallbackHomeView extends window.RuleView {
+if (typeof window.DashboardView === 'undefined') {
+    console.warn('Rulespedia: DashboardView not found, creating fallback...');
+    window.DashboardView = class FallbackDashboardView extends window.RuleView {
         constructor() {
-            super('home', 'Rulespedia Home', 'fas fa-home');
-            this.setTemplatePath('systems/wodsystem/templates/rulespedia/fallback-home.html');
+            super('dashboard', 'Rulespedia Dashboard', 'fas fa-tachometer-alt');
+            this.setTemplatePath('systems/wodsystem/templates/rulespedia/fallback-dashboard.html');
         }
     };
 }
@@ -382,12 +382,19 @@ class RulespediaTab {
     /**
      * Initialize the Rulespedia interface
      */
-    initializeRulespedia(container) {
-        this.rulespedia = new Rulespedia(container);
-        this.rulespedia.init();
-        
-        // Set global reference for other modules to use
-        window.rulespediaManager = this.rulespedia;
+    async initializeRulespedia(container) {
+        try {
+            this.rulespedia = new Rulespedia(container);
+            await this.rulespedia.init();
+            
+            // Make the instance available globally for navigation
+            window.rulespedia = this.rulespedia;
+            
+            console.log('Rulespedia: Initialized successfully');
+        } catch (error) {
+            console.error('Rulespedia: Failed to initialize:', error);
+            await this.showErrorTemplate(container, 'Failed to initialize Rulespedia system');
+        }
     }
 
     /**
@@ -424,12 +431,12 @@ class RulespediaTab {
             // Set up view navigation event listeners
             this.setupViewNavigation();
             
-            // Load the home view by default using the framework
-            this.framework.loadView('home').then(() => {
-                console.log('Rulespedia: Home view loaded successfully');
+            // Load the dashboard view by default using the framework
+            this.framework.loadView('dashboard').then(() => {
+                console.log('Rulespedia: Dashboard view loaded successfully');
             }).catch(error => {
-                console.error('Rulespedia: Error loading home view:', error);
-                // Fallback to import view if home fails
+                console.error('Rulespedia: Error loading dashboard view:', error);
+                // Fallback to import view if dashboard fails
                 this.framework.loadView('import').then(() => {
                     console.log('Rulespedia: Import view loaded as fallback');
                 }).catch(fallbackError => {
@@ -596,6 +603,13 @@ class Rulespedia {
             return await this.framework.loadView(viewName);
         }
         return false;
+    }
+
+    /**
+     * Switch to a specific view (alias for navigateToView)
+     */
+    async switchToView(viewName) {
+        return await this.navigateToView(viewName);
     }
 
     getViewManager() {
