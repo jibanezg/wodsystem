@@ -1,0 +1,34 @@
+/**
+ * Vampire Theme - Gothic, Aristocratic, Nocturnal
+ * Color Palette: Deep reds, blacks, crimson, silver accents
+ * Identity: Blood, nobility, eternal night, predatory elegance
+ * 
+ * FUTURE USE: Activate when implementing Vampire sheets
+ */
+
+.wod.sheet.actor.vampire {
+    /* Primary Colors - Blood and darkness */
+    --wod-primary: #8b0000;           /* Dark red (blood) */
+    --wod-primary-dark: #4a0000;      /* Almost black red */
+    --wod-primary-light: #c41e3a;     /* Crimson */
+    
+    /* Background Colors - Darker, gothic */
+    --wod-bg-main: #1a1a1a;           /* Very dark gray */
+    --wod-bg-secondary: #2d2d2d;      /* Dark gray */
+    --wod-bg-tertiary: #3a3a3a;       /* Medium dark gray */
+    --wod-bg-hover: #4a4a4a;          /* Lighter dark gray */
+    --wod-bg-input: #252525;          /* Dark input background */
+    
+    /* Text Colors - Light text on dark backgrounds */
+    --wod-text-main: #e0e0e0;         /* Light gray text */
+    --wod-text-light: #999;           /* Muted light gray */
+    --wod-text-inverse: #1a1a1a;      /* Dark text on light */
+    
+    /* Border Colors */
+    --wod-border-main: #8b0000;       /* Blood red borders */
+    --wod-border-light: #4a4a4a;      /* Dark borders */
+    
+    /* Accent - Silver for contrast */
+    --wod-accent: #c0c0c0;            /* Silver */
+}
+

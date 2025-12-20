@@ -1,0 +1,33 @@
+/**
+ * Werewolf Theme - Primal, Natural, Wild
+ * Color Palette: Forest greens, earth browns, moon silver
+ * Identity: Nature, fury, instinct, the hunt, duality
+ * 
+ * FUTURE USE: Activate when implementing Werewolf sheets
+ */
+
+.wod.sheet.actor.werewolf {
+    /* Primary Colors - Forest and earth */
+    --wod-primary: #2d5016;           /* Deep forest green */
+    --wod-primary-dark: #1a3009;      /* Very dark green */
+    --wod-primary-light: #4a7c0f;     /* Brighter forest green */
+    
+    /* Background Colors - Natural, earthy */
+    --wod-bg-main: #faf9f6;           /* Off-white/cream */
+    --wod-bg-secondary: #e8e6e0;      /* Light tan */
+    --wod-bg-tertiary: #d4d2c8;       /* Tan/beige */
+    --wod-bg-hover: #c4c2b8;          /* Darker tan */
+    --wod-bg-input: #f5f4f0;          /* Subtle off-white */
+    
+    /* Border Colors */
+    --wod-border-main: #2d5016;       /* Forest green borders */
+    --wod-border-light: #8b7355;      /* Brown borders */
+    
+    /* Accent - Silver for moon/rage */
+    --wod-accent: #a8a8a8;            /* Moon silver */
+    
+    /* Status Colors - Natural theme */
+    --wod-danger: #8b4513;            /* Saddle brown (rage) */
+    --wod-danger-dark: #654321;       /* Dark brown */
+}
+

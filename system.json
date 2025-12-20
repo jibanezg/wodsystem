@@ -19,6 +19,8 @@
     "wodsystem.js"
   ],
   "styles": [
+    "styles/core/variables.css",
+    "styles/themes/mortal.css",
     "styles/mortal-sheet.css"
   ],
   "languages": [

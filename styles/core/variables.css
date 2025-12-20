@@ -1,0 +1,67 @@
+/**
+ * WoD System - CSS Variables (Default/Mortal Theme)
+ * These variables define the color palette and spacing for character sheets
+ * Override these in creature-specific theme files for unique visual identities
+ */
+
+:root {
+    /* Primary Colors - Main theme colors */
+    --wod-primary: #800000;           /* Deep red - headers, accents */
+    --wod-primary-dark: #600000;      /* Darker red - hover states */
+    --wod-primary-light: #a67c00;     /* Gold/brown - special elements */
+    
+    /* Background Colors */
+    --wod-bg-main: #ffffff;           /* Main background */
+    --wod-bg-secondary: #f5f5f5;      /* Secondary background (header) */
+    --wod-bg-tertiary: #f0f0f0;       /* Tertiary background (tabs, sections) */
+    --wod-bg-hover: #d0d0d0;          /* Hover state */
+    --wod-bg-input: #fafafa;          /* Input field backgrounds */
+    --wod-bg-subtle: #f9f9f9;         /* Very subtle background */
+    
+    /* Border Colors */
+    --wod-border-main: #800000;       /* Main borders (sections, headers) */
+    --wod-border-light: #ccc;         /* Light borders (inputs, dividers) */
+    --wod-border-subtle: #ddd;        /* Very subtle borders */
+    
+    /* Text Colors */
+    --wod-text-main: #000000;         /* Primary text */
+    --wod-text-light: #666;           /* Secondary/muted text */
+    --wod-text-inverse: #ffffff;      /* Text on dark backgrounds */
+    
+    /* Status Colors */
+    --wod-success: #228b22;           /* Success/add actions */
+    --wod-danger: #dc143c;            /* Danger/delete actions */
+    --wod-danger-dark: #8b0000;       /* Darker danger */
+    --wod-warning: #ffeeee;           /* Warning/alert backgrounds */
+    --wod-info: #fff9e6;              /* Info backgrounds */
+    
+    /* Spacing */
+    --wod-spacing-xs: 2px;
+    --wod-spacing-sm: 3px;
+    --wod-spacing-md: 5px;
+    --wod-spacing-lg: 8px;
+    --wod-spacing-xl: 10px;
+    
+    /* Border Radius */
+    --wod-radius-sm: 2px;
+    --wod-radius-md: 3px;
+    --wod-radius-lg: 4px;
+    --wod-radius-round: 50%;
+    
+    /* Font Sizes */
+    --wod-font-xs: 0.65em;
+    --wod-font-sm: 0.7em;
+    --wod-font-md: 0.75em;
+    --wod-font-base: 0.8em;
+    --wod-font-lg: 0.9em;
+    --wod-font-xl: 11px;
+    
+    /* Shadows */
+    --wod-shadow-sm: 0 0 3px rgba(128, 0, 0, 0.3);
+    
+    /* Health Box - Damage Type Colors */
+    --wod-damage-bashing: #800000;    /* X mark color */
+    --wod-damage-lethal: #800000;     /* Stripe color */
+    --wod-damage-aggravated: #800000; /* Fill color */
+}
+

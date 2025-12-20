@@ -1,0 +1,16 @@
+/**
+ * Mortal Theme - Grounded, Earthy, Human
+ * Color Palette: Browns, Deep Reds, Natural tones
+ * Identity: Mortality, humanity, earthbound existence
+ */
+
+.wod.sheet.actor.mortal {
+    /* Primary Colors - Deep red/brown theme */
+    --wod-primary: #800000;           /* Maroon red */
+    --wod-primary-dark: #600000;      /* Dark maroon */
+    --wod-primary-light: #a67c00;     /* Golden brown */
+    
+    /* This theme uses the default color scheme */
+    /* Override variables here if needed for mortal-specific tweaks */
+}
+
