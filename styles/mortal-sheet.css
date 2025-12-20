@@ -2,41 +2,141 @@
 .wod.sheet.actor {
     min-width: 800px;
     min-height: 600px;
-    max-height: 700px;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .wod.sheet.actor .sheet-body {
-    height: 100%;
-    overflow: hidden;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 3px;
+    min-height: 0;
+}
+
+/* Identity Section - Character Header */
+.sheet-header {
+    padding: 5px 10px;
+    background: #f5f5f5;
+    border-bottom: 2px solid #800000;
+    margin-bottom: 5px;
+}
+
+.identity-section {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
+    gap: 10px;
+    align-items: end;
+}
+
+.identity-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.identity-field label {
+    font-weight: bold;
+    font-size: 10px;
+    color: #800000;
+    text-transform: uppercase;
+}
+
+.identity-field input,
+.identity-field select {
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-family: inherit;
+    font-size: 11px;
+}
+
+.archetype-select {
+    cursor: pointer;
+}
+
+/* Navigation Tabs */
+.sheet-tabs {
+    flex: 0;
+    display: flex;
+    border-bottom: 2px solid #800000;
+    background: #f0f0f0;
+    padding: 0;
+    margin: 0 0 3px 0;
+}
+
+.sheet-tabs .item {
+    flex: 0 0 auto;
+    font-weight: bold;
+    padding: 4px 12px;
+    margin: 0;
+    background: #e0e0e0;
+    border-right: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 11px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.sheet-tabs .item:hover {
+    background: #d0d0d0;
+}
+
+.sheet-tabs .item.active {
+    background: #800000;
+    color: white;
+    border-bottom: none;
+}
+
+/* Tab Content */
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
 }
 
 /* Main content layout */
-.main-content {
+.main-layout {
     display: flex;
-    height: 100%;
     gap: 5px;
+    align-items: flex-start;
 }
 
 .left-column {
-    flex: 2;
+    flex: 0 0 65%;
     display: flex;
     flex-direction: column;
     gap: 5px;
+    padding: 0 5px;
 }
 
 .right-column {
-    flex: 1;
+    flex: 0 0 35%;
+    min-width: 250px;
     display: flex;
     flex-direction: column;
     gap: 5px;
+    padding: 0 5px;
+}
+
+.right-column-header {
+    background: #800000;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
 }
 
 /* Section headers */
 .attributes-section h2,
 .abilities-section h2,
-.advantages-section h2,
+.mortal-powers-section h3,
 .health-section h2 {
     margin: 0 0 3px 0;
     padding: 2px 3px;
@@ -113,67 +213,231 @@
     gap: 1px;
 }
 
-/* Advantages section */
-.advantages-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
+/* Mortal Powers section */
+.mortal-powers-section {
+    border: 1px solid #800000;
+    border-radius: 2px;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+}
+
+.numina-info {
+    font-size: 0.7em;
+    font-style: italic;
+    padding: 8px 10px;
+    background: #f9f9f9;
+    border-left: 2px solid #800000;
+    margin-bottom: 5px;
 }
 
 .willpower-section {
-    border: 1px solid #800000;
-    border-radius: 2px;
-    padding: 2px;
+    margin-bottom: 5px;
 }
 
-.willpower-section h3 {
+.willpower-section h4 {
     margin: 0 0 2px 0;
-    padding: 1px;
+    padding: 3px 5px;
     background: #f0f0f0;
-    font-size: 0.8em;
+    font-size: 0.75em;
     text-align: center;
-    border-bottom: 1px solid #800000;
+    border-bottom: 1px solid #ccc;
 }
 
-.merits-flaws-section {
+.willpower-tracks {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    flex: 1;
+    padding: 5px;
 }
 
-.merits-section,
-.flaws-section {
-    border: 1px solid #800000;
-    border-radius: 2px;
-    padding: 2px;
-    flex: 1;
+.willpower-permanent,
+.willpower-temporary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7em;
 }
 
-.merits-section h3,
-.flaws-section h3 {
-    margin: 0 0 2px 0;
-    padding: 1px;
+.willpower-permanent label,
+.willpower-temporary label {
+    font-weight: bold;
+    margin-right: 3px;
+}
+
+/* Temporary willpower uses squares instead of circles */
+.willpower-temporary .dot {
+    border-radius: 0;  /* Remove circular shape for squares */
+}
+
+.backgrounds-section h4 {
+    margin: 5px 0 2px 0;
+    padding: 3px 5px;
     background: #f0f0f0;
-    font-size: 0.8em;
+    font-size: 0.75em;
     text-align: center;
-    border-bottom: 1px solid #800000;
+    border-bottom: 1px solid #ccc;
+}
+
+.background-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 5px;
+}
+
+.background {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1px 0;
+    font-size: 0.7em;
+}
+
+.background label {
+    font-weight: bold;
+}
+
+.numina-placeholder {
+    font-size: 0.7em;
+    font-style: italic;
+    padding: 8px 10px;
+    background: #fff9e6;
+    border: 1px dashed #a67c00;
+    text-align: center;
+    margin-top: 5px;
 }
 
 /* Health section */
 .health-section {
-    flex: 1;
     border: 1px solid #800000;
     border-radius: 2px;
-    padding: 2px;
-    min-height: 100px; /* Ensure minimum height */
+    padding: 5px;
     display: flex;
     flex-direction: column;
 }
 
-.health-section h2 {
-    margin: 0 0 3px 0;
+.reset-health {
+    padding: 3px 6px;
+    font-size: 0.7em;
+    background: #600000;
+    color: white;
+    border: 1px solid #400000;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 5px;
+}
+
+.reset-health:hover {
+    background: #800000;
+}
+
+.reset-health i {
+    font-size: 10px;
+}
+
+.health-track {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px;
+    margin-bottom: 5px;
+}
+
+.health-level {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75em;
+}
+
+.health-box {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 2px solid #800000;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.health-box:hover {
+    background: #ffeeee;
+    transform: scale(1.1);
+    box-shadow: 0 0 3px rgba(128, 0, 0, 0.3);
+}
+
+/* Bashing: X character inside the square */
+.health-box.damage-bashing {
+    background: white;
+}
+
+.health-box.damage-bashing::after {
+    content: "X";
+    font-size: 14px;
+    font-weight: bold;
+    color: #800000;
+    line-height: 1;
+}
+
+/* Lethal: Diagonal stripes (zebra pattern) */
+.health-box.damage-lethal {
+    background: repeating-linear-gradient(
+        45deg,
+        white,
+        white 2px,
+        #800000 2px,
+        #800000 4px
+    );
+}
+
+/* Aggravated: Solid filled square */
+.health-box.damage-aggravated {
+    background: #800000;
+}
+
+.health-name {
+    font-weight: bold;
+    min-width: 85px;
+}
+
+.health-penalty {
+    font-size: 0.85em;
+    color: #dc143c;
+    font-weight: bold;
+    min-width: 20px;
+}
+
+.health-summary {
+    margin-top: 5px;
+    padding: 5px;
+    border-top: 1px solid #ccc;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    font-size: 0.65em;
+}
+
+.health-stat {
+    text-align: center;
+}
+
+.health-stat label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #666;
+    display: block;
+}
+
+.health-stat span {
+    font-size: 14px;
+    font-weight: bold;
+    display: block;
 }
 
 /* Dot-based interface styles */
@@ -203,8 +467,8 @@
 }
 
 .dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border: 1px solid #800000;
     border-radius: 50%;
     cursor: pointer;
@@ -214,7 +478,7 @@
 
 .dot:hover {
     background: #ffcccc !important;
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 
 .dot.filled {
@@ -225,149 +489,308 @@
     background: #600000 !important;
 }
 
-.dot.disabled {
-    background: #f0f0f0;
-    border-color: #ccc;
-    cursor: not-allowed;
-}
-
-.dot.disabled:hover {
-    background: #f0f0f0;
-    transform: none;
-}
-
 /* Hidden input field for form submission */
-.dot-input {
+.dot-input, .health-input {
     display: none;
 }
 
-/* Willpower dots */
-.willpower-list {
+/* Biography Tab Content */
+.biography-content {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 10px;
+    font-size: 0.8em;
 }
 
-.willpower {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1px 0;
-    font-size: 0.7em;
-}
-
-.willpower label {
-    font-weight: bold;
-    margin-right: 3px;
-}
-
-/* Health dots */
-.health-list {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex: 1; /* Take remaining space */
-}
-
-.health {
-    display: flex;
-    justify-content: center; /* Center the checkboxes since no label */
-    align-items: flex-start; /* Align to top for vertical checkboxes */
-    padding: 1px 0;
-    font-size: 0.7em;
-    min-height: 60px; /* Ensure minimum height for checkboxes */
-}
-
-/* Health checkboxes */
-.checkbox-container {
-    display: flex;
-    flex-direction: column;
-    gap: 2px; /* Increase gap between checkboxes */
-    align-items: center;
-    min-height: 50px; /* Ensure minimum height */
-    flex-shrink: 0; /* Prevent shrinking */
-    padding: 2px; /* Add some padding */
-    margin-right: 5px; /* Add right margin to prevent touching the wall */
-}
-
-.health-checkbox {
-    width: 12px;
-    height: 12px;
-    border: 2px solid #800000;
-    background: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    margin: 1px;
-    /* Responsive styles */
-    flex-shrink: 0; /* Prevent shrinking */
-}
-
-.health-checkbox:hover {
-    background: #ffe6e6;
-}
-
-.health-checkbox.checked {
+.bio-fields-section h3,
+.secondary-abilities-section h3,
+.virtues-humanity-section h3,
+.backstory-section h3,
+.notes-section h3 {
+    margin: 0 0 5px 0;
+    padding: 3px;
     background: #800000;
+    color: white;
+    font-size: 1em;
+    text-align: center;
+    border-radius: 2px;
 }
 
-.health-checkbox.checked:hover {
-    background: #600000;
+.bio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
 }
 
-.health-input {
-    display: none;
-}
-
-/* Merits and Flaws */
-.merit-list, .flaw-list {
+.bio-field {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.merit, .flaw {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    padding: 1px 0;
-    font-size: 0.7em;
-}
-
-.merit input[type="text"], .flaw input[type="text"] {
-    flex: 1;
-    margin-right: 2px;
-    font-size: 0.7em;
-    padding: 1px;
-}
-
-.merit .merit-value, .flaw .flaw-value {
-    display: flex;
-    align-items: center;
-}
-
-.delete-merit, .delete-flaw {
+.bio-field label {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
     color: #800000;
-    cursor: pointer;
-    padding: 1px 2px;
-    font-size: 0.7em;
 }
 
-.delete-merit:hover, .delete-flaw:hover {
-    color: #ff0000;
+.bio-field input {
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-size: 11px;
 }
 
-.add-merit, .add-flaw {
-    margin-top: 2px;
+/* Secondary Abilities */
+.secondary-abilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.secondary-ability-category {
+    border: 1px solid #800000;
+    border-radius: 2px;
+    padding: 5px;
+}
+
+.secondary-ability-category h4 {
+    margin: 0 0 5px 0;
+    padding: 2px;
+    background: #f0f0f0;
+    font-size: 0.85em;
+    text-align: center;
+    border-bottom: 1px solid #800000;
+}
+
+.secondary-ability {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 3px;
+    font-size: 0.75em;
+}
+
+.secondary-ability .ability-name {
+    flex: 1;
     padding: 2px 4px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.delete-secondary-ability {
+    cursor: pointer;
+    color: #dc143c;
+    font-size: 12px;
+}
+
+.delete-secondary-ability:hover {
+    color: #8b0000;
+}
+
+button {
+    padding: 3px 8px;
     background: #800000;
     color: white;
     border: none;
     border-radius: 2px;
     cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 9px;
+    transition: background 0.2s;
+    margin-top: 3px;
+}
+
+button:hover {
+    background: #a00000;
+}
+
+/* Virtues & Humanity - Compact Layout */
+.virtues-humanity-section {
+    margin-bottom: 5px;
+}
+
+.virtues-humanity-section h4 {
+    margin: 0 0 2px 0;
+    padding: 3px 5px;
+    background: #f0f0f0;
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.virtues-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+}
+
+.virtue-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 0.7em;
 }
 
-.add-merit:hover, .add-flaw:hover {
+.virtue-item label {
+    font-weight: bold;
+    min-width: 80px;
+    color: #800000;
+}
+
+.humanity-item {
+    border-top: 1px solid #ddd;
+    padding-top: 2px;
+    margin-top: 2px;
+}
+
+/* Backstory and Notes */
+textarea {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-family: inherit;
+    font-size: 11px;
+    resize: vertical;
+}
+
+/* Merits & Flaws Tab */
+.merits-flaws-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.merits-section,
+.flaws-section {
+    border: 1px solid #800000;
+    border-radius: 2px;
+    padding: 5px;
+}
+
+.merits-section h3,
+.flaws-section h3 {
+    margin: 0 0 5px 0;
+    padding: 3px;
+    background: #800000;
+    color: white;
+    font-size: 0.9em;
+    text-align: center;
+    border-radius: 2px;
+}
+
+.merit-list, .flaw-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.merit-item, .flaw-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75em;
+}
+
+.merit-name, .flaw-name {
+    flex: 1;
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-size: 11px;
+}
+
+.delete-merit, .delete-flaw, .delete-background {
+    cursor: pointer;
+    color: #dc143c;
+    font-size: 12px;
+}
+
+.delete-merit:hover, .delete-flaw:hover, .delete-background:hover {
+    color: #8b0000;
+}
+
+/* Background Item Styling */
+.background-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 3px;
+    font-size: 0.75em;
+}
+
+.background-name-select {
+    flex: 1;
+    padding: 2px 4px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.background-custom-name {
+    flex: 1;
+    padding: 2px 4px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.merit-flaw-summary {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 2px;
+    margin-top: 10px;
+    font-size: 0.8em;
+}
+
+.summary-item {
+    text-align: center;
+}
+
+.summary-item label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 3px;
+}
+
+/* Minimal + Button Styling */
+button.add-merit,
+button.add-flaw,
+button.add-background,
+button.add-secondary-talent,
+button.add-secondary-skill,
+button.add-secondary-knowledge {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #800000;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 5px;
+}
+
+button.add-merit:hover,
+button.add-flaw:hover,
+button.add-background:hover,
+button.add-secondary-talent:hover,
+button.add-secondary-skill:hover,
+button.add-secondary-knowledge:hover {
     background: #600000;
 }
 
@@ -377,7 +800,7 @@
         min-width: 600px;
     }
     
-    .main-content {
+    .main-layout {
         flex-direction: column;
     }
     
@@ -385,140 +808,4 @@
     .abilities-grid {
         grid-template-columns: 1fr;
     }
-    
-    .dot {
-        width: 5px;
-        height: 5px;
-    }
 }
-
-.mortal-sheet {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    background: #f0f0f0;
-}
-
-/* Header Styles */
-.sheet-header {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #800000;
-    padding: 5px;
-}
-
-.sheet-header .profile-img {
-    flex: 0 0 100px;
-    height: 100px;
-    margin-right: 10px;
-}
-
-.sheet-header .header-fields {
-    flex: 1;
-}
-
-.sheet-header h1.charname {
-    height: 50px;
-    padding: 0px;
-    margin: 5px 0;
-    border-bottom: none;
-}
-
-.sheet-header h1.charname input {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-}
-
-/* Navigation Tabs */
-.sheet-tabs {
-    flex: 0;
-    border-bottom: 1px solid #800000;
-}
-
-.sheet-tabs .item {
-    font-weight: bold;
-    padding: 5px;
-    margin: 0 5px;
-    white-space: nowrap;
-}
-
-.sheet-tabs .item.active {
-    border-bottom: 2px solid #800000;
-}
-
-/* Sheet Body */
-.sheet-body {
-    height: 100%;
-    overflow-y: auto;
-    padding: 5px;
-}
-
-/* Grid Layouts */
-.attributes-grid,
-.abilities-grid,
-.advantages-grid,
-.health-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 10px;
-}
-
-/* Attribute Categories */
-.attribute-category,
-.ability-category,
-.advantage-category {
-    background: white;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
-
-.attribute-category h3,
-.ability-category h3,
-.advantage-category h3 {
-    margin: 0 0 10px 0;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #800000;
-    color: #800000;
-}
-
-/* Input Styles */
-.attribute,
-.ability,
-.willpower,
-.health-track {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 5px 0;
-}
-
-.attribute label,
-.ability label,
-.willpower label,
-.health-track label {
-    flex: 1;
-    margin-right: 10px;
-}
-
-.attribute input,
-.ability input,
-.willpower input,
-.health-track input {
-    width: 50px;
-    text-align: center;
-}
-
-/* Tab Content */
-.tab {
-    display: none;
-}
-
-.tab.active {
-    display: block;
-} 

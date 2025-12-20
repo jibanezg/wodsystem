@@ -1,221 +1,48 @@
 <form class="wod sheet actor mortal" autocomplete="off">
+    <!-- Header with Identity Fields -->
+    {{> "systems/wodsystem/templates/actor/partials/header.html"}}
+    
+    <!-- Tab Navigation -->
+    <nav class="sheet-tabs" data-group="primary">
+        <a class="item" data-tab="main">Main</a>
+        <a class="item" data-tab="secondary-abilities">Secondary Abilities</a>
+        <a class="item" data-tab="biography">Biography</a>
+        <a class="item" data-tab="merits-flaws">Merits & Flaws</a>
+    </nav>
+
+    <!-- Tab Content -->
     <section class="sheet-body">
-        <div class="main-content">
-            <!-- Left Column: Attributes and Abilities -->
-            <div class="left-column">
-                <!-- Attributes Section -->
-                <div class="attributes-section">
-                    <h2>Attributes</h2>
-                    <div class="attributes-grid">
-                        <!-- Physical Attributes -->
-                        <div class="attribute-category">
-                            <h3>Physical</h3>
-                            <div class="attribute-list">
-                                {{#each actor.system.attributes.physical as |value key|}}
-                                <div class="attribute">
-                                    <label>{{key}}</label>
-                                    <div class="dot-container" data-attribute="physical" data-key="{{key}}">
-                                        {{#times 5}}
-                                        <div class="dot {{#if (gte @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                        {{/times}}
-                                        <input type="hidden" class="dot-input" name="actor.system.attributes.physical.{{key}}" value="{{value}}"/>
-                                    </div>
-                                </div>
-                                {{/each}}
-                            </div>
-                        </div>
-
-                        <!-- Social Attributes -->
-                        <div class="attribute-category">
-                            <h3>Social</h3>
-                            <div class="attribute-list">
-                                {{#each actor.system.attributes.social as |value key|}}
-                                <div class="attribute">
-                                    <label>{{key}}</label>
-                                    <div class="dot-container" data-attribute="social" data-key="{{key}}">
-                                        {{#times 5}}
-                                        <div class="dot {{#if (gte @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                        {{/times}}
-                                        <input type="hidden" class="dot-input" name="actor.system.attributes.social.{{key}}" value="{{value}}"/>
-                                    </div>
-                                </div>
-                                {{/each}}
-                            </div>
-                        </div>
-
-                        <!-- Mental Attributes -->
-                        <div class="attribute-category">
-                            <h3>Mental</h3>
-                            <div class="attribute-list">
-                                {{#each actor.system.attributes.mental as |value key|}}
-                                <div class="attribute">
-                                    <label>{{key}}</label>
-                                    <div class="dot-container" data-attribute="mental" data-key="{{key}}">
-                                        {{#times 5}}
-                                        <div class="dot {{#if (gte @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                        {{/times}}
-                                        <input type="hidden" class="dot-input" name="actor.system.attributes.mental.{{key}}" value="{{value}}"/>
-                                    </div>
-                                </div>
-                                {{/each}}
-                            </div>
-                        </div>
-                    </div>
+        <!-- Main Tab -->
+        <div class="tab" data-group="primary" data-tab="main">
+            <div class="main-layout">
+                <!-- Left Column: Attributes and Abilities -->
+                <div class="left-column">
+                    {{> "systems/wodsystem/templates/actor/partials/attributes.html"}}
+                    {{> "systems/wodsystem/templates/actor/partials/abilities.html"}}
                 </div>
 
-                <!-- Abilities Section -->
-                <div class="abilities-section">
-                    <h2>Abilities</h2>
-                    <div class="abilities-grid">
-                        <!-- Talents -->
-                        <div class="ability-category">
-                            <h3>Talents</h3>
-                            <div class="ability-list">
-                                {{#each actor.system.abilities.talents as |value key|}}
-                                <div class="ability">
-                                    <label>{{key}}</label>
-                                    <div class="dot-container" data-ability="talents" data-key="{{key}}">
-                                        {{#times 5}}
-                                        <div class="dot {{#if (gte @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                        {{/times}}
-                                        <input type="hidden" class="dot-input" name="actor.system.abilities.talents.{{key}}" value="{{value}}"/>
-                                    </div>
-                                </div>
-                                {{/each}}
-                            </div>
-                        </div>
-
-                        <!-- Skills -->
-                        <div class="ability-category">
-                            <h3>Skills</h3>
-                            <div class="ability-list">
-                                {{#each actor.system.abilities.skills as |value key|}}
-                                <div class="ability">
-                                    <label>{{key}}</label>
-                                    <div class="dot-container" data-ability="skills" data-key="{{key}}">
-                                        {{#times 5}}
-                                        <div class="dot {{#if (gte @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                        {{/times}}
-                                        <input type="hidden" class="dot-input" name="actor.system.abilities.skills.{{key}}" value="{{value}}"/>
-                                    </div>
-                                </div>
-                                {{/each}}
-                            </div>
-                        </div>
-
-                        <!-- Knowledges -->
-                        <div class="ability-category">
-                            <h3>Knowledges</h3>
-                            <div class="ability-list">
-                                {{#each actor.system.abilities.knowledges as |value key|}}
-                                <div class="ability">
-                                    <label>{{key}}</label>
-                                    <div class="dot-container" data-ability="knowledges" data-key="{{key}}">
-                                        {{#times 5}}
-                                        <div class="dot {{#if (gte @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                        {{/times}}
-                                        <input type="hidden" class="dot-input" name="actor.system.abilities.knowledges.{{key}}" value="{{value}}"/>
-                                    </div>
-                                </div>
-                                {{/each}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Advantages and Health -->
-            <div class="right-column">
-                <!-- Advantages Section -->
-                <div class="advantages-section">
-                    <h2>Advantages</h2>
-                    
-                    <!-- Willpower -->
-                    <div class="willpower-section">
-                        <h3>Willpower</h3>
-                        <div class="willpower-list">
-                            <div class="willpower">
-                                <label>Permanent</label>
-                                <div class="dot-container" data-willpower="permanent">
-                                    {{#times 10}}
-                                    <div class="dot {{#if (gte @index ../actor.system.advantages.willpower.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                    {{/times}}
-                                    <input type="hidden" class="dot-input" name="actor.system.advantages.willpower.permanent" value="{{actor.system.advantages.willpower.permanent}}"/>
-                                </div>
-                            </div>
-                            <div class="willpower">
-                                <label>Temporary</label>
-                                <div class="dot-container" data-willpower="temporary">
-                                    {{#times 10}}
-                                    <div class="dot {{#if (gte @index ../actor.system.advantages.willpower.temporary)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                    {{/times}}
-                                    <input type="hidden" class="dot-input" name="actor.system.advantages.willpower.temporary" value="{{actor.system.advantages.willpower.temporary}}"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Merits and Flaws -->
-                    <div class="merits-flaws-section">
-                        <div class="merits-section">
-                            <h3>Merits</h3>
-                            <div class="merit-list">
-                                {{#each actor.system.advantages.merits as |merit index|}}
-                                <div class="merit">
-                                    <input type="text" name="actor.system.advantages.merits.{{index}}.name" value="{{merit.name}}" placeholder="Merit Name"/>
-                                    <div class="merit-value">
-                                        <div class="dot-container" data-merit="{{index}}">
-                                            {{#times 5}}
-                                            <div class="dot {{#if (gte @index ../merit.value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                            {{/times}}
-                                            <input type="hidden" class="dot-input" name="actor.system.advantages.merits.{{index}}.value" value="{{merit.value}}"/>
-                                        </div>
-                                    </div>
-                                    <a class="delete-merit" data-index="{{index}}"><i class="fas fa-trash"></i></a>
-                                </div>
-                                {{/each}}
-                                <button class="add-merit">Add Merit</button>
-                            </div>
-                        </div>
-
-                        <div class="flaws-section">
-                            <h3>Flaws</h3>
-                            <div class="flaw-list">
-                                {{#each actor.system.advantages.flaws as |flaw index|}}
-                                <div class="flaw">
-                                    <input type="text" name="actor.system.advantages.flaws.{{index}}.name" value="{{flaw.name}}" placeholder="Flaw Name"/>
-                                    <div class="flaw-value">
-                                        <div class="dot-container" data-flaw="{{index}}">
-                                            {{#times 5}}
-                                            <div class="dot {{#if (gte @index ../flaw.value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                                            {{/times}}
-                                            <input type="hidden" class="dot-input" name="actor.system.advantages.flaws.{{index}}.value" value="{{flaw.value}}"/>
-                                        </div>
-                                    </div>
-                                    <a class="delete-flaw" data-index="{{index}}"><i class="fas fa-trash"></i></a>
-                                </div>
-                                {{/each}}
-                                <button class="add-flaw">Add Flaw</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Health Section -->
-                <div class="health-section">
-                    <h2>Health</h2>
-                    <div class="health-list">
-                        <div class="health">
-                            <div class="checkbox-container" data-health="current">
-                                {{#times actor.system.miscellaneous.health.maximum}}
-                                <div class="health-checkbox {{#if (gte @index ../actor.system.miscellaneous.health.current)}}checked{{/if}}" data-index="{{@index}}"></div>
-                                {{/times}}
-                                <input type="hidden" class="health-input" name="actor.system.miscellaneous.health.current" value="{{actor.system.miscellaneous.health.current}}"/>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Right Column: Advantages -->
+                <div class="right-column">
+                    <div class="right-column-header">Advantages</div>
+                    {{> "systems/wodsystem/templates/actor/partials/mortal-powers.html"}}
+                    {{> "systems/wodsystem/templates/actor/partials/health.html"}}
                 </div>
             </div>
         </div>
+
+        <!-- Secondary Abilities Tab -->
+        <div class="tab" data-group="primary" data-tab="secondary-abilities">
+            {{> "systems/wodsystem/templates/actor/partials/secondary-abilities.html"}}
+        </div>
+
+        <!-- Biography Tab -->
+        <div class="tab" data-group="primary" data-tab="biography">
+            {{> "systems/wodsystem/templates/actor/partials/biography.html"}}
+        </div>
+
+        <!-- Merits & Flaws Tab -->
+        <div class="tab" data-group="primary" data-tab="merits-flaws">
+            {{> "systems/wodsystem/templates/actor/partials/merits-flaws.html"}}
+        </div>
     </section>
-</form> 
+</form>

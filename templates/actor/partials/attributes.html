@@ -1,0 +1,60 @@
+<!-- Attributes Section -->
+<div class="attributes-section">
+    <h2>Attributes</h2>
+    <div class="attributes-grid">
+        <!-- Physical Attributes -->
+        <div class="attribute-category">
+            <h3>Physical</h3>
+            <div class="attribute-list">
+                {{#each actor.system.attributes.physical as |value key|}}
+                <div class="attribute">
+                    <label>{{key}}</label>
+                    <div class="dot-container" data-attribute="physical" data-key="{{key}}">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.attributes.physical.{{key}}" value="{{value}}"/>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Social Attributes -->
+        <div class="attribute-category">
+            <h3>Social</h3>
+            <div class="attribute-list">
+                {{#each actor.system.attributes.social as |value key|}}
+                <div class="attribute">
+                    <label>{{key}}</label>
+                    <div class="dot-container" data-attribute="social" data-key="{{key}}">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.attributes.social.{{key}}" value="{{value}}"/>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+
+        <!-- Mental Attributes -->
+        <div class="attribute-category">
+            <h3>Mental</h3>
+            <div class="attribute-list">
+                {{#each actor.system.attributes.mental as |value key|}}
+                <div class="attribute">
+                    <label>{{key}}</label>
+                    <div class="dot-container" data-attribute="mental" data-key="{{key}}">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.attributes.mental.{{key}}" value="{{value}}"/>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</div>
+

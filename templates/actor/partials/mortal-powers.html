@@ -1,0 +1,71 @@
+<!-- Mortal Powers (Numina) Section -->
+<div class="mortal-powers-section">
+    <h3>Numina (Special Powers)</h3>
+    <div class="numina-info">
+        <p>Mortal characters may possess various supernatural abilities known as Numina. 
+           These can include psychic powers, magic, hedge magic, or other minor supernatural talents.</p>
+    </div>
+    
+    <!-- Willpower -->
+    <div class="willpower-section">
+        <h4>Willpower</h4>
+        <div class="willpower-tracks">
+            <div class="willpower-permanent">
+                <label>Permanent</label>
+                <div class="dot-container" data-willpower="permanent">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.willpower.permanent" value="{{actor.system.miscellaneous.willpower.permanent}}"/>
+                </div>
+            </div>
+            <div class="willpower-temporary">
+                <label>Temporary</label>
+                <div class="dot-container" data-willpower="temporary">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.temporary)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.willpower.temporary" value="{{actor.system.miscellaneous.willpower.temporary}}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Virtues & Humanity -->
+    {{> "systems/wodsystem/templates/actor/partials/virtues-humanity.html"}}
+
+    <!-- Backgrounds -->
+    <div class="backgrounds-section">
+        <h4>Backgrounds</h4>
+        <div class="background-list">
+            {{#each actor.system.miscellaneous.backgrounds as |background index|}}
+            <div class="background-item">
+                <select name="system.miscellaneous.backgrounds.{{index}}.name" class="background-name-select">
+                    {{#each ../backgroundsList as |bg|}}
+                    <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
+                    {{/each}}
+                </select>
+                {{#if (eq background.name "Custom")}}
+                <input type="text" name="system.miscellaneous.backgrounds.{{index}}.customName" 
+                       value="{{background.customName}}" placeholder="Custom Name" class="background-custom-name"/>
+                {{/if}}
+                <div class="dot-container" data-background="{{index}}">
+                    {{#times 5}}
+                    <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" value="{{background.value}}"/>
+                </div>
+                <a class="delete-background" data-index="{{index}}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            {{/each}}
+            <button class="add-background" title="Add Background">+</button>
+        </div>
+    </div>
+
+    <!-- Placeholder for Future Numina System -->
+    <div class="numina-placeholder">
+        <p><em>Future feature: Custom Numina/Powers can be added here as items or custom traits.</em></p>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+<!-- Identity Section - Character Header -->
+<section class="sheet-header">
+    <div class="identity-section">
+        <div class="identity-field">
+            <label>Name</label>
+            <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" />
+        </div>
+        <div class="identity-field">
+            <label>Concept</label>
+            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="e.g., Street Preacher" />
+        </div>
+        <div class="identity-field">
+            <label>Nature</label>
+            <select name="system.identity.nature" class="archetype-select">
+                <option value="">-- Select --</option>
+                {{#each archetypes as |archetype|}}
+                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.nature archetype)}}selected{{/if}}>{{archetype}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="identity-field">
+            <label>Demeanor</label>
+            <select name="system.identity.demeanor" class="archetype-select">
+                <option value="">-- Select --</option>
+                {{#each archetypes as |archetype|}}
+                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.demeanor archetype)}}selected{{/if}}>{{archetype}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+</section>
+

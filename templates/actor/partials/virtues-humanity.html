@@ -1,0 +1,27 @@
+<!-- Virtues & Humanity Section -->
+<div class="virtues-humanity-section">
+    <h4>Virtues & Humanity</h4>
+    <div class="virtues-compact">
+        {{#each actor.system.advantages.virtues as |value key|}}
+        <div class="virtue-item">
+            <label>{{key}}</label>
+            <div class="dot-container" data-virtue="{{key}}">
+                {{#times 5}}
+                <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                {{/times}}
+                <input type="hidden" class="dot-input" value="{{value}}"/>
+            </div>
+        </div>
+        {{/each}}
+        
+        <div class="virtue-item humanity-item">
+            <label>Humanity</label>
+            <div class="dot-container" data-humanity="true">
+                {{#times 10}}
+                <div class="dot {{#if (lt @index ../actor.system.miscellaneous.humanity.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                {{/times}}
+                <input type="hidden" class="dot-input" name="system.miscellaneous.humanity.current" value="{{actor.system.miscellaneous.humanity.current}}"/>
+            </div>
+        </div>
+    </div>
+</div>

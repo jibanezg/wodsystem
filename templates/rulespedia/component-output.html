@@ -1,6 +1,0 @@
-<select onchange="this.updateComponentConfig('{{componentId}}', 'type', this.value)">
-    <option value="text" {{#if textSelected}}selected{{/if}}>Text</option>
-    <option value="number" {{#if numberSelected}}selected{{/if}}>Number</option>
-    <option value="boolean" {{#if booleanSelected}}selected{{/if}}>Boolean</option>
-</select>
-<textarea placeholder="Output content" onchange="this.updateComponentConfig('{{componentId}}', 'content', this.value)">{{content}}</textarea> 

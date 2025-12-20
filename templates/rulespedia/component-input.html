@@ -1,7 +1,0 @@
-<input type="text" placeholder="Input name" value="{{name}}" 
-       onchange="this.updateComponentConfig('{{componentId}}', 'name', this.value)">
-<select onchange="this.updateComponentConfig('{{componentId}}', 'type', this.value)">
-    <option value="text" {{#if textSelected}}selected{{/if}}>Text</option>
-    <option value="number" {{#if numberSelected}}selected{{/if}}>Number</option>
-    <option value="select" {{#if selectSelected}}selected{{/if}}>Select</option>
-</select> 

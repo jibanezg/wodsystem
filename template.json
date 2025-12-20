@@ -2,6 +2,12 @@
     "Actor": {
         "types": ["Mortal", "Vampire", "Demon"],
         "baseTraits": {
+            "identity": {
+                "name": "",
+                "concept": "",
+                "nature": "",
+                "demeanor": ""
+            },
             "attributes": {
                 "physical": {
                     "Strength": 1,
@@ -58,27 +64,29 @@
                 }
             },
             "advantages": {
-                "backgrounds": {
-                    "Allies": 0,
-                    "Alternate Identity": 0,
-                    "Black Hand Membership": 0,
-                    "Contacts": 0,
-                    "Fame": 0,
-                    "Generation": 0,
-                    "Herd": 0,
-                    "Influence": 0,
-                    "Mentor": 0,
-                    "Resources": 0,
-                    "Retainers": 0,
-                    "Rituals": 0,
-                    "Status": 0
-                },
+                "backgrounds": [],
                 "virtues": {
                     "Conscience": 3,
                     "Self-Control": 3,
                     "Courage": 3
                 },
                 "numina": {}
+            },
+            "biography": {
+                "age": "",
+                "sex": "",
+                "height": "",
+                "weight": "",
+                "eyes": "",
+                "hair": "",
+                "nationality": "",
+                "backstory": "",
+                "notes": ""
+            },
+            "secondaryAbilities": {
+                "talents": [],
+                "skills": [],
+                "knowledges": []
             },
             "miscellaneous": {
                 "humanity": {
@@ -90,11 +98,70 @@
                     "temporary": 3
                 },
                 "health": {
-                    "current": 7,
-                    "maximum": 7
+                    "maximum": 7,
+                    "levels": [
+                        {
+                            "index": 0,
+                            "name": "Bruised",
+                            "penalty": 0,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 1,
+                            "name": "Hurt",
+                            "penalty": -1,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 2,
+                            "name": "Injured",
+                            "penalty": -1,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 3,
+                            "name": "Wounded",
+                            "penalty": -2,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 4,
+                            "name": "Mauled",
+                            "penalty": -2,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 5,
+                            "name": "Crippled",
+                            "penalty": -5,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 6,
+                            "name": "Incapacitated",
+                            "penalty": 0,
+                            "damageType": null,
+                            "marked": false
+                        }
+                    ],
+                    "derived": {
+                        "currentPenalty": 0,
+                        "totalDamage": 0,
+                        "bashingDamage": 0,
+                        "lethalDamage": 0,
+                        "aggravatedDamage": 0,
+                        "isIncapacitated": false
+                    }
                 },
                 "merits": [],
-                "flaws": []
+                "flaws": [],
+                "backgrounds": []
             }
         },
         "creatureTypes": {

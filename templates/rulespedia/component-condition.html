@@ -1,9 +1,0 @@
-<select onchange="this.updateComponentConfig('{{componentId}}', 'operator', this.value)">
-    <option value="equals" {{#if equalsSelected}}selected{{/if}}>Equals</option>
-    <option value="greater" {{#if greaterSelected}}selected{{/if}}>Greater Than</option>
-    <option value="less" {{#if lessSelected}}selected{{/if}}>Less Than</option>
-</select>
-<input type="text" placeholder="Left operand" value="{{leftOperand}}"
-       onchange="this.updateComponentConfig('{{componentId}}', 'leftOperand', this.value)">
-<input type="text" placeholder="Right operand" value="{{rightOperand}}"
-       onchange="this.updateComponentConfig('{{componentId}}', 'rightOperand', this.value)"> 

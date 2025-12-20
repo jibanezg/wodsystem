@@ -1,0 +1,61 @@
+<!-- Merits & Flaws Tab Content -->
+<div class="merits-flaws-content">
+    <!-- Merits Section -->
+    <div class="merits-section">
+        <h3>Merits</h3>
+        <div class="merit-list">
+            {{#each actor.system.miscellaneous.merits as |merit index|}}
+            <div class="merit-item">
+                <input type="text" name="system.miscellaneous.merits.{{index}}.name" 
+                       value="{{merit.name}}" placeholder="Merit Name" class="merit-name"/>
+                <div class="dot-container" data-merit="{{index}}">
+                    {{#times 5}}
+                    <div class="dot {{#if (lt @index ../merit.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.merits.{{index}}.value" value="{{merit.value}}"/>
+                </div>
+                <a class="delete-merit" data-index="{{index}}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            {{/each}}
+            <button class="add-merit" title="Add Merit">+</button>
+        </div>
+    </div>
+
+    <!-- Flaws Section -->
+    <div class="flaws-section">
+        <h3>Flaws</h3>
+        <div class="flaw-list">
+            {{#each actor.system.miscellaneous.flaws as |flaw index|}}
+            <div class="flaw-item">
+                <input type="text" name="system.miscellaneous.flaws.{{index}}.name" 
+                       value="{{flaw.name}}" placeholder="Flaw Name" class="flaw-name"/>
+                <div class="dot-container" data-flaw="{{index}}">
+                    {{#times 5}}
+                    <div class="dot {{#if (lt @index ../flaw.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.flaws.{{index}}.value" value="{{flaw.value}}"/>
+                </div>
+                <a class="delete-flaw" data-index="{{index}}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            {{/each}}
+            <button class="add-flaw" title="Add Flaw">+</button>
+        </div>
+    </div>
+
+    <!-- Merit/Flaw Points Summary -->
+    <div class="merit-flaw-summary">
+        <div class="summary-item">
+            <label>Total Merit Points:</label>
+            <span class="merit-total">{{actor.system.miscellaneous.merits.length}}</span>
+        </div>
+        <div class="summary-item">
+            <label>Total Flaw Points:</label>
+            <span class="flaw-total">{{actor.system.miscellaneous.flaws.length}}</span>
+        </div>
+    </div>
+</div>
+

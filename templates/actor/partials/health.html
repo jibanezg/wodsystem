@@ -1,0 +1,39 @@
+<!-- Health Section with Damage Types -->
+<div class="health-section">
+    <h2>Health</h2>
+    <div class="health-track">
+        {{#each actor.system.miscellaneous.health.levels as |level|}}
+        <div class="health-level">
+            <div class="health-box {{#if level.marked}}marked damage-{{level.damageType}}{{/if}}" 
+                 data-index="{{level.index}}"
+                 title="Single click: Bashing, Double click: Lethal, Triple click: Aggravated">
+            </div>
+            <span class="health-name">{{level.name}}</span>
+            <span class="health-penalty">{{#if (lt level.penalty 0)}}{{level.penalty}}{{/if}}</span>
+        </div>
+        {{/each}}
+    </div>
+    
+    <!-- Health Summary -->
+    <div class="health-summary">
+        <div class="health-stat">
+            <label>Penalty:</label>
+            <span class="penalty-value">{{actor.system.miscellaneous.health.derived.currentPenalty}}</span>
+        </div>
+        <div class="health-stat">
+            <label>Bashing:</label>
+            <span>{{actor.system.miscellaneous.health.derived.bashingDamage}}</span>
+        </div>
+        <div class="health-stat">
+            <label>Lethal:</label>
+            <span>{{actor.system.miscellaneous.health.derived.lethalDamage}}</span>
+        </div>
+        <div class="health-stat">
+            <label>Aggravated:</label>
+            <span>{{actor.system.miscellaneous.health.derived.aggravatedDamage}}</span>
+        </div>
+        <button class="reset-health" type="button" title="Clear all damage">
+            <i class="fas fa-redo"></i>
+        </button>
+    </div>
+</div>

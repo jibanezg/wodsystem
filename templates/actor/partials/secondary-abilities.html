@@ -1,0 +1,74 @@
+<!-- Secondary Abilities Tab Content -->
+<div class="secondary-abilities-content">
+    <div class="secondary-abilities-grid">
+        <!-- Secondary Talents -->
+        <div class="secondary-ability-category">
+            <h4>Secondary Talents</h4>
+            <div class="secondary-ability-list">
+                {{#each actor.system.secondaryAbilities.talents as |ability index|}}
+                <div class="secondary-ability">
+                    <input type="text" name="system.secondaryAbilities.talents.{{index}}.name" 
+                           value="{{ability.name}}" placeholder="Ability Name" class="ability-name"/>
+                    <div class="dot-container" data-secondary-ability="true" data-category="talents" data-index="{{index}}">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" value="{{ability.value}}"/>
+                    </div>
+                    <a class="delete-secondary-ability" data-category="talents" data-index="{{index}}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {{/each}}
+                <button class="add-secondary-talent" title="Add Secondary Talent">+</button>
+            </div>
+        </div>
+
+        <!-- Secondary Skills -->
+        <div class="secondary-ability-category">
+            <h4>Secondary Skills</h4>
+            <div class="secondary-ability-list">
+                {{#each actor.system.secondaryAbilities.skills as |ability index|}}
+                <div class="secondary-ability">
+                    <input type="text" name="system.secondaryAbilities.skills.{{index}}.name" 
+                           value="{{ability.name}}" placeholder="Ability Name" class="ability-name"/>
+                    <div class="dot-container" data-secondary-ability="true" data-category="skills" data-index="{{index}}">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" value="{{ability.value}}"/>
+                    </div>
+                    <a class="delete-secondary-ability" data-category="skills" data-index="{{index}}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {{/each}}
+                <button class="add-secondary-skill" title="Add Secondary Skill">+</button>
+            </div>
+        </div>
+
+        <!-- Secondary Knowledges -->
+        <div class="secondary-ability-category">
+            <h4>Secondary Knowledges</h4>
+            <div class="secondary-ability-list">
+                {{#each actor.system.secondaryAbilities.knowledges as |ability index|}}
+                <div class="secondary-ability">
+                    <input type="text" name="system.secondaryAbilities.knowledges.{{index}}.name" 
+                           value="{{ability.name}}" placeholder="Ability Name" class="ability-name"/>
+                    <div class="dot-container" data-secondary-ability="true" data-category="knowledges" data-index="{{index}}">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" value="{{ability.value}}"/>
+                    </div>
+                    <a class="delete-secondary-ability" data-category="knowledges" data-index="{{index}}">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+                {{/each}}
+                <button class="add-secondary-knowledge" title="Add Secondary Knowledge">+</button>
+            </div>
+        </div>
+    </div>
+</div>
+
