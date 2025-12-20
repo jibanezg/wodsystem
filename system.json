@@ -10,8 +10,8 @@
   },
   "authors": [
     {
-      "name": "Your Name",
-      "url": "https://github.com/yourusername"
+      "name": "wodsystem",
+      "url": "https://github.com/jibanezg"
     }
   ],
   "relationships": [],
@@ -34,20 +34,20 @@
     "units": "m"
   },
   "primaryTokenAttribute": "health",
-  "url": "https://github.com/yourusername/wodsystem",
-  "manifest": "https://raw.githubusercontent.com/yourusername/wodsystem/main/system.json",
-  "download": "https://github.com/yourusername/wodsystem/archive/refs/heads/main.zip",
+  "url": "https://github.com/jibanezg/wodsystem",
+  "manifest": "https://raw.githubusercontent.com/jibanezg/wodsystem/main/system.json",
+  "download": "https://github.com/jibanezg/wodsystem/archive/refs/heads/main.zip",
   "license": "LICENSE.txt",
   "readme": "README.md",
   "changelog": "CHANGELOG.md",
-  "bugs": "https://github.com/yourusername/wodsystem/issues",
+  "bugs": "https://github.com/jibanezg/wodsystem/issues",
   "flags": {
     "allowBugReporter": true
   },
   "media": [
     {
       "type": "cover",
-      "url": "https://raw.githubusercontent.com/yourusername/wodsystem/main/cover.jpg"
+      "url": "https://raw.githubusercontent.com/jibanezg/wodsystem/main/cover.jpg"
     }
   ]
 }
