@@ -30,6 +30,31 @@ export class WodActorSheet extends ActorSheet {
         // Add creature type for conditional rendering in templates
         context.creatureType = this.actor.type;
         
+        // Add health edit mode flag
+        context.isHealthEditMode = this.actor.getFlag('wodsystem', 'healthEditMode') || false;
+        
+        // Backgrounds pagination
+        const backgroundsPerPage = 3;
+        const allBackgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
+        const totalPages = Math.max(1, Math.ceil(allBackgrounds.length / backgroundsPerPage));
+        const validPage = Math.min(currentPage, totalPages - 1);
+        
+        const startIdx = validPage * backgroundsPerPage;
+        const endIdx = startIdx + backgroundsPerPage;
+        
+        context.backgroundsPagination = {
+            currentPage: validPage,
+            totalPages: totalPages,
+            hasMultiplePages: totalPages > 1,
+            hasPrevPage: validPage > 0,
+            hasNextPage: validPage < totalPages - 1,
+            backgrounds: allBackgrounds.slice(startIdx, endIdx).map((bg, idx) => ({
+                ...bg,
+                actualIndex: startIdx + idx // Store the actual index in the full array
+            }))
+        };
+        
         return context;
     }
 
@@ -44,6 +69,13 @@ export class WodActorSheet extends ActorSheet {
         html.find('.health-box').contextmenu(this._onHealthBoxRightClick.bind(this));
         html.find('.reset-health').click(this._onResetHealth.bind(this));
         
+        // Health editing handlers
+        html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));
+        html.find('.health-name-edit').change(this._onHealthNameChange.bind(this));
+        html.find('.health-penalty-edit').change(this._onHealthPenaltyChange.bind(this));
+        html.find('.add-health-level').click(this._onAddHealthLevel.bind(this));
+        html.find('.delete-health-level').click(this._onDeleteHealthLevel.bind(this));
+        
         // Identity field handlers
         html.find('input[name^="system.identity"]').change(this._onIdentityChange.bind(this));
         html.find('select[name^="system.identity"]').change(this._onIdentityChange.bind(this));
@@ -57,8 +89,12 @@ export class WodActorSheet extends ActorSheet {
         // Background handlers
         html.find('.add-background').click(this._onAddBackground.bind(this));
         html.find('.delete-background').click(this._onDeleteBackground.bind(this));
-        html.find('select[name^="system.miscellaneous.backgrounds"]').change(this._onBackgroundChange.bind(this));
-        html.find('input[name^="system.miscellaneous.backgrounds"]').change(this._onBackgroundChange.bind(this));
+        html.find('.background-name-select').change(this._onBackgroundNameChange.bind(this));
+        html.find('.background-custom-name').change(this._onBackgroundCustomNameChange.bind(this));
+        
+        // Background pagination handlers
+        html.find('.backgrounds-prev-page').click(this._onBackgroundsPrevPage.bind(this));
+        html.find('.backgrounds-next-page').click(this._onBackgroundsNextPage.bind(this));
         
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
@@ -109,6 +145,8 @@ export class WodActorSheet extends ActorSheet {
             updatePromise = this._updateVirtue(container.dataset.virtue, newValue);
         } else if (container.dataset.humanity) {
             updatePromise = this._updateHumanity(newValue);
+        } else if (container.dataset.torment) {
+            updatePromise = this._updateTorment(newValue);
         } else if (container.dataset.secondaryAbility) {
             updatePromise = this._updateSecondaryAbility(
                 container.dataset.category,
@@ -231,6 +269,108 @@ export class WodActorSheet extends ActorSheet {
     }
     
     /**
+     * Toggle health edit mode on/off
+     * @param {Event} event
+     * @private
+     */
+    async _onToggleHealthEdit(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const currentMode = this.actor.getFlag('wodsystem', 'healthEditMode') || false;
+        await this.actor.setFlag('wodsystem', 'healthEditMode', !currentMode);
+        this.render(false);
+    }
+    
+    /**
+     * Handle changing a health level's name
+     * @param {Event} event
+     * @private
+     */
+    async _onHealthNameChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const index = parseInt(input.dataset.index);
+        const newName = input.value;
+        
+        if (window.healthService) {
+            await window.healthService.updateHealthLevel(this.actor, index, { name: newName });
+        } else {
+            console.error("HealthService not available");
+        }
+    }
+    
+    /**
+     * Handle changing a health level's penalty
+     * @param {Event} event
+     * @private
+     */
+    async _onHealthPenaltyChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const index = parseInt(input.dataset.index);
+        const newPenalty = parseInt(input.value);
+        
+        if (window.healthService) {
+            await window.healthService.updateHealthLevel(this.actor, index, { penalty: newPenalty });
+        } else {
+            console.error("HealthService not available");
+        }
+    }
+    
+    /**
+     * Handle adding a new health level
+     * @param {Event} event
+     * @private
+     */
+    async _onAddHealthLevel(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (window.healthService) {
+            await window.healthService.addHealthLevel(this.actor, "New Level", 0);
+            this.render(false);
+            
+            // Scroll to show the add button after render
+            setTimeout(() => {
+                const addButton = this.element.find('.add-health-level')[0];
+                if (addButton) {
+                    addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 100);
+        } else {
+            console.error("HealthService not available");
+        }
+    }
+    
+    /**
+     * Handle deleting a health level
+     * @param {Event} event
+     * @private
+     */
+    async _onDeleteHealthLevel(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const button = event.currentTarget;
+        const index = parseInt(button.dataset.index);
+        
+        if (window.healthService) {
+            await window.healthService.removeHealthLevel(this.actor, index);
+            this.render(false);
+            
+            // Scroll to show the add button after render
+            setTimeout(() => {
+                const addButton = this.element.find('.add-health-level')[0];
+                if (addButton) {
+                    addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 100);
+        } else {
+            console.error("HealthService not available");
+        }
+    }
+    
+    /**
      * Update health display without re-rendering the entire sheet
      * @private
      */
@@ -329,9 +469,102 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddBackground(event) {
         event.preventDefault();
+        event.stopPropagation();
+        
+        // Store scroll position before any updates
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
         const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous?.backgrounds || []);
         backgrounds.push({ name: "Allies", value: 1 });
-        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds });
+        
+        // Navigate to the page containing the new background
+        const backgroundsPerPage = 3;
+        const newIndex = backgrounds.length - 1;
+        const newPage = Math.floor(newIndex / backgroundsPerPage);
+        
+        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
+        await this.actor.setFlag('wodsystem', 'backgroundsPage', newPage);
+        
+        // Render without scrolling
+        await this.render(false);
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            const newSheetBody = this.element.find('.sheet-body');
+            if (newSheetBody.length) {
+                newSheetBody.scrollTop(scrollPos);
+            }
+        }, 0);
+    }
+
+    /**
+     * Handle background name dropdown change
+     * Updates the name and initializes customName if "Custom" is selected
+     */
+    async _onBackgroundNameChange(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Store scroll position (we will re-render to show/hide the custom input)
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+
+        const select = event.currentTarget;
+        const value = select.value;
+        const match = select.name.match(/\.backgrounds\.(\d+)\.name/);
+        if (!match) return;
+        
+        const index = parseInt(match[1]);
+        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
+        
+        if (backgrounds[index]) {
+            // Update the name
+            backgrounds[index].name = value;
+            
+            // If "Custom" is selected, ensure customName field exists
+            if (value === "Custom" && !backgrounds[index].customName) {
+                backgrounds[index].customName = "";
+            }
+
+            // If switching away from Custom, remove customName to keep data clean
+            if (value !== "Custom" && backgrounds[index].customName !== undefined) {
+                delete backgrounds[index].customName;
+            }
+            
+            // Update without letting Foundry auto-render the full sheet (prevents scroll jumps)
+            await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
+
+            // Re-render so the customName input shows/hides immediately
+            await this.render(false);
+
+            // Restore scroll position after render
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+        }
+    }
+
+    /**
+     * Handle custom background name input change
+     * (We must update via an array-safe path because backgrounds are paginated in the template.)
+     */
+    async _onBackgroundCustomNameChange(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const input = event.currentTarget;
+        const value = input.value;
+        const match = input.name.match(/\.backgrounds\.(\d+)\.customName/);
+        if (!match) return;
+
+        const index = parseInt(match[1]);
+        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
+        if (!backgrounds[index]) return;
+
+        backgrounds[index].customName = value;
+        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
     }
 
     /**
@@ -339,20 +572,93 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDeleteBackground(event) {
         event.preventDefault();
-        const index = event.currentTarget.dataset.index;
+        event.stopPropagation();
+        
+        // Store scroll position before any updates
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const index = parseInt(event.currentTarget.dataset.index);
         const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
         backgrounds.splice(index, 1);
-        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds });
+        
+        // If we deleted the last item on the current page, go back to the previous page
+        const backgroundsPerPage = 3;
+        const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
+        const totalPages = Math.max(1, Math.ceil(backgrounds.length / backgroundsPerPage));
+        
+        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
+        
+        if (currentPage >= totalPages && currentPage > 0) {
+            await this.actor.setFlag('wodsystem', 'backgroundsPage', totalPages - 1);
+        }
+        
+        // Render without scrolling
+        await this.render(false);
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            const newSheetBody = this.element.find('.sheet-body');
+            if (newSheetBody.length) {
+                newSheetBody.scrollTop(scrollPos);
+            }
+        }, 0);
     }
 
     /**
-     * Handle background name/value changes
+     * Navigate to previous page of backgrounds
      */
-    async _onBackgroundChange(event) {
+    async _onBackgroundsPrevPage(event) {
         event.preventDefault();
-        const field = event.currentTarget.name;
-        const value = event.currentTarget.value;
-        await this.actor.update({ [field]: value });
+        event.stopPropagation();
+        
+        // Store scroll position before any updates
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
+        if (currentPage > 0) {
+            await this.actor.setFlag('wodsystem', 'backgroundsPage', currentPage - 1);
+            await this.render(false);
+            
+            // Restore scroll position after render
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) {
+                    newSheetBody.scrollTop(scrollPos);
+                }
+            }, 0);
+        }
+    }
+
+    /**
+     * Navigate to next page of backgrounds
+     */
+    async _onBackgroundsNextPage(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Store scroll position before any updates
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const backgroundsPerPage = 3;
+        const totalBackgrounds = this.actor.system.miscellaneous?.backgrounds?.length || 0;
+        const totalPages = Math.ceil(totalBackgrounds / backgroundsPerPage);
+        const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
+        
+        if (currentPage < totalPages - 1) {
+            await this.actor.setFlag('wodsystem', 'backgroundsPage', currentPage + 1);
+            await this.render(false);
+            
+            // Restore scroll position after render
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) {
+                    newSheetBody.scrollTop(scrollPos);
+                }
+            }, 0);
+        }
     }
 
     /**
@@ -459,6 +765,18 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Update torment value (for Demons)
+     * @param {number} value
+     * @private
+     */
+    async _updateTorment(value) {
+        const updateData = {};
+        updateData[`system.miscellaneous.torment.current`] = Math.min(Math.max(value, 0), 10);
+        await this.actor.update(updateData, { render: false });
+        this._syncVisualStateWithData();
+    }
+
+    /**
      * Update a secondary ability value
      */
     async _updateSecondaryAbility(category, index, value) {
@@ -543,6 +861,38 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /** @override */
+    /** @override */
+    async _onChangeInput(event) {
+        // Store scroll position before any form change
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+
+        // IMPORTANT:
+        // Backgrounds are paginated, so only a subset of array rows exist in the form at any time.
+        // Foundry's default _onChangeInput merges "submit data" for the WHOLE form, which can clobber
+        // `system.miscellaneous.backgrounds` when paging is active. We therefore ignore background field
+        // changes here and handle them with dedicated handlers above.
+        const fieldName = event?.target?.name ?? "";
+        if (fieldName.startsWith("system.miscellaneous.backgrounds.")) {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+
+        // Call parent method to handle non-background updates
+        await super._onChangeInput(event);
+        
+        // Restore scroll position after update
+        setTimeout(() => {
+            const newSheetBody = this.element.find('.sheet-body');
+            if (newSheetBody.length) {
+                newSheetBody.scrollTop(scrollPos);
+            }
+        }, 0);
+    }
+
     async _render(force = false, options = {}) {
         const result = await super._render(force, options);
         

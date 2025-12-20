@@ -1,7 +1,17 @@
-<!-- Virtues & Humanity Section -->
+<!-- Virtues & Humanity Section (Creature-Specific) -->
+{{#if (or (eq creatureType "Mortal") 
+          (eq creatureType "Vampire") 
+          (eq creatureType "Demon"))}}
 <div class="virtues-humanity-section">
-    <h4>Virtues & Humanity</h4>
+    <h4>
+        {{#if (eq creatureType "Demon")}}
+            Virtues & Torment
+        {{else}}
+            Virtues & Humanity
+        {{/if}}
+    </h4>
     <div class="virtues-compact">
+        <!-- Virtues (for Mortals, Vampires, and Demons) -->
         {{#each actor.system.advantages.virtues as |value key|}}
         <div class="virtue-item">
             <label>{{key}}</label>
@@ -14,14 +24,37 @@
         </div>
         {{/each}}
         
+        {{#if (or (eq creatureType "Mortal") (eq creatureType "Vampire"))}}
+        <!-- Humanity/Path (for Mortals and Vampires only) -->
         <div class="virtue-item humanity-item">
-            <label>Humanity</label>
+            <label>
+                {{#if (eq creatureType "Vampire")}}
+                    Path
+                {{else}}
+                    Humanity
+                {{/if}}
+            </label>
             <div class="dot-container" data-humanity="true">
                 {{#times 10}}
-                <div class="dot {{#if (lt @index ../actor.system.miscellaneous.humanity.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                <div class="dot {{#if (lt @index ../../actor.system.miscellaneous.humanity.current)}}filled{{/if}}" data-index="{{@index}}"></div>
                 {{/times}}
                 <input type="hidden" class="dot-input" name="system.miscellaneous.humanity.current" value="{{actor.system.miscellaneous.humanity.current}}"/>
             </div>
         </div>
+        {{/if}}
+        
+        {{#if (eq creatureType "Demon")}}
+        <!-- Torment (for Demons only) -->
+        <div class="virtue-item humanity-item">
+            <label>Torment</label>
+            <div class="dot-container" data-torment="true">
+                {{#times 10}}
+                <div class="dot {{#if (lt @index ../../actor.system.miscellaneous.torment.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                {{/times}}
+                <input type="hidden" class="dot-input" name="system.miscellaneous.torment.current" value="{{actor.system.miscellaneous.torment.current}}"/>
+            </div>
+        </div>
+        {{/if}}
     </div>
 </div>
+{{/if}}

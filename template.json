@@ -93,6 +93,10 @@
                     "current": 7,
                     "maximum": 10
                 },
+                "torment": {
+                    "current": 0,
+                    "maximum": 10
+                },
                 "willpower": {
                     "permanent": 3,
                     "temporary": 3

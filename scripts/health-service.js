@@ -321,6 +321,88 @@ export class HealthService {
         await actor.update({ "system.miscellaneous.health": health }, { render: false });
         return health;
     }
+
+    /**
+     * Add a new health level to the actor's health track
+     * @param {Actor} actor - The actor to update
+     * @param {string} name - Name of the new health level (default: "New Level")
+     * @param {number} penalty - Wound penalty for this level (default: 0)
+     * @returns {Promise<Object>} Updated health object
+     */
+    async addHealthLevel(actor, name = "New Level", penalty = 0) {
+        const health = foundry.utils.duplicate(actor.system.miscellaneous.health);
+        const newIndex = health.levels.length;
+        
+        health.levels.push({
+            index: newIndex,
+            name: name,
+            penalty: penalty,
+            damageType: null,
+            marked: false
+        });
+        
+        health.maximum = health.levels.length;
+        health.derived = this._calculateDerivedHealth(health);
+        
+        await actor.update({ "system.miscellaneous.health": health });
+        return health;
+    }
+
+    /**
+     * Remove a health level from the actor's health track
+     * @param {Actor} actor - The actor to update
+     * @param {number} index - Index of the health level to remove
+     * @returns {Promise<Object>} Updated health object
+     */
+    async removeHealthLevel(actor, index) {
+        const health = foundry.utils.duplicate(actor.system.miscellaneous.health);
+        
+        if (health.levels.length <= 1) {
+            ui.notifications.warn("Cannot remove the last health level");
+            return health;
+        }
+        
+        // Remove the level at the specified index
+        health.levels.splice(index, 1);
+        
+        // Reindex remaining levels
+        health.levels.forEach((level, i) => {
+            level.index = i;
+        });
+        
+        health.maximum = health.levels.length;
+        health.derived = this._calculateDerivedHealth(health);
+        
+        await actor.update({ "system.miscellaneous.health": health });
+        return health;
+    }
+
+    /**
+     * Update a health level's properties (name and/or penalty)
+     * @param {Actor} actor - The actor to update
+     * @param {number} index - Index of the health level to update
+     * @param {Object} updates - Object containing name and/or penalty to update
+     * @returns {Promise<Object>} Updated health object
+     */
+    async updateHealthLevel(actor, index, updates) {
+        const health = foundry.utils.duplicate(actor.system.miscellaneous.health);
+        
+        if (index < 0 || index >= health.levels.length) {
+            console.error(`Invalid health level index: ${index}`);
+            return health;
+        }
+        
+        if (updates.name !== undefined) {
+            health.levels[index].name = updates.name;
+        }
+        
+        if (updates.penalty !== undefined) {
+            health.levels[index].penalty = parseInt(updates.penalty);
+        }
+        
+        await actor.update({ "system.miscellaneous.health": health });
+        return health;
+    }
 }
 
 // Create global singleton instance

@@ -1,39 +1,87 @@
 <!-- Health Section with Damage Types -->
 <div class="health-section">
     <h2>Health</h2>
-    <div class="health-track">
-        {{#each actor.system.miscellaneous.health.levels as |level|}}
-        <div class="health-level">
-            <div class="health-box {{#if level.marked}}marked damage-{{level.damageType}}{{/if}}" 
-                 data-index="{{level.index}}"
-                 title="Single click: Bashing, Double click: Lethal, Triple click: Aggravated">
-            </div>
-            <span class="health-name">{{level.name}}</span>
-            <span class="health-penalty">{{#if (lt level.penalty 0)}}{{level.penalty}}{{/if}}</span>
-        </div>
-        {{/each}}
-    </div>
     
-    <!-- Health Summary -->
-    <div class="health-summary">
-        <div class="health-stat">
-            <label>Penalty:</label>
-            <span class="penalty-value">{{actor.system.miscellaneous.health.derived.currentPenalty}}</span>
+    {{#if isHealthEditMode}}
+        <!-- EDIT MODE: Show editable fields -->
+        <div class="health-edit-mode">
+            {{#each actor.system.miscellaneous.health.levels as |level|}}
+            <div class="health-level-edit">
+                <input type="text" 
+                       class="health-name-edit" 
+                       value="{{level.name}}" 
+                       data-index="{{level.index}}"
+                       placeholder="Level Name">
+                <input type="number" 
+                       class="health-penalty-edit" 
+                       value="{{level.penalty}}" 
+                       data-index="{{level.index}}"
+                       placeholder="Penalty">
+                <button class="delete-health-level" 
+                        type="button" 
+                        data-index="{{level.index}}"
+                        title="Delete this health level">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            {{/each}}
+            <div class="health-edit-controls">
+                <button class="add-health-level" type="button" title="Add new health level">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="toggle-health-edit" type="button" title="Save and exit edit mode">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
         </div>
-        <div class="health-stat">
-            <label>Bashing:</label>
-            <span>{{actor.system.miscellaneous.health.derived.bashingDamage}}</span>
+    {{else}}
+        <!-- VIEW MODE: Current display with damage tracking -->
+        <div class="health-track">
+            {{#each actor.system.miscellaneous.health.levels as |level|}}
+            <div class="health-level">
+                <div class="health-box {{#if level.marked}}marked damage-{{level.damageType}}{{/if}}" 
+                     data-index="{{level.index}}"
+                     title="Left: Single=Bashing, Double=Lethal, Triple=Aggravated | Right: Heal">
+                </div>
+                <span class="health-name">{{level.name}}</span>
+                <span class="health-penalty">
+                    {{#if (lt level.penalty 0)}}
+                        {{level.penalty}}
+                    {{else if (eq level.index 6)}}
+                        Incap
+                    {{/if}}
+                </span>
+            </div>
+            {{/each}}
         </div>
-        <div class="health-stat">
-            <label>Lethal:</label>
-            <span>{{actor.system.miscellaneous.health.derived.lethalDamage}}</span>
+        
+        <!-- Health Summary -->
+        <div class="health-summary">
+            <div class="health-stat">
+                <label>Penalty:</label>
+                <span class="penalty-value">{{actor.system.miscellaneous.health.derived.currentPenalty}}</span>
+            </div>
+            <div class="health-stat">
+                <label>Bashing:</label>
+                <span>{{actor.system.miscellaneous.health.derived.bashingDamage}}</span>
+            </div>
+            <div class="health-stat">
+                <label>Lethal:</label>
+                <span>{{actor.system.miscellaneous.health.derived.lethalDamage}}</span>
+            </div>
+            <div class="health-stat">
+                <label>Aggravated:</label>
+                <span>{{actor.system.miscellaneous.health.derived.aggravatedDamage}}</span>
+            </div>
         </div>
-        <div class="health-stat">
-            <label>Aggravated:</label>
-            <span>{{actor.system.miscellaneous.health.derived.aggravatedDamage}}</span>
+        
+        <div class="health-view-controls">
+            <button class="toggle-health-edit" type="button" title="Edit health levels">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="reset-health" type="button" title="Clear all damage">
+                <i class="fas fa-redo"></i>
+            </button>
         </div>
-        <button class="reset-health" type="button" title="Clear all damage">
-            <i class="fas fa-redo"></i>
-        </button>
-    </div>
+    {{/if}}
 </div>

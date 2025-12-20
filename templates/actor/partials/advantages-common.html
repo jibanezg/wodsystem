@@ -1,12 +1,7 @@
-<!-- Mortal Powers (Numina) Section -->
-<div class="mortal-powers-section">
-    <h3>Numina (Special Powers)</h3>
-    <div class="numina-info">
-        <p>Mortal characters may possess various supernatural abilities known as Numina. 
-           These can include psychic powers, magic, hedge magic, or other minor supernatural talents.</p>
-    </div>
-    
-    <!-- Willpower -->
+<!-- Common Advantages - Reusable across ALL creature types -->
+
+<!-- Column 1: Willpower & Virtues/Humanity -->
+<div class="advantage-column">
     <div class="willpower-section">
         <h4>Willpower</h4>
         <div class="willpower-tracks">
@@ -31,41 +26,56 @@
         </div>
     </div>
 
-    <!-- Virtues & Humanity -->
     {{> "systems/wodsystem/templates/actor/partials/virtues-humanity.html"}}
+</div>
 
-    <!-- Backgrounds -->
+<!-- Column 2: Backgrounds -->
+<div class="advantage-column">
     <div class="backgrounds-section">
         <h4>Backgrounds</h4>
         <div class="background-list">
-            {{#each actor.system.miscellaneous.backgrounds as |background index|}}
+            {{#each backgroundsPagination.backgrounds as |background|}}
             <div class="background-item">
-                <select name="system.miscellaneous.backgrounds.{{index}}.name" class="background-name-select">
+                {{#if (eq background.name "Custom")}}
+                <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
+                       value="{{background.customName}}" placeholder="Custom Background" class="background-custom-name"/>
+                {{else}}
+                <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" class="background-name-select">
                     {{#each ../backgroundsList as |bg|}}
                     <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
                     {{/each}}
                 </select>
-                {{#if (eq background.name "Custom")}}
-                <input type="text" name="system.miscellaneous.backgrounds.{{index}}.customName" 
-                       value="{{background.customName}}" placeholder="Custom Name" class="background-custom-name"/>
                 {{/if}}
-                <div class="dot-container" data-background="{{index}}">
+                <div class="dot-container" data-background="{{background.actualIndex}}">
                     {{#times 5}}
                     <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}}" data-index="{{@index}}"></div>
                     {{/times}}
                     <input type="hidden" class="dot-input" value="{{background.value}}"/>
                 </div>
-                <a class="delete-background" data-index="{{index}}">
+                <a class="delete-background" data-index="{{background.actualIndex}}">
                     <i class="fas fa-trash"></i>
                 </a>
             </div>
             {{/each}}
-            <button class="add-background" title="Add Background">+</button>
+            <div class="background-controls">
+                <button class="add-background" title="Add Background">+</button>
+                {{#if backgroundsPagination.hasMultiplePages}}
+                <div class="background-pagination">
+                    <button class="backgrounds-prev-page pagination-btn" 
+                            {{#unless backgroundsPagination.hasPrevPage}}disabled{{/unless}}
+                            title="Previous Page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="pagination-info">{{add backgroundsPagination.currentPage 1}} / {{backgroundsPagination.totalPages}}</span>
+                    <button class="backgrounds-next-page pagination-btn" 
+                            {{#unless backgroundsPagination.hasNextPage}}disabled{{/unless}}
+                            title="Next Page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                {{/if}}
+            </div>
         </div>
     </div>
-
-    <!-- Placeholder for Future Numina System -->
-    <div class="numina-placeholder">
-        <p><em>Future feature: Custom Numina/Powers can be added here as items or custom traits.</em></p>
-    </div>
 </div>
+

@@ -24,7 +24,8 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/actor/partials/secondary-abilities.html",
         "systems/wodsystem/templates/actor/partials/virtues-humanity.html",
         "systems/wodsystem/templates/actor/partials/merits-flaws.html",
-        "systems/wodsystem/templates/actor/partials/mortal-powers.html"
+        "systems/wodsystem/templates/actor/partials/advantages-common.html",
+        "systems/wodsystem/templates/actor/partials/mortal-numina.html"
     ]);
     console.log("WoD | Handlebars partials loaded");
 

@@ -15,16 +15,21 @@
         <!-- Main Tab -->
         <div class="tab" data-group="primary" data-tab="main">
             <div class="main-layout">
-                <!-- Left Column: Attributes and Abilities -->
-                <div class="left-column">
-                    {{> "systems/wodsystem/templates/actor/partials/attributes.html"}}
-                    {{> "systems/wodsystem/templates/actor/partials/abilities.html"}}
+                <!-- Left Column: Attributes, Abilities, and Advantages -->
+                <div class="left-content">
+                    <div class="attributes-abilities-section">
+                        {{> "systems/wodsystem/templates/actor/partials/attributes.html"}}
+                        {{> "systems/wodsystem/templates/actor/partials/abilities.html"}}
+                    </div>
+
+                    <div class="advantages-bottom">
+                        {{> "systems/wodsystem/templates/actor/partials/advantages-common.html"}}
+                        {{> "systems/wodsystem/templates/actor/partials/mortal-numina.html"}}
+                    </div>
                 </div>
 
-                <!-- Right Column: Advantages -->
-                <div class="right-column">
-                    <div class="right-column-header">Advantages</div>
-                    {{> "systems/wodsystem/templates/actor/partials/mortal-powers.html"}}
+                <!-- Right Column: Health Sidebar -->
+                <div class="health-sidebar">
                     {{> "systems/wodsystem/templates/actor/partials/health.html"}}
                 </div>
             </div>

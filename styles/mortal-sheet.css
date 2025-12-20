@@ -98,28 +98,70 @@
     display: block;
 }
 
-/* Main content layout */
+/* Main content layout - Grid based */
 .main-layout {
-    display: flex;
-    gap: 5px;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 70% 30%;
+    gap: 10px;
+    padding: 5px;
+    align-items: start;
 }
 
-.left-column {
-    flex: 0 0 65%;
+.left-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.attributes-abilities-section {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding: 0 5px;
+}
+
+.health-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 200px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.advantages-bottom {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 5px;
+    border-top: 2px solid #800000;
+}
+
+.advantage-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid #800000;
+    border-radius: 2px;
+    padding: 8px;
+    background: #fafafa;
+}
+
+.advantage-column-spacer {
+    /* Empty spacer to maintain 2-column grid alignment */
+    display: none;
+}
+
+/* Legacy column classes for backwards compatibility */
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .right-column {
-    flex: 0 0 35%;
-    min-width: 250px;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    padding: 0 5px;
 }
 
 .right-column-header {
@@ -136,7 +178,6 @@
 /* Section headers */
 .attributes-section h2,
 .abilities-section h2,
-.mortal-powers-section h3,
 .health-section h2 {
     margin: 0 0 3px 0;
     padding: 2px 3px;
@@ -219,6 +260,21 @@
     border-radius: 2px;
     padding: 8px 10px;
     margin-bottom: 5px;
+}
+
+.numina-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.numina-section h4 {
+    margin: 0 0 5px 0;
+    padding: 3px 5px;
+    background: #f0f0f0;
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
 }
 
 .numina-info {
@@ -317,19 +373,37 @@
 }
 
 .reset-health {
-    padding: 3px 6px;
+    padding: 4px 6px;
     font-size: 0.7em;
-    background: #600000;
-    color: white;
-    border: 1px solid #400000;
+    background: transparent;
+    color: #800000;
+    border: 1px solid #800000;
     border-radius: 2px;
     cursor: pointer;
-    transition: background 0.2s;
-    margin-left: 5px;
+    transition: all 0.2s;
 }
 
 .reset-health:hover {
     background: #800000;
+    color: white;
+}
+
+.health-view-controls {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    padding: 5px;
+    border-top: 1px solid #ddd;
+    margin-top: 5px;
+}
+
+.health-edit-controls {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    padding-top: 8px;
+    margin-top: 5px;
+    border-top: 1px solid #ddd;
 }
 
 .reset-health i {
@@ -421,6 +495,7 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 5px;
     font-size: 0.65em;
+    align-items: center;
 }
 
 .health-stat {
@@ -438,6 +513,102 @@
     font-size: 14px;
     font-weight: bold;
     display: block;
+}
+
+/* Health Edit Mode */
+.toggle-health-edit {
+    padding: 4px 6px;
+    font-size: 0.7em;
+    background: transparent;
+    color: #800000;
+    border: 1px solid #800000;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-health-edit:hover {
+    background: #800000;
+    color: white;
+}
+
+.toggle-health-edit i {
+    margin: 0;
+}
+
+.health-edit-mode {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
+}
+
+.health-level-edit {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    padding: 5px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+}
+
+.health-name-edit {
+    flex: 4;
+    padding: 4px 6px;
+    font-size: 0.75em;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+}
+
+.health-penalty-edit {
+    width: 60px;
+    padding: 4px 6px;
+    font-size: 0.75em;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.delete-health-level {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    font-size: 10px;
+    background: transparent;
+    color: #dc143c;
+    border: 1px solid #dc143c;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.delete-health-level:hover {
+    background: #dc143c;
+    color: white;
+}
+
+.add-health-level {
+    padding: 4px 6px;
+    font-size: 0.7em;
+    background: transparent;
+    color: #228b22;
+    border: 1px solid #228b22;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-health-level:hover {
+    background: #228b22;
+    color: white;
+}
+
+.add-health-level i {
+    margin: 0;
 }
 
 /* Dot-based interface styles */
@@ -740,6 +911,56 @@ textarea {
     font-size: 10px;
 }
 
+.background-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid #ddd;
+}
+
+.background-pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid #800000;
+    background: white;
+    color: #800000;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #800000;
+    color: white;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: #ccc;
+    color: #ccc;
+}
+
+.pagination-info {
+    font-size: 0.7em;
+    color: #666;
+    min-width: 40px;
+    text-align: center;
+}
+
 .merit-flaw-summary {
     grid-column: 1 / -1;
     display: flex;
@@ -801,7 +1022,23 @@ button.add-secondary-knowledge:hover {
     }
     
     .main-layout {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+    }
+    
+    .left-content {
+        order: 1;
+    }
+    
+    .health-sidebar {
+        order: 2;
+    }
+    
+    .advantages-bottom {
+        grid-template-columns: 1fr;
+    }
+    
+    .advantage-column-spacer {
+        display: none;
     }
     
     .attributes-grid,
