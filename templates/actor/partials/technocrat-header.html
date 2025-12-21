@@ -1,0 +1,51 @@
+<!-- Technocrat Identity Section - Character Header -->
+<section class="sheet-header">
+    <div class="identity-section technocrat-identity">
+        <div class="identity-field">
+            <label>Name</label>
+            <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" />
+        </div>
+        <div class="identity-field">
+            <label>Concept</label>
+            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="e.g., Cyber-Weapons Specialist" />
+        </div>
+        <div class="identity-field">
+            <label>Convention</label>
+            <select name="system.identity.convention" class="archetype-select">
+                <option value="">-- Select --</option>
+                <option value="Iteration X" {{#if (eq actor.system.identity.convention "Iteration X")}}selected{{/if}}>Iteration X</option>
+                <option value="NWO" {{#if (eq actor.system.identity.convention "NWO")}}selected{{/if}}>New World Order</option>
+                <option value="Progenitors" {{#if (eq actor.system.identity.convention "Progenitors")}}selected{{/if}}>Progenitors</option>
+                <option value="Syndicate" {{#if (eq actor.system.identity.convention "Syndicate")}}selected{{/if}}>Syndicate</option>
+                <option value="Void Engineers" {{#if (eq actor.system.identity.convention "Void Engineers")}}selected{{/if}}>Void Engineers</option>
+            </select>
+        </div>
+        <div class="identity-field">
+            <label>Amalgam</label>
+            <input type="text" name="system.identity.amalgam" value="{{actor.system.identity.amalgam}}" placeholder="Cross-convention affiliation" />
+        </div>
+        <div class="identity-field">
+            <label>Eidolon</label>
+            <input type="text" name="system.identity.eidolon" value="{{actor.system.identity.eidolon}}" placeholder="Digital assistant name" />
+        </div>
+        <div class="identity-field">
+            <label>Nature</label>
+            <select name="system.identity.nature" class="archetype-select">
+                <option value="">-- Select --</option>
+                {{#each archetypes as |archetype|}}
+                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.nature archetype)}}selected{{/if}}>{{archetype}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="identity-field">
+            <label>Demeanor</label>
+            <select name="system.identity.demeanor" class="archetype-select">
+                <option value="">-- Select --</option>
+                {{#each archetypes as |archetype|}}
+                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.demeanor archetype)}}selected{{/if}}>{{archetype}}</option>
+                {{/each}}
+            </select>
+        </div>
+    </div>
+</section>
+

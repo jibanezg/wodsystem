@@ -1,14 +1,15 @@
 /**
- * WoD System - CSS Variables (Default/Mortal Theme)
+ * WoD System - CSS Variables (Default Theme)
  * These variables define the color palette and spacing for character sheets
+ * SCOPED to .wod.sheet.actor to avoid affecting Foundry's core UI
  * Override these in creature-specific theme files for unique visual identities
  */
 
-:root {
-    /* Primary Colors - Main theme colors */
-    --wod-primary: #800000;           /* Deep red - headers, accents */
-    --wod-primary-dark: #600000;      /* Darker red - hover states */
-    --wod-primary-light: #a67c00;     /* Gold/brown - special elements */
+.wod.sheet.actor {
+    /* Primary Colors - Main theme colors (Default: Mortal green/life) */
+    --wod-primary: #2D5016;           /* Forest green - life, humanity */
+    --wod-primary-dark: #1C3310;      /* Dark green - almost black */
+    --wod-primary-light: #4A7C0F;     /* Bright green - vitality */
     
     /* Background Colors */
     --wod-bg-main: #ffffff;           /* Main background */
@@ -19,7 +20,7 @@
     --wod-bg-subtle: #f9f9f9;         /* Very subtle background */
     
     /* Border Colors */
-    --wod-border-main: #800000;       /* Main borders (sections, headers) */
+    --wod-border-main: #2D5016;       /* Main borders (sections, headers) */
     --wod-border-light: #ccc;         /* Light borders (inputs, dividers) */
     --wod-border-subtle: #ddd;        /* Very subtle borders */
     
@@ -57,11 +58,11 @@
     --wod-font-xl: 11px;
     
     /* Shadows */
-    --wod-shadow-sm: 0 0 3px rgba(128, 0, 0, 0.3);
+    --wod-shadow-sm: 0 0 3px rgba(45, 80, 22, 0.3);
     
     /* Health Box - Damage Type Colors */
-    --wod-damage-bashing: #800000;    /* X mark color */
-    --wod-damage-lethal: #800000;     /* Stripe color */
-    --wod-damage-aggravated: #800000; /* Fill color */
+    --wod-damage-bashing: #2D5016;    /* X mark color */
+    --wod-damage-lethal: #2D5016;     /* Stripe color */
+    --wod-damage-aggravated: #2D5016; /* Fill color */
 }
 

@@ -1,4 +1,17 @@
 /**
+ * @deprecated v1.1.0
+ * Health logic moved to WodActor domain methods
+ * 
+ * Architectural Reason:
+ * Health calculations affect actor state and must respond to actor effects/statuses.
+ * This is actor domain logic, not external service logic.
+ * 
+ * Migration: Use actor.applyDamage(), actor.healDamage(), actor.resetHealth(), etc.
+ * 
+ * Will be removed in v2.0.0
+ */
+
+/**
  * Health Service
  * Manages health tracking with damage types (bashing, lethal, aggravated)
  * Designed for current local calculation with future microservice integration support

@@ -20,7 +20,8 @@ export class WodActorSheet extends ActorSheet {
         // Load reference data (archetypes, backgrounds, etc.) via service
         if (window.referenceDataService) {
             context.archetypes = await window.referenceDataService.getArchetypes();
-            context.backgroundsList = await window.referenceDataService.getBackgrounds();
+            // Load base + creature-specific backgrounds
+            context.backgroundsList = await window.referenceDataService.getBackgrounds(this.actor.type);
         } else {
             console.error("ReferenceDataService not available");
             context.archetypes = [];
@@ -105,6 +106,9 @@ export class WodActorSheet extends ActorSheet {
         html.find('.add-secondary-skill').click((ev) => this._onAddSecondaryAbility(ev, 'skills'));
         html.find('.add-secondary-knowledge').click((ev) => this._onAddSecondaryAbility(ev, 'knowledges'));
         html.find('.delete-secondary-ability').click(this._onDeleteSecondaryAbility.bind(this));
+        
+        // Technocrat-specific handlers
+        html.find('.primal-box').click(this._onPrimalEnergyClick.bind(this));
     }
 
     /**
@@ -147,6 +151,10 @@ export class WodActorSheet extends ActorSheet {
             updatePromise = this._updateHumanity(newValue);
         } else if (container.dataset.torment) {
             updatePromise = this._updateTorment(newValue);
+        } else if (container.dataset.enlightenment) {
+            updatePromise = this._updateEnlightenment(newValue);
+        } else if (container.dataset.paradox) {
+            updatePromise = this._updateParadox(container.dataset.paradox, newValue);
         } else if (container.dataset.secondaryAbility) {
             updatePromise = this._updateSecondaryAbility(
                 container.dataset.category,
@@ -214,8 +222,8 @@ export class WodActorSheet extends ActorSheet {
             if (clickCount === 2) damageType = "lethal";
             else if (clickCount === 3) damageType = "aggravated";
             
-            if (window.healthService && damageType) {
-                const updatedHealth = await window.healthService.addDamage(this.actor, damageType);
+            if (damageType) {
+                const updatedHealth = await this.actor.applyDamage(damageType, 1);
                 this._updateHealthDisplay(updatedHealth);
             }
         } else {
@@ -225,10 +233,8 @@ export class WodActorSheet extends ActorSheet {
             }
             
             this._healthClickTimeout = setTimeout(async () => {
-                if (window.healthService) {
-                    const updatedHealth = await window.healthService.addDamage(this.actor, "bashing");
-                    this._updateHealthDisplay(updatedHealth);
-                }
+                const updatedHealth = await this.actor.applyDamage("bashing", 1);
+                this._updateHealthDisplay(updatedHealth);
                 this._healthClickTimeout = null;
             }, 300); // 300ms delay to detect if this becomes a multi-click
         }
@@ -241,14 +247,10 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         event.stopPropagation();
         
-        if (window.healthService) {
-            const updatedHealth = await window.healthService.healDamage(this.actor, 1);
-            
-            // Manually update the visual display without re-rendering the entire sheet
-            this._updateHealthDisplay(updatedHealth);
-        } else {
-            console.error("HealthService not available");
-        }
+        const updatedHealth = await this.actor.healDamage(1);
+        
+        // Manually update the visual display without re-rendering the entire sheet
+        this._updateHealthDisplay(updatedHealth);
     }
     
     /**
@@ -258,14 +260,10 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         event.stopPropagation();
         
-        if (window.healthService) {
-            const updatedHealth = await window.healthService.resetHealth(this.actor);
-            
-            // Manually update the visual display without re-rendering the entire sheet
-            this._updateHealthDisplay(updatedHealth);
-        } else {
-            console.error("HealthService not available");
-        }
+        const updatedHealth = await this.actor.resetHealth();
+        
+        // Manually update the visual display without re-rendering the entire sheet
+        this._updateHealthDisplay(updatedHealth);
     }
     
     /**
@@ -293,11 +291,7 @@ export class WodActorSheet extends ActorSheet {
         const index = parseInt(input.dataset.index);
         const newName = input.value;
         
-        if (window.healthService) {
-            await window.healthService.updateHealthLevel(this.actor, index, { name: newName });
-        } else {
-            console.error("HealthService not available");
-        }
+        await this.actor.updateHealthLevel(index, { name: newName });
     }
     
     /**
@@ -311,11 +305,7 @@ export class WodActorSheet extends ActorSheet {
         const index = parseInt(input.dataset.index);
         const newPenalty = parseInt(input.value);
         
-        if (window.healthService) {
-            await window.healthService.updateHealthLevel(this.actor, index, { penalty: newPenalty });
-        } else {
-            console.error("HealthService not available");
-        }
+        await this.actor.updateHealthLevel(index, { penalty: newPenalty });
     }
     
     /**
@@ -327,20 +317,16 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         event.stopPropagation();
         
-        if (window.healthService) {
-            await window.healthService.addHealthLevel(this.actor, "New Level", 0);
-            this.render(false);
-            
-            // Scroll to show the add button after render
-            setTimeout(() => {
-                const addButton = this.element.find('.add-health-level')[0];
-                if (addButton) {
-                    addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }, 100);
-        } else {
-            console.error("HealthService not available");
-        }
+        await this.actor.addHealthLevel("New Level", 0);
+        this.render(false);
+        
+        // Scroll to show the add button after render
+        setTimeout(() => {
+            const addButton = this.element.find('.add-health-level')[0];
+            if (addButton) {
+                addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 100);
     }
     
     /**
@@ -354,20 +340,16 @@ export class WodActorSheet extends ActorSheet {
         const button = event.currentTarget;
         const index = parseInt(button.dataset.index);
         
-        if (window.healthService) {
-            await window.healthService.removeHealthLevel(this.actor, index);
-            this.render(false);
-            
-            // Scroll to show the add button after render
-            setTimeout(() => {
-                const addButton = this.element.find('.add-health-level')[0];
-                if (addButton) {
-                    addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }, 100);
-        } else {
-            console.error("HealthService not available");
-        }
+        await this.actor.removeHealthLevel(index);
+        this.render(false);
+        
+        // Scroll to show the add button after render
+        setTimeout(() => {
+            const addButton = this.element.find('.add-health-level')[0];
+            if (addButton) {
+                addButton.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 100);
     }
     
     /**
@@ -774,6 +756,69 @@ export class WodActorSheet extends ActorSheet {
         updateData[`system.miscellaneous.torment.current`] = Math.min(Math.max(value, 0), 10);
         await this.actor.update(updateData, { render: false });
         this._syncVisualStateWithData();
+    }
+
+    /**
+     * Update Enlightenment value (for Technocrats)
+     * @param {number} value
+     * @private
+     */
+    async _updateEnlightenment(value) {
+        const updateData = {};
+        updateData[`system.advantages.enlightenment.current`] = Math.min(Math.max(value, 0), 10);
+        await this.actor.update(updateData, { render: false });
+        this._syncVisualStateWithData();
+    }
+
+    /**
+     * Update Paradox value (for Technocrats)
+     * @param {string} type - "current" or "permanent"
+     * @param {number} value
+     * @private
+     */
+    async _updateParadox(type, value) {
+        const updateData = {};
+        updateData[`system.advantages.paradox.${type}`] = Math.min(Math.max(value, 0), 10);
+        await this.actor.update(updateData, { render: false });
+        this._syncVisualStateWithData();
+    }
+
+    /**
+     * Handle clicking on Primal Energy asterisks (for Technocrats)
+     * Toggles between spent and available
+     * @param {Event} event
+     * @private
+     */
+    async _onPrimalEnergyClick(event) {
+        event.preventDefault();
+        const box = event.currentTarget;
+        const index = parseInt(box.dataset.index);
+        const currentSpent = this.actor.system.advantages.primalEnergy.spent || 0;
+        
+        // Toggle: if this box is spent, unspend it (and all after it)
+        // If not spent, spend it (and all before it)
+        let newSpent;
+        if (index < currentSpent) {
+            // Clicking a spent box - unspend from this point
+            newSpent = index;
+        } else {
+            // Clicking an unspent box - spend up to this point
+            newSpent = index + 1;
+        }
+        
+        const updateData = {};
+        updateData[`system.advantages.primalEnergy.spent`] = Math.min(Math.max(newSpent, 0), this.actor.system.advantages.primalEnergy.maximum);
+        await this.actor.update(updateData, { render: false });
+        
+        // Update visual state
+        const boxes = this.element.find('.primal-box');
+        boxes.each((i, el) => {
+            if (i < newSpent) {
+                el.classList.add('spent');
+            } else {
+                el.classList.remove('spent');
+            }
+        });
     }
 
     /**

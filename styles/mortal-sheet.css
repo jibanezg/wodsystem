@@ -1,4 +1,6 @@
 /* World of Darkness Character Sheet Styles */
+/* Theme colors applied via CSS variables from styles/themes/mortal.css */
+
 .wod.sheet.actor {
     min-width: 800px;
     min-height: 600px;
@@ -15,35 +17,35 @@
 }
 
 /* Identity Section - Character Header */
-.sheet-header {
+.wod.sheet.actor .sheet-header {
     padding: 5px 10px;
-    background: #f5f5f5;
-    border-bottom: 2px solid #800000;
+    background: var(--wod-bg-secondary, #f5f5f5);
+    border-bottom: 2px solid var(--wod-primary, #2D5016);
     margin-bottom: 5px;
 }
 
-.identity-section {
+.wod.sheet.actor .identity-section {
     display: grid;
     grid-template-columns: 2fr 2fr 1.5fr 1.5fr;
     gap: 10px;
     align-items: end;
 }
 
-.identity-field {
+.wod.sheet.actor .identity-field {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.identity-field label {
+.wod.sheet.actor .identity-field label {
     font-weight: bold;
     font-size: 10px;
-    color: #800000;
+    color: var(--wod-primary, #2D5016);
     text-transform: uppercase;
 }
 
-.identity-field input,
-.identity-field select {
+.wod.sheet.actor .identity-field input,
+.wod.sheet.actor .identity-field select {
     padding: 3px 5px;
     border: 1px solid #ccc;
     border-radius: 2px;
@@ -51,21 +53,21 @@
     font-size: 11px;
 }
 
-.archetype-select {
+.wod.sheet.actor .archetype-select {
     cursor: pointer;
 }
 
 /* Navigation Tabs */
-.sheet-tabs {
+.wod.sheet.actor .sheet-tabs {
     flex: 0;
     display: flex;
-    border-bottom: 2px solid #800000;
-    background: #f0f0f0;
+    border-bottom: 2px solid var(--wod-primary, #2D5016);
+    background: var(--wod-bg-tertiary, #f0f0f0);
     padding: 0;
     margin: 0 0 3px 0;
 }
 
-.sheet-tabs .item {
+.wod.sheet.actor .sheet-tabs .item {
     flex: 0 0 auto;
     font-weight: bold;
     padding: 4px 12px;
@@ -79,27 +81,27 @@
     transition: background 0.2s;
 }
 
-.sheet-tabs .item:hover {
+.wod.sheet.actor .sheet-tabs .item:hover {
     background: #d0d0d0;
 }
 
-.sheet-tabs .item.active {
-    background: #800000;
+.wod.sheet.actor .sheet-tabs .item.active {
+    background: var(--wod-primary, #2D5016);
     color: white;
     border-bottom: none;
 }
 
 /* Tab Content */
-.tab {
+.wod.sheet.actor .tab {
     display: none;
 }
 
-.tab.active {
+.wod.sheet.actor .tab.active {
     display: block;
 }
 
 /* Main content layout - Grid based */
-.main-layout {
+.wod.sheet.actor .main-layout {
     display: grid;
     grid-template-columns: 70% 30%;
     gap: 10px;
@@ -107,19 +109,19 @@
     align-items: start;
 }
 
-.left-content {
+.wod.sheet.actor .left-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.attributes-abilities-section {
+.wod.sheet.actor .attributes-abilities-section {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.health-sidebar {
+.wod.sheet.actor .health-sidebar {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -128,44 +130,44 @@
     overflow-y: auto;
 }
 
-.advantages-bottom {
+.wod.sheet.actor .advantages-bottom {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     padding: 5px;
-    border-top: 2px solid #800000;
+    border-top: 2px solid var(--wod-primary, #2D5016);
 }
 
-.advantage-column {
+.wod.sheet.actor .advantage-column {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    border: 1px solid #800000;
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 8px;
     background: #fafafa;
 }
 
-.advantage-column-spacer {
+.wod.sheet.actor .advantage-column-spacer {
     /* Empty spacer to maintain 2-column grid alignment */
     display: none;
 }
 
 /* Legacy column classes for backwards compatibility */
-.left-column {
+.wod.sheet.actor .left-column {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.right-column {
+.wod.sheet.actor .right-column {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.right-column-header {
-    background: #800000;
+.wod.sheet.actor .right-column-header {
+    background: var(--wod-primary, #2D5016);
     color: white;
     padding: 5px;
     text-align: center;
@@ -181,7 +183,7 @@
 .health-section h2 {
     margin: 0 0 3px 0;
     padding: 2px 3px;
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
     font-size: 0.9em;
     text-align: center;
@@ -189,19 +191,19 @@
 }
 
 /* Attributes section */
-.attributes-section {
+.wod.sheet.actor .attributes-section {
     flex: 0 0 auto;
 }
 
-.attributes-grid {
+.wod.sheet.actor .attributes-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
     height: auto;
 }
 
-.attribute-category {
-    border: 1px solid #800000;
+.wod.sheet.actor .attribute-category {
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 2px;
 }
@@ -212,29 +214,29 @@
     background: #f0f0f0;
     font-size: 0.8em;
     text-align: center;
-    border-bottom: 1px solid #800000;
+    border-bottom: 1px solid var(--wod-primary, #2D5016);
 }
 
-.attribute-list {
+.wod.sheet.actor .attribute-list {
     display: flex;
     flex-direction: column;
     gap: 1px;
 }
 
 /* Abilities section */
-.abilities-section {
+.wod.sheet.actor .abilities-section {
     flex: 0 0 auto;
 }
 
-.abilities-grid {
+.wod.sheet.actor .abilities-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
     height: auto;
 }
 
-.ability-category {
-    border: 1px solid #800000;
+.wod.sheet.actor .ability-category {
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 2px;
 }
@@ -245,24 +247,24 @@
     background: #f0f0f0;
     font-size: 0.8em;
     text-align: center;
-    border-bottom: 1px solid #800000;
+    border-bottom: 1px solid var(--wod-primary, #2D5016);
 }
 
-.ability-list {
+.wod.sheet.actor .ability-list {
     display: flex;
     flex-direction: column;
     gap: 1px;
 }
 
 /* Mortal Powers section */
-.mortal-powers-section {
-    border: 1px solid #800000;
+.wod.sheet.actor .mortal-powers-section {
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 8px 10px;
     margin-bottom: 5px;
 }
 
-.numina-section {
+.wod.sheet.actor .numina-section {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -277,16 +279,16 @@
     border-bottom: 1px solid #ccc;
 }
 
-.numina-info {
+.wod.sheet.actor .numina-info {
     font-size: 0.7em;
     font-style: italic;
     padding: 8px 10px;
     background: #f9f9f9;
-    border-left: 2px solid #800000;
+    border-left: 2px solid var(--wod-primary, #2D5016);
     margin-bottom: 5px;
 }
 
-.willpower-section {
+.wod.sheet.actor .willpower-section {
     margin-bottom: 5px;
 }
 
@@ -299,15 +301,15 @@
     border-bottom: 1px solid #ccc;
 }
 
-.willpower-tracks {
+.wod.sheet.actor .willpower-tracks {
     display: flex;
     flex-direction: column;
     gap: 3px;
     padding: 5px;
 }
 
-.willpower-permanent,
-.willpower-temporary {
+.wod.sheet.actor .willpower-permanent,
+.wod.sheet.actor .willpower-temporary {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -321,7 +323,7 @@
 }
 
 /* Temporary willpower uses squares instead of circles */
-.willpower-temporary .dot {
+.wod.sheet.actor .willpower-temporary .dot {
     border-radius: 0;  /* Remove circular shape for squares */
 }
 
@@ -334,14 +336,14 @@
     border-bottom: 1px solid #ccc;
 }
 
-.background-list {
+.wod.sheet.actor .background-list {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 5px;
 }
 
-.background {
+.wod.sheet.actor .background {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -353,7 +355,7 @@
     font-weight: bold;
 }
 
-.numina-placeholder {
+.wod.sheet.actor .numina-placeholder {
     font-size: 0.7em;
     font-style: italic;
     padding: 8px 10px;
@@ -364,31 +366,31 @@
 }
 
 /* Health section */
-.health-section {
-    border: 1px solid #800000;
+.wod.sheet.actor .health-section {
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 5px;
     display: flex;
     flex-direction: column;
 }
 
-.reset-health {
+.wod.sheet.actor .reset-health {
     padding: 4px 6px;
     font-size: 0.7em;
     background: transparent;
-    color: #800000;
-    border: 1px solid #800000;
+    color: var(--wod-primary, #2D5016);
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .reset-health:hover {
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
 }
 
-.health-view-controls {
+.wod.sheet.actor .health-view-controls {
     display: flex;
     gap: 5px;
     justify-content: flex-end;
@@ -397,7 +399,7 @@
     margin-top: 5px;
 }
 
-.health-edit-controls {
+.wod.sheet.actor .health-edit-controls {
     display: flex;
     gap: 5px;
     justify-content: flex-end;
@@ -410,7 +412,7 @@
     font-size: 10px;
 }
 
-.health-track {
+.wod.sheet.actor .health-track {
     display: flex;
     flex-direction: column;
     gap: 3px;
@@ -418,7 +420,7 @@
     margin-bottom: 5px;
 }
 
-.health-level {
+.wod.sheet.actor .health-level {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -426,11 +428,11 @@
     font-size: 0.75em;
 }
 
-.health-box {
+.wod.sheet.actor .health-box {
     width: 18px;
     height: 18px;
     min-width: 18px;
-    border: 2px solid #800000;
+    border: 2px solid var(--wod-primary, #2D5016);
     background: white;
     cursor: pointer;
     display: flex;
@@ -440,54 +442,54 @@
     position: relative;
 }
 
-.health-box:hover {
+.wod.sheet.actor .health-box:hover {
     background: #ffeeee;
     transform: scale(1.1);
     box-shadow: 0 0 3px rgba(128, 0, 0, 0.3);
 }
 
 /* Bashing: X character inside the square */
-.health-box.damage-bashing {
+.wod.sheet.actor .health-box.damage-bashing {
     background: white;
 }
 
-.health-box.damage-bashing::after {
+.wod.sheet.actor .health-box.damage-bashing::after {
     content: "X";
     font-size: 14px;
     font-weight: bold;
-    color: #800000;
+    color: var(--wod-primary, #2D5016);
     line-height: 1;
 }
 
 /* Lethal: Diagonal stripes (zebra pattern) */
-.health-box.damage-lethal {
+.wod.sheet.actor .health-box.damage-lethal {
     background: repeating-linear-gradient(
         45deg,
         white,
         white 2px,
-        #800000 2px,
-        #800000 4px
+        var(--wod-primary, #2D5016) 2px,
+        var(--wod-primary, #2D5016) 4px
     );
 }
 
 /* Aggravated: Solid filled square */
-.health-box.damage-aggravated {
-    background: #800000;
+.wod.sheet.actor .health-box.damage-aggravated {
+    background: var(--wod-primary, #2D5016);
 }
 
-.health-name {
+.wod.sheet.actor .health-name {
     font-weight: bold;
     min-width: 85px;
 }
 
-.health-penalty {
+.wod.sheet.actor .health-penalty {
     font-size: 0.85em;
     color: #dc143c;
     font-weight: bold;
     min-width: 20px;
 }
 
-.health-summary {
+.wod.sheet.actor .health-summary {
     margin-top: 5px;
     padding: 5px;
     border-top: 1px solid #ccc;
@@ -498,7 +500,7 @@
     align-items: center;
 }
 
-.health-stat {
+.wod.sheet.actor .health-stat {
     text-align: center;
 }
 
@@ -516,19 +518,19 @@
 }
 
 /* Health Edit Mode */
-.toggle-health-edit {
+.wod.sheet.actor .toggle-health-edit {
     padding: 4px 6px;
     font-size: 0.7em;
     background: transparent;
-    color: #800000;
-    border: 1px solid #800000;
+    color: var(--wod-primary, #2D5016);
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .toggle-health-edit:hover {
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
 }
 
@@ -536,14 +538,14 @@
     margin: 0;
 }
 
-.health-edit-mode {
+.wod.sheet.actor .health-edit-mode {
     display: flex;
     flex-direction: column;
     gap: 5px;
     padding: 5px;
 }
 
-.health-level-edit {
+.wod.sheet.actor .health-level-edit {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -553,7 +555,7 @@
     border-radius: 2px;
 }
 
-.health-name-edit {
+.wod.sheet.actor .health-name-edit {
     flex: 4;
     padding: 4px 6px;
     font-size: 0.75em;
@@ -561,7 +563,7 @@
     border-radius: 2px;
 }
 
-.health-penalty-edit {
+.wod.sheet.actor .health-penalty-edit {
     width: 60px;
     padding: 4px 6px;
     font-size: 0.75em;
@@ -570,7 +572,7 @@
     text-align: center;
 }
 
-.delete-health-level {
+.wod.sheet.actor .delete-health-level {
     width: 20px;
     height: 20px;
     padding: 0;
@@ -591,7 +593,7 @@
     color: white;
 }
 
-.add-health-level {
+.wod.sheet.actor .add-health-level {
     padding: 4px 6px;
     font-size: 0.7em;
     background: transparent;
@@ -612,7 +614,7 @@
 }
 
 /* Dot-based interface styles */
-.attribute, .ability {
+.wod.sheet.actor .attribute, .ability {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -631,16 +633,16 @@
     margin-right: 3px;
 }
 
-.dot-container {
+.wod.sheet.actor .dot-container {
     display: flex;
     gap: 1px;
     align-items: center;
 }
 
-.dot {
+.wod.sheet.actor .dot {
     width: 8px;
     height: 8px;
-    border: 1px solid #800000;
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -653,20 +655,20 @@
 }
 
 .dot.filled {
-    background: #800000 !important;
+    background: var(--wod-primary, #2D5016) !important;
 }
 
 .dot.filled:hover {
-    background: #600000 !important;
+    background: var(--wod-primary-dark, #600000) !important;
 }
 
 /* Hidden input field for form submission */
-.dot-input, .health-input {
+.wod.sheet.actor .dot-input, .health-input {
     display: none;
 }
 
 /* Biography Tab Content */
-.biography-content {
+.wod.sheet.actor .biography-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -680,20 +682,20 @@
 .notes-section h3 {
     margin: 0 0 5px 0;
     padding: 3px;
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
     font-size: 1em;
     text-align: center;
     border-radius: 2px;
 }
 
-.bio-grid {
+.wod.sheet.actor .bio-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 
-.bio-field {
+.wod.sheet.actor .bio-field {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -703,7 +705,7 @@
     font-size: 10px;
     font-weight: bold;
     text-transform: uppercase;
-    color: #800000;
+    color: var(--wod-primary, #2D5016);
 }
 
 .bio-field input {
@@ -714,14 +716,14 @@
 }
 
 /* Secondary Abilities */
-.secondary-abilities-grid {
+.wod.sheet.actor .secondary-abilities-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 
-.secondary-ability-category {
-    border: 1px solid #800000;
+.wod.sheet.actor .secondary-ability-category {
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 5px;
 }
@@ -732,10 +734,10 @@
     background: #f0f0f0;
     font-size: 0.85em;
     text-align: center;
-    border-bottom: 1px solid #800000;
+    border-bottom: 1px solid var(--wod-primary, #2D5016);
 }
 
-.secondary-ability {
+.wod.sheet.actor .secondary-ability {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -743,7 +745,7 @@
     font-size: 0.75em;
 }
 
-.secondary-ability .ability-name {
+.wod.sheet.actor .secondary-ability .ability-name {
     flex: 1;
     padding: 2px 4px;
     border: 1px solid #ccc;
@@ -751,7 +753,7 @@
     font-size: 10px;
 }
 
-.delete-secondary-ability {
+.wod.sheet.actor .delete-secondary-ability {
     cursor: pointer;
     color: #dc143c;
     font-size: 12px;
@@ -763,7 +765,7 @@
 
 button {
     padding: 3px 8px;
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
     border: none;
     border-radius: 2px;
@@ -780,7 +782,7 @@ button:hover {
 }
 
 /* Virtues & Humanity - Compact Layout */
-.virtues-humanity-section {
+.wod.sheet.actor .virtues-humanity-section {
     margin-bottom: 5px;
 }
 
@@ -793,14 +795,14 @@ button:hover {
     border-bottom: 1px solid #ccc;
 }
 
-.virtues-compact {
+.wod.sheet.actor .virtues-compact {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 8px;
 }
 
-.virtue-item {
+.wod.sheet.actor .virtue-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -810,10 +812,10 @@ button:hover {
 .virtue-item label {
     font-weight: bold;
     min-width: 80px;
-    color: #800000;
+    color: var(--wod-primary, #2D5016);
 }
 
-.humanity-item {
+.wod.sheet.actor .humanity-item {
     border-top: 1px solid #ddd;
     padding-top: 2px;
     margin-top: 2px;
@@ -831,15 +833,15 @@ textarea {
 }
 
 /* Merits & Flaws Tab */
-.merits-flaws-content {
+.wod.sheet.actor .merits-flaws-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
-.merits-section,
-.flaws-section {
-    border: 1px solid #800000;
+.wod.sheet.actor .merits-section,
+.wod.sheet.actor .flaws-section {
+    border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 5px;
 }
@@ -848,27 +850,27 @@ textarea {
 .flaws-section h3 {
     margin: 0 0 5px 0;
     padding: 3px;
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
     font-size: 0.9em;
     text-align: center;
     border-radius: 2px;
 }
 
-.merit-list, .flaw-list {
+.wod.sheet.actor .merit-list, .flaw-list {
     display: flex;
     flex-direction: column;
     gap: 3px;
 }
 
-.merit-item, .flaw-item {
+.wod.sheet.actor .merit-item, .flaw-item {
     display: flex;
     align-items: center;
     gap: 5px;
     font-size: 0.75em;
 }
 
-.merit-name, .flaw-name {
+.wod.sheet.actor .merit-name, .flaw-name {
     flex: 1;
     padding: 3px 5px;
     border: 1px solid #ccc;
@@ -876,7 +878,7 @@ textarea {
     font-size: 11px;
 }
 
-.delete-merit, .delete-flaw, .delete-background {
+.wod.sheet.actor .delete-merit, .delete-flaw, .delete-background {
     cursor: pointer;
     color: #dc143c;
     font-size: 12px;
@@ -887,7 +889,7 @@ textarea {
 }
 
 /* Background Item Styling */
-.background-item {
+.wod.sheet.actor .background-item {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -895,7 +897,7 @@ textarea {
     font-size: 0.75em;
 }
 
-.background-name-select {
+.wod.sheet.actor .background-name-select {
     flex: 1;
     padding: 2px 4px;
     border: 1px solid #ccc;
@@ -903,7 +905,7 @@ textarea {
     font-size: 10px;
 }
 
-.background-custom-name {
+.wod.sheet.actor .background-custom-name {
     flex: 1;
     padding: 2px 4px;
     border: 1px solid #ccc;
@@ -911,7 +913,7 @@ textarea {
     font-size: 10px;
 }
 
-.background-controls {
+.wod.sheet.actor .background-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -920,19 +922,19 @@ textarea {
     border-top: 1px solid #ddd;
 }
 
-.background-pagination {
+.wod.sheet.actor .background-pagination {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.pagination-btn {
+.wod.sheet.actor .pagination-btn {
     width: 24px;
     height: 24px;
     padding: 0;
-    border: 1px solid #800000;
+    border: 1px solid var(--wod-primary, #2D5016);
     background: white;
-    color: #800000;
+    color: var(--wod-primary, #2D5016);
     border-radius: 3px;
     cursor: pointer;
     display: flex;
@@ -943,7 +945,7 @@ textarea {
 }
 
 .pagination-btn:hover:not(:disabled) {
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
 }
 
@@ -954,14 +956,14 @@ textarea {
     color: #ccc;
 }
 
-.pagination-info {
+.wod.sheet.actor .pagination-info {
     font-size: 0.7em;
     color: #666;
     min-width: 40px;
     text-align: center;
 }
 
-.merit-flaw-summary {
+.wod.sheet.actor .merit-flaw-summary {
     grid-column: 1 / -1;
     display: flex;
     justify-content: space-around;
@@ -972,7 +974,7 @@ textarea {
     font-size: 0.8em;
 }
 
-.summary-item {
+.wod.sheet.actor .summary-item {
     text-align: center;
 }
 
@@ -998,7 +1000,7 @@ button.add-secondary-knowledge {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #800000;
+    background: var(--wod-primary, #2D5016);
     color: white;
     border: none;
     cursor: pointer;
@@ -1012,7 +1014,7 @@ button.add-background:hover,
 button.add-secondary-talent:hover,
 button.add-secondary-skill:hover,
 button.add-secondary-knowledge:hover {
-    background: #600000;
+    background: var(--wod-primary-dark, #600000);
 }
 
 /* Responsive Design */
@@ -1021,28 +1023,28 @@ button.add-secondary-knowledge:hover {
         min-width: 600px;
     }
     
-    .main-layout {
+.wod.sheet.actor .main-layout {
         grid-template-columns: 1fr;
     }
     
-    .left-content {
+.wod.sheet.actor .left-content {
         order: 1;
     }
     
-    .health-sidebar {
+.wod.sheet.actor .health-sidebar {
         order: 2;
     }
     
-    .advantages-bottom {
+.wod.sheet.actor .advantages-bottom {
         grid-template-columns: 1fr;
     }
     
-    .advantage-column-spacer {
+.wod.sheet.actor .advantage-column-spacer {
         display: none;
     }
     
-    .attributes-grid,
-    .abilities-grid {
+.wod.sheet.actor .attributes-grid,
+.wod.sheet.actor .abilities-grid {
         grid-template-columns: 1fr;
     }
 }

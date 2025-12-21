@@ -22,37 +22,44 @@ styles/
 │   └── variables.css       # Base CSS variables (default palette)
 ├── themes/
 │   ├── mortal.css          # Mortal theme (✓ ACTIVE)
+│   ├── technocrat.css      # Technocrat theme (✓ ACTIVE)
 │   ├── vampire.css         # Vampire theme (future)
 │   ├── werewolf.css        # Werewolf theme (future)
 │   └── demon.css           # Demon theme (future)
-└── mortal-sheet.css        # Mortal-specific styles
+└── mortal-sheet.css        # Shared styles for all sheets
 ```
 
 ## Creature Identities
 
 ### Mortal (✓ ACTIVE)
-- **Identity**: Grounded, human, earthbound existence
-- **Palette**: Browns, deep reds, natural tones
-- **Primary**: `#800000` (maroon red)
-- **Feel**: Warm, earthy, mortal fragility
+- **Identity**: Life, humanity, natural existence
+- **Palette**: Forest greens, blacks, life tones
+- **Primary**: `#2D5016` (forest green)
+- **Feel**: Living, breathing, human vitality
 
 ### Vampire (FUTURE)
-- **Identity**: Gothic, aristocratic, nocturnal predator
-- **Palette**: Deep reds, blacks, crimson, silver
-- **Primary**: `#8b0000` (blood red) on dark backgrounds
-- **Feel**: Dark, elegant, eternal night
+- **Identity**: Gothic, undead, bloodthirsty
+- **Palette**: Blood reds, deep blacks, crimson
+- **Primary**: `#8B0000` (blood red) on dark backgrounds
+- **Feel**: Gothic, aristocratic, eternal night, undead
 
 ### Werewolf (FUTURE)
-- **Identity**: Primal, natural, wild instinct
-- **Palette**: Forest greens, earth browns, moon silver
-- **Primary**: `#2d5016` (forest green)
-- **Feel**: Natural, fierce, dual nature
+- **Identity**: Primal, beast, earthbound
+- **Palette**: Rich browns, earth tones, fur colors
+- **Primary**: `#6B4423` (leather brown)
+- **Feel**: Primal, territorial, animalistic fury
 
 ### Demon (FUTURE)
 - **Identity**: Infernal, corrupted, fallen angels
 - **Palette**: Deep purples, burning golds, obsidian blacks
-- **Primary**: `#4b0082` (indigo) with gold accents
+- **Primary**: `#4B0082` (indigo) with gold accents
 - **Feel**: Dark majesty, twisted power, torment
+
+### Technocrat (✓ ACTIVE)
+- **Identity**: Technology, science, control
+- **Palette**: Blue/Silver/Steel - corporate, clinical, precise
+- **Primary**: `#4682B4` (steel blue)
+- **Feel**: Enlightened science, cold technology, order
 
 ## How to Activate a Theme
 

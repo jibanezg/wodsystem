@@ -1,6 +1,6 @@
 {
     "Actor": {
-        "types": ["Mortal", "Vampire", "Demon"],
+        "types": ["Mortal", "Vampire", "Demon", "Technocrat"],
         "baseTraits": {
             "identity": {
                 "name": "",
@@ -249,6 +249,36 @@
                             "essence": {
                                 "current": 15,
                                 "maximum": 15
+                            }
+                        }
+                    }
+                }
+            },
+            "Technocrat": {
+                "name": "Technocrat",
+                "label": "Technocrat",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "identity": {
+                            "convention": "",
+                            "amalgam": "",
+                            "eidolon": ""
+                        },
+                        "advantages": {
+                            "enlightenment": {
+                                "current": 1,
+                                "maximum": 10
+                            },
+                            "primalEnergy": {
+                                "current": 0,
+                                "maximum": 3,
+                                "spent": 0
+                            },
+                            "paradox": {
+                                "current": 0,
+                                "maximum": 10,
+                                "permanent": 0
                             }
                         }
                     }

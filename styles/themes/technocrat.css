@@ -1,0 +1,281 @@
+/**
+ * Technocrat Theme - Technology, Science, Control
+ * Color Palette: Blue/Silver/Steel - corporate, clinical, precise
+ * Identity: Enlightened science, cold technology, order
+ * 
+ * Mage: The Ascension - Technocracy
+ */
+
+.wod.sheet.actor.technocrat {
+    /* Primary Colors - Blue/Steel (technology/precision) */
+    --wod-primary: #4682B4;           /* Steel Blue - technology */
+    --wod-primary-dark: #2F4F6F;      /* Dark slate - precision */
+    --wod-primary-light: #6CA6CD;     /* Sky blue - enlightenment */
+    
+    /* Background Colors - Clinical/Sterile */
+    --wod-bg-main: #F8F9FA;           /* Clean white */
+    --wod-bg-secondary: #E8EEF2;      /* Light blue-gray */
+    --wod-bg-tertiary: #D6DEE5;       /* Cool gray */
+    --wod-bg-hover: #C8D4E0;          /* Blue-gray hover */
+    --wod-bg-input: #F8F9FA;          /* Input backgrounds */
+    --wod-bg-subtle: #F0F4F8;         /* Subtle background */
+    --wod-bg-light: #FFFFFF;          /* Pure white for elements */
+    --wod-bg-alt: #E8EEF2;            /* Alternate background */
+    --wod-bg-hover-light: #DFE8F0;    /* Light blue hover */
+    --wod-bg-highlight: #D6DEE5;      /* Highlight color */
+    --wod-bg-info: #E3F2FD;           /* Light blue info background */
+    
+    /* Border Colors - Steel/Chrome */
+    --wod-border-main: #4682B4;       /* Steel blue main borders */
+    --wod-border-dark: #2F4F6F;       /* Dark borders for sections */
+    --wod-border-light: #B0BEC5;      /* Light gray-blue for inputs */
+    --wod-border-subtle: #CFD8DC;     /* Subtle gray-blue borders */
+    --wod-border-info: #64B5F6;       /* Blue info borders */
+    
+    /* Text Colors */
+    --wod-text-main: #1A1A1A;         /* Near-black primary text */
+    --wod-text-light: white;          /* White text on dark backgrounds */
+    --wod-text-alt: #546E7A;          /* Blue-gray secondary text */
+    --wod-text-inverse: #FFFFFF;      /* White inverse text */
+    
+    /* Status Colors */
+    --wod-success: #43A047;           /* Green for success */
+    --wod-danger: #E53935;            /* Red for danger */
+    --wod-error: #E53935;             /* Red for errors */
+    --wod-error-dark: #C62828;        /* Dark red */
+    --wod-danger-dark: #C62828;       /* Dark red danger */
+    --wod-warning: #FFF3E0;           /* Warning background */
+    --wod-info: #E3F2FD;              /* Blue info background */
+    
+    /* Accents - Silver/Chrome */
+    --wod-accent-tech: #B0C4DE;       /* Light steel blue */
+    --wod-accent-chrome: #C0C0C0;     /* Silver chrome */
+    
+    /* Health Damage Colors - Blue theme */
+    --wod-damage-bashing: #4682B4;    /* Blue X mark */
+    --wod-damage-lethal: #4682B4;     /* Blue stripes */
+    --wod-damage-aggravated: #4682B4; /* Blue fill */
+}
+
+/* Technocrat-Specific Component Styles */
+
+/* Technocrat Identity Grid - 7 fields need more space */
+.wod.sheet.actor.technocrat .identity-section.technocrat-identity {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .identity-section.technocrat-identity .identity-field:nth-child(1),
+.wod.sheet.actor.technocrat .identity-section.technocrat-identity .identity-field:nth-child(2) {
+    grid-column: span 2;
+}
+
+/* Enlightenment Section */
+.wod.sheet.actor.technocrat .enlightenment-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    background: var(--wod-bg-main);
+}
+
+.wod.sheet.actor.technocrat .enlightenment-section h4 {
+    margin: 0 0 8px 0;
+    padding: 3px 5px;
+    background: var(--wod-bg-tertiary);
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .enlightenment-track {
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+}
+
+/* Primal Energy Section */
+.wod.sheet.actor.technocrat .primal-energy-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    background: var(--wod-bg-main);
+}
+
+.wod.sheet.actor.technocrat .primal-energy-section h4 {
+    margin: 0 0 8px 0;
+    padding: 3px 5px;
+    background: var(--wod-bg-tertiary);
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .primal-info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 8px;
+    font-size: 0.7em;
+    color: var(--wod-text-alt);
+}
+
+.wod.sheet.actor.technocrat .primal-track {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 5px;
+}
+
+.wod.sheet.actor.technocrat .primal-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--wod-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    background: var(--wod-bg-light);
+    color: var(--wod-text-alt);
+    transition: all 0.2s ease;
+    border-radius: 2px;
+}
+
+.wod.sheet.actor.technocrat .primal-box:hover {
+    background: var(--wod-bg-hover-light);
+    transform: scale(1.05);
+    border-color: var(--wod-primary-dark);
+}
+
+.wod.sheet.actor.technocrat .primal-box.spent {
+    background: var(--wod-primary);
+    color: var(--wod-text-light);
+    border-color: var(--wod-primary-dark);
+}
+
+/* Paradox Section */
+.wod.sheet.actor.technocrat .paradox-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    background: var(--wod-bg-main);
+}
+
+.wod.sheet.actor.technocrat .paradox-section h4 {
+    margin: 0 0 8px 0;
+    padding: 3px 5px;
+    background: var(--wod-bg-tertiary);
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .paradox-track {
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.wod.sheet.actor.technocrat .paradox-track label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    text-transform: uppercase;
+}
+
+.wod.sheet.actor.technocrat .paradox-track .dot-container {
+    justify-content: center;
+}
+
+/* Technocrat Advantages: 2-column grid for 4 sections */
+.wod.sheet.actor.technocrat .advantages-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .technocrat-column-1,
+.wod.sheet.actor.technocrat .technocrat-column-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Section styling - all 4 sections */
+.wod.sheet.actor.technocrat .willpower-section,
+.wod.sheet.actor.technocrat .enlightenment-primal-section,
+.wod.sheet.actor.technocrat .backgrounds-section,
+.wod.sheet.actor.technocrat .paradox-section {
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    padding: 8px;
+    background: var(--wod-bg-main);
+}
+
+/* Enlightenment + Primal combined section */
+.wod.sheet.actor.technocrat .enlightenment-primal-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .enlightenment-section {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--wod-border-subtle);
+}
+
+.wod.sheet.actor.technocrat .enlightenment-section h4,
+.wod.sheet.actor.technocrat .primal-energy-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.75em;
+    text-align: center;
+    color: var(--wod-primary);
+    font-weight: bold;
+}
+
+/* Primal Energy manual input fields */
+.wod.sheet.actor.technocrat .primal-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .primal-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.wod.sheet.actor.technocrat .primal-field label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-bottom: 3px;
+    text-align: center;
+}
+
+.wod.sheet.actor.technocrat .primal-field input {
+    padding: 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.9em;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Paradox section - 2-track layout */
+.wod.sheet.actor.technocrat .paradox-section .paradox-track {
+    margin-bottom: 5px;
+}
+
+.wod.sheet.actor.technocrat .paradox-section label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-bottom: 3px;
+}
+

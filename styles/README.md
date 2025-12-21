@@ -18,11 +18,12 @@ styles/
 ├── core/
 │   └── variables.css       # Base CSS variables
 ├── themes/
-│   ├── mortal.css          # ✓ ACTIVE - Earthy browns/reds
+│   ├── mortal.css          # ✓ ACTIVE - Life greens
+│   ├── technocrat.css      # ✓ ACTIVE - Tech blue/silver/steel
 │   ├── vampire.css         # Template - Gothic reds/blacks
-│   ├── werewolf.css        # Template - Forest greens
+│   ├── werewolf.css        # Template - Earth browns
 │   └── demon.css           # Template - Infernal purples/golds
-└── mortal-sheet.css        # Mortal-specific layout
+└── mortal-sheet.css        # Shared layout for all sheets
 ```
 
 ## How It Works
@@ -54,9 +55,10 @@ Vampire sheets now have gothic red/black theme
 
 | Creature   | Colors                      | Identity                    |
 |------------|-----------------------------|-----------------------------|
-| Mortal     | Browns, deep reds           | Grounded, human, earthbound |
-| Vampire    | Reds, blacks, silver        | Gothic, aristocratic, night |
-| Werewolf   | Greens, browns, silver      | Primal, natural, wild       |
+| Mortal     | Greens, blacks              | Life, humanity, vitality    |
+| Technocrat | Blue, silver, steel         | Technology, science, control|
+| Vampire    | Reds, blacks, silver        | Gothic, undead, blood       |
+| Werewolf   | Browns, earth tones         | Primal, beast, territorial  |
 | Demon      | Purples, golds, blacks      | Infernal, corrupted, fallen |
 
 ## Full Documentation

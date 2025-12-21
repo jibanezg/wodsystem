@@ -1,12 +1,13 @@
 import { WodActor } from "./module/actor/data/wod-actor.js";
 import { WodActorSheet } from "./module/actor/template/wod-actor-sheet.js";
 import { MortalSheet } from "./module/actor/template/mortal-sheet.js";
+import { TechnocratSheet } from "./module/actor/template/technocrat-sheet.js";
 import { registerHandlebarsHelpers } from "./scripts/utilities.js";
 
 // Import Services
-import "./scripts/reference-data-service.js";
-import "./scripts/health-service.js";
-import "./scripts/calculation-service.js";
+import "./scripts/reference-data-service.js"; // External data (archetypes, backgrounds)
+// import "./scripts/health-service.js"; // DEPRECATED - moved to WodActor domain methods
+import "./scripts/calculation-service.js"; // Future: complex cross-actor calculations
 
 Hooks.once("init", async function() {
     console.log("WoD | Initializing World of Darkness System");
@@ -17,6 +18,8 @@ Hooks.once("init", async function() {
     // Preload Handlebars partials
     await loadTemplates([
         "systems/wodsystem/templates/actor/partials/header.html",
+        "systems/wodsystem/templates/actor/partials/technocrat-header.html",
+        "systems/wodsystem/templates/actor/partials/technocrat-advantages.html",
         "systems/wodsystem/templates/actor/partials/attributes.html",
         "systems/wodsystem/templates/actor/partials/abilities.html",
         "systems/wodsystem/templates/actor/partials/health.html",
@@ -35,6 +38,11 @@ Hooks.once("init", async function() {
     // Register Actor Sheets
     Actors.registerSheet("wodsystem", MortalSheet, {
         types: ["Mortal"],
+        makeDefault: true
+    });
+    
+    Actors.registerSheet("wodsystem", TechnocratSheet, {
+        types: ["Technocrat"],
         makeDefault: true
     });
     

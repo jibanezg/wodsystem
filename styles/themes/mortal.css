@@ -1,16 +1,52 @@
 /**
- * Mortal Theme - Grounded, Earthy, Human
- * Color Palette: Browns, Deep Reds, Natural tones
- * Identity: Mortality, humanity, earthbound existence
+ * Mortal Theme - Life, Humanity, Nature
+ * Color Palette: Greens and blacks - living, breathing humanity
+ * Identity: Life force, human vitality, natural existence
  */
 
 .wod.sheet.actor.mortal {
-    /* Primary Colors - Deep red/brown theme */
-    --wod-primary: #800000;           /* Maroon red */
-    --wod-primary-dark: #600000;      /* Dark maroon */
-    --wod-primary-light: #a67c00;     /* Golden brown */
+    /* Primary Colors - Green (life/nature) */
+    --wod-primary: #2D5016;           /* Deep forest green (life) */
+    --wod-primary-dark: #1C3310;      /* Very dark green (almost black) */
+    --wod-primary-light: #4A7C0F;     /* Brighter green (vitality) */
     
-    /* This theme uses the default color scheme */
-    /* Override variables here if needed for mortal-specific tweaks */
+    /* Background Colors */
+    --wod-bg-main: #ffffff;           /* Pure white main background */
+    --wod-bg-secondary: #F8F9FA;      /* Clean off-white for headers */
+    --wod-bg-tertiary: #E9ECEF;       /* Light gray for sections */
+    --wod-bg-hover: #d8e8d0;          /* Light green hover */
+    --wod-bg-input: #fafafa;          /* Input backgrounds */
+    --wod-bg-subtle: #f9f9f9;         /* Subtle background */
+    --wod-bg-light: #ffffff;          /* Pure white for elements */
+    --wod-bg-alt: #f0f0f0;            /* Alternate background */
+    --wod-bg-hover-light: #e8f5e8;    /* Very light green hover */
+    --wod-bg-highlight: #e0e0e0;      /* Highlight color */
+    --wod-bg-info: #e8f5e9;           /* Light green info background */
+    
+    /* Border Colors - Green theme */
+    --wod-border-main: #2D5016;       /* Forest green main borders */
+    --wod-border-dark: #2D5016;       /* Green borders for sections */
+    --wod-border-light: #ccc;         /* Light gray for inputs */
+    --wod-border-subtle: #ddd;        /* Subtle gray borders */
+    --wod-border-info: #4CAF50;       /* Green info borders */
+    
+    /* Text Colors */
+    --wod-text-main: #000000;         /* Black primary text */
+    --wod-text-light: white;          /* White text on dark backgrounds */
+    --wod-text-alt: #666;             /* Gray secondary text */
+    --wod-text-inverse: #ffffff;      /* White inverse text */
+    
+    /* Status Colors */
+    --wod-success: #4CAF50;           /* Bright green for success */
+    --wod-danger: #dc143c;            /* Red for danger */
+    --wod-error: #dc143c;             /* Red for errors */
+    --wod-error-dark: #8b0000;        /* Dark red */
+    --wod-danger-dark: #8b0000;       /* Dark red danger */
+    --wod-warning: #ffeeee;           /* Warning background */
+    --wod-info: #e8f5e9;              /* Green info background */
+    
+    /* Health Damage Colors - Green theme */
+    --wod-damage-bashing: #2D5016;    /* Green X mark */
+    --wod-damage-lethal: #2D5016;     /* Green stripes */
+    --wod-damage-aggravated: #2D5016; /* Green fill */
 }
-

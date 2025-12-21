@@ -1,16 +1,44 @@
 {
-  "backgrounds": [
+  "base": [
     "Allies",
     "Alternate Identity",
     "Contacts",
     "Fame",
-    "Generation",
     "Influence",
     "Mentor",
     "Resources",
     "Retainers",
     "Status",
     "Custom"
-  ]
+  ],
+  "creatureSpecific": {
+    "Mortal": [],
+    "Technocrat": [
+      "Genius"
+    ],
+    "Mage": [
+      "Avatar",
+      "Dream",
+      "Library",
+      "Node",
+      "Sanctum"
+    ],
+    "Vampire": [
+      "Generation",
+      "Herd"
+    ],
+    "Werewolf": [
+      "Fetish",
+      "Kinfolk",
+      "Pure Breed",
+      "Rites",
+      "Totem"
+    ],
+    "Demon": [
+      "Eminence",
+      "Legacy",
+      "Pacts",
+      "Paragon"
+    ]
+  }
 }
-

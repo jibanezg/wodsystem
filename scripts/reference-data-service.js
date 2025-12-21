@@ -59,49 +59,68 @@ export class ReferenceDataService {
 
     /**
      * Get backgrounds for Backgrounds dropdown
+     * Merges base backgrounds with creature-specific additions
+     * @param {string} creatureType - The creature type (e.g., "Mortal", "Technocrat", "Vampire")
      * @returns {Promise<Array<string>>} Array of background names
      */
-    async getBackgrounds() {
-        // Check cache first
-        if (this.cache.has('backgrounds')) {
-            return this.cache.get('backgrounds');
+    async getBackgrounds(creatureType) {
+        // Check cache first (per creature type)
+        const cacheKey = `backgrounds_${creatureType}`;
+        if (this.cache.has(cacheKey)) {
+            return this.cache.get(cacheKey);
         }
 
-        // Current implementation: Load from local JSON
-        const backgrounds = await this._loadBackgroundsFromLocal();
+        // Current implementation: Load from local JSON and merge
+        const backgrounds = await this._loadBackgroundsFromLocal(creatureType);
         
         // Future implementation: Replace with microservice call
-        // const backgrounds = await this._loadBackgroundsFromAPI();
+        // const backgrounds = await this._loadBackgroundsFromAPI(creatureType);
         
-        this.cache.set('backgrounds', backgrounds);
+        this.cache.set(cacheKey, backgrounds);
         return backgrounds;
     }
 
     /**
      * Load backgrounds from local configuration file
+     * Merges base + creature-specific backgrounds
+     * @param {string} creatureType - The creature type
      * @private
      */
-    async _loadBackgroundsFromLocal() {
+    async _loadBackgroundsFromLocal(creatureType) {
         try {
             const response = await fetch("systems/wodsystem/config/backgrounds.json");
             if (!response.ok) {
                 throw new Error(`Failed to load backgrounds: ${response.status}`);
             }
             const data = await response.json();
-            return data.backgrounds;
+            
+            // Merge base + creature-specific
+            const baseList = data.base || [];
+            const creatureAdditions = data.creatureSpecific[creatureType] || [];
+            
+            // Combine and ensure "Custom" is at the end
+            const combined = [...baseList, ...creatureAdditions];
+            const customIndex = combined.indexOf("Custom");
+            if (customIndex > -1) {
+                combined.splice(customIndex, 1);
+                combined.push("Custom");
+            }
+            
+            return combined;
         } catch (error) {
             console.error("ReferenceDataService: Error loading backgrounds:", error);
-            return []; // Return empty array on error
+            return ["Custom"]; // Return at least Custom on error
         }
     }
 
     /**
      * Load backgrounds from microservice API (future implementation)
+     * @param {string} creatureType - The creature type
      * @private
      */
-    async _loadBackgroundsFromAPI() {
+    async _loadBackgroundsFromAPI(creatureType) {
         // Future implementation example:
-        // const response = await fetch(`${CONFIG.microserviceUrl}/api/reference-data/backgrounds`);
+        // const response = await fetch(`${CONFIG.microserviceUrl}/api/reference-data/backgrounds/${creatureType}`);
         // const data = await response.json();
         // return data.backgrounds;
         throw new Error("API integration not yet implemented");

@@ -1,0 +1,53 @@
+<form class="wod sheet actor technocrat" autocomplete="off">
+    <!-- Technocrat-Specific Header with Convention/Amalgam/Eidolon -->
+    {{> "systems/wodsystem/templates/actor/partials/technocrat-header.html"}}
+    
+    <!-- Tab Navigation -->
+    <nav class="sheet-tabs" data-group="primary">
+        <a class="item" data-tab="main">Main</a>
+        <a class="item" data-tab="secondary-abilities">Secondary Abilities</a>
+        <a class="item" data-tab="biography">Biography</a>
+        <a class="item" data-tab="merits-flaws">Merits & Flaws</a>
+    </nav>
+
+    <!-- Tab Content -->
+    <section class="sheet-body">
+        <!-- Main Tab -->
+        <div class="tab" data-group="primary" data-tab="main">
+            <div class="main-layout">
+                <!-- Left Column: Attributes, Abilities, and Advantages -->
+                <div class="left-content">
+                    <div class="attributes-abilities-section">
+                        {{> "systems/wodsystem/templates/actor/partials/attributes.html"}}
+                        {{> "systems/wodsystem/templates/actor/partials/abilities.html"}}
+                    </div>
+
+                    <div class="advantages-bottom">
+                        {{> "systems/wodsystem/templates/actor/partials/technocrat-advantages.html"}}
+                    </div>
+                </div>
+
+                <!-- Right Column: Health Sidebar -->
+                <div class="health-sidebar">
+                    {{> "systems/wodsystem/templates/actor/partials/health.html"}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Abilities Tab -->
+        <div class="tab" data-group="primary" data-tab="secondary-abilities">
+            {{> "systems/wodsystem/templates/actor/partials/secondary-abilities.html"}}
+        </div>
+
+        <!-- Biography Tab -->
+        <div class="tab" data-group="primary" data-tab="biography">
+            {{> "systems/wodsystem/templates/actor/partials/biography.html"}}
+        </div>
+
+        <!-- Merits & Flaws Tab -->
+        <div class="tab" data-group="primary" data-tab="merits-flaws">
+            {{> "systems/wodsystem/templates/actor/partials/merits-flaws.html"}}
+        </div>
+    </section>
+</form>
+

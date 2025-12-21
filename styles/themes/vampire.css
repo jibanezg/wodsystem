@@ -1,34 +1,35 @@
 /**
- * Vampire Theme - Gothic, Aristocratic, Nocturnal
- * Color Palette: Deep reds, blacks, crimson, silver accents
- * Identity: Blood, nobility, eternal night, predatory elegance
+ * Vampire Theme - Gothic, Undead, Bloodthirsty
+ * Color Palette: Crimson reds, deep blacks, gothic elegance
+ * Identity: Blood, death, eternal night, aristocratic predators
  * 
  * FUTURE USE: Activate when implementing Vampire sheets
  */
 
 .wod.sheet.actor.vampire {
-    /* Primary Colors - Blood and darkness */
-    --wod-primary: #8b0000;           /* Dark red (blood) */
-    --wod-primary-dark: #4a0000;      /* Almost black red */
-    --wod-primary-light: #c41e3a;     /* Crimson */
+    /* Primary Colors - Blood red (the defining vampire color) */
+    --wod-primary: #8B0000;           /* Dark blood red */
+    --wod-primary-dark: #5A0000;      /* Very dark red (dried blood) */
+    --wod-primary-light: #CD5C5C;     /* Indian red (fresh blood) */
     
-    /* Background Colors - Darker, gothic */
-    --wod-bg-main: #1a1a1a;           /* Very dark gray */
-    --wod-bg-secondary: #2d2d2d;      /* Dark gray */
-    --wod-bg-tertiary: #3a3a3a;       /* Medium dark gray */
-    --wod-bg-hover: #4a4a4a;          /* Lighter dark gray */
-    --wod-bg-input: #252525;          /* Dark input background */
+    /* Background Colors - Gothic darkness */
+    --wod-bg-main: #1A1A1A;           /* Near black */
+    --wod-bg-secondary: #2D2424;      /* Dark with red tint */
+    --wod-bg-tertiary: #3A3232;       /* Medium dark with red */
+    --wod-bg-hover: #4A3A3A;          /* Lighter with red */
+    --wod-bg-input: #252020;          /* Dark input */
     
-    /* Text Colors - Light text on dark backgrounds */
-    --wod-text-main: #e0e0e0;         /* Light gray text */
-    --wod-text-light: #999;           /* Muted light gray */
-    --wod-text-inverse: #1a1a1a;      /* Dark text on light */
+    /* Text Colors - Light on dark */
+    --wod-text-main: #E0E0E0;         /* Light gray text */
+    --wod-text-light: #999999;        /* Muted light gray */
+    --wod-text-inverse: #1A1A1A;      /* Dark text on light */
     
-    /* Border Colors */
-    --wod-border-main: #8b0000;       /* Blood red borders */
-    --wod-border-light: #4a4a4a;      /* Dark borders */
+    /* Border Colors - Blood red */
+    --wod-border-main: #8B0000;       /* Blood red borders */
+    --wod-border-light: #4A4A4A;      /* Dark borders */
     
-    /* Accent - Silver for contrast */
-    --wod-accent: #c0c0c0;            /* Silver */
+    /* Accents - Silver and crimson */
+    --wod-accent-silver: #C0C0C0;     /* Silver (aristocracy) */
+    --wod-accent-crimson: #DC143C;    /* Crimson (blood) */
 }
 
