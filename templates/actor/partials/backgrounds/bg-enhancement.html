@@ -1,0 +1,46 @@
+<!-- Enhancement Background Template -->
+<div class="bg-template enhancement-template">
+    <div class="template-field-row-split">
+        <div class="template-field">
+            <label>Enhancement Name</label>
+            <input type="text" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.name" 
+                   value="{{data.name}}" 
+                   placeholder="Name of the enhancement/modification" 
+                   class="template-input" />
+        </div>
+        
+        <div class="template-field">
+            <label>Body Location</label>
+            <input type="text" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.location" 
+                   value="{{data.location}}" 
+                   placeholder="e.g., Eyes, Arms, Neural" 
+                   class="template-input" />
+        </div>
+    </div>
+    
+    <div class="template-field">
+        <label>Description</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.description" 
+                  placeholder="Physical description"
+                  class="template-textarea">{{data.description}}</textarea>
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Effects & Capabilities</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.effects" 
+                      placeholder="Benefits gained"
+                      class="template-textarea">{{data.effects}}</textarea>
+        </div>
+        
+        <div class="template-field">
+            <label>Side Effects</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.sideEffects" 
+                      placeholder="Drawbacks, complications"
+                      class="template-textarea">{{data.sideEffects}}</textarea>
+        </div>
+    </div>
+</div>
+

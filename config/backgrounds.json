@@ -14,7 +14,17 @@
   "creatureSpecific": {
     "Mortal": [],
     "Technocrat": [
-      "Genius"
+      "Genius",
+      "Sanctum",
+      "Laboratory",
+      "Library",
+      "Familiar",
+      "Companion",
+      "Device",
+      "Enhancements",
+      "Hypercram",
+      "Requisitions",
+      "Construct"
     ],
     "Mage": [
       "Avatar",

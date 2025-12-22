@@ -1,0 +1,113 @@
+<!-- Backgrounds (Expanded) Section -->
+<div class="backgrounds-expanded-section">
+    <!-- List View -->
+    <div class="bg-expanded-list-view">
+        {{#if bgExpandedCategories}}
+            {{#each bgExpandedCategories as |category|}}
+            <div class="bg-category-section">
+                <div class="bg-category-header" data-category="{{category.name}}">
+                    <h3>
+                        <i class="fas fa-chevron-down category-toggle"></i>
+                        {{category.name}} 
+                        <span class="category-count">({{category.items.length}})</span>
+                    </h3>
+                </div>
+                
+                <div class="bg-category-content" data-category="{{category.name}}">
+                    <div class="bg-cards-grid">
+                        {{#each category.items as |bg|}}
+                        <div class="bg-card-mini" data-index="{{bg.actualIndex}}">
+                            <div class="bg-card-mini-header">
+                                <span class="bg-name">{{bg.backgroundName}}</span>
+                                <span class="bg-rating">{{bg.backgroundRating}} ●</span>
+                            </div>
+                            <div class="bg-card-mini-actions">
+                                <a class="edit-bg-expanded" data-index="{{bg.actualIndex}}" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a class="delete-expanded-bg" data-index="{{bg.actualIndex}}" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        {{else}}
+        <div class="no-expanded-backgrounds">
+            <p>No expanded backgrounds yet. Click the + button to add one.</p>
+        </div>
+        {{/if}}
+        
+        <!-- Pagination Controls -->
+        {{#if bgExpandedCategoriesPagination.hasMultiplePages}}
+        <div class="bg-expanded-pagination">
+            <button class="bg-expanded-prev-page pagination-btn" type="button"
+                    {{#unless bgExpandedCategoriesPagination.hasPrevPage}}disabled{{/unless}}
+                    title="Previous Page">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="pagination-info">Page {{add bgExpandedCategoriesPagination.currentPage 1}} / {{bgExpandedCategoriesPagination.totalPages}}</span>
+            <button class="bg-expanded-next-page pagination-btn" type="button"
+                    {{#unless bgExpandedCategoriesPagination.hasNextPage}}disabled{{/unless}}
+                    title="Next Page">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        {{/if}}
+    </div>
+    
+    <!-- Floating Add Button -->
+    <button class="floating-add-bg" type="button" title="Add Expanded Background">
+        <i class="fas fa-plus"></i>
+    </button>
+</div>
+
+<!-- Modal Overlay -->
+<div class="bg-modal-overlay" style="display: none;">
+    <div class="bg-modal">
+        <div class="bg-modal-header">
+            <h3 class="bg-modal-title">Add Expanded Background</h3>
+            <a class="close-bg-modal" title="Close"><i class="fas fa-times"></i></a>
+        </div>
+        <div class="bg-modal-body">
+            <!-- Step 1: Category Selection (dynamically populated) -->
+            <div class="bg-modal-step-category">
+                <label>Select Category:</label>
+                <select class="select-bg-category">
+                    <option value="">Choose a category...</option>
+                    <!-- Categories dynamically populated from Main tab backgrounds -->
+                </select>
+            </div>
+            
+            <!-- Step 2: Background Selection -->
+            <div class="bg-modal-step-background" style="display: none;">
+                <label>Select Background from Main Tab:</label>
+                <select class="select-background-to-expand">
+                    <option value="">Choose a background...</option>
+                    {{#each actor.system.miscellaneous.backgrounds as |bg|}}
+                        {{#if bg.name}}
+                        <option value="{{bg.name}}" data-rating="{{bg.value}}" data-category="{{bg.name}}">
+                            {{bg.name}} ({{bg.value}} dots)
+                        </option>
+                        {{/if}}
+                    {{/each}}
+                </select>
+            </div>
+            
+            <!-- Step 3: Form (loaded dynamically) -->
+            <div class="bg-modal-form" style="display: none;">
+                <!-- Template form rendered here dynamically -->
+            </div>
+        </div>
+        <div class="bg-modal-footer">
+            <button class="cancel-bg-modal" type="button">Cancel</button>
+            <button class="save-bg-modal" type="button" style="display: none;">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hover Preview Tooltip (hidden by default, positioned dynamically) -->
+<div class="bg-preview-tooltip" style="display: none;"></div>

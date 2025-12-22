@@ -35,7 +35,7 @@ export class WodActorSheet extends ActorSheet {
         context.isHealthEditMode = this.actor.getFlag('wodsystem', 'healthEditMode') || false;
         
         // Backgrounds pagination
-        const backgroundsPerPage = 3;
+        const backgroundsPerPage = 9;
         const allBackgrounds = this.actor.system.miscellaneous?.backgrounds || [];
         const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
         const totalPages = Math.max(1, Math.ceil(allBackgrounds.length / backgroundsPerPage));
@@ -56,7 +56,100 @@ export class WodActorSheet extends ActorSheet {
             }))
         };
         
+        
+        // Procedures pagination (4 per page)
+        if (this.actor.system.procedures) {
+            const procPagination = this._getPaginationData(
+                Array.isArray(this.actor.system.procedures) ? this.actor.system.procedures : [],
+                'proceduresPage',
+                4
+            );
+            context.proceduresPagination = {
+                ...procPagination,
+                procedures: procPagination.items
+            };
+        }
+        
+        // Devices pagination (2 per page)
+        if (this.actor.system.devices) {
+            const devPagination = this._getPaginationData(
+                Array.isArray(this.actor.system.devices) ? this.actor.system.devices : [],
+                'devicesPage',
+                2
+            );
+            context.devicesPagination = {
+                ...devPagination,
+                devices: devPagination.items
+            };
+        }
+        
+        // Enhancements pagination (2 per page)
+        if (this.actor.system.enhancements) {
+            const enhPagination = this._getPaginationData(
+                Array.isArray(this.actor.system.enhancements) ? this.actor.system.enhancements : [],
+                'enhancementsPage',
+                2
+            );
+            context.enhancementsPagination = {
+                ...enhPagination,
+                enhancements: enhPagination.items
+            };
+        }
+        
+        // Backgrounds Expanded - Categorized list view with pagination (3 categories per page)
+        // Only process if backgroundsExpanded exists
+        if (this.actor.system.backgroundsExpanded !== undefined) {
+            const allCategorizedBackgrounds = this._categorizeExpandedBackgrounds(
+                this.actor.system.backgroundsExpanded || []
+            );
+            
+            const categoriesPerPage = 3;
+            const currentCategoryPage = this.actor.getFlag("wodsystem", "bgExpandedCategoriesPage") || 0;
+            const totalCategoryPages = Math.max(1, Math.ceil(allCategorizedBackgrounds.length / categoriesPerPage));
+            const validCategoryPage = Math.min(currentCategoryPage, totalCategoryPages - 1);
+            
+            const startIdx = validCategoryPage * categoriesPerPage;
+            const endIdx = startIdx + categoriesPerPage;
+            const paginatedCategories = allCategorizedBackgrounds.slice(startIdx, endIdx);
+            
+            context.bgExpandedCategories = paginatedCategories;
+            context.bgExpandedCategoriesPagination = {
+                currentPage: validCategoryPage,
+                totalPages: totalCategoryPages,
+                hasMultiplePages: totalCategoryPages > 1,
+                hasPrevPage: validCategoryPage > 0,
+                hasNextPage: validCategoryPage < totalCategoryPages - 1
+            };
+            
+            // Backgrounds Expanded modal state
+            context.bgExpandedViewMode = this.actor.getFlag("wodsystem", "bgExpandedViewMode") || "list";
+        }
+        
         return context;
+    }
+
+    /**
+     * Generic pagination helper
+     */
+    _getPaginationData(itemsArray, flagName, itemsPerPage) {
+        const currentPage = this.actor.getFlag('wodsystem', flagName) || 0;
+        const totalPages = Math.max(1, Math.ceil(itemsArray.length / itemsPerPage));
+        const validPage = Math.min(currentPage, totalPages - 1);
+        
+        const startIdx = validPage * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        
+        return {
+            currentPage: validPage,
+            totalPages: totalPages,
+            hasMultiplePages: totalPages > 1,
+            hasPrevPage: validPage > 0,
+            hasNextPage: validPage < totalPages - 1,
+            items: itemsArray.slice(startIdx, endIdx).map((item, idx) => ({
+                ...item,
+                actualIndex: startIdx + idx
+            }))
+        };
     }
 
     /** @override */
@@ -86,10 +179,13 @@ export class WodActorSheet extends ActorSheet {
         html.find('.delete-merit').click(this._onDeleteMerit.bind(this));
         html.find('.add-flaw').click(this._onAddFlaw.bind(this));
         html.find('.delete-flaw').click(this._onDeleteFlaw.bind(this));
+        html.find('.merit-name').change(this._onMeritNameChange.bind(this));
+        html.find('.flaw-name').change(this._onFlawNameChange.bind(this));
         
         // Background handlers
         html.find('.add-background').click(this._onAddBackground.bind(this));
         html.find('.delete-background').click(this._onDeleteBackground.bind(this));
+        html.find('.lock-background').click(this._onLockBackground.bind(this));
         html.find('.background-name-select').change(this._onBackgroundNameChange.bind(this));
         html.find('.background-custom-name').change(this._onBackgroundCustomNameChange.bind(this));
         
@@ -106,9 +202,66 @@ export class WodActorSheet extends ActorSheet {
         html.find('.add-secondary-skill').click((ev) => this._onAddSecondaryAbility(ev, 'skills'));
         html.find('.add-secondary-knowledge').click((ev) => this._onAddSecondaryAbility(ev, 'knowledges'));
         html.find('.delete-secondary-ability').click(this._onDeleteSecondaryAbility.bind(this));
+        html.find('.ability-name-input').change(this._onSecondaryAbilityNameChange.bind(this));
+        
+        // Backgrounds Expanded - Available to ALL creature types
+        html.find('.category-toggle').click(this._onToggleCategory.bind(this));
+        html.find('.floating-add-bg').click(this._onOpenAddModal.bind(this));
+        html.find('.close-bg-modal').click(this._onCloseModal.bind(this));
+        html.find('.cancel-bg-modal').click(this._onCloseModal.bind(this));
+        html.find('.save-bg-modal').click(this._onSaveModalBackground.bind(this));
+        html.find('.select-bg-category').change(this._onModalCategorySelect.bind(this));
+        html.find('.select-background-to-expand').change(this._onModalBackgroundSelect.bind(this));
+        html.find('.edit-bg-expanded').click(this._onEditBgExpanded.bind(this));
+        html.find('.delete-expanded-bg').click(this._onDeleteExpandedBackground.bind(this));
+        
+        // Backgrounds Expanded pagination
+        html.find('.bg-expanded-prev-page').click(this._onBgExpandedPrevPage.bind(this));
+        html.find('.bg-expanded-next-page').click(this._onBgExpandedNextPage.bind(this));
+        
+        // Hover preview for expanded backgrounds
+        html.find('.bg-card-mini').hover(
+            this._onShowBgPreview.bind(this),
+            this._onHideBgPreview.bind(this)
+        );
+        
+        // Dynamic template buttons within the modal (using event delegation)
+        html.on('click', '.add-ally', this._onAddAlly.bind(this));
+        html.on('click', '.delete-ally', this._onDeleteAlly.bind(this));
+        html.on('click', '.add-contact', this._onAddContact.bind(this));
+        html.on('click', '.delete-contact', this._onDeleteContact.bind(this));
+        html.on('click', '.add-property', this._onAddProperty.bind(this));
+        html.on('click', '.delete-property', this._onDeleteProperty.bind(this));
+        html.on('click', '.add-asset', this._onAddAsset.bind(this));
+        html.on('click', '.delete-asset', this._onDeleteAsset.bind(this));
+        html.on('click', '.add-custom-field', this._onAddCustomField.bind(this));
+        html.on('click', '.delete-custom-field', this._onDeleteCustomField.bind(this));
         
         // Technocrat-specific handlers
-        html.find('.primal-box').click(this._onPrimalEnergyClick.bind(this));
+        if (this.actor.type === "Technocrat") {
+            html.find('.primal-box').click(this._onPrimalEnergyClick.bind(this));
+            
+            // Spheres - use event delegation to avoid conflicts
+            html.find('[data-sphere] .dot').click(this._onSphereClick.bind(this));
+            
+            // Procedures
+            html.find('.add-procedure').click(this._onAddProcedure.bind(this));
+            html.find('.delete-procedure').click(this._onDeleteProcedure.bind(this));
+            html.find('.procedures-prev-page').click(this._onProceduresPrevPage.bind(this));
+            html.find('.procedures-next-page').click(this._onProceduresNextPage.bind(this));
+            
+            // Devices
+            html.find('.add-device').click(this._onAddDevice.bind(this));
+            html.find('.delete-device').click(this._onDeleteDevice.bind(this));
+            html.find('.devices-prev-page').click(this._onDevicesPrevPage.bind(this));
+            html.find('.devices-next-page').click(this._onDevicesNextPage.bind(this));
+            
+            // Enhancements
+            html.find('.add-enhancement').click(this._onAddEnhancement.bind(this));
+            html.find('.delete-enhancement').click(this._onDeleteEnhancement.bind(this));
+            html.find('.enhancements-prev-page').click(this._onEnhancementsPrevPage.bind(this));
+            html.find('.enhancements-next-page').click(this._onEnhancementsNextPage.bind(this));
+        }
     }
 
     /**
@@ -116,8 +269,15 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDotClick(event) {
         event.preventDefault();
+        
         const dot = event.currentTarget;
         const container = dot.closest('.dot-container');
+        
+        // Skip if this is a sphere dot (handled by _onSphereClick)
+        if (container.dataset.sphere) {
+            return;
+        }
+        
         const index = parseInt(dot.dataset.index);
         const currentValue = this._getCurrentValue(container);
         
@@ -137,6 +297,13 @@ export class WodActorSheet extends ActorSheet {
             updatePromise = this._updateAttribute(container.dataset.attribute, container.dataset.key, newValue);
         } else if (container.dataset.ability) {
             updatePromise = this._updateAbility(container.dataset.ability, container.dataset.key, newValue);
+        } else if (container.dataset.secondaryAbility) {
+            // Secondary abilities - EXACTLY like backgrounds!
+            updatePromise = this._updateSecondaryAbility(
+                container.dataset.secondaryAbility, 
+                parseInt(container.dataset.secondaryIndex), 
+                newValue
+            );
         } else if (container.dataset.willpower) {
             updatePromise = this._updateWillpower(container.dataset.willpower, newValue);
         } else if (container.dataset.merit !== undefined) {
@@ -155,21 +322,15 @@ export class WodActorSheet extends ActorSheet {
             updatePromise = this._updateEnlightenment(newValue);
         } else if (container.dataset.paradox) {
             updatePromise = this._updateParadox(container.dataset.paradox, newValue);
-        } else if (container.dataset.secondaryAbility) {
-            updatePromise = this._updateSecondaryAbility(
-                container.dataset.category,
-                parseInt(container.dataset.index),
-                newValue
-            );
         }
-
-        // Update the visual appearance immediately
-        this._updateDotVisuals(container, newValue);
         
-        // Wait for the data update to complete
+        // Wait for the data update to complete, THEN update visuals
         if (updatePromise) {
             await updatePromise;
         }
+        
+        // Update the visual appearance after data is saved
+        this._updateDotVisuals(container, newValue);
     }
 
     /**
@@ -409,7 +570,14 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddMerit(event) {
         event.preventDefault();
-        const merits = foundry.utils.duplicate(this.actor.system.miscellaneous?.merits || []);
+        let merits = foundry.utils.duplicate(this.actor.system.miscellaneous?.merits || []);
+        
+        // Defensive: ensure it's an array (Foundry form processing can convert to object)
+        if (!Array.isArray(merits)) {
+            console.warn("Merits was not an array, converting:", merits);
+            merits = [];
+        }
+        
         merits.push({ name: "", value: 1 });
         await this.actor.update({ "system.miscellaneous.merits": merits });
     }
@@ -420,8 +588,16 @@ export class WodActorSheet extends ActorSheet {
     async _onDeleteMerit(event) {
         event.preventDefault();
         const index = event.currentTarget.dataset.index;
-        const merits = foundry.utils.duplicate(this.actor.system.miscellaneous.merits);
-        merits.splice(index, 1);
+        let merits = foundry.utils.duplicate(this.actor.system.miscellaneous.merits);
+        
+        // Defensive: ensure it's an array
+        if (!Array.isArray(merits)) {
+            console.warn("Merits was not an array during delete, resetting");
+            merits = [];
+        } else {
+            merits.splice(index, 1);
+        }
+        
         await this.actor.update({ "system.miscellaneous.merits": merits });
     }
 
@@ -430,7 +606,14 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddFlaw(event) {
         event.preventDefault();
-        const flaws = foundry.utils.duplicate(this.actor.system.miscellaneous?.flaws || []);
+        let flaws = foundry.utils.duplicate(this.actor.system.miscellaneous?.flaws || []);
+        
+        // Defensive: ensure it's an array (Foundry form processing can convert to object)
+        if (!Array.isArray(flaws)) {
+            console.warn("Flaws was not an array, converting:", flaws);
+            flaws = [];
+        }
+        
         flaws.push({ name: "", value: 1 });
         await this.actor.update({ "system.miscellaneous.flaws": flaws });
     }
@@ -441,9 +624,61 @@ export class WodActorSheet extends ActorSheet {
     async _onDeleteFlaw(event) {
         event.preventDefault();
         const index = event.currentTarget.dataset.index;
-        const flaws = foundry.utils.duplicate(this.actor.system.miscellaneous.flaws);
-        flaws.splice(index, 1);
+        let flaws = foundry.utils.duplicate(this.actor.system.miscellaneous.flaws);
+        
+        // Defensive: ensure it's an array
+        if (!Array.isArray(flaws)) {
+            console.warn("Flaws was not an array during delete, resetting");
+            flaws = [];
+        } else {
+            flaws.splice(index, 1);
+        }
+        
         await this.actor.update({ "system.miscellaneous.flaws": flaws });
+    }
+    
+    /**
+     * Handle merit name change
+     * Update entire merits array to prevent form processing corruption
+     */
+    async _onMeritNameChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const index = parseInt(input.dataset.index);
+        const newName = input.value;
+        
+        let merits = foundry.utils.duplicate(this.actor.system.miscellaneous.merits);
+        if (!Array.isArray(merits)) {
+            console.warn("Merits was not an array, resetting");
+            merits = [];
+        }
+        
+        if (merits[index]) {
+            merits[index].name = newName;
+            await this.actor.update({ "system.miscellaneous.merits": merits });
+        }
+    }
+    
+    /**
+     * Handle flaw name change
+     * Update entire flaws array to prevent form processing corruption
+     */
+    async _onFlawNameChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const index = parseInt(input.dataset.index);
+        const newName = input.value;
+        
+        let flaws = foundry.utils.duplicate(this.actor.system.miscellaneous.flaws);
+        if (!Array.isArray(flaws)) {
+            console.warn("Flaws was not an array, resetting");
+            flaws = [];
+        }
+        
+        if (flaws[index]) {
+            flaws[index].name = newName;
+            await this.actor.update({ "system.miscellaneous.flaws": flaws });
+        }
     }
 
     /**
@@ -461,23 +696,24 @@ export class WodActorSheet extends ActorSheet {
         backgrounds.push({ name: "Allies", value: 1 });
         
         // Navigate to the page containing the new background
-        const backgroundsPerPage = 3;
+        const backgroundsPerPage = 9;
         const newIndex = backgrounds.length - 1;
         const newPage = Math.floor(newIndex / backgroundsPerPage);
         
-        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
+        // Set the page first, then update backgrounds
         await this.actor.setFlag('wodsystem', 'backgroundsPage', newPage);
+        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
         
-        // Render without scrolling
-        await this.render(false);
+        // Force a complete re-render to refresh all select elements
+        await this.render(true);
         
-        // Restore scroll position after render
+        // Restore scroll position after render completes
         setTimeout(() => {
             const newSheetBody = this.element.find('.sheet-body');
             if (newSheetBody.length) {
                 newSheetBody.scrollTop(scrollPos);
             }
-        }, 0);
+        }, 50);
     }
 
     /**
@@ -504,6 +740,9 @@ export class WodActorSheet extends ActorSheet {
             // Update the name
             backgrounds[index].name = value;
             
+            const needsRerender = (value === "Custom" && !backgrounds[index].customName) || 
+                                 (value !== "Custom" && backgrounds[index].customName !== undefined);
+            
             // If "Custom" is selected, ensure customName field exists
             if (value === "Custom" && !backgrounds[index].customName) {
                 backgrounds[index].customName = "";
@@ -514,17 +753,19 @@ export class WodActorSheet extends ActorSheet {
                 delete backgrounds[index].customName;
             }
             
-            // Update without letting Foundry auto-render the full sheet (prevents scroll jumps)
-            await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
-
-            // Re-render so the customName input shows/hides immediately
-            await this.render(false);
-
-            // Restore scroll position after render
-            setTimeout(() => {
-                const newSheetBody = this.element.find('.sheet-body');
-                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
-            }, 0);
+            if (needsRerender) {
+                // Need to re-render to show/hide custom input
+                await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds });
+                
+                // Restore scroll position after render completes
+                setTimeout(() => {
+                    const newSheetBody = this.element.find('.sheet-body');
+                    if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+                }, 50);
+            } else {
+                // Just update data without re-rendering (dropdown already shows correct value)
+                await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
+            }
         }
     }
 
@@ -565,26 +806,57 @@ export class WodActorSheet extends ActorSheet {
         backgrounds.splice(index, 1);
         
         // If we deleted the last item on the current page, go back to the previous page
-        const backgroundsPerPage = 3;
+        const backgroundsPerPage = 9;
         const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
         const totalPages = Math.max(1, Math.ceil(backgrounds.length / backgroundsPerPage));
         
-        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
-        
+        // Update page first if needed, then update backgrounds
         if (currentPage >= totalPages && currentPage > 0) {
             await this.actor.setFlag('wodsystem', 'backgroundsPage', totalPages - 1);
         }
         
-        // Render without scrolling
-        await this.render(false);
+        await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
         
-        // Restore scroll position after render
+        // Force a complete re-render to refresh all select elements
+        await this.render(true);
+        
+        // Restore scroll position after render completes
         setTimeout(() => {
             const newSheetBody = this.element.find('.sheet-body');
             if (newSheetBody.length) {
                 newSheetBody.scrollTop(scrollPos);
             }
-        }, 0);
+        }, 50);
+    }
+
+    /**
+     * Toggle lock state of a background
+     */
+    async _onLockBackground(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Store scroll position before update
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const index = parseInt(event.currentTarget.dataset.index);
+        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
+        
+        if (backgrounds[index]) {
+            // Toggle locked state
+            backgrounds[index].locked = !backgrounds[index].locked;
+            
+            await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds });
+            
+            // Restore scroll position after render
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) {
+                    newSheetBody.scrollTop(scrollPos);
+                }
+            }, 0);
+        }
     }
 
     /**
@@ -624,7 +896,7 @@ export class WodActorSheet extends ActorSheet {
         const sheetBody = this.element.find('.sheet-body');
         const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
         
-        const backgroundsPerPage = 3;
+        const backgroundsPerPage = 9;
         const totalBackgrounds = this.actor.system.miscellaneous?.backgrounds?.length || 0;
         const totalPages = Math.ceil(totalBackgrounds / backgroundsPerPage);
         const currentPage = this.actor.getFlag('wodsystem', 'backgroundsPage') || 0;
@@ -644,26 +916,65 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Add a secondary ability
+     * Add a secondary ability (uses arrays like merits)
      */
     async _onAddSecondaryAbility(event, category) {
         event.preventDefault();
-        const abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities?.[category] || []);
+        let abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities[category] || []);
+        
+        // Defensive: ensure it's an array
+        if (!Array.isArray(abilities)) {
+            console.warn("Secondary abilities was not an array, resetting");
+            abilities = [];
+        }
+        
         abilities.push({ name: "", value: 0 });
         await this.actor.update({ [`system.secondaryAbilities.${category}`]: abilities });
     }
 
     /**
-     * Delete a secondary ability
+     * Delete a secondary ability (uses arrays like merits)
      */
     async _onDeleteSecondaryAbility(event) {
         event.preventDefault();
         const category = event.currentTarget.dataset.category;
         const index = parseInt(event.currentTarget.dataset.index);
-        const abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities[category]);
-        abilities.splice(index, 1);
+        
+        let abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities[category]);
+        
+        // Defensive: ensure it's an array
+        if (!Array.isArray(abilities)) {
+            console.warn("Secondary abilities was not an array during delete, resetting");
+            abilities = [];
+        } else {
+            abilities.splice(index, 1);
+        }
+        
         await this.actor.update({ [`system.secondaryAbilities.${category}`]: abilities });
     }
+    
+    /**
+     * Handle secondary ability name change (uses arrays like merits)
+     */
+    async _onSecondaryAbilityNameChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const category = input.dataset.category;
+        const index = parseInt(input.dataset.index);
+        const newName = input.value;
+        
+        let abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities[category]);
+        if (!Array.isArray(abilities)) {
+            console.warn("Secondary abilities was not an array, resetting");
+            abilities = [];
+        }
+        
+        if (abilities[index]) {
+            abilities[index].name = newName;
+            await this.actor.update({ [`system.secondaryAbilities.${category}`]: abilities });
+        }
+    }
+
 
     /**
      * Update an attribute
@@ -698,32 +1009,117 @@ export class WodActorSheet extends ActorSheet {
 
     /**
      * Update a merit value
+     * Update entire merits array to prevent form processing corruption
      */
     async _updateMerit(index, value) {
-        const updateData = {};
-        updateData[`system.miscellaneous.merits.${index}.value`] = Math.min(Math.max(value, 1), 5);
-        await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        let merits = foundry.utils.duplicate(this.actor.system.miscellaneous.merits);
+        if (!Array.isArray(merits)) {
+            console.warn("Merits was not an array, resetting");
+            merits = [];
+        }
+        
+        if (merits[index]) {
+            const newValue = Math.min(Math.max(value, 1), 7);
+            merits[index].value = newValue;
+            
+            // Update the actor data
+            await this.actor.update({ "system.miscellaneous.merits": merits }, { render: false });
+            
+            // Manually update the hidden input in the DOM
+            const container = this.element.find(`[data-merit="${index}"]`)[0];
+            if (container) {
+                const input = container.querySelector('.dot-input');
+                if (input) {
+                    input.value = newValue;
+                }
+            }
+        }
     }
 
     /**
      * Update a flaw value
+     * Update entire flaws array to prevent form processing corruption
      */
     async _updateFlaw(index, value) {
-        const updateData = {};
-        updateData[`system.miscellaneous.flaws.${index}.value`] = Math.min(Math.max(value, 1), 5);
-        await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        let flaws = foundry.utils.duplicate(this.actor.system.miscellaneous.flaws);
+        if (!Array.isArray(flaws)) {
+            console.warn("Flaws was not an array, resetting");
+            flaws = [];
+        }
+        
+        if (flaws[index]) {
+            const newValue = Math.min(Math.max(value, 1), 7);
+            flaws[index].value = newValue;
+            
+            // Update the actor data
+            await this.actor.update({ "system.miscellaneous.flaws": flaws }, { render: false });
+            
+            // Manually update the hidden input in the DOM
+            const container = this.element.find(`[data-flaw="${index}"]`)[0];
+            if (container) {
+                const input = container.querySelector('.dot-input');
+                if (input) {
+                    input.value = newValue;
+                }
+            }
+        }
     }
 
     /**
      * Update a background value
      */
     async _updateBackground(index, value) {
-        const updateData = {};
-        updateData[`system.miscellaneous.backgrounds.${index}.value`] = Math.min(Math.max(value, 0), 5);
-        await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        // Get the full backgrounds array and update the specific entry
+        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous?.backgrounds || []);
+        
+        if (backgrounds[index]) {
+            const backgroundName = backgrounds[index].name;
+            const newValue = Math.min(Math.max(value, 0), 5);
+            backgrounds[index].value = newValue;
+            
+            // Also update any expanded backgrounds with the same name
+            const backgroundsExpanded = foundry.utils.duplicate(
+                Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+            );
+            
+            let expandedUpdated = false;
+            backgroundsExpanded.forEach((bg) => {
+                if (bg.backgroundName === backgroundName) {
+                    bg.backgroundRating = newValue;
+                    expandedUpdated = true;
+                }
+            });
+            
+            // Update both arrays
+            const updateData = {
+                "system.miscellaneous.backgrounds": backgrounds
+            };
+            
+            if (expandedUpdated) {
+                updateData["system.backgroundsExpanded"] = backgroundsExpanded;
+            }
+            
+            // Capture scroll position before update
+            const sheetBody = this.element.find('.sheet-body');
+            const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+            
+            // If we're updating expanded backgrounds, allow a render so the UI updates
+            // Otherwise, skip render to avoid scroll jumping in Main tab
+            if (expandedUpdated) {
+                await this.actor.update(updateData);
+                
+                // Restore scroll position after render
+                setTimeout(() => {
+                    const newSheetBody = this.element.find('.sheet-body');
+                    if (newSheetBody.length) {
+                        newSheetBody.scrollTop(scrollPos);
+                    }
+                }, 0);
+            } else {
+                await this.actor.update(updateData, { render: false });
+                this._syncVisualStateWithData();
+            }
+        }
     }
 
     /**
@@ -822,13 +1218,32 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Update a secondary ability value
+     * Update a secondary ability value (uses arrays like merits)
      */
     async _updateSecondaryAbility(category, index, value) {
-        const updateData = {};
-        updateData[`system.secondaryAbilities.${category}.${index}.value`] = Math.min(Math.max(value, 0), 5);
-        await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        let abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities[category] || []);
+        if (!Array.isArray(abilities)) {
+            console.warn("Secondary abilities was not an array, resetting");
+            abilities = [];
+        }
+        
+        // Ensure the ability exists at this index
+        if (index >= 0 && index < abilities.length && abilities[index]) {
+            const newValue = Math.min(Math.max(value, 0), 5);
+            abilities[index].value = newValue;
+            
+            // Update the actor data
+            await this.actor.update({ [`system.secondaryAbilities.${category}`]: abilities }, { render: false });
+            
+            // Manually update the hidden input in the DOM
+            const container = this.element.find(`.dot-container[data-secondary-ability="${category}"][data-secondary-index="${index}"]`)[0];
+            if (container) {
+                const input = container.querySelector('.dot-input');
+                if (input) {
+                    input.value = newValue;
+                }
+            }
+        }
     }
 
     /**
@@ -848,7 +1263,7 @@ export class WodActorSheet extends ActorSheet {
      */
     _getCurrentValue(container) {
         const input = container.querySelector('.dot-input');
-        return parseInt(input.value) || 0;
+        return parseInt(input?.value) || 0;
     }
 
     /**
@@ -917,8 +1332,49 @@ export class WodActorSheet extends ActorSheet {
         // Foundry's default _onChangeInput merges "submit data" for the WHOLE form, which can clobber
         // `system.miscellaneous.backgrounds` when paging is active. We therefore ignore background field
         // changes here and handle them with dedicated handlers above.
+        // Same issue applies to secondaryAbilities - dots handle updates directly.
         const fieldName = event?.target?.name ?? "";
+        const targetClass = event?.target?.className ?? "";
+        
         if (fieldName.startsWith("system.miscellaneous.backgrounds.")) {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+        
+        // Ignore merits and flaws - they're handled by dedicated handlers to prevent array corruption
+        if (fieldName.startsWith("system.miscellaneous.merits.") || 
+            fieldName.startsWith("system.miscellaneous.flaws.")) {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+        
+        // Ignore secondary abilities - they use object keys for names, handled by dedicated handlers
+        if (fieldName.startsWith("system.secondaryAbilities.")) {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+        
+        // Ignore backgroundsExpanded fields - they're handled by dedicated handlers or modal
+        if (fieldName.startsWith("system.backgroundsExpanded.")) {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+        
+        // Ignore modal selects - they have their own handlers
+        if (targetClass.includes("select-bg-category") || 
+            targetClass.includes("select-background-to-expand")) {
             setTimeout(() => {
                 const newSheetBody = this.element.find('.sheet-body');
                 if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
@@ -976,6 +1432,936 @@ export class WodActorSheet extends ActorSheet {
                 this._updateHealthCheckboxVisuals($container[0], currentValue);
             }
         });
+        
+        // Sync background select elements with their data-selected-value
+        const backgroundSelects = this.element.find('.background-name-select[data-selected-value]');
+        backgroundSelects.each((index, select) => {
+            const selectedValue = select.dataset.selectedValue;
+            if (selectedValue) {
+                $(select).val(selectedValue);
+            }
+        });
+    }
+
+    /**
+     * Categorize expanded backgrounds by their background name
+     * Each background becomes its own category
+     */
+    _categorizeExpandedBackgrounds(backgroundsExpanded) {
+        if (!Array.isArray(backgroundsExpanded)) {
+            return [];
+        }
+        
+        // Dynamically create categories based on background names
+        const categories = {};
+        
+        backgroundsExpanded.forEach((bg, index) => {
+            const categoryName = bg.backgroundName || "Other";
+            
+            // Create category if it doesn't exist
+            if (!categories[categoryName]) {
+                categories[categoryName] = [];
+            }
+            
+            // Add background to its category
+            categories[categoryName].push({ ...bg, actualIndex: index });
+        });
+        
+        // Convert to array format for template
+        return Object.entries(categories)
+            .map(([name, items]) => ({ name, items }));
+    }
+
+    /**
+     * Determine which template to use for a background
+     */
+    _getBackgroundTemplate(backgroundName) {
+        const templates = {
+            "Sanctum": "sanctum",
+            "Laboratory": "sanctum",
+            "Chantry": "sanctum",
+            "Construct": "construct",
+            "Mentor": "mentor",
+            "Allies": "allies",
+            "Contacts": "contacts",
+            "Resources": "resources",
+            "Familiar": "familiar",
+            "Companion": "familiar",
+            "Device": "device",
+            "Enhancements": "enhancement"
+        };
+        return templates[backgroundName] || "custom";
+    }
+
+    /**
+     * Get default data for a template type
+     */
+    _getDefaultTemplateData(template) {
+        switch (template) {
+            case "sanctum":
+                return { location: "", size: 0, securityLevel: 5, wardsDefenses: "", resourcesAvailable: "", rooms: "" };
+            case "construct":
+                return { location: "", size: 0, securityLevel: 5, securitySystems: "", equipmentAvailable: "", facilities: "" };
+            case "mentor":
+                return { mentorName: "", convention: "", relationshipLevel: 3, contactFrequency: "monthly", teachings: "", notes: "" };
+            case "allies":
+                return { npcs: [] };
+            case "contacts":
+                return { npcs: [] };
+            case "resources":
+                return { incomeLevel: "comfortable", liquidCash: "", properties: [], assets: [] };
+            case "familiar":
+                return { name: "", species: "", physicalDescription: "", physical: 1, social: 1, mental: 1, abilities: "", bondStrength: 3, personality: "" };
+            case "device":
+                return { name: "", description: "", spheres: "", effects: "", arete: 0, paradoxRisk: 0, quintessence: 0 };
+            case "enhancement":
+                return { name: "", description: "", location: "", effects: "", sideEffects: "" };
+            case "custom":
+                return { description: "", mechanics: "", notes: "" };
+            default:
+                return { description: "", mechanics: "", notes: "" };
+        }
+    }
+
+    /**
+     * Toggle category section collapse/expand
+     */
+    _onToggleCategory(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const header = event.currentTarget.closest('.bg-category-header');
+        const category = header.dataset.category;
+        const content = this.element.find(`.bg-category-content[data-category="${category}"]`);
+        const icon = header.querySelector('.category-toggle');
+        
+        content.slideToggle(200);
+        icon.classList.toggle('fa-chevron-down');
+        icon.classList.toggle('fa-chevron-right');
+    }
+
+    /**
+     * Open modal for adding new expanded background
+     */
+    _onOpenAddModal(event) {
+        event.preventDefault();
+        const modal = this.element.find('.bg-modal-overlay');
+        const modalTitle = modal.find('.bg-modal-title');
+        
+        // Clear edit index data
+        modal.removeData('editIndex');
+        
+        // Reset modal state
+        modalTitle.text('Add Expanded Background');
+        modal.find('.bg-modal-step-category').show();
+        modal.find('.bg-modal-step-background').hide();
+        modal.find('.bg-modal-form').hide();
+        modal.find('.save-bg-modal').hide();
+        
+        const backgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        
+        // Dynamically populate category dropdown with unique background names
+        const categorySelect = modal.find('.select-bg-category');
+        categorySelect.find('option[value!=""]').remove(); // Clear existing except placeholder
+        
+        const uniqueCategories = new Set();
+        backgrounds.forEach(bg => {
+            if (bg.name) {
+                uniqueCategories.add(bg.name);
+            }
+        });
+        
+        // Add each unique background as a category option
+        Array.from(uniqueCategories).sort().forEach(category => {
+            categorySelect.append(
+                $('<option></option>')
+                    .attr('value', category)
+                    .text(category)
+            );
+        });
+        
+        categorySelect.val('');
+        
+        // Refresh background options with current data
+        const bgSelect = modal.find('.select-background-to-expand');
+        bgSelect.find('option[value!=""]').remove();
+        
+        // Add current backgrounds
+        backgrounds.forEach(bg => {
+            if (bg.name) {
+                bgSelect.append(
+                    $('<option></option>')
+                        .attr('value', bg.name)
+                        .attr('data-rating', bg.value)
+                        .attr('data-category', bg.name)
+                        .text(`${bg.name} (${bg.value} dots)`)
+                );
+            }
+        });
+        
+        bgSelect.val('');
+        
+        // Show modal
+        modal.fadeIn(200);
+    }
+
+    /**
+     * Close modal
+     */
+    _onCloseModal(event) {
+        event.preventDefault();
+        const modal = this.element.find('.bg-modal-overlay');
+        
+        // Clear edit index data
+        modal.removeData('editIndex');
+        
+        modal.fadeOut(200);
+    }
+
+    /**
+     * Handle category selection in modal
+     */
+    _onModalCategorySelect(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const category = event.currentTarget.value;
+        const modal = this.element.find('.bg-modal-overlay');
+        const bgSelect = modal.find('.select-background-to-expand');
+        const bgStep = modal.find('.bg-modal-step-background');
+        
+        if (!category) {
+            bgStep.hide();
+            modal.find('.bg-modal-form').hide();
+            modal.find('.save-bg-modal').hide();
+            return;
+        }
+        
+        // Filter backgrounds by category
+        bgSelect.find('option').each(function() {
+            const option = $(this);
+            const optionCategory = option.data('category');
+            if (option.val() === '') {
+                option.show(); // Keep the placeholder
+            } else if (optionCategory === category || category === "Other") {
+                option.show();
+            } else {
+                option.hide();
+            }
+        });
+        
+        bgSelect.val('');
+        bgStep.show();
+        modal.find('.bg-modal-form').hide();
+        modal.find('.save-bg-modal').hide();
+    }
+
+    /**
+     * Handle background selection in modal
+     */
+    async _onModalBackgroundSelect(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const select = event.currentTarget;
+        const backgroundName = select.value;
+        const backgroundRating = parseInt(select.selectedOptions[0]?.dataset.rating || 0);
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        
+        if (!backgroundName) {
+            formContainer.hide();
+            modal.find('.save-bg-modal').hide();
+            return;
+        }
+        
+        // Get template type and generate form
+        const template = this._getBackgroundTemplate(backgroundName);
+        const templateData = this._getDefaultTemplateData(template);
+        
+        // Store data for save
+        modal.data('selectedBackground', {
+            name: backgroundName,
+            rating: backgroundRating,
+            template: template,
+            templateData: templateData
+        });
+        
+        // Render form
+        const formHTML = await this._renderBackgroundForm(template, templateData, -1);
+        formContainer.html(formHTML);
+        formContainer.show();
+        modal.find('.save-bg-modal').show();
+    }
+
+    /**
+     * Render background form template
+     */
+    async _renderBackgroundForm(template, data, index) {
+        const partialPath = `systems/wodsystem/templates/actor/partials/backgrounds/bg-${template}.html`;
+        const context = { 
+            data: data, 
+            index: index,
+            isEditMode: index >= 0  // Edit mode if index is valid, add mode if -1
+        };
+        
+        try {
+            return await foundry.applications.handlebars.renderTemplate(partialPath, context);
+        } catch (error) {
+            console.error("Error rendering background form:", error);
+            return `<p>Template not found for: ${template}</p>`;
+        }
+    }
+
+    /**
+     * Save background from modal
+     */
+    async _onSaveModalBackground(event) {
+        event.preventDefault();
+        const modal = this.element.find('.bg-modal-overlay');
+        const selectedBg = modal.data('selectedBackground');
+        const editIndex = modal.data('editIndex');
+        
+        if (!selectedBg && (editIndex === null || editIndex === undefined)) return;
+        
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (editIndex !== null && editIndex !== undefined) {
+            // Edit mode - extract form data directly from modal form elements
+            const updatedTemplateData = {};
+            
+            // Find all input, textarea, and select elements in the modal form
+            const formElements = modal.find('.bg-modal-form input, .bg-modal-form textarea, .bg-modal-form select');
+            
+            formElements.each((i, element) => {
+                const name = element.name;
+                if (!name || !name.startsWith(`system.backgroundsExpanded.${editIndex}.templateData.`)) return;
+                
+                const value = element.type === 'checkbox' ? element.checked : element.value;
+                const fieldPath = name.replace(`system.backgroundsExpanded.${editIndex}.templateData.`, '');
+                
+                // Handle nested paths (e.g., npcs.0.name)
+                const pathParts = fieldPath.split('.');
+                let current = updatedTemplateData;
+                
+                for (let i = 0; i < pathParts.length - 1; i++) {
+                    const part = pathParts[i];
+                    const nextPart = pathParts[i + 1];
+                    
+                    if (!isNaN(nextPart)) {
+                        // Next part is an array index
+                        if (!current[part]) current[part] = [];
+                    } else {
+                        // Next part is an object key
+                        if (!current[part]) current[part] = {};
+                    }
+                    current = current[part];
+                }
+                
+                const lastPart = pathParts[pathParts.length - 1];
+                current[lastPart] = value;
+            });
+            
+            // Update the existing entry with new template data
+            backgroundsExpanded[editIndex].templateData = updatedTemplateData;
+            
+            await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded });
+            modal.removeData('editIndex');
+            modal.fadeOut(200);
+        } else {
+            // Add mode - create new entry
+            const newExpanded = {
+                backgroundName: selectedBg.name,
+                backgroundRating: selectedBg.rating,
+                template: selectedBg.template,
+                templateData: selectedBg.templateData,
+                customFields: []
+            };
+            
+            backgroundsExpanded.push(newExpanded);
+            await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded });
+            modal.fadeOut(200);
+        }
+    }
+
+    /**
+     * Edit existing expanded background
+     */
+    async _onEditBgExpanded(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const index = parseInt(event.currentTarget.dataset.index);
+        const backgroundsExpanded = this.actor.system.backgroundsExpanded;
+        
+        if (!backgroundsExpanded || !backgroundsExpanded[index]) return;
+        
+        const bg = backgroundsExpanded[index];
+        const modal = this.element.find('.bg-modal-overlay');
+        const modalTitle = modal.find('.bg-modal-title');
+        const formContainer = modal.find('.bg-modal-form');
+        
+        // Store edit index directly on modal (no flags needed)
+        modal.data('editIndex', index);
+        
+        // Update modal title
+        modalTitle.text(`Edit ${bg.backgroundName}`);
+        
+        // Hide category selection steps
+        modal.find('.bg-modal-step-category').hide();
+        modal.find('.bg-modal-step-background').hide();
+        
+        // Render form with existing data
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, index);
+        formContainer.html(formHTML);
+        formContainer.show();
+        modal.find('.save-bg-modal').show();
+        
+        // Show modal
+        modal.fadeIn(200);
+    }
+
+    /**
+     * Show preview tooltip on hover
+     */
+    _onShowBgPreview(event) {
+        const card = event.currentTarget;
+        const index = parseInt(card.dataset.index);
+        const backgroundsExpanded = this.actor.system.backgroundsExpanded;
+        
+        if (!backgroundsExpanded || !backgroundsExpanded[index]) return;
+        
+        const bg = backgroundsExpanded[index];
+        const tooltip = this.element.find('.bg-preview-tooltip');
+        
+        // Generate summary
+        let summary = `<strong>${bg.backgroundName}</strong> (${bg.backgroundRating} dots)<br/>`;
+        summary += `<em>Type: ${bg.template}</em><br/>`;
+        
+        // Add first non-empty template field
+        if (bg.templateData) {
+            for (const [key, value] of Object.entries(bg.templateData)) {
+                if (value && typeof value === 'string' && value.trim().length > 0) {
+                    const truncated = value.length > 50 ? value.substring(0, 47) + '...' : value;
+                    summary += truncated;
+                    break;
+                }
+            }
+        }
+        
+        tooltip.html(summary);
+        
+        // Position tooltip BELOW the card
+        const rect = card.getBoundingClientRect();
+        const sheetRect = this.element[0].getBoundingClientRect();
+        
+        tooltip.css({
+            top: rect.bottom - sheetRect.top + 5, // 5px below the card
+            left: rect.left - sheetRect.left + (rect.width / 2) - (tooltip.outerWidth() / 2),
+            display: 'block'
+        });
+        
+        tooltip.fadeIn(150);
+    }
+
+    /**
+     * Hide preview tooltip
+     */
+    _onHideBgPreview(event) {
+        const tooltip = this.element.find('.bg-preview-tooltip');
+        tooltip.fadeOut(150);
+    }
+
+    /**
+     * Handle deleting expanded background
+     */
+    async _onDeleteExpandedBackground(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const index = parseInt(event.currentTarget.dataset.index);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        backgroundsExpanded.splice(index, 1);
+        
+        // ONLY update backgroundsExpanded, NOT main backgrounds
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded });
+    }
+
+    /**
+     * Navigate to previous page of expanded background categories
+     */
+    async _onBgExpandedPrevPage(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const currentPage = this.actor.getFlag("wodsystem", "bgExpandedCategoriesPage") || 0;
+        if (currentPage > 0) {
+            await this.actor.setFlag("wodsystem", "bgExpandedCategoriesPage", currentPage - 1);
+        }
+    }
+
+    /**
+     * Navigate to next page of expanded background categories
+     */
+    async _onBgExpandedNextPage(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const categoriesPerPage = 3;
+        const allCategorizedBackgrounds = this._categorizeExpandedBackgrounds(
+            this.actor.system.backgroundsExpanded || []
+        );
+        const totalPages = Math.ceil(allCategorizedBackgrounds.length / categoriesPerPage);
+        const currentPage = this.actor.getFlag("wodsystem", "bgExpandedCategoriesPage") || 0;
+        
+        if (currentPage < totalPages - 1) {
+            await this.actor.setFlag("wodsystem", "bgExpandedCategoriesPage", currentPage + 1);
+        }
+    }
+
+    /**
+     * Handle adding custom field
+     */
+    async _onAddCustomField(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex]) return;
+        if (!Array.isArray(backgroundsExpanded[bgIndex].customFields)) {
+            backgroundsExpanded[bgIndex].customFields = [];
+        }
+        
+        backgroundsExpanded[bgIndex].customFields.push({ name: "", value: "" });
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded });
+    }
+
+    /**
+     * Handle deleting custom field
+     */
+    async _onDeleteCustomField(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const fieldIndex = parseInt(event.currentTarget.dataset.fieldIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex] || !Array.isArray(backgroundsExpanded[bgIndex].customFields)) return;
+        
+        backgroundsExpanded[bgIndex].customFields.splice(fieldIndex, 1);
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded });
+    }
+
+    /**
+     * Handle adding ally
+     */
+    async _onAddAlly(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex]) return;
+        
+        if (!Array.isArray(backgroundsExpanded[bgIndex].templateData.npcs)) {
+            backgroundsExpanded[bgIndex].templateData.npcs = [];
+        }
+        
+        backgroundsExpanded[bgIndex].templateData.npcs.push({
+            name: "", role: "", influence: 1, reliability: 3, notes: ""
+        });
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle deleting ally
+     */
+    async _onDeleteAlly(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const npcIndex = parseInt(event.currentTarget.dataset.npcIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex] || !Array.isArray(backgroundsExpanded[bgIndex].templateData.npcs)) return;
+        
+        backgroundsExpanded[bgIndex].templateData.npcs.splice(npcIndex, 1);
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle adding contact
+     */
+    async _onAddContact(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex]) return;
+        
+        if (!Array.isArray(backgroundsExpanded[bgIndex].templateData.npcs)) {
+            backgroundsExpanded[bgIndex].templateData.npcs = [];
+        }
+        
+        backgroundsExpanded[bgIndex].templateData.npcs.push({
+            name: "", role: "", influence: 1, reliability: 3, notes: ""
+        });
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle deleting contact
+     */
+    async _onDeleteContact(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const npcIndex = parseInt(event.currentTarget.dataset.npcIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex] || !Array.isArray(backgroundsExpanded[bgIndex].templateData.npcs)) return;
+        
+        backgroundsExpanded[bgIndex].templateData.npcs.splice(npcIndex, 1);
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle adding property
+     */
+    async _onAddProperty(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex]) return;
+        
+        if (!Array.isArray(backgroundsExpanded[bgIndex].templateData.properties)) {
+            backgroundsExpanded[bgIndex].templateData.properties = [];
+        }
+        
+        backgroundsExpanded[bgIndex].templateData.properties.push({
+            type: "", location: "", value: ""
+        });
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle deleting property
+     */
+    async _onDeleteProperty(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const propIndex = parseInt(event.currentTarget.dataset.propIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex] || !Array.isArray(backgroundsExpanded[bgIndex].templateData.properties)) return;
+        
+        backgroundsExpanded[bgIndex].templateData.properties.splice(propIndex, 1);
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle adding asset
+     */
+    async _onAddAsset(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex]) return;
+        
+        if (!Array.isArray(backgroundsExpanded[bgIndex].templateData.assets)) {
+            backgroundsExpanded[bgIndex].templateData.assets = [];
+        }
+        
+        backgroundsExpanded[bgIndex].templateData.assets.push({
+            description: "", value: ""
+        });
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle deleting asset
+     */
+    async _onDeleteAsset(event) {
+        event.preventDefault();
+        const bgIndex = parseInt(event.currentTarget.dataset.bgIndex);
+        const assetIndex = parseInt(event.currentTarget.dataset.assetIndex);
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
+        
+        if (!backgroundsExpanded[bgIndex] || !Array.isArray(backgroundsExpanded[bgIndex].templateData.assets)) return;
+        
+        backgroundsExpanded[bgIndex].templateData.assets.splice(assetIndex, 1);
+        
+        // Update without re-rendering to keep modal open
+        await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
+        
+        // Manually refresh the form in the modal
+        const modal = this.element.find('.bg-modal-overlay');
+        const formContainer = modal.find('.bg-modal-form');
+        const bg = this.actor.system.backgroundsExpanded[bgIndex];
+        const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
+        formContainer.html(formHTML);
+    }
+
+    /**
+     * Handle sphere dot click
+     */
+    async _onSphereClick(event) {
+        event.preventDefault();
+        const dot = event.currentTarget;
+        const container = dot.closest('.dot-container');
+        const sphereKey = container.dataset.sphere;
+        const index = parseInt(dot.dataset.index);
+        const currentValue = this.actor.system.spheres[sphereKey].rating;
+        
+        let newValue;
+        if (index + 1 === currentValue) {
+            newValue = Math.max(currentValue - 1, 0);
+        } else {
+            newValue = index + 1;
+        }
+
+        const updateData = {};
+        updateData[`system.spheres.${sphereKey}.rating`] = Math.min(Math.max(newValue, 0), 5);
+        await this.actor.update(updateData, { render: false });
+        this._updateDotVisuals(container, newValue);
+    }
+
+    /**
+     * Handle adding procedure
+     */
+    async _onAddProcedure(event) {
+        event.preventDefault();
+        const procedures = Array.isArray(this.actor.system.procedures) ? this.actor.system.procedures : [];
+        const newProcedures = [...procedures, { name: "", spheres: "", description: "" }];
+        await this.actor.update({ "system.procedures": newProcedures });
+    }
+
+    /**
+     * Handle deleting procedure
+     */
+    async _onDeleteProcedure(event) {
+        event.preventDefault();
+        const index = parseInt(event.currentTarget.dataset.index);
+        const procedures = foundry.utils.duplicate(Array.isArray(this.actor.system.procedures) ? this.actor.system.procedures : []);
+        procedures.splice(index, 1);
+        await this.actor.update({ "system.procedures": procedures });
+    }
+
+    /**
+     * Handle adding device
+     */
+    async _onAddDevice(event) {
+        event.preventDefault();
+        const devices = Array.isArray(this.actor.system.devices) ? this.actor.system.devices : [];
+        const newDevices = [...devices, { 
+            name: "", description: "", spheres: "", effects: "", 
+            arete: 0, paradoxRisk: 0, quintessence: 0 
+        }];
+        await this.actor.update({ "system.devices": newDevices });
+    }
+
+    /**
+     * Handle deleting device
+     */
+    async _onDeleteDevice(event) {
+        event.preventDefault();
+        const index = parseInt(event.currentTarget.dataset.index);
+        const devices = foundry.utils.duplicate(Array.isArray(this.actor.system.devices) ? this.actor.system.devices : []);
+        devices.splice(index, 1);
+        await this.actor.update({ "system.devices": devices });
+    }
+
+    /**
+     * Handle adding enhancement
+     */
+    async _onAddEnhancement(event) {
+        event.preventDefault();
+        const enhancements = Array.isArray(this.actor.system.enhancements) ? this.actor.system.enhancements : [];
+        const newEnhancements = [...enhancements, { 
+            name: "", description: "", location: "", effects: "", sideEffects: "" 
+        }];
+        await this.actor.update({ "system.enhancements": newEnhancements });
+    }
+
+    /**
+     * Handle deleting enhancement
+     */
+    async _onDeleteEnhancement(event) {
+        event.preventDefault();
+        const index = parseInt(event.currentTarget.dataset.index);
+        const enhancements = foundry.utils.duplicate(Array.isArray(this.actor.system.enhancements) ? this.actor.system.enhancements : []);
+        enhancements.splice(index, 1);
+        await this.actor.update({ "system.enhancements": enhancements });
+    }
+
+    /**
+     * Procedures pagination handlers
+     */
+    async _onProceduresPrevPage(event) {
+        event.preventDefault();
+        const currentPage = this.actor.getFlag('wodsystem', 'proceduresPage') || 0;
+        if (currentPage > 0) {
+            await this.actor.setFlag('wodsystem', 'proceduresPage', currentPage - 1);
+        }
+    }
+
+    async _onProceduresNextPage(event) {
+        event.preventDefault();
+        const procedures = Array.isArray(this.actor.system.procedures) ? this.actor.system.procedures : [];
+        const currentPage = this.actor.getFlag('wodsystem', 'proceduresPage') || 0;
+        const totalPages = Math.max(1, Math.ceil(procedures.length / 4));
+        if (currentPage < totalPages - 1) {
+            await this.actor.setFlag('wodsystem', 'proceduresPage', currentPage + 1);
+        }
+    }
+
+    /**
+     * Devices pagination handlers
+     */
+    async _onDevicesPrevPage(event) {
+        event.preventDefault();
+        const currentPage = this.actor.getFlag('wodsystem', 'devicesPage') || 0;
+        if (currentPage > 0) {
+            await this.actor.setFlag('wodsystem', 'devicesPage', currentPage - 1);
+        }
+    }
+
+    async _onDevicesNextPage(event) {
+        event.preventDefault();
+        const devices = Array.isArray(this.actor.system.devices) ? this.actor.system.devices : [];
+        const currentPage = this.actor.getFlag('wodsystem', 'devicesPage') || 0;
+        const totalPages = Math.max(1, Math.ceil(devices.length / 2));
+        if (currentPage < totalPages - 1) {
+            await this.actor.setFlag('wodsystem', 'devicesPage', currentPage + 1);
+        }
+    }
+
+    /**
+     * Enhancements pagination handlers
+     */
+    async _onEnhancementsPrevPage(event) {
+        event.preventDefault();
+        const currentPage = this.actor.getFlag('wodsystem', 'enhancementsPage') || 0;
+        if (currentPage > 0) {
+            await this.actor.setFlag('wodsystem', 'enhancementsPage', currentPage - 1);
+        }
+    }
+
+    async _onEnhancementsNextPage(event) {
+        event.preventDefault();
+        const enhancements = Array.isArray(this.actor.system.enhancements) ? this.actor.system.enhancements : [];
+        const currentPage = this.actor.getFlag('wodsystem', 'enhancementsPage') || 0;
+        const totalPages = Math.max(1, Math.ceil(enhancements.length / 2));
+        if (currentPage < totalPages - 1) {
+            await this.actor.setFlag('wodsystem', 'enhancementsPage', currentPage + 1);
+        }
+    }
+
+    /**
+     * Backgrounds Expanded pagination handlers
+     */
+    async _onBackgroundsExpandedPrevPage(event) {
+        event.preventDefault();
+        const currentPage = this.actor.getFlag('wodsystem', 'backgroundsExpandedPage') || 0;
+        if (currentPage > 0) {
+            await this.actor.setFlag('wodsystem', 'backgroundsExpandedPage', currentPage - 1);
+        }
+    }
+
+    async _onBackgroundsExpandedNextPage(event) {
+        event.preventDefault();
+        const backgroundsExpanded = Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : [];
+        const currentPage = this.actor.getFlag('wodsystem', 'backgroundsExpandedPage') || 0;
+        const totalPages = Math.max(1, Math.ceil(backgroundsExpanded.length / 1));
+        if (currentPage < totalPages - 1) {
+            await this.actor.setFlag('wodsystem', 'backgroundsExpandedPage', currentPage + 1);
+        }
     }
 }
 

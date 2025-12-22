@@ -4,17 +4,17 @@
     <div class="merits-section">
         <h3>Merits</h3>
         <div class="merit-list">
-            {{#each actor.system.miscellaneous.merits as |merit index|}}
+            {{#each actor.system.miscellaneous.merits as |merit meritIndex|}}
             <div class="merit-item">
-                <input type="text" name="system.miscellaneous.merits.{{index}}.name" 
-                       value="{{merit.name}}" placeholder="Merit Name" class="merit-name"/>
-                <div class="dot-container" data-merit="{{index}}">
-                    {{#times 5}}
+                <input type="text" value="{{merit.name}}" placeholder="Merit Name" class="merit-name" 
+                       data-index="{{meritIndex}}"/>
+                <div class="dot-container" data-merit="{{meritIndex}}">
+                    {{#times 7}}
                     <div class="dot {{#if (lt @index ../merit.value)}}filled{{/if}}" data-index="{{@index}}"></div>
                     {{/times}}
-                    <input type="hidden" class="dot-input" name="system.miscellaneous.merits.{{index}}.value" value="{{merit.value}}"/>
+                    <input type="hidden" class="dot-input" value="{{merit.value}}"/>
                 </div>
-                <a class="delete-merit" data-index="{{index}}">
+                <a class="delete-merit" data-index="{{meritIndex}}">
                     <i class="fas fa-trash"></i>
                 </a>
             </div>
@@ -27,17 +27,17 @@
     <div class="flaws-section">
         <h3>Flaws</h3>
         <div class="flaw-list">
-            {{#each actor.system.miscellaneous.flaws as |flaw index|}}
+            {{#each actor.system.miscellaneous.flaws as |flaw flawIndex|}}
             <div class="flaw-item">
-                <input type="text" name="system.miscellaneous.flaws.{{index}}.name" 
-                       value="{{flaw.name}}" placeholder="Flaw Name" class="flaw-name"/>
-                <div class="dot-container" data-flaw="{{index}}">
-                    {{#times 5}}
+                <input type="text" value="{{flaw.name}}" placeholder="Flaw Name" class="flaw-name" 
+                       data-index="{{flawIndex}}"/>
+                <div class="dot-container" data-flaw="{{flawIndex}}">
+                    {{#times 7}}
                     <div class="dot {{#if (lt @index ../flaw.value)}}filled{{/if}}" data-index="{{@index}}"></div>
                     {{/times}}
-                    <input type="hidden" class="dot-input" name="system.miscellaneous.flaws.{{index}}.value" value="{{flaw.value}}"/>
+                    <input type="hidden" class="dot-input" value="{{flaw.value}}"/>
                 </div>
-                <a class="delete-flaw" data-index="{{index}}">
+                <a class="delete-flaw" data-index="{{flawIndex}}">
                     <i class="fas fa-trash"></i>
                 </a>
             </div>

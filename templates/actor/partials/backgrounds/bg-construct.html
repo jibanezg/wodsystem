@@ -1,0 +1,57 @@
+<!-- Construct Background Template -->
+<div class="bg-template construct-template">
+    <div class="template-field">
+        <label>Location</label>
+        <input type="text" 
+               name="system.backgroundsExpanded.{{index}}.templateData.location" 
+               value="{{data.location}}" 
+               placeholder="Where is your construct/headquarters located?" 
+               class="template-input" />
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Size (sq ft)</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.size" 
+                   value="{{data.size}}" 
+                   placeholder="0" 
+                   class="template-input-number" />
+        </div>
+        
+        <div class="template-field">
+            <label>Security Level (1-10)</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.securityLevel" 
+                   value="{{data.securityLevel}}" 
+                   min="1" 
+                   max="10" 
+                   placeholder="5" 
+                   class="template-input-number" />
+        </div>
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Security Systems</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.securitySystems" 
+                      placeholder="Surveillance, biometric access, AI monitoring"
+                      class="template-textarea">{{data.securitySystems}}</textarea>
+        </div>
+        
+        <div class="template-field">
+            <label>Equipment Available</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.equipmentAvailable" 
+                      placeholder="Lab equipment, computing, fabrication tools"
+                      class="template-textarea">{{data.equipmentAvailable}}</textarea>
+        </div>
+    </div>
+    
+    <div class="template-field">
+        <label>Facilities</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.facilities" 
+                  placeholder="Research labs, training rooms, secure storage, operations center"
+                  class="template-textarea">{{data.facilities}}</textarea>
+    </div>
+</div>
+

@@ -50,3 +50,179 @@
     --wod-damage-lethal: #2D5016;     /* Green stripes */
     --wod-damage-aggravated: #2D5016; /* Green fill */
 }
+
+/* Locked background dropdown styling */
+.wod.sheet.actor.mortal .background-name-select:disabled {
+    background-color: var(--wod-bg-light);
+    color: var(--wod-text-main);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Lock background icon - positioned beside delete */
+.wod.sheet.actor.mortal .lock-background {
+    color: var(--wod-text-alt);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0 4px;
+}
+
+.wod.sheet.actor.mortal .lock-background:hover {
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.mortal .lock-background .fa-lock {
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.mortal .lock-background .fa-lock-open {
+    color: var(--wod-text-alt);
+}
+
+/* Backgrounds Expanded Pagination */
+.wod.sheet.actor.mortal .bg-expanded-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px;
+    border-top: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    background: var(--wod-bg-light);
+    color: var(--wod-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary);
+    color: white;
+    border-color: var(--wod-primary);
+}
+
+.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-info {
+    font-size: 0.85em;
+    color: var(--wod-text-alt);
+    font-weight: bold;
+}
+
+/* Backgrounds Expanded - Card styling */
+.wod.sheet.actor.mortal .bg-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.wod.sheet.actor.mortal .bg-card-mini {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    background: white;
+    padding: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.wod.sheet.actor.mortal .bg-card-mini:hover {
+    border-color: var(--wod-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.mortal .bg-card-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.mortal .bg-name {
+    font-weight: bold;
+    font-size: 0.75em;
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.mortal .bg-rating {
+    font-size: 0.7em;
+    color: var(--wod-accent-tech);
+}
+
+.wod.sheet.actor.mortal .bg-card-mini-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.wod.sheet.actor.mortal .bg-card-mini-actions a {
+    color: var(--wod-text-alt);
+    font-size: 0.75em;
+    padding: 1px 3px;
+    transition: color 0.2s;
+}
+
+.wod.sheet.actor.mortal .bg-card-mini-actions a:hover {
+    color: var(--wod-primary);
+}
+
+/* Category Sections */
+.wod.sheet.actor.mortal .bg-category-section {
+    margin-bottom: 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.mortal .bg-category-header {
+    background: var(--wod-primary);
+    color: white;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.wod.sheet.actor.mortal .bg-category-header:hover {
+    background: var(--wod-accent);
+}
+
+.wod.sheet.actor.mortal .bg-category-header h3 {
+    margin: 0;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod.sheet.actor.mortal .bg-category-content {
+    padding: 6px;
+    background: var(--wod-bg-light);
+}
+
+/* Hover Preview Tooltip */
+.wod.sheet.actor.mortal .bg-preview-tooltip {
+    position: absolute;
+    background: var(--wod-primary);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 2px solid var(--wod-accent);
+    font-size: 0.8em;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 280px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    line-height: 1.4;
+}

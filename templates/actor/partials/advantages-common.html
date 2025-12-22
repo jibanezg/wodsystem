@@ -40,7 +40,9 @@
                 <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
                        value="{{background.customName}}" placeholder="Custom Background" class="background-custom-name"/>
                 {{else}}
-                <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" class="background-name-select">
+                <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" 
+                        class="background-name-select"
+                        {{#if background.locked}}disabled{{/if}}>
                     {{#each ../backgroundsList as |bg|}}
                     <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
                     {{/each}}
@@ -52,22 +54,25 @@
                     {{/times}}
                     <input type="hidden" class="dot-input" value="{{background.value}}"/>
                 </div>
+                <a class="lock-background" data-index="{{background.actualIndex}}" title="{{#if background.locked}}Unlock{{else}}Lock{{/if}} background selection">
+                    <i class="fas {{#if background.locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
+                </a>
                 <a class="delete-background" data-index="{{background.actualIndex}}">
                     <i class="fas fa-trash"></i>
                 </a>
             </div>
             {{/each}}
             <div class="background-controls">
-                <button class="add-background" title="Add Background">+</button>
+                <button class="add-background" type="button" title="Add Background">+</button>
                 {{#if backgroundsPagination.hasMultiplePages}}
                 <div class="background-pagination">
-                    <button class="backgrounds-prev-page pagination-btn" 
+                    <button class="backgrounds-prev-page pagination-btn" type="button"
                             {{#unless backgroundsPagination.hasPrevPage}}disabled{{/unless}}
                             title="Previous Page">
                         <i class="fas fa-chevron-left"></i>
                     </button>
                     <span class="pagination-info">{{add backgroundsPagination.currentPage 1}} / {{backgroundsPagination.totalPages}}</span>
-                    <button class="backgrounds-next-page pagination-btn" 
+                    <button class="backgrounds-next-page pagination-btn" type="button"
                             {{#unless backgroundsPagination.hasNextPage}}disabled{{/unless}}
                             title="Next Page">
                         <i class="fas fa-chevron-right"></i>

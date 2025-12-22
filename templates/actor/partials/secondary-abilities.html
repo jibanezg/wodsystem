@@ -5,17 +5,17 @@
         <div class="secondary-ability-category">
             <h4>Secondary Talents</h4>
             <div class="secondary-ability-list">
-                {{#each actor.system.secondaryAbilities.talents as |ability index|}}
+                {{#each actor.system.secondaryAbilities.talents as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" name="system.secondaryAbilities.talents.{{index}}.name" 
-                           value="{{ability.name}}" placeholder="Ability Name" class="ability-name"/>
-                    <div class="dot-container" data-secondary-ability="true" data-category="talents" data-index="{{index}}">
+                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" class="ability-name-input"
+                           data-category="talents" data-index="{{abilityIndex}}"/>
+                    <div class="dot-container" data-secondary-ability="talents" data-secondary-index="{{abilityIndex}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
                         {{/times}}
                         <input type="hidden" class="dot-input" value="{{ability.value}}"/>
                     </div>
-                    <a class="delete-secondary-ability" data-category="talents" data-index="{{index}}">
+                    <a class="delete-secondary-ability" data-category="talents" data-index="{{abilityIndex}}">
                         <i class="fas fa-trash"></i>
                     </a>
                 </div>
@@ -28,17 +28,17 @@
         <div class="secondary-ability-category">
             <h4>Secondary Skills</h4>
             <div class="secondary-ability-list">
-                {{#each actor.system.secondaryAbilities.skills as |ability index|}}
+                {{#each actor.system.secondaryAbilities.skills as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" name="system.secondaryAbilities.skills.{{index}}.name" 
-                           value="{{ability.name}}" placeholder="Ability Name" class="ability-name"/>
-                    <div class="dot-container" data-secondary-ability="true" data-category="skills" data-index="{{index}}">
+                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" class="ability-name-input"
+                           data-category="skills" data-index="{{abilityIndex}}"/>
+                    <div class="dot-container" data-secondary-ability="skills" data-secondary-index="{{abilityIndex}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
                         {{/times}}
                         <input type="hidden" class="dot-input" value="{{ability.value}}"/>
                     </div>
-                    <a class="delete-secondary-ability" data-category="skills" data-index="{{index}}">
+                    <a class="delete-secondary-ability" data-category="skills" data-index="{{abilityIndex}}">
                         <i class="fas fa-trash"></i>
                     </a>
                 </div>
@@ -51,17 +51,17 @@
         <div class="secondary-ability-category">
             <h4>Secondary Knowledges</h4>
             <div class="secondary-ability-list">
-                {{#each actor.system.secondaryAbilities.knowledges as |ability index|}}
+                {{#each actor.system.secondaryAbilities.knowledges as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" name="system.secondaryAbilities.knowledges.{{index}}.name" 
-                           value="{{ability.name}}" placeholder="Ability Name" class="ability-name"/>
-                    <div class="dot-container" data-secondary-ability="true" data-category="knowledges" data-index="{{index}}">
+                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" class="ability-name-input"
+                           data-category="knowledges" data-index="{{abilityIndex}}"/>
+                    <div class="dot-container" data-secondary-ability="knowledges" data-secondary-index="{{abilityIndex}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
                         {{/times}}
                         <input type="hidden" class="dot-input" value="{{ability.value}}"/>
                     </div>
-                    <a class="delete-secondary-ability" data-category="knowledges" data-index="{{index}}">
+                    <a class="delete-secondary-ability" data-category="knowledges" data-index="{{abilityIndex}}">
                         <i class="fas fa-trash"></i>
                     </a>
                 </div>

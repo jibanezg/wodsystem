@@ -1,0 +1,87 @@
+<!-- Resources Background Template -->
+<div class="bg-template resources-template">
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Income Level</label>
+            <select name="system.backgroundsExpanded.{{index}}.templateData.incomeLevel" class="template-select">
+                <option value="poor" {{#if (eq data.incomeLevel "poor")}}selected{{/if}}>Poor ($500/month)</option>
+                <option value="middle" {{#if (eq data.incomeLevel "middle")}}selected{{/if}}>Middle Class ($2,000/month)</option>
+                <option value="comfortable" {{#if (eq data.incomeLevel "comfortable")}}selected{{/if}}>Comfortable ($5,000/month)</option>
+                <option value="wealthy" {{#if (eq data.incomeLevel "wealthy")}}selected{{/if}}>Wealthy ($20,000/month)</option>
+                <option value="rich" {{#if (eq data.incomeLevel "rich")}}selected{{/if}}>Rich ($100,000/month)</option>
+                <option value="ultra_rich" {{#if (eq data.incomeLevel "ultra_rich")}}selected{{/if}}>Ultra Rich ($500,000+/month)</option>
+            </select>
+        </div>
+        
+        <div class="template-field">
+            <label>Liquid Cash Available</label>
+            <input type="text" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.liquidCash" 
+                   value="{{data.liquidCash}}" 
+                   placeholder="Cash on hand" 
+                   class="template-input" />
+        </div>
+    </div>
+    
+    <div class="template-field">
+        <label>Properties Owned</label>
+        <div class="properties-list">
+            {{#each data.properties as |property propIndex|}}
+            <div class="property-entry">
+                <div class="property-header">
+                    <input type="text" 
+                           name="system.backgroundsExpanded.{{../index}}.templateData.properties.{{propIndex}}.type" 
+                           value="{{property.type}}" 
+                           placeholder="Property Type (e.g., House, Apartment, Office)" 
+                           class="property-input" />
+                    <a class="delete-property" data-bg-index="{{../index}}" data-prop-index="{{propIndex}}" title="Remove Property">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+                <input type="text" 
+                       name="system.backgroundsExpanded.{{../index}}.templateData.properties.{{propIndex}}.location" 
+                       value="{{property.location}}" 
+                       placeholder="Location" 
+                       class="property-input" />
+                <input type="text" 
+                       name="system.backgroundsExpanded.{{../index}}.templateData.properties.{{propIndex}}.value" 
+                       value="{{property.value}}" 
+                       placeholder="Estimated Value" 
+                       class="property-input" />
+            </div>
+            {{/each}}
+        </div>
+        {{#if isEditMode}}
+        <button class="add-property" data-bg-index="{{index}}" type="button">+ Add Property</button>
+        {{/if}}
+    </div>
+    
+    <div class="template-field">
+        <label>Assets & Investments</label>
+        <div class="assets-list">
+            {{#each data.assets as |asset assetIndex|}}
+            <div class="asset-entry">
+                <div class="asset-header">
+                    <input type="text" 
+                           name="system.backgroundsExpanded.{{../index}}.templateData.assets.{{assetIndex}}.description" 
+                           value="{{asset.description}}" 
+                           placeholder="Asset Description (e.g., Stock Portfolio, Business)" 
+                           class="asset-input" />
+                    <a class="delete-asset" data-bg-index="{{../index}}" data-asset-index="{{assetIndex}}" title="Remove Asset">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+                <input type="text" 
+                       name="system.backgroundsExpanded.{{../index}}.templateData.assets.{{assetIndex}}.value" 
+                       value="{{asset.value}}" 
+                       placeholder="Estimated Value" 
+                       class="asset-input" />
+            </div>
+            {{/each}}
+        </div>
+        {{#if isEditMode}}
+        <button class="add-asset" data-bg-index="{{index}}" type="button">+ Add Asset</button>
+        {{/if}}
+    </div>
+</div>
+

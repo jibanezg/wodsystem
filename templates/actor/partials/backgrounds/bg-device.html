@@ -1,0 +1,68 @@
+<!-- Device Background Template -->
+<div class="bg-template device-template">
+    <div class="template-field">
+        <label>Device Name</label>
+        <input type="text" 
+               name="system.backgroundsExpanded.{{index}}.templateData.name" 
+               value="{{data.name}}" 
+               placeholder="Name of the device/wonder" 
+               class="template-input" />
+    </div>
+    
+    <div class="template-field-row-thirds">
+        <div class="template-field">
+            <label>Arete</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.arete" 
+                   value="{{data.arete}}" 
+                   min="0" 
+                   max="10" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+        
+        <div class="template-field">
+            <label>Paradox Risk</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.paradoxRisk" 
+                   value="{{data.paradoxRisk}}" 
+                   min="0" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+        
+        <div class="template-field">
+            <label>Quintessence</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.quintessence" 
+                   value="{{data.quintessence}}" 
+                   min="0" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+    </div>
+    
+    <div class="template-field">
+        <label>Description</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.description" 
+                  placeholder="Physical description and appearance"
+                  class="template-textarea">{{data.description}}</textarea>
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Spheres Required</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.spheres" 
+                      placeholder="e.g., Forces 3, Prime 2, Matter 1"
+                      class="template-textarea">{{data.spheres}}</textarea>
+        </div>
+        
+        <div class="template-field">
+            <label>Effects & Capabilities</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.effects" 
+                      placeholder="Functions and capabilities"
+                      class="template-textarea">{{data.effects}}</textarea>
+        </div>
+    </div>
+</div>
+

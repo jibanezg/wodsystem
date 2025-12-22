@@ -1,0 +1,64 @@
+<!-- Contacts Background Template -->
+<div class="bg-template contacts-template">
+    <div class="contacts-list">
+        {{#each data.npcs as |npc npcIndex|}}
+        <div class="contact-entry">
+            <div class="contact-header">
+                <input type="text" 
+                       name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.name" 
+                       value="{{npc.name}}" 
+                       placeholder="Contact Name" 
+                       class="contact-name-input" />
+                <a class="delete-contact" data-bg-index="{{../index}}" data-npc-index="{{npcIndex}}" title="Remove Contact">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+            
+            <div class="contact-details">
+                <div class="contact-field">
+                    <label>Role / Position</label>
+                    <input type="text" 
+                           name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.role" 
+                           value="{{npc.role}}" 
+                           placeholder="e.g., Police Detective, Corporate Executive" 
+                           class="contact-input" />
+                </div>
+                
+                <div class="contact-field-row">
+                    <div class="contact-field">
+                        <label>Influence Level (1-5)</label>
+                        <input type="number" 
+                               name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.influence" 
+                               value="{{npc.influence}}" 
+                               min="1" 
+                               max="5" 
+                               class="template-input-number-tiny" />
+                    </div>
+                    
+                    <div class="contact-field">
+                        <label>Reliability (1-5)</label>
+                        <input type="number" 
+                               name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.reliability" 
+                               value="{{npc.reliability}}" 
+                               min="1" 
+                               max="5" 
+                               class="template-input-number-tiny" />
+                    </div>
+                </div>
+                
+                <div class="contact-field">
+                    <label>Notes</label>
+                    <textarea name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.notes" 
+                              placeholder="Brief description, expertise, what information they can provide"
+                              class="template-textarea">{{npc.notes}}</textarea>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    
+    {{#if isEditMode}}
+    <button class="add-contact" data-bg-index="{{index}}" type="button">+ Add Contact</button>
+    {{/if}}
+</div>
+

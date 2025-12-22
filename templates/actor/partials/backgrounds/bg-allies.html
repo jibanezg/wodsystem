@@ -1,0 +1,64 @@
+<!-- Allies/Contacts Background Template -->
+<div class="bg-template allies-template">
+    <div class="allies-list">
+        {{#each data.npcs as |npc npcIndex|}}
+        <div class="ally-entry">
+            <div class="ally-header">
+                <input type="text" 
+                       name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.name" 
+                       value="{{npc.name}}" 
+                       placeholder="Contact Name" 
+                       class="ally-name-input" />
+                <a class="delete-ally" data-bg-index="{{../index}}" data-npc-index="{{npcIndex}}" title="Remove Contact">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+            
+            <div class="ally-details">
+                <div class="ally-field">
+                    <label>Role / Position</label>
+                    <input type="text" 
+                           name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.role" 
+                           value="{{npc.role}}" 
+                           placeholder="e.g., Police Detective, Corporate Executive" 
+                           class="ally-input" />
+                </div>
+                
+                <div class="ally-field-row">
+                    <div class="ally-field">
+                        <label>Influence Level (1-5)</label>
+                        <input type="number" 
+                               name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.influence" 
+                               value="{{npc.influence}}" 
+                               min="1" 
+                               max="5" 
+                               class="template-input-number-tiny" />
+                    </div>
+                    
+                    <div class="ally-field">
+                        <label>Reliability (1-5)</label>
+                        <input type="number" 
+                               name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.reliability" 
+                               value="{{npc.reliability}}" 
+                               min="1" 
+                               max="5" 
+                               class="template-input-number-tiny" />
+                    </div>
+                </div>
+                
+                <div class="ally-field">
+                    <label>Notes</label>
+                    <textarea name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.notes" 
+                              placeholder="Personality, history, how you met, what they owe you"
+                              class="template-textarea">{{npc.notes}}</textarea>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    
+    {{#if isEditMode}}
+    <button class="add-ally" data-bg-index="{{index}}" type="button">+ Add Ally</button>
+    {{/if}}
+</div>
+

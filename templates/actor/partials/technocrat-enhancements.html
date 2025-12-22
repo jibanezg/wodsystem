@@ -1,0 +1,84 @@
+<!-- Body Enhancements Section -->
+<div class="enhancements-section">
+    <h2>Body Enhancements</h2>
+    <p class="section-description">Cybernetic and biotechnological augmentations integrated into the body</p>
+    
+    <div class="enhancements-grid">
+        {{#each enhancementsPagination.enhancements as |enhancement|}}
+        <div class="enhancement-card">
+            <div class="enhancement-header">
+                <input type="text" 
+                       name="system.enhancements.{{enhancement.actualIndex}}.name" 
+                       value="{{enhancement.name}}" 
+                       placeholder="Enhancement Name" 
+                       class="enhancement-name-input" />
+                <a class="delete-enhancement" data-index="{{enhancement.actualIndex}}" title="Delete Enhancement">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            
+            <div class="enhancement-body">
+                <div class="enhancement-field">
+                    <label>Location</label>
+                    <select name="system.enhancements.{{enhancement.actualIndex}}.location" 
+                            class="enhancement-location-select">
+                        <option value="" {{#unless enhancement.location}}selected{{/unless}}>Select Location...</option>
+                        <option value="Head" {{#if (eq enhancement.location "Head")}}selected{{/if}}>Head</option>
+                        <option value="Eyes" {{#if (eq enhancement.location "Eyes")}}selected{{/if}}>Eyes</option>
+                        <option value="Neural" {{#if (eq enhancement.location "Neural")}}selected{{/if}}>Neural</option>
+                        <option value="Torso" {{#if (eq enhancement.location "Torso")}}selected{{/if}}>Torso</option>
+                        <option value="Arms" {{#if (eq enhancement.location "Arms")}}selected{{/if}}>Arms</option>
+                        <option value="Hands" {{#if (eq enhancement.location "Hands")}}selected{{/if}}>Hands</option>
+                        <option value="Legs" {{#if (eq enhancement.location "Legs")}}selected{{/if}}>Legs</option>
+                        <option value="Internal" {{#if (eq enhancement.location "Internal")}}selected{{/if}}>Internal</option>
+                        <option value="Skeletal" {{#if (eq enhancement.location "Skeletal")}}selected{{/if}}>Skeletal</option>
+                        <option value="Dermal" {{#if (eq enhancement.location "Dermal")}}selected{{/if}}>Dermal</option>
+                        <option value="Custom" {{#if (eq enhancement.location "Custom")}}selected{{/if}}>Custom</option>
+                    </select>
+                </div>
+                
+                <div class="enhancement-field">
+                    <label>Description</label>
+                    <textarea name="system.enhancements.{{enhancement.actualIndex}}.description" 
+                              placeholder="Physical description and appearance"
+                              class="enhancement-description-input">{{enhancement.description}}</textarea>
+                </div>
+                
+                <div class="enhancement-field">
+                    <label>Game Effects</label>
+                    <textarea name="system.enhancements.{{enhancement.actualIndex}}.effects" 
+                              placeholder="Mechanical benefits and bonuses"
+                              class="enhancement-effects-input">{{enhancement.effects}}</textarea>
+                </div>
+                
+                <div class="enhancement-field">
+                    <label>Side Effects / Drawbacks</label>
+                    <textarea name="system.enhancements.{{enhancement.actualIndex}}.sideEffects" 
+                              placeholder="Negative effects, maintenance requirements, vulnerabilities"
+                              class="enhancement-sideeffects-input">{{enhancement.sideEffects}}</textarea>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    
+    <div class="enhancements-controls">
+        <button class="add-enhancement" type="button" title="Add Enhancement">+</button>
+        {{#if enhancementsPagination.hasMultiplePages}}
+        <div class="enhancement-pagination">
+            <button class="enhancements-prev-page pagination-btn" type="button"
+                    {{#unless enhancementsPagination.hasPrevPage}}disabled{{/unless}}
+                    title="Previous Page">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="pagination-info">{{add enhancementsPagination.currentPage 1}} / {{enhancementsPagination.totalPages}}</span>
+            <button class="enhancements-next-page pagination-btn" type="button"
+                    {{#unless enhancementsPagination.hasNextPage}}disabled{{/unless}}
+                    title="Next Page">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        {{/if}}
+    </div>
+</div>
+

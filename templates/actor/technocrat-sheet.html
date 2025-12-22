@@ -5,9 +5,10 @@
     <!-- Tab Navigation -->
     <nav class="sheet-tabs" data-group="primary">
         <a class="item" data-tab="main">Main</a>
-        <a class="item" data-tab="secondary-abilities">Secondary Abilities</a>
+        <a class="item" data-tab="enlightened-science">Enlightened Science</a>
+        <a class="item" data-tab="backgrounds-expanded">Backgrounds (Expanded)</a>
+        <a class="item" data-tab="traits">Traits</a>
         <a class="item" data-tab="biography">Biography</a>
-        <a class="item" data-tab="merits-flaws">Merits & Flaws</a>
     </nav>
 
     <!-- Tab Content -->
@@ -34,19 +35,34 @@
             </div>
         </div>
 
-        <!-- Secondary Abilities Tab -->
-        <div class="tab" data-group="primary" data-tab="secondary-abilities">
-            {{> "systems/wodsystem/templates/actor/partials/secondary-abilities.html"}}
+        <!-- Enlightened Science Tab -->
+        <div class="tab" data-group="primary" data-tab="enlightened-science">
+            {{> "systems/wodsystem/templates/actor/partials/technocrat-spheres.html"}}
+        </div>
+
+        <!-- Backgrounds (Expanded) Tab -->
+        <div class="tab" data-group="primary" data-tab="backgrounds-expanded">
+            {{> "systems/wodsystem/templates/actor/partials/technocrat-backgrounds-expanded.html"}}
+        </div>
+
+        <!-- Traits Tab (Secondary Abilities + Merits & Flaws) -->
+        <div class="tab" data-group="primary" data-tab="traits">
+            <div class="traits-layout">
+                <!-- Secondary Abilities Section (Full Width Top) -->
+                <div class="secondary-abilities-container">
+                    {{> "systems/wodsystem/templates/actor/partials/secondary-abilities.html"}}
+                </div>
+                
+                <!-- Merits & Flaws Section (Two Columns Below) -->
+                <div class="merits-flaws-container">
+                    {{> "systems/wodsystem/templates/actor/partials/merits-flaws.html"}}
+                </div>
+            </div>
         </div>
 
         <!-- Biography Tab -->
         <div class="tab" data-group="primary" data-tab="biography">
             {{> "systems/wodsystem/templates/actor/partials/biography.html"}}
-        </div>
-
-        <!-- Merits & Flaws Tab -->
-        <div class="tab" data-group="primary" data-tab="merits-flaws">
-            {{> "systems/wodsystem/templates/actor/partials/merits-flaws.html"}}
         </div>
     </section>
 </form>

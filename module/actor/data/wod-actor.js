@@ -22,6 +22,18 @@ export class WodActor extends Actor {
         // Migrate backgrounds from object to array (for old actors)
         this._migrateBackgrounds();
         
+        // Ensure secondary abilities are properly initialized (migration for old actors)
+        this._ensureSecondaryAbilities();
+        
+        // Migrate secondary abilities from arrays to objects (one-time fix)
+        this._migrateSecondaryAbilitiesToObjects();
+        
+        // Ensure secondary abilities stay as arrays (fix Foundry form corruption)
+        this._ensureSecondaryAbilitiesAreArrays();
+        
+        // Ensure merits and flaws are arrays (fix Foundry form corruption)
+        this._ensureMeritsFlawsAreArrays();
+        
         // Calculate creature-specific derived stats
         if (this.type === "Technocrat") {
             // TODO: Implement Primal Energy auto-calculation from Genius table
@@ -93,6 +105,121 @@ export class WodActor extends Actor {
         if (!this.system.miscellaneous.backgrounds) {
             this.system.miscellaneous.backgrounds = [];
         }
+    }
+    
+    /**
+     * Ensure secondary abilities are properly initialized (for old or corrupted actors)
+     * Makes sure talents, skills, and knowledges exist as arrays
+     */
+    _ensureSecondaryAbilities() {
+        if (!this.system.secondaryAbilities) {
+            this.system.secondaryAbilities = {
+                talents: [],
+                skills: [],
+                knowledges: []
+            };
+            return;
+        }
+        
+        // Ensure each category exists (as array)
+        if (!this.system.secondaryAbilities.talents) {
+            this.system.secondaryAbilities.talents = [];
+        }
+        if (!this.system.secondaryAbilities.skills) {
+            this.system.secondaryAbilities.skills = [];
+        }
+        if (!this.system.secondaryAbilities.knowledges) {
+            this.system.secondaryAbilities.knowledges = [];
+        }
+    }
+    
+    /**
+     * Migrate secondary abilities from object format to array format (to match merits)
+     * Old format: { "Custom": 3 }
+     * New format: [{ name: "Custom", value: 3 }]
+     */
+    _migrateSecondaryAbilitiesToObjects() {
+        if (!this.system.secondaryAbilities) return;
+        
+        ['talents', 'skills', 'knowledges'].forEach(category => {
+            const abilities = this.system.secondaryAbilities[category];
+            
+            // If it's already an array, make sure it's properly formatted
+            if (Array.isArray(abilities)) {
+                return; // Already correct format
+            }
+            
+            // If it's an object, convert it to an array
+            if (abilities && typeof abilities === 'object') {
+                const newAbilities = [];
+                for (const [name, value] of Object.entries(abilities)) {
+                    // Handle both simple values and nested objects
+                    if (typeof value === 'number') {
+                        newAbilities.push({ name: name, value: value });
+                    } else if (value && typeof value === 'object' && value.name !== undefined) {
+                        // Corrupted format
+                        newAbilities.push({ name: name, value: value.value || 0 });
+                    }
+                }
+                this.system.secondaryAbilities[category] = newAbilities;
+            }
+        });
+    }
+    
+    /**
+     * Ensure merits and flaws are arrays (fix Foundry form processing corruption)
+     * Foundry's form processing can convert arrays to objects - convert them back
+     */
+    _ensureMeritsFlawsAreArrays() {
+        if (!this.system.miscellaneous) return;
+        
+        // If merits is not an array (corrupted by form processing), try to convert it back
+        if (!Array.isArray(this.system.miscellaneous.merits)) {
+            console.warn("Merits was not an array, attempting to recover data");
+            const meritsObj = this.system.miscellaneous.merits;
+            if (meritsObj && typeof meritsObj === 'object') {
+                // Convert object back to array format: {0: {name: "X", value: 1}} -> [{name: "X", value: 1}]
+                // Keep entries even if name is empty (they might be new/being edited)
+                this.system.miscellaneous.merits = Object.values(meritsObj).filter(m => m && typeof m === 'object');
+            } else {
+                this.system.miscellaneous.merits = [];
+            }
+        }
+        
+        // If flaws is not an array (corrupted by form processing), try to convert it back
+        if (!Array.isArray(this.system.miscellaneous.flaws)) {
+            console.warn("Flaws was not an array, attempting to recover data");
+            const flawsObj = this.system.miscellaneous.flaws;
+            if (flawsObj && typeof flawsObj === 'object') {
+                // Convert object back to array format: {0: {name: "X", value: 1}} -> [{name: "X", value: 1}]
+                // Keep entries even if name is empty (they might be new/being edited)
+                this.system.miscellaneous.flaws = Object.values(flawsObj).filter(f => f && typeof f === 'object');
+            } else {
+                this.system.miscellaneous.flaws = [];
+            }
+        }
+    }
+    
+    /**
+     * Ensure secondary abilities are arrays (fix Foundry form processing corruption)
+     */
+    _ensureSecondaryAbilitiesAreArrays() {
+        if (!this.system.secondaryAbilities) return;
+        
+        ['talents', 'skills', 'knowledges'].forEach(category => {
+            const abilities = this.system.secondaryAbilities[category];
+            
+            // If not an array (corrupted by form processing), convert it back
+            if (!Array.isArray(abilities)) {
+                console.warn(`Secondary ${category} was not an array, attempting to recover data`);
+                if (abilities && typeof abilities === 'object') {
+                    // Convert object back to array format
+                    this.system.secondaryAbilities[category] = Object.values(abilities).filter(a => a && a.name);
+                } else {
+                    this.system.secondaryAbilities[category] = [];
+                }
+            }
+        });
     }
     
     /**

@@ -1,0 +1,58 @@
+<!-- Mentor Background Template -->
+<div class="bg-template mentor-template">
+    <div class="template-field">
+        <label>Mentor Name</label>
+        <input type="text" 
+               name="system.backgroundsExpanded.{{index}}.templateData.mentorName" 
+               value="{{data.mentorName}}" 
+               placeholder="Name of your mentor" 
+               class="template-input" />
+    </div>
+    
+    <div class="template-field">
+        <label>Convention / Specialty</label>
+        <input type="text" 
+               name="system.backgroundsExpanded.{{index}}.templateData.convention" 
+               value="{{data.convention}}" 
+               placeholder="e.g., Iteration X, Progenitors, Void Engineers" 
+               class="template-input" />
+    </div>
+    
+    <div class="template-field">
+        <label>Relationship Quality (1-5 dots)</label>
+        <div class="dot-container" data-bg-mentor-relationship="{{index}}">
+            {{#times 5}}
+            <div class="dot {{#if (lt @index ../data.relationshipLevel)}}filled{{/if}}" data-index="{{@index}}"></div>
+            {{/times}}
+            <input type="hidden" name="system.backgroundsExpanded.{{index}}.templateData.relationshipLevel" value="{{data.relationshipLevel}}" class="dot-input"/>
+        </div>
+    </div>
+    
+    <div class="template-field">
+        <label>Contact Frequency</label>
+        <select name="system.backgroundsExpanded.{{index}}.templateData.contactFrequency" class="template-select">
+            <option value="daily" {{#if (eq data.contactFrequency "daily")}}selected{{/if}}>Daily</option>
+            <option value="weekly" {{#if (eq data.contactFrequency "weekly")}}selected{{/if}}>Weekly</option>
+            <option value="monthly" {{#if (eq data.contactFrequency "monthly")}}selected{{/if}}>Monthly</option>
+            <option value="rarely" {{#if (eq data.contactFrequency "rarely")}}selected{{/if}}>Rarely</option>
+            <option value="emergency" {{#if (eq data.contactFrequency "emergency")}}selected{{/if}}>Emergency Only</option>
+        </select>
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Teachings & Specialties</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.teachings" 
+                      placeholder="Areas of expertise"
+                      class="template-textarea">{{data.teachings}}</textarea>
+        </div>
+        
+        <div class="template-field">
+            <label>Notes & Personality</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.notes" 
+                      placeholder="Personality, history"
+                      class="template-textarea">{{data.notes}}</textarea>
+        </div>
+    </div>
+</div>
+

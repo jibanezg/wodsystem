@@ -31,21 +31,21 @@
     align-items: end;
 }
 
-.wod.sheet.actor .identity-field {
+.identity-field {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.wod.sheet.actor .identity-field label {
+.identity-field label {
     font-weight: bold;
     font-size: 10px;
     color: var(--wod-primary, #2D5016);
     text-transform: uppercase;
 }
 
-.wod.sheet.actor .identity-field input,
-.wod.sheet.actor .identity-field select {
+.identity-field input,
+.identity-field select {
     padding: 3px 5px;
     border: 1px solid #ccc;
     border-radius: 2px;
@@ -53,12 +53,12 @@
     font-size: 11px;
 }
 
-.wod.sheet.actor .archetype-select {
+.archetype-select {
     cursor: pointer;
 }
 
 /* Navigation Tabs */
-.wod.sheet.actor .sheet-tabs {
+.sheet-tabs {
     flex: 0;
     display: flex;
     border-bottom: 2px solid var(--wod-primary, #2D5016);
@@ -67,7 +67,7 @@
     margin: 0 0 3px 0;
 }
 
-.wod.sheet.actor .sheet-tabs .item {
+.sheet-tabs .item {
     flex: 0 0 auto;
     font-weight: bold;
     padding: 4px 12px;
@@ -81,27 +81,27 @@
     transition: background 0.2s;
 }
 
-.wod.sheet.actor .sheet-tabs .item:hover {
+.sheet-tabs .item:hover {
     background: #d0d0d0;
 }
 
-.wod.sheet.actor .sheet-tabs .item.active {
+.sheet-tabs .item.active {
     background: var(--wod-primary, #2D5016);
     color: white;
     border-bottom: none;
 }
 
 /* Tab Content */
-.wod.sheet.actor .tab {
+.tab {
     display: none;
 }
 
-.wod.sheet.actor .tab.active {
+.tab.active {
     display: block;
 }
 
 /* Main content layout - Grid based */
-.wod.sheet.actor .main-layout {
+.main-layout {
     display: grid;
     grid-template-columns: 70% 30%;
     gap: 10px;
@@ -109,19 +109,19 @@
     align-items: start;
 }
 
-.wod.sheet.actor .left-content {
+.left-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.wod.sheet.actor .attributes-abilities-section {
+.attributes-abilities-section {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.wod.sheet.actor .health-sidebar {
+.health-sidebar {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -130,7 +130,7 @@
     overflow-y: auto;
 }
 
-.wod.sheet.actor .advantages-bottom {
+.advantages-bottom {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
@@ -138,7 +138,7 @@
     border-top: 2px solid var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .advantage-column {
+.advantage-column {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -148,25 +148,25 @@
     background: #fafafa;
 }
 
-.wod.sheet.actor .advantage-column-spacer {
+.advantage-column-spacer {
     /* Empty spacer to maintain 2-column grid alignment */
     display: none;
 }
 
 /* Legacy column classes for backwards compatibility */
-.wod.sheet.actor .left-column {
+.left-column {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.wod.sheet.actor .right-column {
+.right-column {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.wod.sheet.actor .right-column-header {
+.right-column-header {
     background: var(--wod-primary, #2D5016);
     color: white;
     padding: 5px;
@@ -191,18 +191,18 @@
 }
 
 /* Attributes section */
-.wod.sheet.actor .attributes-section {
+.attributes-section {
     flex: 0 0 auto;
 }
 
-.wod.sheet.actor .attributes-grid {
+.attributes-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
     height: auto;
 }
 
-.wod.sheet.actor .attribute-category {
+.attribute-category {
     border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 2px;
@@ -217,25 +217,25 @@
     border-bottom: 1px solid var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .attribute-list {
+.attribute-list {
     display: flex;
     flex-direction: column;
     gap: 1px;
 }
 
 /* Abilities section */
-.wod.sheet.actor .abilities-section {
+.abilities-section {
     flex: 0 0 auto;
 }
 
-.wod.sheet.actor .abilities-grid {
+.abilities-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 3px;
     height: auto;
 }
 
-.wod.sheet.actor .ability-category {
+.ability-category {
     border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 2px;
@@ -250,21 +250,21 @@
     border-bottom: 1px solid var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .ability-list {
+.ability-list {
     display: flex;
     flex-direction: column;
     gap: 1px;
 }
 
 /* Mortal Powers section */
-.wod.sheet.actor .mortal-powers-section {
+.mortal-powers-section {
     border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 8px 10px;
     margin-bottom: 5px;
 }
 
-.wod.sheet.actor .numina-section {
+.numina-section {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -279,7 +279,7 @@
     border-bottom: 1px solid #ccc;
 }
 
-.wod.sheet.actor .numina-info {
+.numina-info {
     font-size: 0.7em;
     font-style: italic;
     padding: 8px 10px;
@@ -288,7 +288,7 @@
     margin-bottom: 5px;
 }
 
-.wod.sheet.actor .willpower-section {
+.willpower-section {
     margin-bottom: 5px;
 }
 
@@ -301,15 +301,15 @@
     border-bottom: 1px solid #ccc;
 }
 
-.wod.sheet.actor .willpower-tracks {
+.willpower-tracks {
     display: flex;
     flex-direction: column;
     gap: 3px;
     padding: 5px;
 }
 
-.wod.sheet.actor .willpower-permanent,
-.wod.sheet.actor .willpower-temporary {
+.willpower-permanent,
+.willpower-temporary {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -323,7 +323,7 @@
 }
 
 /* Temporary willpower uses squares instead of circles */
-.wod.sheet.actor .willpower-temporary .dot {
+.willpower-temporary .dot {
     border-radius: 0;  /* Remove circular shape for squares */
 }
 
@@ -336,14 +336,14 @@
     border-bottom: 1px solid #ccc;
 }
 
-.wod.sheet.actor .background-list {
+.background-list {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 5px;
 }
 
-.wod.sheet.actor .background {
+.background {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -355,7 +355,7 @@
     font-weight: bold;
 }
 
-.wod.sheet.actor .numina-placeholder {
+.numina-placeholder {
     font-size: 0.7em;
     font-style: italic;
     padding: 8px 10px;
@@ -366,7 +366,7 @@
 }
 
 /* Health section */
-.wod.sheet.actor .health-section {
+.health-section {
     border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 5px;
@@ -374,7 +374,7 @@
     flex-direction: column;
 }
 
-.wod.sheet.actor .reset-health {
+.reset-health {
     padding: 4px 6px;
     font-size: 0.7em;
     background: transparent;
@@ -390,7 +390,7 @@
     color: white;
 }
 
-.wod.sheet.actor .health-view-controls {
+.health-view-controls {
     display: flex;
     gap: 5px;
     justify-content: flex-end;
@@ -399,7 +399,7 @@
     margin-top: 5px;
 }
 
-.wod.sheet.actor .health-edit-controls {
+.health-edit-controls {
     display: flex;
     gap: 5px;
     justify-content: flex-end;
@@ -412,7 +412,7 @@
     font-size: 10px;
 }
 
-.wod.sheet.actor .health-track {
+.health-track {
     display: flex;
     flex-direction: column;
     gap: 3px;
@@ -420,7 +420,7 @@
     margin-bottom: 5px;
 }
 
-.wod.sheet.actor .health-level {
+.health-level {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -428,7 +428,7 @@
     font-size: 0.75em;
 }
 
-.wod.sheet.actor .health-box {
+.health-box {
     width: 18px;
     height: 18px;
     min-width: 18px;
@@ -442,18 +442,18 @@
     position: relative;
 }
 
-.wod.sheet.actor .health-box:hover {
+.health-box:hover {
     background: #ffeeee;
     transform: scale(1.1);
     box-shadow: 0 0 3px rgba(128, 0, 0, 0.3);
 }
 
 /* Bashing: X character inside the square */
-.wod.sheet.actor .health-box.damage-bashing {
+.health-box.damage-bashing {
     background: white;
 }
 
-.wod.sheet.actor .health-box.damage-bashing::after {
+.health-box.damage-bashing::after {
     content: "X";
     font-size: 14px;
     font-weight: bold;
@@ -462,7 +462,7 @@
 }
 
 /* Lethal: Diagonal stripes (zebra pattern) */
-.wod.sheet.actor .health-box.damage-lethal {
+.health-box.damage-lethal {
     background: repeating-linear-gradient(
         45deg,
         white,
@@ -473,23 +473,23 @@
 }
 
 /* Aggravated: Solid filled square */
-.wod.sheet.actor .health-box.damage-aggravated {
+.health-box.damage-aggravated {
     background: var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .health-name {
+.health-name {
     font-weight: bold;
     min-width: 85px;
 }
 
-.wod.sheet.actor .health-penalty {
+.health-penalty {
     font-size: 0.85em;
     color: #dc143c;
     font-weight: bold;
     min-width: 20px;
 }
 
-.wod.sheet.actor .health-summary {
+.health-summary {
     margin-top: 5px;
     padding: 5px;
     border-top: 1px solid #ccc;
@@ -500,7 +500,7 @@
     align-items: center;
 }
 
-.wod.sheet.actor .health-stat {
+.health-stat {
     text-align: center;
 }
 
@@ -518,7 +518,7 @@
 }
 
 /* Health Edit Mode */
-.wod.sheet.actor .toggle-health-edit {
+.toggle-health-edit {
     padding: 4px 6px;
     font-size: 0.7em;
     background: transparent;
@@ -538,14 +538,14 @@
     margin: 0;
 }
 
-.wod.sheet.actor .health-edit-mode {
+.health-edit-mode {
     display: flex;
     flex-direction: column;
     gap: 5px;
     padding: 5px;
 }
 
-.wod.sheet.actor .health-level-edit {
+.health-level-edit {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -555,7 +555,7 @@
     border-radius: 2px;
 }
 
-.wod.sheet.actor .health-name-edit {
+.health-name-edit {
     flex: 4;
     padding: 4px 6px;
     font-size: 0.75em;
@@ -563,7 +563,7 @@
     border-radius: 2px;
 }
 
-.wod.sheet.actor .health-penalty-edit {
+.health-penalty-edit {
     width: 60px;
     padding: 4px 6px;
     font-size: 0.75em;
@@ -572,7 +572,7 @@
     text-align: center;
 }
 
-.wod.sheet.actor .delete-health-level {
+.delete-health-level {
     width: 20px;
     height: 20px;
     padding: 0;
@@ -593,7 +593,7 @@
     color: white;
 }
 
-.wod.sheet.actor .add-health-level {
+.add-health-level {
     padding: 4px 6px;
     font-size: 0.7em;
     background: transparent;
@@ -614,7 +614,7 @@
 }
 
 /* Dot-based interface styles */
-.wod.sheet.actor .attribute, .ability {
+.attribute, .ability {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -633,13 +633,13 @@
     margin-right: 3px;
 }
 
-.wod.sheet.actor .dot-container {
+.dot-container {
     display: flex;
     gap: 1px;
     align-items: center;
 }
 
-.wod.sheet.actor .dot {
+.dot {
     width: 8px;
     height: 8px;
     border: 1px solid var(--wod-primary, #2D5016);
@@ -663,12 +663,12 @@
 }
 
 /* Hidden input field for form submission */
-.wod.sheet.actor .dot-input, .health-input {
+.dot-input, .health-input {
     display: none;
 }
 
 /* Biography Tab Content */
-.wod.sheet.actor .biography-content {
+.biography-content {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -689,13 +689,13 @@
     border-radius: 2px;
 }
 
-.wod.sheet.actor .bio-grid {
+.bio-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 
-.wod.sheet.actor .bio-field {
+.bio-field {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -716,13 +716,13 @@
 }
 
 /* Secondary Abilities */
-.wod.sheet.actor .secondary-abilities-grid {
+.secondary-abilities-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
 }
 
-.wod.sheet.actor .secondary-ability-category {
+.secondary-ability-category {
     border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 5px;
@@ -737,7 +737,7 @@
     border-bottom: 1px solid var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .secondary-ability {
+.secondary-ability {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -745,7 +745,7 @@
     font-size: 0.75em;
 }
 
-.wod.sheet.actor .secondary-ability .ability-name {
+.secondary-ability .ability-name {
     flex: 1;
     padding: 2px 4px;
     border: 1px solid #ccc;
@@ -753,7 +753,7 @@
     font-size: 10px;
 }
 
-.wod.sheet.actor .delete-secondary-ability {
+.delete-secondary-ability {
     cursor: pointer;
     color: #dc143c;
     font-size: 12px;
@@ -782,7 +782,7 @@ button:hover {
 }
 
 /* Virtues & Humanity - Compact Layout */
-.wod.sheet.actor .virtues-humanity-section {
+.virtues-humanity-section {
     margin-bottom: 5px;
 }
 
@@ -795,14 +795,14 @@ button:hover {
     border-bottom: 1px solid #ccc;
 }
 
-.wod.sheet.actor .virtues-compact {
+.virtues-compact {
     display: flex;
     flex-direction: column;
     gap: 2px;
     padding: 8px;
 }
 
-.wod.sheet.actor .virtue-item {
+.virtue-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -815,7 +815,7 @@ button:hover {
     color: var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .humanity-item {
+.humanity-item {
     border-top: 1px solid #ddd;
     padding-top: 2px;
     margin-top: 2px;
@@ -833,14 +833,14 @@ textarea {
 }
 
 /* Merits & Flaws Tab */
-.wod.sheet.actor .merits-flaws-content {
+.merits-flaws-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
-.wod.sheet.actor .merits-section,
-.wod.sheet.actor .flaws-section {
+.merits-section,
+.flaws-section {
     border: 1px solid var(--wod-primary, #2D5016);
     border-radius: 2px;
     padding: 5px;
@@ -857,20 +857,20 @@ textarea {
     border-radius: 2px;
 }
 
-.wod.sheet.actor .merit-list, .flaw-list {
+.merit-list, .flaw-list {
     display: flex;
     flex-direction: column;
     gap: 3px;
 }
 
-.wod.sheet.actor .merit-item, .flaw-item {
+.merit-item, .flaw-item {
     display: flex;
     align-items: center;
     gap: 5px;
     font-size: 0.75em;
 }
 
-.wod.sheet.actor .merit-name, .flaw-name {
+.merit-name, .flaw-name {
     flex: 1;
     padding: 3px 5px;
     border: 1px solid #ccc;
@@ -878,7 +878,7 @@ textarea {
     font-size: 11px;
 }
 
-.wod.sheet.actor .delete-merit, .delete-flaw, .delete-background {
+.delete-merit, .delete-flaw, .delete-background {
     cursor: pointer;
     color: #dc143c;
     font-size: 12px;
@@ -889,7 +889,7 @@ textarea {
 }
 
 /* Background Item Styling */
-.wod.sheet.actor .background-item {
+.background-item {
     display: flex;
     gap: 5px;
     align-items: center;
@@ -897,7 +897,7 @@ textarea {
     font-size: 0.75em;
 }
 
-.wod.sheet.actor .background-name-select {
+.background-name-select {
     flex: 1;
     padding: 2px 4px;
     border: 1px solid #ccc;
@@ -905,7 +905,7 @@ textarea {
     font-size: 10px;
 }
 
-.wod.sheet.actor .background-custom-name {
+.background-custom-name {
     flex: 1;
     padding: 2px 4px;
     border: 1px solid #ccc;
@@ -913,7 +913,7 @@ textarea {
     font-size: 10px;
 }
 
-.wod.sheet.actor .background-controls {
+.background-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -922,13 +922,13 @@ textarea {
     border-top: 1px solid #ddd;
 }
 
-.wod.sheet.actor .background-pagination {
+.background-pagination {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.wod.sheet.actor .pagination-btn {
+.pagination-btn {
     width: 24px;
     height: 24px;
     padding: 0;
@@ -956,14 +956,14 @@ textarea {
     color: #ccc;
 }
 
-.wod.sheet.actor .pagination-info {
+.pagination-info {
     font-size: 0.7em;
     color: #666;
     min-width: 40px;
     text-align: center;
 }
 
-.wod.sheet.actor .merit-flaw-summary {
+.merit-flaw-summary {
     grid-column: 1 / -1;
     display: flex;
     justify-content: space-around;
@@ -974,7 +974,7 @@ textarea {
     font-size: 0.8em;
 }
 
-.wod.sheet.actor .summary-item {
+.summary-item {
     text-align: center;
 }
 
@@ -1023,59 +1023,28 @@ button.add-secondary-knowledge:hover {
         min-width: 600px;
     }
     
-.wod.sheet.actor .main-layout {
+    .main-layout {
         grid-template-columns: 1fr;
     }
     
-.wod.sheet.actor .left-content {
+    .left-content {
         order: 1;
     }
     
-.wod.sheet.actor .health-sidebar {
+    .health-sidebar {
         order: 2;
     }
     
-.wod.sheet.actor .advantages-bottom {
+    .advantages-bottom {
         grid-template-columns: 1fr;
     }
     
-.wod.sheet.actor .advantage-column-spacer {
+    .advantage-column-spacer {
         display: none;
     }
     
-.wod.sheet.actor .attributes-grid,
-.wod.sheet.actor .abilities-grid {
+    .attributes-grid,
+    .abilities-grid {
         grid-template-columns: 1fr;
     }
-}
-
-/* ========================================
-   TRAITS TAB (Secondary Abilities + Merits & Flaws)
-   ======================================== */
-
-.wod.sheet.actor .traits-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 10px;
-}
-
-.wod.sheet.actor .secondary-abilities-container {
-    width: 100%;
-}
-
-.wod.sheet.actor .merits-flaws-container {
-    width: 100%;
-}
-
-/* Secondary abilities styling adjustments for combined view */
-.wod.sheet.actor .secondary-abilities-container .abilities-section h2 {
-    font-size: 1.1em;
-    margin-bottom: 10px;
-}
-
-/* Merits & flaws styling adjustments for combined view */
-.wod.sheet.actor .merits-flaws-container h2 {
-    font-size: 1.1em;
-    margin: 0 0 10px 0;
 }

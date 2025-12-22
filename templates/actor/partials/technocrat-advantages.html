@@ -1,4 +1,4 @@
-<!-- Column 1: Willpower + Enlightenment/Primal -->
+<!-- Column 1: Willpower, Enlightenment, Primal Energy, Paradox -->
 <div class="advantage-column technocrat-column-1">
     <!-- Section 1: Willpower -->
     <div class="willpower-section">
@@ -25,84 +25,32 @@
         </div>
     </div>
 
-    <!-- Section 3: Enlightenment + Primal Energy Combined -->
-    <div class="enlightenment-primal-section">
-        <div class="enlightenment-section">
-            <h4>Enlightenment (Arete)</h4>
-            <div class="dot-container" data-enlightenment="current">
-                {{#times 10}}
-                <div class="dot {{#if (lt @index ../actor.system.advantages.enlightenment.current)}}filled{{/if}}" data-index="{{@index}}"></div>
-                {{/times}}
-                <input type="hidden" class="dot-input" name="system.advantages.enlightenment.current" value="{{actor.system.advantages.enlightenment.current}}"/>
-            </div>
-        </div>
-        
-        <div class="primal-energy-section">
-            <h4>Primal Energy (Quintessence)</h4>
-            <div class="primal-inputs">
-                <div class="primal-field">
-                    <label>Maximum</label>
-                    <input type="number" name="system.advantages.primalEnergy.maximum" 
-                           value="{{actor.system.advantages.primalEnergy.maximum}}" 
-                           min="0" max="99" />
-                </div>
-                <div class="primal-field">
-                    <label>Current</label>
-                    <input type="number" name="system.advantages.primalEnergy.current" 
-                           value="{{actor.system.advantages.primalEnergy.current}}" 
-                           min="0" max="99" />
-                </div>
-            </div>
+    <!-- Section 2: Enlightenment -->
+    <div class="enlightenment-section">
+        <h4>Enlightenment (Arete)</h4>
+        <div class="dot-container" data-enlightenment="current">
+            {{#times 10}}
+            <div class="dot {{#if (lt @index ../actor.system.advantages.enlightenment.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+            {{/times}}
+            <input type="hidden" class="dot-input" name="system.advantages.enlightenment.current" value="{{actor.system.advantages.enlightenment.current}}"/>
         </div>
     </div>
-</div>
-
-<!-- Column 2: Backgrounds + Paradox -->
-<div class="advantage-column technocrat-column-2">
-    <!-- Section 2: Backgrounds (inherited list: base + creature-specific) -->
-    <div class="backgrounds-section">
-        <h4>Backgrounds</h4>
-        <div class="background-list">
-            {{#each backgroundsPagination.backgrounds as |background|}}
-            <div class="background-item">
-                {{#if (eq background.name "Custom")}}
-                <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
-                       value="{{background.customName}}" placeholder="Custom Background" class="background-custom-name"/>
-                {{else}}
-                <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" class="background-name-select">
-                    {{#each ../backgroundsList as |bg|}}
-                    <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
-                    {{/each}}
-                </select>
-                {{/if}}
-                <div class="dot-container" data-background="{{background.actualIndex}}">
-                    {{#times 5}}
-                    <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}}" data-index="{{@index}}"></div>
-                    {{/times}}
-                    <input type="hidden" class="dot-input" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.value" value="{{background.value}}"/>
-                </div>
-                <a class="delete-background" data-index="{{background.actualIndex}}">
-                    <i class="fas fa-trash"></i>
-                </a>
+    
+    <!-- Section 3: Primal Energy -->
+    <div class="primal-energy-section">
+        <h4>Primal Energy (Quintessence)</h4>
+        <div class="primal-inputs">
+            <div class="primal-field">
+                <label>Maximum</label>
+                <input type="number" name="system.advantages.primalEnergy.maximum" 
+                       value="{{actor.system.advantages.primalEnergy.maximum}}" 
+                       min="0" max="99" />
             </div>
-            {{/each}}
-            <div class="background-controls">
-                <button class="add-background" type="button" title="Add Background">+</button>
-                {{#if backgroundsPagination.hasMultiplePages}}
-                <div class="background-pagination">
-                    <button class="backgrounds-prev-page pagination-btn" type="button"
-                            {{#unless backgroundsPagination.hasPrevPage}}disabled{{/unless}}
-                            title="Previous Page">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <span class="pagination-info">{{add backgroundsPagination.currentPage 1}} / {{backgroundsPagination.totalPages}}</span>
-                    <button class="backgrounds-next-page pagination-btn" type="button"
-                            {{#unless backgroundsPagination.hasNextPage}}disabled{{/unless}}
-                            title="Next Page">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-                {{/if}}
+            <div class="primal-field">
+                <label>Current</label>
+                <input type="number" name="system.advantages.primalEnergy.current" 
+                       value="{{actor.system.advantages.primalEnergy.current}}" 
+                       min="0" max="99" />
             </div>
         </div>
     </div>
@@ -126,6 +74,63 @@
                 <div class="dot {{#if (lt @index ../../actor.system.advantages.paradox.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
                 {{/times}}
                 <input type="hidden" class="dot-input" name="system.advantages.paradox.permanent" value="{{actor.system.advantages.paradox.permanent}}"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Column 2: Backgrounds Only -->
+<div class="advantage-column technocrat-column-2">
+    <!-- Backgrounds (inherited list: base + creature-specific) -->
+    <div class="backgrounds-section">
+        <h4>Backgrounds</h4>
+        <div class="background-list">
+            {{#each backgroundsPagination.backgrounds as |background|}}
+            <div class="background-item">
+                {{#if (eq background.name "Custom")}}
+                <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
+                       value="{{background.customName}}" placeholder="Custom Background" class="background-custom-name"/>
+                {{else}}
+                <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" 
+                        class="background-name-select" 
+                        data-selected-value="{{background.name}}"
+                        {{#if background.locked}}disabled{{/if}}>
+                    {{#each @root.backgroundsList as |bg|}}
+                    <option value="{{bg}}">{{bg}}</option>
+                    {{/each}}
+                </select>
+                {{/if}}
+                <div class="dot-container" data-background="{{background.actualIndex}}">
+                    {{#times 5}}
+                    <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.value" value="{{background.value}}"/>
+                </div>
+                <a class="lock-background" data-index="{{background.actualIndex}}" title="{{#if background.locked}}Unlock{{else}}Lock{{/if}} background selection">
+                    <i class="fas {{#if background.locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
+                </a>
+                <a class="delete-background" data-index="{{background.actualIndex}}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            {{/each}}
+            <div class="background-controls">
+                <button class="add-background" type="button" title="Add Background">+</button>
+                {{#if backgroundsPagination.hasMultiplePages}}
+                <div class="background-pagination">
+                    <button class="backgrounds-prev-page pagination-btn" type="button"
+                            {{#unless backgroundsPagination.hasPrevPage}}disabled{{/unless}}
+                            title="Previous Page">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="pagination-info">{{add backgroundsPagination.currentPage 1}} / {{backgroundsPagination.totalPages}}</span>
+                    <button class="backgrounds-next-page pagination-btn" type="button"
+                            {{#unless backgroundsPagination.hasNextPage}}disabled{{/unless}}
+                            title="Next Page">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                {{/if}}
             </div>
         </div>
     </div>

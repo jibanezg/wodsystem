@@ -1,0 +1,88 @@
+<!-- Familiar/Companion Background Template -->
+<div class="bg-template familiar-template">
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Name</label>
+            <input type="text" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.name" 
+                   value="{{data.name}}" 
+                   placeholder="Familiar's name" 
+                   class="template-input" />
+        </div>
+        
+        <div class="template-field">
+            <label>Type / Species</label>
+            <input type="text" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.species" 
+                   value="{{data.species}}" 
+                   placeholder="e.g., Cat, Raven, AI Assistant" 
+                   class="template-input" />
+        </div>
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>Physical Description</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.physicalDescription" 
+                      placeholder="Appearance, size, features"
+                      class="template-textarea">{{data.physicalDescription}}</textarea>
+        </div>
+        
+        <div class="template-field">
+            <label>Special Abilities</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.abilities" 
+                      placeholder="Powers, skills, capabilities"
+                      class="template-textarea">{{data.abilities}}</textarea>
+        </div>
+    </div>
+    
+    <div class="template-field-row">
+        <div class="template-field-group">
+            <label style="font-size: 0.7em; font-weight: bold;">Attributes</label>
+            <div class="familiar-attributes">
+                <div class="familiar-attr">
+                    <label>Phys</label>
+                    <input type="number" 
+                           name="system.backgroundsExpanded.{{index}}.templateData.physical" 
+                           value="{{data.physical}}" 
+                           min="1" max="5" 
+                           class="template-input-tiny" />
+                </div>
+                <div class="familiar-attr">
+                    <label>Soc</label>
+                    <input type="number" 
+                           name="system.backgroundsExpanded.{{index}}.templateData.social" 
+                           value="{{data.social}}" 
+                           min="1" max="5" 
+                           class="template-input-tiny" />
+                </div>
+                <div class="familiar-attr">
+                    <label>Ment</label>
+                    <input type="number" 
+                           name="system.backgroundsExpanded.{{index}}.templateData.mental" 
+                           value="{{data.mental}}" 
+                           min="1" max="5" 
+                           class="template-input-tiny" />
+                </div>
+            </div>
+        </div>
+        
+        <div class="template-field">
+            <label>Bond Strength</label>
+            <div class="dot-container" data-bg-familiar-bond="{{index}}">
+                {{#times 5}}
+                <div class="dot {{#if (lt @index ../data.bondStrength)}}filled{{/if}}" data-index="{{@index}}"></div>
+                {{/times}}
+                <input type="hidden" name="system.backgroundsExpanded.{{index}}.templateData.bondStrength" value="{{data.bondStrength}}" class="dot-input"/>
+            </div>
+        </div>
+    </div>
+    
+    <div class="template-field">
+        <label>Personality & Notes</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.personality" 
+                  placeholder="Behavior, quirks, history, relationship"
+                  class="template-textarea">{{data.personality}}</textarea>
+    </div>
+</div>
+
