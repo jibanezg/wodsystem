@@ -88,6 +88,15 @@
                 "skills": [],
                 "knowledges": []
             },
+            "combat": {
+                "initiativeBonus": 0
+            },
+            "experience": {
+                "total": 0,
+                "current": 0,
+                "log": []
+            },
+            "rollTemplates": [],
             "miscellaneous": {
                 "humanity": {
                     "current": 7,

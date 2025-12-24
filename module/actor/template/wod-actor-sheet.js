@@ -1,3 +1,5 @@
+import { WodRollDialog } from "../../apps/wod-roll-dialog.js";
+
 /**
  * Base Actor Sheet for World of Darkness System
  * Extended by creature-specific sheets (MortalSheet, VampireSheet, etc.)
@@ -162,6 +164,10 @@ export class WodActorSheet extends ActorSheet {
         html.find('.health-box').click(this._onHealthBoxClick.bind(this));
         html.find('.health-box').contextmenu(this._onHealthBoxRightClick.bind(this));
         html.find('.reset-health').click(this._onResetHealth.bind(this));
+        
+        // Roll system - trait label listeners
+        html.find('.trait-label').off('click').click(this._onTraitLabelLeftClick.bind(this));
+        html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
         // Health editing handlers
         html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));
@@ -427,6 +433,11 @@ export class WodActorSheet extends ActorSheet {
         this._updateHealthDisplay(updatedHealth);
     }
     
+    /**
+     * Roll initiative for this actor
+     * @param {Event} event
+     * @private
+     */
     /**
      * Toggle health edit mode on/off
      * @param {Event} event
@@ -981,9 +992,22 @@ export class WodActorSheet extends ActorSheet {
      */
     async _updateAttribute(category, key, value) {
         const updateData = {};
-        updateData[`system.attributes.${category}.${key}`] = Math.min(Math.max(value, 1), 5);
+        const newValue = Math.min(Math.max(value, 1), 5);
+        updateData[`system.attributes.${category}.${key}`] = newValue;
+        
         await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        
+        // Update visual dots
+        const container = this.element.find(`.dot-container[data-attribute="${category}"][data-key="${key}"]`)[0];
+        if (container) {
+            this._updateDotVisuals(container, newValue);
+        }
+        
+        // Update the label's data-value attribute
+        const label = this.element.find(`.trait-label[data-trait="${key}"][data-attribute-type="${category}"]`)[0];
+        if (label) {
+            label.setAttribute('data-value', newValue);
+        }
     }
 
     /**
@@ -991,9 +1015,22 @@ export class WodActorSheet extends ActorSheet {
      */
     async _updateAbility(category, key, value) {
         const updateData = {};
-        updateData[`system.abilities.${category}.${key}`] = Math.min(Math.max(value, 0), 5);
+        const newValue = Math.min(Math.max(value, 0), 5);
+        updateData[`system.abilities.${category}.${key}`] = newValue;
+        
         await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        
+        // Update visual dots
+        const container = this.element.find(`.dot-container[data-ability="${category}"][data-key="${key}"]`)[0];
+        if (container) {
+            this._updateDotVisuals(container, newValue);
+        }
+        
+        // Update the label's data-value attribute
+        const label = this.element.find(`.trait-label[data-trait="${key}"][data-category="${category}"]`)[0];
+        if (label) {
+            label.setAttribute('data-value', newValue);
+        }
     }
 
     /**
@@ -1002,9 +1039,24 @@ export class WodActorSheet extends ActorSheet {
     async _updateWillpower(type, value) {
         const maxValue = type === 'temporary' ? this.actor.system.miscellaneous.willpower.permanent : 10;
         const updateData = {};
-        updateData[`system.miscellaneous.willpower.${type}`] = Math.min(Math.max(value, 0), maxValue);
+        const newValue = Math.min(Math.max(value, 0), maxValue);
+        updateData[`system.miscellaneous.willpower.${type}`] = newValue;
+        
         await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        
+        // Update visual dots
+        const container = this.element.find(`.dot-container[data-willpower="${type}"]`)[0];
+        if (container) {
+            this._updateDotVisuals(container, newValue);
+        }
+        
+        // Update the willpower label's data-value (permanent only)
+        if (type === 'permanent') {
+            const label = this.element.find(`.trait-label[data-category="willpower"]`)[0];
+            if (label) {
+                label.setAttribute('data-value', newValue);
+            }
+        }
     }
 
     /**
@@ -1161,9 +1213,22 @@ export class WodActorSheet extends ActorSheet {
      */
     async _updateEnlightenment(value) {
         const updateData = {};
-        updateData[`system.advantages.enlightenment.current`] = Math.min(Math.max(value, 0), 10);
+        const newValue = Math.min(Math.max(value, 0), 10);
+        updateData[`system.advantages.enlightenment.current`] = newValue;
+        
         await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
+        
+        // Update visual dots
+        const container = this.element.find(`.dot-container[data-enlightenment="current"]`)[0];
+        if (container) {
+            this._updateDotVisuals(container, newValue);
+        }
+        
+        // Update the enlightenment label's data-value
+        const label = this.element.find(`.trait-label[data-category="enlightenment"]`)[0];
+        if (label) {
+            label.setAttribute('data-value', newValue);
+        }
     }
 
     /**
@@ -1411,7 +1476,7 @@ export class WodActorSheet extends ActorSheet {
     _syncVisualStateWithData() {
         if (!this.element) return;
         
-        // Sync all dot containers
+        // Sync all dot containers (visual dots only, labels are updated separately)
         const containers = this.element.find('.dot-container');
         containers.each((index, container) => {
             const $container = $(container);
@@ -2362,6 +2427,191 @@ export class WodActorSheet extends ActorSheet {
         if (currentPage < totalPages - 1) {
             await this.actor.setFlag('wodsystem', 'backgroundsExpandedPage', currentPage + 1);
         }
+    }
+
+    /**
+     * Handle LEFT-CLICK on trait label: Show context menu to combine with other traits
+     * @param {Event} event
+     * @private
+     */
+    async _onTraitLabelLeftClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const element = event.currentTarget;
+        const trait = element.dataset.trait;
+        const value = parseInt(element.dataset.value);
+        const category = element.dataset.category;
+        
+        // Willpower and enlightenment should only work with right-click (direct rolls)
+        if (category === 'willpower' || category === 'enlightenment') {
+            return;
+        }
+        
+        // Check if we're already in pool selection mode
+        if (this._pendingPool) {
+            return;
+        }
+        
+        this._showCombineContextMenu(element, trait, value, category);
+    }
+
+    /**
+     * Handle RIGHT-CLICK on trait label: Show roll dialog for single trait
+     * @param {Event} event
+     * @private
+     */
+    async _onTraitLabelRightClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const element = event.currentTarget;
+        const trait = element.dataset.trait;
+        const value = parseInt(element.dataset.value);
+        
+        // Open roll dialog for just this trait
+        const dialog = new WodRollDialog(this.actor, {
+            traits: [{ name: trait, value: value }],
+            poolName: trait,
+            totalPool: value
+        });
+        dialog.render(true);
+    }
+
+    /**
+     * Show context menu for combining traits (LEFT-CLICK)
+     * @param {HTMLElement} element - The clicked element
+     * @param {string} trait - Trait name
+     * @param {number} value - Trait value
+     * @param {string} category - Trait category
+     * @private
+     */
+    _showCombineContextMenu(element, trait, value, category) {
+        if (category === 'attribute') {
+            // Attribute clicked - immediately highlight ALL abilities for selection
+            this._startPoolSelection(trait, value, 'abilities');
+            return;
+        }
+        
+        // Ability clicked - immediately highlight ALL attributes for selection
+        this._startPoolSelection(trait, value, 'attributes');
+    }
+
+    /**
+     * Start pool selection mode - highlight available traits for combination
+     * @param {string} firstTrait - First trait name
+     * @param {number} firstValue - First trait value
+     * @param {string} targetCategory - Category to select from
+     * @private
+     */
+    _startPoolSelection(firstTrait, firstValue, targetCategory) {
+        // Store first trait
+        this._pendingPool = {
+            traits: [{ name: firstTrait, value: firstValue }],
+            targetCategory: targetCategory
+        };
+        
+        // Visual feedback
+        this.element.addClass('pool-selection-active');
+        
+        // Determine selector based on category
+        let selector;
+        if (targetCategory === 'physical' || targetCategory === 'social' || targetCategory === 'mental') {
+            // Selecting a specific attribute type
+            selector = `.trait-label[data-attribute-type="${targetCategory}"]`;
+        } else if (targetCategory === 'abilities') {
+            // Selecting ANY ability (talents, skills, OR knowledges)
+            selector = `.trait-label[data-category="talents"], .trait-label[data-category="skills"], .trait-label[data-category="knowledges"]`;
+        } else if (targetCategory === 'attributes') {
+            // Selecting ANY attribute (physical, social, OR mental)
+            selector = `.trait-label[data-category="attribute"]`;
+        } else {
+            // Selecting a specific ability category
+            selector = `.trait-label[data-category="${targetCategory}"]`;
+        }
+        
+        const selectableElements = this.element.find(selector);
+        selectableElements.addClass('selectable');
+        
+        // One-time click handler
+        const handler = (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const secondElement = event.currentTarget;
+            const secondTrait = secondElement.dataset.trait;
+            const secondValue = parseInt(secondElement.dataset.value);
+            
+            this._pendingPool.traits.push({ name: secondTrait, value: secondValue });
+            
+            const totalPool = this._pendingPool.traits.reduce((sum, t) => sum + t.value, 0);
+            const poolName = this._pendingPool.traits.map(t => t.name).join(' + ');
+            
+            // Open dialog
+            const dialog = new WodRollDialog(this.actor, {
+                traits: this._pendingPool.traits,
+                poolName: poolName,
+                totalPool: totalPool
+            });
+            dialog.render(true);
+            
+            // Cleanup
+            this._cleanupPoolSelection();
+        };
+        
+        this.element.find('.selectable').one('click', handler);
+        
+        // ESC to cancel
+        this._poolSelectionEscHandler = (event) => {
+            if (event.key === 'Escape') {
+                this._cleanupPoolSelection();
+            }
+        };
+        $(document).one('keydown', this._poolSelectionEscHandler);
+    }
+
+    /**
+     * Clean up pool selection mode
+     * @private
+     */
+    _cleanupPoolSelection() {
+        this.element.removeClass('pool-selection-active');
+        this.element.find('.selectable').removeClass('selectable').off('click');
+        this._pendingPool = null;
+        if (this._poolSelectionEscHandler) {
+            $(document).off('keydown', this._poolSelectionEscHandler);
+            this._poolSelectionEscHandler = null;
+        }
+    }
+
+    /**
+     * Show saved roll templates
+     * @param {string} trait - Trait name (for filtering)
+     * @param {HTMLElement} element - Element to attach menu to
+     * @private
+     */
+    _showSavedRolls(trait, element) {
+        const templates = this.actor.system.rollTemplates || [];
+        
+        if (templates.length === 0) {
+            ui.notifications.info("No saved roll templates yet!");
+            return;
+        }
+        
+        // For now, just show all templates
+        // Future: Could filter by trait
+        const menuItems = templates.map(template => ({
+            name: template.name,
+            icon: '<i class="fas fa-dice-d10"></i>',
+            callback: () => this.actor.executeTemplate(template.id)
+        }));
+        
+        new foundry.applications.ux.ContextMenu.implementation(
+            this.element[0],
+            element,
+            menuItems,
+            { jQuery: false }
+        );
     }
 }
 

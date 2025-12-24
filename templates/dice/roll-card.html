@@ -1,0 +1,55 @@
+<div class="wod-roll-card {{#if isBotch}}botch{{else if isSuccess}}success{{else}}failure{{/if}}">
+    <div class="roll-header">
+        <h3>{{rollName}}</h3>
+        <div class="roll-type">{{rollType}}</div>
+    </div>
+    
+    <div class="roll-pool">
+        <strong>Pool:</strong> {{finalPool}} dice | 
+        <strong>Difficulty:</strong> {{difficulty}}
+    </div>
+    
+    {{#if traits}}
+    <div class="traits-used">
+        {{#each traits}}
+        <span class="trait-badge">{{this.name}} ({{this.value}})</span>
+        {{/each}}
+    </div>
+    {{/if}}
+    
+    <div class="roll-results">
+        <div class="dice-display">
+            {{#each results}}
+            <span class="die {{this.class}}" title="{{this.value}}">{{this.value}}</span>
+            {{/each}}
+        </div>
+        
+        <div class="success-summary">
+            <div class="successes">
+                <strong>Successes:</strong> <span class="success-count">{{successes}}</span>
+            </div>
+            {{#if isBotch}}
+            <div class="botch-warning">BOTCH!</div>
+            {{/if}}
+            {{#if specialty}}
+            <div class="specialty-note">(Specialty: 10s = 2 successes)</div>
+            {{/if}}
+        </div>
+    </div>
+    
+    {{#if modifiers.length}}
+    <div class="modifiers-applied">
+        <strong>Modifiers:</strong>
+        {{#each modifiers}}
+        <span class="modifier-badge">{{this.name}} ({{#if (gt this.value 0)}}+{{/if}}{{this.value}})</span>
+        {{/each}}
+    </div>
+    {{/if}}
+    
+    {{#if incomingDamage}}
+    <div class="soak-summary">
+        <strong>Incoming:</strong> {{incomingDamage}} | <strong>Soaked:</strong> {{soaked}}
+    </div>
+    {{/if}}
+</div>
+

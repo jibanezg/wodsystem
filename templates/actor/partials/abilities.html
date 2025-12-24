@@ -8,7 +8,7 @@
             <div class="ability-list">
                 {{#each actor.system.abilities.talents as |value key|}}
                 <div class="ability">
-                    <label>{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="talents">{{key}}</label>
                     <div class="dot-container" data-ability="talents" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -26,7 +26,7 @@
             <div class="ability-list">
                 {{#each actor.system.abilities.skills as |value key|}}
                 <div class="ability">
-                    <label>{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="skills">{{key}}</label>
                     <div class="dot-container" data-ability="skills" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -44,7 +44,7 @@
             <div class="ability-list">
                 {{#each actor.system.abilities.knowledges as |value key|}}
                 <div class="ability">
-                    <label>{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="knowledges">{{key}}</label>
                     <div class="dot-container" data-ability="knowledges" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>

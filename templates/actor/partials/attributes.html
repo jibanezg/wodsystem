@@ -8,7 +8,7 @@
             <div class="attribute-list">
                 {{#each actor.system.attributes.physical as |value key|}}
                 <div class="attribute">
-                    <label>{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="physical">{{key}}</label>
                     <div class="dot-container" data-attribute="physical" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -26,7 +26,7 @@
             <div class="attribute-list">
                 {{#each actor.system.attributes.social as |value key|}}
                 <div class="attribute">
-                    <label>{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="social">{{key}}</label>
                     <div class="dot-container" data-attribute="social" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -44,7 +44,7 @@
             <div class="attribute-list">
                 {{#each actor.system.attributes.mental as |value key|}}
                 <div class="attribute">
-                    <label>{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="mental">{{key}}</label>
                     <div class="dot-container" data-attribute="mental" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>

@@ -1,0 +1,54 @@
+<form class="wod-roll-dialog">
+    <div class="pool-summary">
+        <h3>{{poolName}}</h3>
+        <div class="pool-breakdown">
+            {{#each traits}}
+            <span class="trait-chip">{{this.name}}: {{this.value}}</span>
+            {{/each}}
+        </div>
+        <div class="total-pool">Total Pool: <strong id="total-pool-display">{{totalPool}}</strong> dice</div>
+    </div>
+    
+    <div class="roll-config">
+        <div class="form-group">
+            <label>Difficulty</label>
+            <input type="number" name="difficulty" value="6" min="2" max="10" />
+        </div>
+        
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="specialty" />
+                Using Specialty (10s = 2 successes)
+            </label>
+        </div>
+        
+        <div class="modifiers-section">
+            <h4>Modifiers</h4>
+            <div class="modifier-list" id="modifier-list">
+                {{#each modifiers}}
+                <div class="modifier-item">
+                    <span>{{this.name}}: {{#if (gt this.value 0)}}+{{/if}}{{this.value}}</span>
+                    <button type="button" class="remove-modifier" data-index="{{@index}}">×</button>
+                </div>
+                {{/each}}
+            </div>
+            <button type="button" class="add-modifier">+ Add Modifier</button>
+        </div>
+        
+        <div class="saved-rolls">
+            <label>
+                <input type="checkbox" name="saveTemplate" id="save-template-check" />
+                Save as quick roll template
+            </label>
+            <input type="text" name="templateName" id="template-name" placeholder="Template name" style="display:none;" />
+        </div>
+    </div>
+    
+    <div class="dialog-buttons">
+        <button type="button" class="roll-button">
+            <i class="fas fa-dice-d10"></i> Roll
+        </button>
+        <button type="button" class="cancel-button">Cancel</button>
+    </div>
+</form>
+

@@ -226,3 +226,375 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.6);
     line-height: 1.4;
 }
+
+/* Experience Points Section */
+.wod.sheet.actor.mortal .experience-section {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--wod-accent);
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.wod.sheet.actor.mortal .experience-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    text-align: center;
+    color: var(--wod-accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.wod.sheet.actor.mortal .xp-fields {
+    display: flex;
+    gap: 12px;
+}
+
+.wod.sheet.actor.mortal .xp-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wod.sheet.actor.mortal .xp-field label {
+    font-size: 0.75em;
+    font-weight: bold;
+    color: var(--wod-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wod.sheet.actor.mortal .xp-field input[type='number'] {
+    width: 100%;
+    padding: 4px 8px;
+    background: var(--wod-background);
+    border: 1px solid var(--wod-accent);
+    color: var(--wod-text);
+    border-radius: 3px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.wod.sheet.actor.mortal .xp-field input[type='number']:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 4px var(--wod-primary);
+}
+
+/* ========================================
+   ROLL SYSTEM STYLES
+   ======================================== */
+
+/* Roll Cards in Chat */
+.wod-roll-card {
+    border: 2px solid var(--wod-accent);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    background: var(--wod-background);
+}
+
+.wod-roll-card.success {
+    border-color: #4caf50;
+}
+
+.wod-roll-card.botch {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.15);
+}
+
+.wod-roll-card .roll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wod-accent);
+}
+
+.wod-roll-card .roll-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.wod-roll-card .roll-type {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.wod-roll-card .traits-used {
+    margin: 8px 0;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.trait-badge, .modifier-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+}
+
+.dice-display {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    justify-content: center;
+}
+
+.die {
+    width: 36px;
+    height: 36px;
+    border: 2px solid;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.die.success {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.die.specialty {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+.die.one {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.die.failure {
+    border-color: #666;
+    opacity: 0.5;
+}
+
+.success-summary {
+    text-align: center;
+    margin: 12px 0;
+}
+
+.success-count {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+.botch-warning {
+    color: #f44336;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+.specialty-note {
+    font-size: 0.85em;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Clickable trait labels */
+.trait-label {
+    cursor: pointer;
+}
+
+/* Willpower labels should also look clickable */
+.willpower-section .trait-label {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.willpower-section .trait-label:hover {
+    color: var(--wod-primary);
+}
+
+/* Pool selection mode */
+.pool-selection-active .selectable {
+    color: white !important;
+    animation: pulse 1.5s infinite;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* Talents - Yellow/Gold (instinctive, natural) */
+.pool-selection-active .selectable[data-category="talents"] {
+    background: #F39C12 !important;
+    border: 2px solid #D68910 !important;
+    box-shadow: 0 0 10px #F39C12 !important;
+}
+
+/* Skills - Blue (trained, methodical) */
+.pool-selection-active .selectable[data-category="skills"] {
+    background: #3498DB !important;
+    border: 2px solid #2980B9 !important;
+    box-shadow: 0 0 10px #3498DB !important;
+}
+
+/* Knowledges - Purple (intellectual, scholarly) */
+.pool-selection-active .selectable[data-category="knowledges"] {
+    background: #9B59B6 !important;
+    border: 2px solid #8E44AD !important;
+    box-shadow: 0 0 10px #9B59B6 !important;
+}
+
+/* Attributes - Color coded by type */
+/* Physical - Red (body, physical power) */
+.pool-selection-active .selectable[data-category="attribute"][data-attribute-type="physical"] {
+    background: #E74C3C !important;
+    border: 2px solid #C0392B !important;
+    box-shadow: 0 0 10px #E74C3C !important;
+}
+
+/* Social - Green (interaction, presence) */
+.pool-selection-active .selectable[data-category="attribute"][data-attribute-type="social"] {
+    background: #2ECC71 !important;
+    border: 2px solid #27AE60 !important;
+    box-shadow: 0 0 10px #2ECC71 !important;
+}
+
+/* Mental - Blue (mind, thought) */
+.pool-selection-active .selectable[data-category="attribute"][data-attribute-type="mental"] {
+    background: #3498DB !important;
+    border: 2px solid #2980B9 !important;
+    box-shadow: 0 0 10px #3498DB !important;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+/* Roll Dialog */
+.wod.roll-dialog {
+    background: var(--wod-background);
+    color: var(--wod-text);
+}
+
+.wod.roll-dialog .pool-summary {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.wod.roll-dialog .trait-chip {
+    display: inline-block;
+    background: var(--wod-accent);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 16px;
+    margin: 4px;
+    font-size: 0.9em;
+}
+
+.wod.roll-dialog .total-pool {
+    margin-top: 8px;
+    font-size: 1.1em;
+}
+
+.wod.roll-dialog .form-group {
+    margin: 12px 0;
+}
+
+.wod.roll-dialog label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.wod.roll-dialog input[type="number"] {
+    width: 80px;
+    padding: 6px;
+    background: var(--wod-background);
+    border: 1px solid var(--wod-accent);
+    color: var(--wod-text);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog .dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.wod.roll-dialog .roll-button {
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.wod.roll-dialog .roll-button:hover {
+    background: var(--wod-accent);
+}
+
+.wod.roll-dialog .cancel-button {
+    background: #666;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.wod.roll-dialog .modifiers-section {
+    margin: 12px 0;
+}
+
+.wod.roll-dialog .modifier-list {
+    margin: 8px 0;
+}
+
+.wod.roll-dialog .modifier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    margin: 4px 0;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog .remove-modifier {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.wod.roll-dialog .add-modifier {
+    background: var(--wod-accent);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+}

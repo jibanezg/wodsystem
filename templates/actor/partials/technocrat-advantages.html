@@ -5,7 +5,7 @@
         <h4>Willpower</h4>
         <div class="willpower-tracks">
             <div class="willpower-permanent">
-                <label>Permanent</label>
+                <label class="trait-label" data-trait="Willpower" data-value="{{actor.system.miscellaneous.willpower.permanent}}" data-category="willpower">Permanent</label>
                 <div class="dot-container" data-willpower="permanent">
                     {{#times 10}}
                     <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -27,7 +27,7 @@
 
     <!-- Section 2: Enlightenment -->
     <div class="enlightenment-section">
-        <h4>Enlightenment (Arete)</h4>
+        <h4 class="trait-label" data-trait="Enlightenment" data-value="{{actor.system.advantages.enlightenment.current}}" data-category="enlightenment">Enlightenment (Arete)</h4>
         <div class="dot-container" data-enlightenment="current">
             {{#times 10}}
             <div class="dot {{#if (lt @index ../actor.system.advantages.enlightenment.current)}}filled{{/if}}" data-index="{{@index}}"></div>

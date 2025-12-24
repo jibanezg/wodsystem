@@ -1,4 +1,5 @@
 import { TraitFactory } from "../scripts/trait-factory.js";
+import { WodDicePool } from "../../dice/wod-dice-pool.js";
 
 export class WodActor extends Actor {
     /** @override */
@@ -33,6 +34,16 @@ export class WodActor extends Actor {
         
         // Ensure merits and flaws are arrays (fix Foundry form corruption)
         this._ensureMeritsFlawsAreArrays();
+        
+        // Ensure combat data exists
+        if (!this.system.combat) {
+            this.system.combat = { initiativeBonus: 0 };
+        }
+        
+        // Ensure experience data exists
+        if (!this.system.experience) {
+            this.system.experience = { total: 0, current: 0, log: [] };
+        }
         
         // Calculate creature-specific derived stats
         if (this.type === "Technocrat") {
@@ -662,6 +673,341 @@ export class WodActor extends Actor {
                 return;
             }
         }
+    }
+
+    /**
+     * ====================
+     * COMBAT CALCULATIONS
+     * ====================
+     */
+
+    /**
+     * Get initiative value for this actor
+     * Standard WoD: Dexterity + Wits + bonus
+     * @returns {number} Initiative value
+     */
+    getInitiative() {
+        const dexterity = Number(this._findAttributeValue("Dexterity")) || 0;
+        const wits = Number(this._findAttributeValue("Wits")) || 0;
+        const bonus = Number(this.system.combat?.initiativeBonus) || 0;
+        return dexterity + wits + bonus;
+    }
+
+    /**
+     * Roll initiative and update combat tracker if in combat
+     * @param {Object} options - Options for the roll
+     * @returns {Roll} The initiative roll
+     */
+    async rollInitiative(options = {}) {
+        const initiativeValue = this.getInitiative();
+        // Roll 1d10 + initiative value
+        const roll = new Roll(`1d10 + ${initiativeValue}`);
+        await roll.evaluate();
+        
+        // Show roll in chat
+        await roll.toMessage({
+            speaker: ChatMessage.getSpeaker({actor: this}),
+            flavor: `Initiative Roll (Base: ${initiativeValue})`
+        });
+        
+        // If in combat, update combatant
+        const combatant = game.combat?.combatants.find(c => c.actorId === this.id);
+        if (combatant) {
+            await game.combat.setInitiative(combatant.id, roll.total);
+        }
+        
+        return roll;
+    }
+
+    /**
+     * Get soak value for this actor
+     * Standard WoD: Stamina (+ Fortitude for vampires, armor, etc.)
+     * @returns {number} Soak value
+     */
+    getSoak() {
+        const stamina = Number(this._findAttributeValue("Stamina")) || 0;
+        // Future: Add Fortitude for vampires, armor, etc.
+        return stamina;
+    }
+
+    /**
+     * Get all speed values for this actor
+     * @returns {Object} Speed values in yards
+     */
+    getSpeed() {
+        const dex = Number(this._findAttributeValue("Dexterity")) || 0;
+        
+        return {
+            walking: 7,
+            jogging: 12 + dex,
+            running: 20 + (3 * dex),
+            swimming: {
+                unskilled: 8 + dex,
+                skilled: 12 + dex
+            },
+            flying: {
+                min: 10,
+                max: 20
+            },
+            climbing: {
+                // Returns formula for yards based on successes
+                normal: (successes) => 3.3 * successes,
+                optimal: (successes) => 5.6 * successes,
+                poor: (successes) => 1.6 * successes
+            }
+        };
+    }
+
+    /**
+     * Convenience getter for walking speed
+     * @returns {number} Walking speed in yards
+     */
+    getWalkingSpeed() { 
+        return 7; 
+    }
+
+    /**
+     * Convenience getter for jogging speed
+     * @returns {number} Jogging speed in yards
+     */
+    getJoggingSpeed() { 
+        return 12 + (Number(this._findAttributeValue("Dexterity")) || 0); 
+    }
+
+    /**
+     * Convenience getter for running speed
+     * @returns {number} Running speed in yards
+     */
+    getRunningSpeed() { 
+        return 20 + (3 * (Number(this._findAttributeValue("Dexterity")) || 0)); 
+    }
+
+    /**
+     * ====================
+     * EXPERIENCE POINTS
+     * ====================
+     */
+
+    /**
+     * Add experience points to this actor
+     * @param {number} amount - Amount of XP to add
+     * @param {string} reason - Optional reason for the XP award
+     * @returns {Promise<void>}
+     */
+    async addExperience(amount, reason = "") {
+        const current = this.system.experience.current || 0;
+        const total = this.system.experience.total || 0;
+        
+        await this.update({
+            'system.experience.current': current + amount,
+            'system.experience.total': total + amount
+        });
+        
+        // Future: Add to log with timestamp and reason
+    }
+
+    /**
+     * Spend experience points from this actor
+     * @param {number} amount - Amount of XP to spend
+     * @param {string} reason - Optional reason for spending
+     * @returns {Promise<boolean>} True if successful, false if not enough XP
+     */
+    async spendExperience(amount, reason = "") {
+        const current = this.system.experience.current || 0;
+        if (current < amount) {
+            ui.notifications.warn("Not enough experience points!");
+            return false;
+        }
+        
+        await this.update({
+            'system.experience.current': current - amount
+        });
+        
+        // Future: Add to spending log
+        return true;
+    }
+
+    /**
+     * Calculate XP cost for trait advancement
+     * @param {string} trait - Type of trait (attribute, ability, background, etc.)
+     * @param {number} currentValue - Current value
+     * @param {number} targetValue - Target value
+     * @returns {number} XP cost
+     */
+    getExperienceCost(trait, currentValue, targetValue) {
+        // Future: Implement WoD XP costs (attributes, abilities, backgrounds, etc.)
+        // For now, stub for architecture
+        return 0;
+    }
+
+    /**
+     * Roll a simple trait (willpower, virtue, attribute, ability)
+     * @param {string} traitName - Name of the trait being rolled
+     * @param {number} traitValue - Value of the trait (dice pool size)
+     * @param {Object} options - Roll options (difficulty, specialty, modifiers)
+     * @returns {Object} Roll result
+     */
+    async rollTrait(traitName, traitValue, options = {}) {
+        const difficulty = options.difficulty || 6;
+        const specialty = options.specialty || false;
+        const modifiers = options.modifiers || [];
+        
+        const dicePool = new WodDicePool(traitValue, difficulty, { specialty, modifiers });
+        const result = await dicePool.roll();
+        
+        // Format and send to chat
+        await this._sendRollToChat(traitName, result, {
+            rollType: 'Trait Roll',
+            specialty
+        });
+        
+        return result;
+    }
+
+    /**
+     * Roll a dice pool (attribute + ability, or multiple traits)
+     * @param {string} poolName - Name of the pool (e.g., "Dexterity + Firearms")
+     * @param {number} poolSize - Total dice pool size
+     * @param {Object} options - Roll options
+     * @returns {Object} Roll result
+     */
+    async rollPool(poolName, poolSize, options = {}) {
+        const difficulty = options.difficulty || 6;
+        const specialty = options.specialty || false;
+        const modifiers = options.modifiers || [];
+        
+        const dicePool = new WodDicePool(poolSize, difficulty, { specialty, modifiers });
+        const result = await dicePool.roll();
+        
+        await this._sendRollToChat(poolName, result, {
+            rollType: 'Dice Pool',
+            traits: options.traits,
+            specialty
+        });
+        
+        return result;
+    }
+
+    /**
+     * Roll soak (Stamina)
+     * @param {number} incomingDamage - Amount of incoming damage
+     * @param {Object} options - Roll options
+     * @returns {Object} Roll result
+     */
+    async rollSoak(incomingDamage = 0, options = {}) {
+        const soakValue = this.getSoak();
+        const difficulty = options.difficulty || 6;
+        
+        const dicePool = new WodDicePool(soakValue, difficulty, { modifiers: options.modifiers || [] });
+        const result = await dicePool.roll();
+        
+        await this._sendRollToChat('Soak', result, {
+            rollType: 'Soak Roll',
+            incomingDamage,
+            soaked: Math.min(result.successes, incomingDamage)
+        });
+        
+        return result;
+    }
+
+    /**
+     * Roll damage
+     * @param {number} baseDamage - Base damage dice pool
+     * @param {Object} options - Roll options
+     * @returns {Object} Roll result
+     */
+    async rollDamage(baseDamage, options = {}) {
+        const difficulty = options.difficulty || 6;
+        
+        const dicePool = new WodDicePool(baseDamage, difficulty, { modifiers: options.modifiers || [] });
+        const result = await dicePool.roll();
+        
+        await this._sendRollToChat('Damage', result, {
+            rollType: 'Damage Roll',
+            damageType: options.damageType || 'bashing'
+        });
+        
+        return result;
+    }
+
+    /**
+     * Send roll result to chat with formatted template
+     * @param {string} rollName - Name of the roll
+     * @param {Object} result - Roll result from WodDicePool
+     * @param {Object} options - Additional options for chat message
+     * @private
+     */
+    async _sendRollToChat(rollName, result, options = {}) {
+        const templateData = {
+            rollName,
+            ...result,
+            ...options,
+            actor: this
+        };
+        
+        // Use namespaced renderTemplate for custom roll card
+        const html = await foundry.applications.handlebars.renderTemplate(
+            'systems/wodsystem/templates/dice/roll-card.html',
+            templateData
+        );
+        
+        // Send to chat - toMessage() automatically triggers Dice So Nice! if installed
+        await result.roll.toMessage({
+            speaker: ChatMessage.getSpeaker({actor: this}),
+            flavor: `<div class="wod-roll-flavor">${rollName} - ${options.rollType || 'Roll'}</div>` + html
+        });
+    }
+
+    /**
+     * Save a roll template for quick access
+     * @param {Object} template - Template data
+     */
+    async saveRollTemplate(template) {
+        const templates = this.system.rollTemplates || [];
+        templates.push({
+            id: foundry.utils.randomID(),
+            name: template.name,
+            traits: template.traits,
+            difficulty: template.difficulty,
+            specialty: template.specialty,
+            modifiers: template.modifiers
+        });
+        await this.update({ 'system.rollTemplates': templates });
+        ui.notifications.info(`Saved roll template: ${template.name}`);
+    }
+
+    /**
+     * Execute a saved roll template
+     * @param {string} templateId - ID of the template to execute
+     */
+    async executeTemplate(templateId) {
+        const template = this.system.rollTemplates.find(t => t.id === templateId);
+        if (!template) return;
+        
+        // Calculate current pool from saved traits
+        let totalPool = 0;
+        for (const trait of template.traits) {
+            const value = this._findAttributeValue(trait.name) || 
+                         this._findAbilityValue(trait.name) || 
+                         trait.value;
+            totalPool += value;
+        }
+        
+        await this.rollPool(template.name, totalPool, {
+            difficulty: template.difficulty,
+            specialty: template.specialty,
+            modifiers: template.modifiers,
+            traits: template.traits
+        });
+    }
+
+    /**
+     * Delete a roll template
+     * @param {string} templateId - ID of the template to delete
+     */
+    async deleteRollTemplate(templateId) {
+        const templates = (this.system.rollTemplates || []).filter(t => t.id !== templateId);
+        await this.update({ 'system.rollTemplates': templates });
     }
 
     /** @override */
