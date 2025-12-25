@@ -2584,11 +2584,14 @@ export class WodActorSheet extends ActorSheet {
         const textAlt = computedStyle.getPropertyValue('--wod-text-alt') || '#666';
         const dangerColor = computedStyle.getPropertyValue('--wod-danger') || '#dc143c';
         
-        // Get the sheet's bounding rect to position panel correctly
-        const sheetElement = this.element[0];
-        const sheetRect = sheetElement.getBoundingClientRect();
+        // Get the Foundry window container (not just the form element)
+        const windowApp = this.element.closest('.window-app')[0];
+        if (!windowApp) {
+            console.error('Could not find window-app container for quick rolls panel');
+            return;
+        }
         
-        // Create overlay element with inline styles (absolute within sheet)
+        // Create overlay element with inline styles (absolute within window)
         const overlay = document.createElement('div');
         overlay.className = 'quick-rolls-panel-overlay';
         overlay.style.cssText = `
@@ -2702,8 +2705,8 @@ export class WodActorSheet extends ActorSheet {
         
         overlay.appendChild(content);
         
-        // Append to the sheet element (contained within the actor sheet window)
-        sheetElement.appendChild(overlay);
+        // Append to the Foundry window container (not the form)
+        windowApp.appendChild(overlay);
         
         // Attach event listeners to execute buttons
         content.querySelectorAll('.execute-template').forEach(btn => {
@@ -2785,7 +2788,10 @@ export class WodActorSheet extends ActorSheet {
      * @private
      */
     _destroyQuickRollsPanel() {
-        const panel = document.querySelector('.quick-rolls-panel-overlay');
+        const windowApp = this.element.closest('.window-app')[0];
+        if (!windowApp) return;
+        
+        const panel = windowApp.querySelector('.quick-rolls-panel-overlay');
         if (panel) {
             const content = panel.querySelector('.quick-rolls-content');
             
