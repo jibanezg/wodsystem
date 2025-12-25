@@ -723,10 +723,11 @@
 }
 
 .wod.sheet.actor .quick-rolls-panel {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
-    height: 100%;
+    width: 0;
+    height: 0;
     z-index: 200;
     pointer-events: none;
 }

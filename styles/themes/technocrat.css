@@ -2224,10 +2224,11 @@
 }
 
 .wod.sheet.actor .quick-rolls-panel {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
-    height: 100%;
+    width: 0;
+    height: 0;
     z-index: 200;
     pointer-events: none;
 }
@@ -2237,22 +2238,22 @@
 }
 
 .wod.sheet.actor .quick-rolls-trigger {
-    position: absolute;
+    position: fixed;
     left: 8px;
     top: 50%;
     transform: translateY(-50%);
     background: var(--wod-primary);
     color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     transition: all 0.2s ease;
-    z-index: 202;
+    z-index: 1000;
 }
 
 .wod.sheet.actor .quick-rolls-trigger:hover {
