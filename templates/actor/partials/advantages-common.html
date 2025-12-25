@@ -38,11 +38,24 @@
             <div class="background-item">
                 {{#if (eq background.name "Custom")}}
                 <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
-                       value="{{background.customName}}" placeholder="Custom Background" class="background-custom-name"/>
+                       value="{{background.customName}}" placeholder="Custom Background" 
+                       class="background-custom-name {{#if background.locked}}trait-label locked{{/if}}"
+                       {{#if background.locked}}
+                       data-trait="{{background.customName}}" 
+                       data-value="{{background.value}}" 
+                       data-category="background"
+                       data-background-index="{{background.actualIndex}}"
+                       readonly
+                       {{/if}}/>
                 {{else}}
                 <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" 
-                        class="background-name-select"
-                        {{#if background.locked}}disabled{{/if}}>
+                        class="background-name-select {{#if background.locked}}trait-label locked{{/if}}"
+                        {{#if background.locked}}
+                        data-trait="{{background.name}}" 
+                        data-value="{{background.value}}" 
+                        data-category="background"
+                        data-background-index="{{background.actualIndex}}"
+                        {{/if}}>
                     {{#each ../backgroundsList as |bg|}}
                     <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
                     {{/each}}

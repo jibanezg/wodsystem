@@ -473,6 +473,39 @@
     box-shadow: 0 0 10px #3498DB !important;
 }
 
+/* Background highlighting - use a neutral color */
+.pool-selection-active .selectable[data-category="background"] {
+    background: #95A5A6 !important;
+    border: 2px solid #7F8C8D !important;
+    box-shadow: 0 0 10px #95A5A6 !important;
+}
+
+/* Locked backgrounds are clickable */
+.background-name-select.trait-label,
+.background-custom-name.trait-label {
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Make locked selects look readonly but still clickable */
+.background-name-select.locked {
+    opacity: 0.8;
+    background-color: var(--wod-bg-secondary);
+    pointer-events: auto !important;
+}
+
+.background-custom-name.locked {
+    opacity: 0.8;
+    background-color: var(--wod-bg-secondary);
+    pointer-events: auto !important;
+}
+
+.background-name-select.trait-label:hover,
+.background-custom-name.trait-label:hover {
+    background-color: var(--wod-bg-hover);
+    border-color: var(--wod-primary);
+}
+
 @keyframes pulse {
     0%, 100% { 
         opacity: 1;
@@ -485,21 +518,40 @@
 }
 
 /* Roll Dialog */
-.wod.roll-dialog {
-    background: var(--wod-background);
-    color: var(--wod-text);
+/* Roll Dialog Styling - Mortal Theme */
+.wod.dialog.roll-dialog {
+    background: var(--wod-bg-main);
+    color: var(--wod-text-main);
 }
 
+/* Window header styling to match character sheet */
+.wod.dialog.roll-dialog .window-header {
+    background: #000;
+    color: #fff;
+    border-bottom: 2px solid var(--wod-primary);
+}
+
+.wod.dialog.roll-dialog .window-title {
+    color: #fff;
+}
+
+/* Pool summary - solid background, no transparency */
 .wod.roll-dialog .pool-summary {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--wod-bg-secondary);
+    border: 1px solid var(--wod-border-main);
     padding: 12px;
     border-radius: 4px;
     margin-bottom: 16px;
 }
 
+.wod.roll-dialog .pool-summary h3 {
+    color: var(--wod-primary);
+    margin: 0 0 8px 0;
+}
+
 .wod.roll-dialog .trait-chip {
     display: inline-block;
-    background: var(--wod-accent);
+    background: var(--wod-primary);
     color: white;
     padding: 4px 12px;
     border-radius: 16px;
@@ -510,6 +562,13 @@
 .wod.roll-dialog .total-pool {
     margin-top: 8px;
     font-size: 1.1em;
+    color: var(--wod-text-main);
+}
+
+.wod.roll-dialog .roll-config {
+    background: var(--wod-bg-light);
+    padding: 12px;
+    border-radius: 4px;
 }
 
 .wod.roll-dialog .form-group {
@@ -520,15 +579,29 @@
     display: block;
     margin-bottom: 4px;
     font-weight: bold;
+    color: var(--wod-text-main);
 }
 
 .wod.roll-dialog input[type="number"] {
     width: 80px;
     padding: 6px;
-    background: var(--wod-background);
-    border: 1px solid var(--wod-accent);
-    color: var(--wod-text);
+    background: var(--wod-bg-input);
+    border: 1px solid var(--wod-border-light);
+    color: var(--wod-text-main);
     border-radius: 4px;
+}
+
+.wod.roll-dialog input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    background: var(--wod-bg-input);
+    border: 1px solid var(--wod-border-light);
+    color: var(--wod-text-main);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog input[type="checkbox"] {
+    margin-right: 6px;
 }
 
 .wod.roll-dialog .dialog-buttons {
@@ -538,31 +611,47 @@
     margin-top: 20px;
 }
 
+/* Roll button - high contrast, matches sheet */
 .wod.roll-dialog .roll-button {
     background: var(--wod-primary);
-    color: white;
+    color: var(--wod-text-light);
     border: none;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
+    transition: all 0.2s ease;
 }
 
 .wod.roll-dialog .roll-button:hover {
-    background: var(--wod-accent);
+    background: var(--wod-primary-dark);
+    transform: scale(1.05);
 }
 
 .wod.roll-dialog .cancel-button {
-    background: #666;
+    background: var(--wod-text-alt);
     color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 4px;
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wod.roll-dialog .cancel-button:hover {
+    background: #888;
 }
 
 .wod.roll-dialog .modifiers-section {
     margin: 12px 0;
+    padding: 10px;
+    background: var(--wod-bg-subtle);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog .modifiers-section h4 {
+    margin: 0 0 8px 0;
+    color: var(--wod-primary);
 }
 
 .wod.roll-dialog .modifier-list {
@@ -573,28 +662,181 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 8px;
+    padding: 6px 10px;
     margin: 4px 0;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--wod-bg-light);
+    border: 1px solid var(--wod-border-light);
     border-radius: 4px;
 }
 
 .wod.roll-dialog .remove-modifier {
-    background: #f44336;
+    background: var(--wod-danger);
     color: white;
     border: none;
     padding: 2px 8px;
     border-radius: 3px;
     cursor: pointer;
     font-weight: bold;
+    transition: all 0.2s ease;
 }
 
+.wod.roll-dialog .remove-modifier:hover {
+    background: var(--wod-danger-dark);
+}
+
+/* Add modifier button - matches sheet styling */
 .wod.roll-dialog .add-modifier {
-    background: var(--wod-accent);
+    background: var(--wod-success);
     color: white;
     border: none;
-    padding: 6px 12px;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.roll-dialog .add-modifier:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+.wod.roll-dialog .saved-rolls {
+    margin: 12px 0;
+    padding: 10px;
+    background: var(--wod-bg-info);
+    border: 1px solid var(--wod-border-info);
     border-radius: 4px;
+}
+
+.wod.roll-dialog #template-name {
+    margin-top: 8px;
+}
+
+/* Quick Rolls Sliding Panel */
+.wod.sheet.actor .quick-rolls-panel {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+}
+
+.wod.sheet.actor .quick-rolls-trigger {
+    position: absolute;
+    left: 0;
+    background: var(--wod-primary);
+    color: white;
+    padding: 40px 8px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    writing-mode: vertical-rl;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor .quick-rolls-trigger:hover {
+    background: var(--wod-primary-dark);
+    padding-right: 12px;
+}
+
+.wod.sheet.actor .quick-rolls-trigger i {
+    margin-bottom: 8px;
+}
+
+.wod.sheet.actor .quick-rolls-content {
+    position: absolute;
+    left: -250px;
+    top: -100px;
+    width: 250px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: var(--wod-bg-main);
+    border: 2px solid var(--wod-primary);
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+    transition: left 0.3s ease;
+}
+
+.wod.sheet.actor .quick-rolls-panel:hover .quick-rolls-content,
+.wod.sheet.actor .quick-rolls-content:hover {
+    left: 36px;
+}
+
+.wod.sheet.actor .quick-rolls-content h4 {
+    margin: 0 0 12px 0;
+    color: var(--wod-primary);
+    font-size: 1.1em;
+    border-bottom: 2px solid var(--wod-primary);
+    padding-bottom: 6px;
+}
+
+.wod.sheet.actor .template-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wod.sheet.actor .roll-template-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wod-bg-secondary);
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+    padding: 4px;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor .roll-template-item:hover {
+    background: var(--wod-bg-hover);
+    border-color: var(--wod-primary);
+}
+
+.wod.sheet.actor .execute-template {
+    flex: 1;
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 0.9em;
+    text-align: left;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor .execute-template:hover {
+    background: var(--wod-primary-dark);
+    transform: translateX(2px);
+}
+
+.wod.sheet.actor .execute-template i {
+    margin-right: 6px;
+}
+
+.wod.sheet.actor .delete-template {
+    color: var(--wod-danger);
+    cursor: pointer;
+    padding: 6px;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor .delete-template:hover {
+    color: var(--wod-danger-dark);
+    transform: scale(1.2);
+}
+
+.wod.sheet.actor .no-templates {
+    font-size: 0.9em;
+    color: var(--wod-text-alt);
+    font-style: italic;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
 }

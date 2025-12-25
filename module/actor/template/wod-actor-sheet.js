@@ -169,6 +169,10 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('click').click(this._onTraitLabelLeftClick.bind(this));
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
+        // Quick roll templates
+        html.find('.execute-template').click(this._onExecuteTemplate.bind(this));
+        html.find('.delete-template').click(this._onDeleteTemplate.bind(this));
+        
         // Health editing handlers
         html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));
         html.find('.health-name-edit').change(this._onHealthNameChange.bind(this));
@@ -194,6 +198,11 @@ export class WodActorSheet extends ActorSheet {
         html.find('.lock-background').click(this._onLockBackground.bind(this));
         html.find('.background-name-select').change(this._onBackgroundNameChange.bind(this));
         html.find('.background-custom-name').change(this._onBackgroundCustomNameChange.bind(this));
+        
+        // Prevent locked backgrounds from being changed via dropdown
+        html.find('.background-name-select.locked').on('mousedown', (e) => {
+            e.preventDefault();
+        });
         
         // Background pagination handlers
         html.find('.backgrounds-prev-page').click(this._onBackgroundsPrevPage.bind(this));
@@ -855,10 +864,56 @@ export class WodActorSheet extends ActorSheet {
         const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
         
         if (backgrounds[index]) {
-            // Toggle locked state
-            backgrounds[index].locked = !backgrounds[index].locked;
+            const wasLocked = backgrounds[index].locked;
+            backgrounds[index].locked = !wasLocked;
             
             await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds });
+            
+            // After update, manually toggle rollable attributes on the element
+            const bgItem = this.element.find(`.dot-container[data-background="${index}"]`).closest('.background-item');
+            const bgElement = bgItem.find('.background-name-select, .background-custom-name')[0];
+            
+            if (bgElement) {
+                if (backgrounds[index].locked) {
+                    // Just locked - make it rollable
+                    const bgName = backgrounds[index].name === "Custom" 
+                        ? backgrounds[index].customName 
+                        : backgrounds[index].name;
+                    bgElement.classList.add('trait-label', 'locked');
+                    bgElement.setAttribute('data-trait', bgName);
+                    bgElement.setAttribute('data-value', backgrounds[index].value);
+                    bgElement.setAttribute('data-category', 'background');
+                    bgElement.setAttribute('data-background-index', index);
+                    
+                    // Attach event listeners to the newly rollable background
+                    $(bgElement).off('click').click(this._onTraitLabelLeftClick.bind(this));
+                    $(bgElement).off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
+                    
+                    // Prevent dropdown from opening for locked selects
+                    if (bgElement.tagName === 'SELECT') {
+                        $(bgElement).on('mousedown', (e) => e.preventDefault());
+                    } else if (bgElement.tagName === 'INPUT') {
+                        bgElement.setAttribute('readonly', 'readonly');
+                    }
+                } else {
+                    // Just unlocked - remove rollable attributes and listeners
+                    bgElement.classList.remove('trait-label', 'locked');
+                    bgElement.removeAttribute('data-trait');
+                    bgElement.removeAttribute('data-value');
+                    bgElement.removeAttribute('data-category');
+                    bgElement.removeAttribute('data-background-index');
+                    
+                    // Remove readonly from custom inputs
+                    if (bgElement.tagName === 'INPUT') {
+                        bgElement.removeAttribute('readonly');
+                    }
+                    
+                    // Remove event listeners
+                    $(bgElement).off('click');
+                    $(bgElement).off('contextmenu');
+                    $(bgElement).off('mousedown');
+                }
+            }
             
             // Restore scroll position after render
             setTimeout(() => {
@@ -1169,7 +1224,19 @@ export class WodActorSheet extends ActorSheet {
                 }, 0);
             } else {
                 await this.actor.update(updateData, { render: false });
-                this._syncVisualStateWithData();
+                
+                // Update visual dots
+                const container = this.element.find(`.dot-container[data-background="${index}"]`)[0];
+                if (container) {
+                    this._updateDotVisuals(container, newValue);
+                }
+                
+                // Update the rollable label's data-value if locked
+                const bgItem = this.element.find(`.dot-container[data-background="${index}"]`).closest('.background-item');
+                const bgLabel = bgItem.find('.trait-label[data-category="background"]')[0];
+                if (bgLabel) {
+                    bgLabel.setAttribute('data-value', newValue);
+                }
             }
         }
     }
@@ -2448,9 +2515,9 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
-        // Check if we're already in pool selection mode
+        // If already in pool selection mode, clean it up and start new selection
         if (this._pendingPool) {
-            return;
+            this._cleanupPoolSelection();
         }
         
         this._showCombineContextMenu(element, trait, value, category);
@@ -2479,6 +2546,39 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Execute a saved roll template
+     * @param {Event} event - Click event
+     * @private
+     */
+    async _onExecuteTemplate(event) {
+        event.preventDefault();
+        const templateId = event.currentTarget.dataset.templateId;
+        await this.actor.executeTemplate(templateId);
+    }
+
+    /**
+     * Delete a saved roll template
+     * @param {Event} event - Click event
+     * @private
+     */
+    async _onDeleteTemplate(event) {
+        event.preventDefault();
+        const templateId = event.currentTarget.dataset.templateId;
+        
+        const confirmed = await Dialog.confirm({
+            title: "Delete Roll Template",
+            content: "<p>Are you sure you want to delete this roll template?</p>",
+            yes: () => true,
+            no: () => false
+        });
+        
+        if (confirmed) {
+            await this.actor.deleteRollTemplate(templateId);
+            this.render(false);
+        }
+    }
+
+    /**
      * Show context menu for combining traits (LEFT-CLICK)
      * @param {HTMLElement} element - The clicked element
      * @param {string} trait - Trait name
@@ -2490,6 +2590,12 @@ export class WodActorSheet extends ActorSheet {
         if (category === 'attribute') {
             // Attribute clicked - immediately highlight ALL abilities for selection
             this._startPoolSelection(trait, value, 'abilities');
+            return;
+        }
+        
+        if (category === 'background') {
+            // Background clicked - immediately highlight ALL attributes for selection
+            this._startPoolSelection(trait, value, 'attributes');
             return;
         }
         
@@ -2559,7 +2665,7 @@ export class WodActorSheet extends ActorSheet {
             this._cleanupPoolSelection();
         };
         
-        this.element.find('.selectable').one('click', handler);
+        this.element.find('.selectable').one('click.poolSelection', handler);
         
         // ESC to cancel
         this._poolSelectionEscHandler = (event) => {
@@ -2576,7 +2682,8 @@ export class WodActorSheet extends ActorSheet {
      */
     _cleanupPoolSelection() {
         this.element.removeClass('pool-selection-active');
-        this.element.find('.selectable').removeClass('selectable').off('click');
+        // Only remove the namespaced pool selection handlers, not the permanent trait-label handlers
+        this.element.find('.selectable').removeClass('selectable').off('click.poolSelection');
         this._pendingPool = null;
         if (this._poolSelectionEscHandler) {
             $(document).off('keydown', this._poolSelectionEscHandler);

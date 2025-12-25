@@ -46,7 +46,13 @@ export class WodRollDialog extends Application {
         const difficulty = parseInt(form.difficulty.value);
         const specialty = form.specialty.checked;
         const saveTemplate = form.saveTemplate.checked;
-        const templateName = form.templateName.value;
+        const templateName = form.templateName.value.trim();
+        
+        // Validate template name if saving
+        if (saveTemplate && !templateName) {
+            ui.notifications.error("Please enter a name for the roll template.");
+            return;
+        }
         
         // Execute roll
         await this.actor.rollPool(
@@ -69,6 +75,7 @@ export class WodRollDialog extends Application {
                 specialty,
                 modifiers: this.modifiers
             });
+            ui.notifications.info(`Roll template "${templateName}" saved! Access it via the Quick Rolls panel.`);
         }
         
         this.close();
@@ -95,7 +102,12 @@ export class WodRollDialog extends Application {
     
     _onToggleSaveTemplate(event) {
         const checked = event.currentTarget.checked;
-        this.element.find('#template-name').toggle(checked);
+        const nameInput = this.element.find('#template-name');
+        if (checked) {
+            nameInput.show().focus();
+        } else {
+            nameInput.hide().val('');
+        }
     }
 }
 
