@@ -184,8 +184,8 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
         // Create quick rolls trigger button dynamically (completely outside layout)
-        // TEMPORARILY DISABLED TO TEST
-        // this._createQuickRollsTrigger();
+        // Use setTimeout to ensure it's created after the sheet is fully rendered
+        setTimeout(() => this._createQuickRollsTrigger(), 0);
         
         // Health editing handlers
         html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));
@@ -2582,32 +2582,31 @@ export class WodActorSheet extends ActorSheet {
         // Get window position
         const windowRect = windowApp.getBoundingClientRect();
         
-        // Create trigger button with inline styles (fixed position, outside layout)
+        // Create trigger button - FULLY STYLED BEFORE APPENDING
         const trigger = document.createElement('div');
-        trigger.className = 'quick-rolls-trigger';
         trigger.dataset.appId = this.appId;
         trigger.title = 'Quick Rolls';
         trigger.innerHTML = '<i class="fas fa-dice-d10"></i>';
-        trigger.style.cssText = `
-            position: fixed;
-            left: ${windowRect.left + 8}px;
-            top: ${windowRect.top + windowRect.height / 2}px;
-            transform: translateY(-50%);
-            background: ${primaryColor};
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
-            z-index: 9999;
-            font-size: 1.1em;
-            pointer-events: auto;
-        `;
+        
+        // Set ALL styles inline BEFORE adding to DOM to prevent any layout impact
+        trigger.style.position = 'fixed';
+        trigger.style.left = `${windowRect.left + 8}px`;
+        trigger.style.top = `${windowRect.top + windowRect.height / 2}px`;
+        trigger.style.transform = 'translateY(-50%)';
+        trigger.style.background = primaryColor;
+        trigger.style.color = 'white';
+        trigger.style.width = '32px';
+        trigger.style.height = '32px';
+        trigger.style.borderRadius = '6px';
+        trigger.style.cursor = 'pointer';
+        trigger.style.display = 'flex';
+        trigger.style.alignItems = 'center';
+        trigger.style.justifyContent = 'center';
+        trigger.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+        trigger.style.transition = 'all 0.2s ease';
+        trigger.style.zIndex = '9999';
+        trigger.style.fontSize = '1.1em';
+        trigger.style.pointerEvents = 'auto';
         
         // Add hover effect
         trigger.addEventListener('mouseenter', () => {
@@ -2622,8 +2621,11 @@ export class WodActorSheet extends ActorSheet {
         // Add click listener
         trigger.addEventListener('click', this._onToggleQuickRollsPanel.bind(this));
         
-        // Append to body (completely outside layout)
+        // Append to body AFTER all styles are set
         document.body.appendChild(trigger);
+        
+        // Store reference for cleanup
+        this._quickRollsTrigger = trigger;
         
         // Update position when window is dragged/resized
         this._updateTriggerPosition = () => {
