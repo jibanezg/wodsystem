@@ -2723,9 +2723,9 @@ export class WodActorSheet extends ActorSheet {
         content.style.overflowY = 'auto';
         content.style.boxShadow = '2px 0 12px rgba(0,0,0,0.2)';
         content.style.transform = 'translateX(-100%)';
-        content.style.transition = 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out';
-        content.style.opacity = '0';
-        content.style.willChange = 'transform, opacity';
+        content.style.transition = 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+        content.style.opacity = '1'; // Fully opaque - slides from behind the window
+        content.style.willChange = 'transform';
         
         // Create header
         const header = document.createElement('h4');
@@ -2882,13 +2882,13 @@ export class WodActorSheet extends ActorSheet {
         // Force a reflow to ensure initial state is rendered before transition
         content.offsetHeight;
         
-        // Trigger animation on next frame for smooth transition with fade in
+        // Trigger animation on next frame for smooth transition
+        // Only overlay fades in, content slides at full opacity (looks like sliding from behind)
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 overlay.style.background = 'rgba(0, 0, 0, 0.2)';
                 overlay.style.opacity = '1';
                 content.style.transform = 'translateX(0)';
-                content.style.opacity = '1';
             });
         });
     }
@@ -2905,12 +2905,13 @@ export class WodActorSheet extends ActorSheet {
         if (panel) {
             const content = panel.querySelector('.quick-rolls-content');
             
-            // Animate out smoothly with fade out
+            // Animate out smoothly
+            // Only overlay fades out, content slides back at full opacity
             panel.style.background = 'rgba(0, 0, 0, 0)';
             panel.style.opacity = '0';
             if (content) {
                 content.style.transform = 'translateX(-100%)';
-                content.style.opacity = '0';
+                // Keep content opaque - it slides behind the window edge
             }
             
             // Remove after animation completes (match transition duration)
