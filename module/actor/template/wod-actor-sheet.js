@@ -2695,8 +2695,10 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
-        // Ensure window-app clips content so panel appears to slide from inside
-        windowApp.style.overflow = 'hidden';
+        // Ensure window-app clips horizontal overflow so panel appears to slide from inside
+        // But preserve vertical scrolling
+        windowApp.style.overflowX = 'hidden';
+        windowApp.style.overflowY = 'auto';
         windowApp.style.position = 'relative';
         
         // Create overlay element with inline styles (absolute within window)
