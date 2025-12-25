@@ -17,10 +17,11 @@ export class WodActorSheet extends ActorSheet {
 
     /** @override */
     async close(options) {
-        // Clean up trigger button when sheet is closed
+        // Clean up trigger button when sheet is closed (with fade out)
         const trigger = document.querySelector(`.quick-rolls-trigger[data-app-id="${this.appId}"]`);
         if (trigger) {
-            trigger.remove();
+            trigger.style.opacity = '0';
+            setTimeout(() => trigger.remove(), 300);
         }
         
         // Clean up panel if open
@@ -2604,11 +2605,12 @@ export class WodActorSheet extends ActorSheet {
         trigger.style.alignItems = 'center';
         trigger.style.justifyContent = 'center';
         trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
-        trigger.style.transition = 'width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease';
+        trigger.style.transition = 'width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.3s ease';
         trigger.style.zIndex = '9999';
         trigger.style.fontSize = '1.2em';
         trigger.style.pointerEvents = 'auto';
         trigger.style.borderLeft = 'none'; // No border on the window edge side
+        trigger.style.opacity = '0'; // Start invisible for fade-in effect
         
         // Add hover effect - expand width to extend outward without moving from edge
         trigger.addEventListener('mouseenter', () => {
@@ -2630,6 +2632,11 @@ export class WodActorSheet extends ActorSheet {
         
         // Store reference for cleanup
         this._quickRollsTrigger = trigger;
+        
+        // Fade in smoothly after a brief delay
+        requestAnimationFrame(() => {
+            trigger.style.opacity = '1';
+        });
         
         // Update position when window is dragged/resized
         this._updateTriggerPosition = () => {
