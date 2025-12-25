@@ -2566,7 +2566,7 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Create the quick rolls panel dynamically
+     * Create the quick rolls panel dynamically with inline styles
      * @private
      */
     _createQuickRollsPanel() {
@@ -2574,61 +2574,147 @@ export class WodActorSheet extends ActorSheet {
         const maxTemplates = 10;
         const displayTemplates = templates.slice(0, maxTemplates);
         
-        // Build template list HTML
-        let templateListHTML = '';
-        if (displayTemplates.length > 0) {
-            templateListHTML = '<div class="template-list">';
-            for (const template of displayTemplates) {
-                templateListHTML += `
-                    <div class="roll-template-item">
-                        <button type="button" class="execute-template" 
-                                data-template-id="${template.id}" 
-                                title="${template.name} (Difficulty ${template.difficulty})">
-                            <i class="fas fa-dice-d10"></i> ${template.name}
-                        </button>
-                        <a class="delete-template" 
-                           data-template-id="${template.id}" 
-                           title="Delete template">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </div>
-                `;
-            }
-            templateListHTML += '</div>';
-        } else {
-            templateListHTML = '<p class="no-templates">No saved templates yet. Save a roll configuration to create quick access.</p>';
-        }
+        // Get theme colors from CSS variables
+        const sheetElement = this.element[0];
+        const computedStyle = getComputedStyle(sheetElement);
+        const primaryColor = computedStyle.getPropertyValue('--wod-primary') || '#4682B4';
+        const bgMain = computedStyle.getPropertyValue('--wod-bg-main') || '#fff';
+        const borderLight = computedStyle.getPropertyValue('--wod-border-light') || '#ccc';
+        const textMain = computedStyle.getPropertyValue('--wod-text-main') || '#000';
+        const textAlt = computedStyle.getPropertyValue('--wod-text-alt') || '#666';
+        const dangerColor = computedStyle.getPropertyValue('--wod-danger') || '#dc143c';
         
-        // Create panel element
-        const panelHTML = `
-            <div class="quick-rolls-panel-overlay">
-                <div class="quick-rolls-content">
-                    <h4>Saved Roll Templates</h4>
-                    ${templateListHTML}
-                </div>
-            </div>
+        // Create overlay element with inline styles
+        const overlay = document.createElement('div');
+        overlay.className = 'quick-rolls-panel-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0);
+            transition: background 0.3s ease;
+            pointer-events: all;
         `;
         
-        // Insert into the actor sheet (not document.body)
-        this.element[0].insertAdjacentHTML('beforeend', panelHTML);
+        // Create content panel
+        const content = document.createElement('div');
+        content.className = 'quick-rolls-content';
+        content.style.cssText = `
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: ${bgMain};
+            border-right: 1px solid ${borderLight};
+            padding: 16px;
+            overflow-y: auto;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.2);
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        `;
         
-        // Get the panel
-        const panel = this.element[0].querySelector('.quick-rolls-panel-overlay');
+        // Create header
+        const header = document.createElement('h4');
+        header.textContent = 'Saved Roll Templates';
+        header.style.cssText = `
+            margin: 0 0 16px 0;
+            color: ${textMain};
+            font-size: 1.1em;
+            font-weight: 600;
+            padding-bottom: 8px;
+            border-bottom: 1px solid ${borderLight};
+        `;
+        content.appendChild(header);
         
-        // Attach event listeners
-        panel.querySelectorAll('.execute-template').forEach(btn => {
+        // Build template list
+        if (displayTemplates.length > 0) {
+            for (const template of displayTemplates) {
+                const item = document.createElement('div');
+                item.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    background: ${bgMain};
+                    border: 1px solid ${borderLight};
+                    border-radius: 6px;
+                    padding: 8px;
+                    margin-bottom: 8px;
+                    transition: all 0.2s ease;
+                `;
+                
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'execute-template';
+                button.dataset.templateId = template.id;
+                button.title = `${template.name} (Difficulty ${template.difficulty})`;
+                button.innerHTML = `<i class="fas fa-dice-d10"></i> ${template.name}`;
+                button.style.cssText = `
+                    flex: 1;
+                    background: transparent;
+                    color: ${textMain};
+                    border: none;
+                    padding: 0;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                    text-align: left;
+                    font-weight: 500;
+                `;
+                
+                const deleteBtn = document.createElement('a');
+                deleteBtn.className = 'delete-template';
+                deleteBtn.dataset.templateId = template.id;
+                deleteBtn.title = 'Delete template';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.style.cssText = `
+                    color: ${textAlt};
+                    cursor: pointer;
+                    padding: 4px;
+                    font-size: 0.9em;
+                    opacity: 0.6;
+                    transition: all 0.2s ease;
+                `;
+                
+                item.appendChild(button);
+                item.appendChild(deleteBtn);
+                content.appendChild(item);
+            }
+        } else {
+            const noTemplates = document.createElement('p');
+            noTemplates.textContent = 'No saved templates yet. Save a roll configuration to create quick access.';
+            noTemplates.style.cssText = `
+                font-size: 0.9em;
+                color: ${textAlt};
+                margin: 0;
+                padding: 16px;
+                text-align: center;
+                line-height: 1.5;
+            `;
+            content.appendChild(noTemplates);
+        }
+        
+        overlay.appendChild(content);
+        
+        // Append to document.body (not inside form)
+        document.body.appendChild(overlay);
+        
+        // Attach event listeners to execute buttons
+        content.querySelectorAll('.execute-template').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const templateId = e.currentTarget.dataset.templateId;
                 await this.actor.executeTemplate(templateId);
                 
                 // Close panel after executing
-                panel.classList.remove('open');
-                setTimeout(() => panel.remove(), 300);
+                this._destroyQuickRollsPanel();
             });
         });
         
-        panel.querySelectorAll('.delete-template').forEach(btn => {
+        // Attach event listeners to delete buttons
+        content.querySelectorAll('.delete-template').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const templateId = e.currentTarget.dataset.templateId;
@@ -2644,60 +2730,71 @@ export class WodActorSheet extends ActorSheet {
                     await this.actor.deleteRollTemplate(templateId);
                     
                     // Close and recreate panel to show updated list
-                    panel.classList.remove('open');
+                    this._destroyQuickRollsPanel();
                     setTimeout(() => {
-                        panel.remove();
                         this._createQuickRollsPanel();
-                    }, 300);
+                    }, 350);
                 }
             });
         });
         
-        // Close panel when clicking outside
-        panel.addEventListener('click', (e) => {
-            if (e.target === panel) {
-                panel.classList.remove('open');
-                setTimeout(() => panel.remove(), 300);
+        // Add hover effects
+        content.querySelectorAll('.execute-template').forEach(btn => {
+            const item = btn.parentElement;
+            btn.addEventListener('mouseenter', () => {
+                item.style.transform = 'translateX(4px)';
+                item.style.borderColor = primaryColor;
+            });
+            btn.addEventListener('mouseleave', () => {
+                item.style.transform = 'translateX(0)';
+                item.style.borderColor = borderLight;
+            });
+        });
+        
+        content.querySelectorAll('.delete-template').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.opacity = '1';
+                btn.style.color = dangerColor;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.opacity = '0.6';
+                btn.style.color = textAlt;
+            });
+        });
+        
+        // Close on backdrop click
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                this._destroyQuickRollsPanel();
             }
         });
         
-        // Trigger animation
-        setTimeout(() => panel.classList.add('open'), 10);
+        // Trigger animation after a small delay
+        setTimeout(() => {
+            overlay.style.background = 'rgba(0, 0, 0, 0.2)';
+            content.style.transform = 'translateX(0)';
+        }, 10);
     }
 
     /**
-     * Execute a saved roll template
-     * @param {Event} event - Click event
+     * Destroy the quick rolls panel
      * @private
      */
-    async _onExecuteTemplate(event) {
-        event.preventDefault();
-        const templateId = event.currentTarget.dataset.templateId;
-        await this.actor.executeTemplate(templateId);
-        
-        // Close the panel after executing
-        this.element.find('.quick-rolls-panel').removeClass('open');
-    }
-
-    /**
-     * Delete a saved roll template
-     * @param {Event} event - Click event
-     * @private
-     */
-    async _onDeleteTemplate(event) {
-        event.preventDefault();
-        const templateId = event.currentTarget.dataset.templateId;
-        
-        const confirmed = await Dialog.confirm({
-            title: "Delete Roll Template",
-            content: "<p>Are you sure you want to delete this roll template?</p>",
-            yes: () => true,
-            no: () => false
-        });
-        
-        if (confirmed) {
-            await this.actor.deleteRollTemplate(templateId);
-            this.render(false);
+    _destroyQuickRollsPanel() {
+        const panel = document.querySelector('.quick-rolls-panel-overlay');
+        if (panel) {
+            const content = panel.querySelector('.quick-rolls-content');
+            
+            // Animate out
+            panel.style.background = 'rgba(0, 0, 0, 0)';
+            if (content) {
+                content.style.transform = 'translateX(-100%)';
+            }
+            
+            // Remove after animation
+            setTimeout(() => {
+                panel.remove();
+            }, 300);
         }
     }
 
