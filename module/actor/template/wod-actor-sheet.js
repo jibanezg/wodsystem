@@ -169,10 +169,8 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('click').click(this._onTraitLabelLeftClick.bind(this));
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
-        // Quick roll templates
+        // Quick roll templates trigger
         html.find('.quick-rolls-trigger').click(this._onToggleQuickRollsPanel.bind(this));
-        html.find('.execute-template').click(this._onExecuteTemplate.bind(this));
-        html.find('.delete-template').click(this._onDeleteTemplate.bind(this));
         
         // Health editing handlers
         html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));
