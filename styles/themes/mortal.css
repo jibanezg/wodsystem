@@ -718,12 +718,21 @@
 }
 
 /* Quick Rolls Sliding Panel - ChatGPT Style */
+.wod.sheet.actor {
+    position: relative;
+}
+
 .wod.sheet.actor .quick-rolls-panel {
     position: absolute;
     left: 0;
     top: 0;
     height: 100%;
     z-index: 200;
+    pointer-events: none;
+}
+
+.wod.sheet.actor .quick-rolls-panel > * {
+    pointer-events: auto;
 }
 
 .wod.sheet.actor .quick-rolls-trigger {
