@@ -2218,9 +2218,14 @@
     margin-top: 8px;
 }
 
+/* Ensure sheet is positioned for absolute children */
+.wod.sheet.actor {
+    position: relative;
+}
+
 /* Quick Rolls Trigger Button */
-.quick-rolls-trigger {
-    position: fixed;
+.wod.sheet.actor .quick-rolls-trigger {
+    position: absolute;
     left: 8px;
     top: 50%;
     transform: translateY(-50%);
@@ -2238,23 +2243,23 @@
     z-index: 999;
 }
 
-.quick-rolls-trigger:hover {
+.wod.sheet.actor .quick-rolls-trigger:hover {
     background: var(--wod-primary-dark, #2F4F6F);
     transform: translateY(-50%) scale(1.1);
 }
 
-.quick-rolls-trigger i {
+.wod.sheet.actor .quick-rolls-trigger i {
     font-size: 1.1em;
 }
 
-/* Quick Rolls Panel Overlay */
+/* Quick Rolls Panel Overlay - contained within sheet */
 .quick-rolls-panel-overlay {
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1000;
+    width: 100%;
+    height: 100%;
+    z-index: 998;
     pointer-events: all;
     background: rgba(0, 0, 0, 0);
     transition: background 0.3s ease;

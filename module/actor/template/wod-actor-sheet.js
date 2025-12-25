@@ -2609,11 +2609,11 @@ export class WodActorSheet extends ActorSheet {
             </div>
         `;
         
-        // Insert into document
-        document.body.insertAdjacentHTML('beforeend', panelHTML);
+        // Insert into the actor sheet (not document.body)
+        this.element[0].insertAdjacentHTML('beforeend', panelHTML);
         
         // Get the panel
-        const panel = document.querySelector('.quick-rolls-panel-overlay');
+        const panel = this.element[0].querySelector('.quick-rolls-panel-overlay');
         
         // Attach event listeners
         panel.querySelectorAll('.execute-template').forEach(btn => {
