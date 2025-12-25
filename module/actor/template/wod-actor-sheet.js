@@ -2705,7 +2705,8 @@ export class WodActorSheet extends ActorSheet {
         overlay.style.height = '100%';
         overlay.style.zIndex = '998';
         overlay.style.background = 'rgba(0, 0, 0, 0)';
-        overlay.style.transition = 'background 0.25s ease-out';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'background 0.25s ease-out, opacity 0.25s ease-out';
         overlay.style.pointerEvents = 'all';
         
         // Create content panel
@@ -2722,8 +2723,9 @@ export class WodActorSheet extends ActorSheet {
         content.style.overflowY = 'auto';
         content.style.boxShadow = '2px 0 12px rgba(0,0,0,0.2)';
         content.style.transform = 'translateX(-100%)';
-        content.style.transition = 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
-        content.style.willChange = 'transform';
+        content.style.transition = 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out';
+        content.style.opacity = '0';
+        content.style.willChange = 'transform, opacity';
         
         // Create header
         const header = document.createElement('h4');
@@ -2880,11 +2882,13 @@ export class WodActorSheet extends ActorSheet {
         // Force a reflow to ensure initial state is rendered before transition
         content.offsetHeight;
         
-        // Trigger animation on next frame for smooth transition
+        // Trigger animation on next frame for smooth transition with fade in
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 overlay.style.background = 'rgba(0, 0, 0, 0.2)';
+                overlay.style.opacity = '1';
                 content.style.transform = 'translateX(0)';
+                content.style.opacity = '1';
             });
         });
     }
@@ -2901,10 +2905,12 @@ export class WodActorSheet extends ActorSheet {
         if (panel) {
             const content = panel.querySelector('.quick-rolls-content');
             
-            // Animate out smoothly
+            // Animate out smoothly with fade out
             panel.style.background = 'rgba(0, 0, 0, 0)';
+            panel.style.opacity = '0';
             if (content) {
                 content.style.transform = 'translateX(-100%)';
+                content.style.opacity = '0';
             }
             
             // Remove after animation completes (match transition duration)
