@@ -2597,17 +2597,17 @@ export class WodActorSheet extends ActorSheet {
         trigger.style.transform = 'translateY(-50%)';
         trigger.style.background = primaryColor;
         trigger.style.color = 'white';
-        trigger.style.width = '28px';
-        trigger.style.height = '40px';
-        trigger.style.borderRadius = '0 6px 6px 0'; // Only round the right side
+        trigger.style.width = '20px';
+        trigger.style.height = '28px';
+        trigger.style.borderRadius = '0 3px 3px 0'; // Only round the right side
         trigger.style.cursor = 'pointer';
         trigger.style.display = 'flex';
         trigger.style.alignItems = 'center';
         trigger.style.justifyContent = 'center';
-        trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
+        trigger.style.boxShadow = '1px 0 4px rgba(0,0,0,0.3)';
         trigger.style.transition = 'width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.3s ease';
         trigger.style.zIndex = '9999';
-        trigger.style.fontSize = '1em';
+        trigger.style.fontSize = '0.8em';
         trigger.style.pointerEvents = 'auto';
         trigger.style.borderLeft = 'none'; // No border on the window edge side
         trigger.style.opacity = '0'; // Start invisible for fade-in effect
@@ -2615,13 +2615,13 @@ export class WodActorSheet extends ActorSheet {
         // Add hover effect - expand width to extend outward without moving from edge
         trigger.addEventListener('mouseenter', () => {
             trigger.style.background = primaryDark;
-            trigger.style.width = '32px'; // Expand outward
-            trigger.style.boxShadow = '3px 0 12px rgba(0,0,0,0.4)';
+            trigger.style.width = '24px'; // Expand outward
+            trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.4)';
         });
         trigger.addEventListener('mouseleave', () => {
             trigger.style.background = primaryColor;
-            trigger.style.width = '28px'; // Return to normal
-            trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
+            trigger.style.width = '20px'; // Return to normal
+            trigger.style.boxShadow = '1px 0 4px rgba(0,0,0,0.3)';
         });
         
         // Add click listener
