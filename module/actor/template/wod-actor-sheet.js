@@ -2604,21 +2604,21 @@ export class WodActorSheet extends ActorSheet {
         trigger.style.alignItems = 'center';
         trigger.style.justifyContent = 'center';
         trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
-        trigger.style.transition = 'all 0.2s ease';
+        trigger.style.transition = 'width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease';
         trigger.style.zIndex = '9999';
         trigger.style.fontSize = '1.2em';
         trigger.style.pointerEvents = 'auto';
         trigger.style.borderLeft = 'none'; // No border on the window edge side
         
-        // Add hover effect - slide out slightly from edge
+        // Add hover effect - expand width to extend outward without moving from edge
         trigger.addEventListener('mouseenter', () => {
             trigger.style.background = primaryDark;
-            trigger.style.transform = 'translateY(-50%) translateX(4px)';
+            trigger.style.width = '40px'; // Expand outward
             trigger.style.boxShadow = '3px 0 12px rgba(0,0,0,0.4)';
         });
         trigger.addEventListener('mouseleave', () => {
             trigger.style.background = primaryColor;
-            trigger.style.transform = 'translateY(-50%)';
+            trigger.style.width = '36px'; // Return to normal
             trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
         });
         
