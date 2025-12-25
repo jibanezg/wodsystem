@@ -2695,6 +2695,10 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
+        // Ensure window-app clips content so panel appears to slide from inside
+        windowApp.style.overflow = 'hidden';
+        windowApp.style.position = 'relative';
+        
         // Create overlay element with inline styles (absolute within window)
         const overlay = document.createElement('div');
         overlay.className = 'quick-rolls-panel-overlay';
