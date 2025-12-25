@@ -170,6 +170,7 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
         // Quick roll templates
+        html.find('.quick-rolls-trigger').click(this._onToggleQuickRollsPanel.bind(this));
         html.find('.execute-template').click(this._onExecuteTemplate.bind(this));
         html.find('.delete-template').click(this._onDeleteTemplate.bind(this));
         
@@ -2546,6 +2547,17 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Toggle the quick rolls panel visibility
+     * @param {Event} event - Click event
+     * @private
+     */
+    _onToggleQuickRollsPanel(event) {
+        event.preventDefault();
+        const panel = this.element.find('.quick-rolls-panel');
+        panel.toggleClass('open');
+    }
+
+    /**
      * Execute a saved roll template
      * @param {Event} event - Click event
      * @private
@@ -2554,6 +2566,9 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         const templateId = event.currentTarget.dataset.templateId;
         await this.actor.executeTemplate(templateId);
+        
+        // Close the panel after executing
+        this.element.find('.quick-rolls-panel').removeClass('open');
     }
 
     /**
