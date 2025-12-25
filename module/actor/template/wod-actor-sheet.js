@@ -184,7 +184,8 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
         // Create quick rolls trigger button dynamically (completely outside layout)
-        this._createQuickRollsTrigger();
+        // TEMPORARILY DISABLED TO TEST
+        // this._createQuickRollsTrigger();
         
         // Health editing handlers
         html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));

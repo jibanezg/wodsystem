@@ -2218,9 +2218,4 @@
     margin-top: 8px;
 }
 
-/* Sheet positioned for absolute children */
-.wod.sheet.actor {
-    position: relative;
-}
-
 /* Quick Rolls - trigger button and panel both dynamically created with inline styles */
