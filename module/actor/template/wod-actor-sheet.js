@@ -2584,16 +2584,20 @@ export class WodActorSheet extends ActorSheet {
         const textAlt = computedStyle.getPropertyValue('--wod-text-alt') || '#666';
         const dangerColor = computedStyle.getPropertyValue('--wod-danger') || '#dc143c';
         
-        // Create overlay element with inline styles
+        // Get the sheet's bounding rect to position panel correctly
+        const sheetElement = this.element[0];
+        const sheetRect = sheetElement.getBoundingClientRect();
+        
+        // Create overlay element with inline styles (absolute within sheet)
         const overlay = document.createElement('div');
         overlay.className = 'quick-rolls-panel-overlay';
         overlay.style.cssText = `
-            position: fixed;
+            position: absolute;
             left: 0;
             top: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            z-index: 998;
             background: rgba(0, 0, 0, 0);
             transition: background 0.3s ease;
             pointer-events: all;
@@ -2607,7 +2611,7 @@ export class WodActorSheet extends ActorSheet {
             left: 0;
             top: 0;
             width: 260px;
-            height: 100vh;
+            height: 100%;
             background: ${bgMain};
             border-right: 1px solid ${borderLight};
             padding: 16px;
@@ -2698,8 +2702,8 @@ export class WodActorSheet extends ActorSheet {
         
         overlay.appendChild(content);
         
-        // Append to document.body (not inside form)
-        document.body.appendChild(overlay);
+        // Append to the sheet element (contained within the actor sheet window)
+        sheetElement.appendChild(overlay);
         
         // Attach event listeners to execute buttons
         content.querySelectorAll('.execute-template').forEach(btn => {
