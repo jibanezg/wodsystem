@@ -2698,12 +2698,14 @@ export class WodActorSheet extends ActorSheet {
         // Apply overflow-x to window-content (the scrollable section) instead of entire window-app
         // This preserves vertical scrolling while clipping horizontal overflow
         const windowContent = windowApp.querySelector('.window-content');
-        if (windowContent) {
-            windowContent.style.overflowX = 'hidden';
-            windowContent.style.position = 'relative';
+        if (!windowContent) {
+            console.error('Could not find window-content for quick rolls panel');
+            return;
         }
+        windowContent.style.overflowX = 'hidden';
+        windowContent.style.position = 'relative';
         
-        // Create overlay element with inline styles (absolute within window)
+        // Create overlay element with inline styles (absolute within window-content)
         const overlay = document.createElement('div');
         overlay.className = 'quick-rolls-panel-overlay';
         overlay.style.position = 'absolute';
@@ -2816,8 +2818,8 @@ export class WodActorSheet extends ActorSheet {
         
         overlay.appendChild(content);
         
-        // Append to the Foundry window container (not the form)
-        windowApp.appendChild(overlay);
+        // Append to window-content (not window-app) so overflow-x works
+        windowContent.appendChild(overlay);
         
         // Attach event listeners to execute buttons
         content.querySelectorAll('.execute-template').forEach(btn => {
@@ -2909,7 +2911,9 @@ export class WodActorSheet extends ActorSheet {
         const windowApp = this.element.closest('.window-app')[0];
         if (!windowApp) return;
         
-        const panel = windowApp.querySelector('.quick-rolls-panel-overlay');
+        // Look for panel in window-content since that's where we append it
+        const windowContent = windowApp.querySelector('.window-content');
+        const panel = windowContent ? windowContent.querySelector('.quick-rolls-panel-overlay') : null;
         if (panel) {
             const content = panel.querySelector('.quick-rolls-content');
             
