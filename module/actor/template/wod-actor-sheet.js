@@ -2589,33 +2589,37 @@ export class WodActorSheet extends ActorSheet {
         trigger.innerHTML = '<i class="fas fa-dice-d10"></i>';
         
         // Set ALL styles inline BEFORE adding to DOM to prevent any layout impact
+        // Style as a tab attached to the window edge
         trigger.style.position = 'fixed';
-        trigger.style.left = `${windowRect.left + 8}px`;
+        trigger.style.left = `${windowRect.left}px`; // Right at the edge, no gap
         trigger.style.top = `${windowRect.top + windowRect.height / 2}px`;
         trigger.style.transform = 'translateY(-50%)';
         trigger.style.background = primaryColor;
         trigger.style.color = 'white';
-        trigger.style.width = '32px';
-        trigger.style.height = '32px';
-        trigger.style.borderRadius = '6px';
+        trigger.style.width = '36px';
+        trigger.style.height = '48px';
+        trigger.style.borderRadius = '0 8px 8px 0'; // Only round the right side
         trigger.style.cursor = 'pointer';
         trigger.style.display = 'flex';
         trigger.style.alignItems = 'center';
         trigger.style.justifyContent = 'center';
-        trigger.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+        trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
         trigger.style.transition = 'all 0.2s ease';
         trigger.style.zIndex = '9999';
-        trigger.style.fontSize = '1.1em';
+        trigger.style.fontSize = '1.2em';
         trigger.style.pointerEvents = 'auto';
+        trigger.style.borderLeft = 'none'; // No border on the window edge side
         
-        // Add hover effect
+        // Add hover effect - slide out slightly from edge
         trigger.addEventListener('mouseenter', () => {
             trigger.style.background = primaryDark;
-            trigger.style.transform = 'translateY(-50%) scale(1.1)';
+            trigger.style.transform = 'translateY(-50%) translateX(4px)';
+            trigger.style.boxShadow = '3px 0 12px rgba(0,0,0,0.4)';
         });
         trigger.addEventListener('mouseleave', () => {
             trigger.style.background = primaryColor;
             trigger.style.transform = 'translateY(-50%)';
+            trigger.style.boxShadow = '2px 0 8px rgba(0,0,0,0.3)';
         });
         
         // Add click listener
@@ -2630,7 +2634,7 @@ export class WodActorSheet extends ActorSheet {
         // Update position when window is dragged/resized
         this._updateTriggerPosition = () => {
             const newRect = windowApp.getBoundingClientRect();
-            trigger.style.left = `${newRect.left + 8}px`;
+            trigger.style.left = `${newRect.left}px`;
             trigger.style.top = `${newRect.top + newRect.height / 2}px`;
         };
     }
