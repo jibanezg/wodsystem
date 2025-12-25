@@ -519,24 +519,24 @@
 
 /* Roll Dialog */
 /* Roll Dialog Styling - Mortal Theme */
-.wod.dialog.roll-dialog {
+.wod.dialog.roll-dialog.mortal {
     background: var(--wod-bg-main);
     color: var(--wod-text-main);
 }
 
 /* Window header styling to match character sheet */
-.wod.dialog.roll-dialog .window-header {
+.wod.dialog.roll-dialog.mortal .window-header {
     background: #000;
     color: #fff;
     border-bottom: 2px solid var(--wod-primary);
 }
 
-.wod.dialog.roll-dialog .window-title {
+.wod.dialog.roll-dialog.mortal .window-title {
     color: #fff;
 }
 
 /* Pool summary - solid background, no transparency */
-.wod.roll-dialog .pool-summary {
+.wod.roll-dialog.mortal .pool-summary {
     background: var(--wod-bg-secondary);
     border: 1px solid var(--wod-border-main);
     padding: 12px;
@@ -544,12 +544,12 @@
     margin-bottom: 16px;
 }
 
-.wod.roll-dialog .pool-summary h3 {
+.wod.roll-dialog.mortal .pool-summary h3 {
     color: var(--wod-primary);
     margin: 0 0 8px 0;
 }
 
-.wod.roll-dialog .trait-chip {
+.wod.roll-dialog.mortal .trait-chip {
     display: inline-block;
     background: var(--wod-primary);
     color: white;
@@ -559,19 +559,19 @@
     font-size: 0.9em;
 }
 
-.wod.roll-dialog .total-pool {
+.wod.roll-dialog.mortal .total-pool {
     margin-top: 8px;
     font-size: 1.1em;
     color: var(--wod-text-main);
 }
 
-.wod.roll-dialog .roll-config {
+.wod.roll-dialog.mortal .roll-config {
     background: var(--wod-bg-light);
     padding: 12px;
     border-radius: 4px;
 }
 
-.wod.roll-dialog .form-group {
+.wod.roll-dialog.mortal .form-group {
     margin: 12px 0;
 }
 
@@ -604,7 +604,7 @@
     margin-right: 6px;
 }
 
-.wod.roll-dialog .dialog-buttons {
+.wod.roll-dialog.mortal .dialog-buttons {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
@@ -612,7 +612,7 @@
 }
 
 /* Roll button - high contrast, matches sheet */
-.wod.roll-dialog .roll-button {
+.wod.roll-dialog.mortal .roll-button {
     background: var(--wod-primary);
     color: var(--wod-text-light);
     border: none;
@@ -623,12 +623,12 @@
     transition: all 0.2s ease;
 }
 
-.wod.roll-dialog .roll-button:hover {
+.wod.roll-dialog.mortal .roll-button:hover {
     background: var(--wod-primary-dark);
     transform: scale(1.05);
 }
 
-.wod.roll-dialog .cancel-button {
+.wod.roll-dialog.mortal .cancel-button {
     background: var(--wod-text-alt);
     color: white;
     border: none;
@@ -638,27 +638,27 @@
     transition: all 0.2s ease;
 }
 
-.wod.roll-dialog .cancel-button:hover {
+.wod.roll-dialog.mortal .cancel-button:hover {
     background: #888;
 }
 
-.wod.roll-dialog .modifiers-section {
+.wod.roll-dialog.mortal .modifiers-section {
     margin: 12px 0;
     padding: 10px;
     background: var(--wod-bg-subtle);
     border-radius: 4px;
 }
 
-.wod.roll-dialog .modifiers-section h4 {
+.wod.roll-dialog.mortal .modifiers-section h4 {
     margin: 0 0 8px 0;
     color: var(--wod-primary);
 }
 
-.wod.roll-dialog .modifier-list {
+.wod.roll-dialog.mortal .modifier-list {
     margin: 8px 0;
 }
 
-.wod.roll-dialog .modifier-item {
+.wod.roll-dialog.mortal .modifier-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -669,7 +669,7 @@
     border-radius: 4px;
 }
 
-.wod.roll-dialog .remove-modifier {
+.wod.roll-dialog.mortal .remove-modifier {
     background: var(--wod-danger);
     color: white;
     border: none;
@@ -680,12 +680,12 @@
     transition: all 0.2s ease;
 }
 
-.wod.roll-dialog .remove-modifier:hover {
+.wod.roll-dialog.mortal .remove-modifier:hover {
     background: var(--wod-danger-dark);
 }
 
 /* Add modifier button - matches sheet styling */
-.wod.roll-dialog .add-modifier {
+.wod.roll-dialog.mortal .add-modifier {
     background: var(--wod-success);
     color: white;
     border: none;
@@ -700,12 +700,12 @@
     transition: all 0.2s ease;
 }
 
-.wod.roll-dialog .add-modifier:hover {
+.wod.roll-dialog.mortal .add-modifier:hover {
     background: var(--wod-primary);
     transform: scale(1.1);
 }
 
-.wod.roll-dialog .saved-rolls {
+.wod.roll-dialog.mortal .saved-rolls {
     margin: 12px 0;
     padding: 10px;
     background: var(--wod-bg-info);

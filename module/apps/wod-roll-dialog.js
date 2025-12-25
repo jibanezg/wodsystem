@@ -4,6 +4,24 @@
  */
 export class WodRollDialog extends Application {
     constructor(actor, poolData, options = {}) {
+        // Add creature type class before calling super
+        const creatureType = actor?.type || 'mortal';
+        if (!options.classes) {
+            options.classes = [];
+        }
+        if (!options.classes.includes("wod")) {
+            options.classes.push("wod");
+        }
+        if (!options.classes.includes("dialog")) {
+            options.classes.push("dialog");
+        }
+        if (!options.classes.includes("roll-dialog")) {
+            options.classes.push("roll-dialog");
+        }
+        if (!options.classes.includes(creatureType)) {
+            options.classes.push(creatureType);
+        }
+        
         super(options);
         this.actor = actor;
         this.poolData = poolData;
