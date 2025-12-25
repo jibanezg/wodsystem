@@ -2687,35 +2687,32 @@ export class WodActorSheet extends ActorSheet {
         // Create overlay element with inline styles (absolute within window)
         const overlay = document.createElement('div');
         overlay.className = 'quick-rolls-panel-overlay';
-        overlay.style.cssText = `
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 998;
-            background: rgba(0, 0, 0, 0);
-            transition: background 0.3s ease;
-            pointer-events: all;
-        `;
+        overlay.style.position = 'absolute';
+        overlay.style.left = '0';
+        overlay.style.top = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.zIndex = '998';
+        overlay.style.background = 'rgba(0, 0, 0, 0)';
+        overlay.style.transition = 'background 0.25s ease-out';
+        overlay.style.pointerEvents = 'all';
         
         // Create content panel
         const content = document.createElement('div');
         content.className = 'quick-rolls-content';
-        content.style.cssText = `
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 260px;
-            height: 100%;
-            background: ${bgMain};
-            border-right: 1px solid ${borderLight};
-            padding: 16px;
-            overflow-y: auto;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.2);
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        `;
+        content.style.position = 'absolute';
+        content.style.left = '0';
+        content.style.top = '0';
+        content.style.width = '260px';
+        content.style.height = '100%';
+        content.style.background = bgMain;
+        content.style.borderRight = `1px solid ${borderLight}`;
+        content.style.padding = '16px';
+        content.style.overflowY = 'auto';
+        content.style.boxShadow = '2px 0 12px rgba(0,0,0,0.2)';
+        content.style.transform = 'translateX(-100%)';
+        content.style.transition = 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+        content.style.willChange = 'transform';
         
         // Create header
         const header = document.createElement('h4');
@@ -2869,11 +2866,16 @@ export class WodActorSheet extends ActorSheet {
             }
         });
         
-        // Trigger animation after a small delay
-        setTimeout(() => {
-            overlay.style.background = 'rgba(0, 0, 0, 0.2)';
-            content.style.transform = 'translateX(0)';
-        }, 10);
+        // Force a reflow to ensure initial state is rendered before transition
+        content.offsetHeight;
+        
+        // Trigger animation on next frame for smooth transition
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                overlay.style.background = 'rgba(0, 0, 0, 0.2)';
+                content.style.transform = 'translateX(0)';
+            });
+        });
     }
 
     /**
@@ -2888,16 +2890,16 @@ export class WodActorSheet extends ActorSheet {
         if (panel) {
             const content = panel.querySelector('.quick-rolls-content');
             
-            // Animate out
+            // Animate out smoothly
             panel.style.background = 'rgba(0, 0, 0, 0)';
             if (content) {
                 content.style.transform = 'translateX(-100%)';
             }
             
-            // Remove after animation
+            // Remove after animation completes (match transition duration)
             setTimeout(() => {
                 panel.remove();
-            }, 300);
+            }, 250);
         }
     }
 
