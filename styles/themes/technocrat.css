@@ -2221,10 +2221,10 @@
 /* Quick Rolls Sliding Panel */
 .wod.sheet.actor .quick-rolls-panel {
     position: absolute;
-    left: 0;
+    left: -2px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 100;
+    z-index: 50;
 }
 
 .wod.sheet.actor .quick-rolls-trigger {
@@ -2236,9 +2236,10 @@
     border-radius: 0 4px 4px 0;
     cursor: pointer;
     writing-mode: vertical-rl;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
+    box-shadow: 1px 0 3px rgba(0,0,0,0.2);
+    transition: background 0.2s ease;
     font-size: 0.75em;
+    z-index: 52;
 }
 
 .wod.sheet.actor .quick-rolls-trigger:hover {
@@ -2252,23 +2253,26 @@
 
 .wod.sheet.actor .quick-rolls-content {
     position: absolute;
-    left: -220px;
+    left: 0;
     top: -80px;
     width: 220px;
     max-height: 300px;
     overflow-y: auto;
     background: var(--wod-bg-main);
-    border: 2px solid var(--wod-primary);
-    border-radius: 4px;
+    border: 2px solid var(--wod-border-main);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
     padding: 10px;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
-    transition: left 0.3s ease;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-100%);
     opacity: 0;
     pointer-events: none;
+    z-index: 51;
 }
 
 .wod.sheet.actor .quick-rolls-panel.open .quick-rolls-content {
-    left: 26px;
+    transform: translateX(26px);
     opacity: 1;
     pointer-events: auto;
 }
