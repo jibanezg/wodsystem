@@ -169,8 +169,8 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('click').click(this._onTraitLabelLeftClick.bind(this));
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
-        // Quick roll templates trigger
-        html.find('.quick-rolls-trigger').click(this._onToggleQuickRollsPanel.bind(this));
+        // Create quick rolls trigger button dynamically
+        this._createQuickRollsTrigger();
         
         // Health editing handlers
         html.find('.toggle-health-edit').click(this._onToggleHealthEdit.bind(this));
@@ -2545,6 +2545,68 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Create the quick rolls trigger button dynamically
+     * @private
+     */
+    _createQuickRollsTrigger() {
+        const windowApp = this.element.closest('.window-app')[0];
+        if (!windowApp) return;
+        
+        // Remove existing trigger if any
+        const existingTrigger = windowApp.querySelector('.quick-rolls-trigger');
+        if (existingTrigger) {
+            existingTrigger.remove();
+        }
+        
+        // Get theme colors
+        const sheetElement = this.element[0];
+        const computedStyle = getComputedStyle(sheetElement);
+        const primaryColor = computedStyle.getPropertyValue('--wod-primary') || '#4682B4';
+        const primaryDark = computedStyle.getPropertyValue('--wod-primary-dark') || '#2F4F6F';
+        
+        // Create trigger button with inline styles (absolute within window-app)
+        const trigger = document.createElement('div');
+        trigger.className = 'quick-rolls-trigger';
+        trigger.title = 'Quick Rolls';
+        trigger.innerHTML = '<i class="fas fa-dice-d10"></i>';
+        trigger.style.cssText = `
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: ${primaryColor};
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            z-index: 999;
+            font-size: 1.1em;
+        `;
+        
+        // Add hover effect
+        trigger.addEventListener('mouseenter', () => {
+            trigger.style.background = primaryDark;
+            trigger.style.transform = 'translateY(-50%) scale(1.1)';
+        });
+        trigger.addEventListener('mouseleave', () => {
+            trigger.style.background = primaryColor;
+            trigger.style.transform = 'translateY(-50%)';
+        });
+        
+        // Add click listener
+        trigger.addEventListener('click', this._onToggleQuickRollsPanel.bind(this));
+        
+        // Append to window-app
+        windowApp.appendChild(trigger);
+    }
+
+    /**
      * Toggle the quick rolls panel visibility (create/destroy on demand)
      * @param {Event} event - Click event
      * @private
@@ -2552,13 +2614,15 @@ export class WodActorSheet extends ActorSheet {
     _onToggleQuickRollsPanel(event) {
         event.preventDefault();
         
+        const windowApp = this.element.closest('.window-app')[0];
+        if (!windowApp) return;
+        
         // Check if panel already exists
-        let panel = document.querySelector('.quick-rolls-panel-overlay');
+        const panel = windowApp.querySelector('.quick-rolls-panel-overlay');
         
         if (panel) {
             // Close and remove panel
-            panel.classList.remove('open');
-            setTimeout(() => panel.remove(), 300); // Wait for slide animation
+            this._destroyQuickRollsPanel();
         } else {
             // Create and show panel
             this._createQuickRollsPanel();
