@@ -42,7 +42,6 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/actor/partials/advantages-common.html",
         "systems/wodsystem/templates/actor/partials/mortal-numina.html",
         "systems/wodsystem/templates/actor/partials/experience.html",
-        "systems/wodsystem/templates/actor/partials/quick-rolls-panel.html",
         "systems/wodsystem/templates/apps/roll-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html"
     ]);
