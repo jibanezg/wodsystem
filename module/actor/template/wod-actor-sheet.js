@@ -2695,6 +2695,14 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
+        // Apply overflow-x to window-content (the scrollable section) instead of entire window-app
+        // This preserves vertical scrolling while clipping horizontal overflow
+        const windowContent = windowApp.querySelector('.window-content');
+        if (windowContent) {
+            windowContent.style.overflowX = 'hidden';
+            windowContent.style.position = 'relative';
+        }
+        
         // Create overlay element with inline styles (absolute within window)
         const overlay = document.createElement('div');
         overlay.className = 'quick-rolls-panel-overlay';
