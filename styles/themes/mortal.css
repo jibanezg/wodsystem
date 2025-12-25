@@ -717,109 +717,107 @@
     margin-top: 8px;
 }
 
-/* Quick Rolls Sliding Panel - ChatGPT Style */
-.wod.sheet.actor {
-    position: relative;
-}
-
-.wod.sheet.actor .quick-rolls-panel {
+/* Quick Rolls Trigger Button */
+.quick-rolls-trigger {
     position: fixed;
-    left: 0;
-    top: 0;
-    width: 0;
-    height: 0;
-    z-index: 200;
-    pointer-events: none;
-}
-
-.wod.sheet.actor .quick-rolls-panel > * {
-    pointer-events: auto;
-}
-
-.wod.sheet.actor .quick-rolls-trigger {
-    position: absolute;
     left: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: var(--wod-primary);
+    background: var(--wod-primary, #2D5016);
     color: white;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    transition: all 0.2s ease;
-    z-index: 202;
-}
-
-.wod.sheet.actor .quick-rolls-trigger:hover {
-    background: var(--wod-primary-dark);
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    z-index: 999;
 }
 
-.wod.sheet.actor .quick-rolls-trigger i {
-    font-size: 1em;
+.quick-rolls-trigger:hover {
+    background: var(--wod-primary-dark, #1C3310);
+    transform: translateY(-50%) scale(1.1);
 }
 
-.wod.sheet.actor .quick-rolls-content {
+.quick-rolls-trigger i {
+    font-size: 1.1em;
+}
+
+/* Quick Rolls Panel Overlay */
+.quick-rolls-panel-overlay {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    pointer-events: all;
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.3s ease;
+}
+
+.quick-rolls-panel-overlay.open {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.quick-rolls-panel-overlay .quick-rolls-content {
     position: absolute;
     left: 0;
     top: 0;
     width: 260px;
     height: 100%;
-    background: var(--wod-bg-main);
-    border-right: 1px solid var(--wod-border-light);
+    background: var(--wod-bg-main, #fff);
+    border-right: 1px solid var(--wod-border-light, #ccc);
     padding: 16px;
     overflow-y: auto;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 12px rgba(0,0,0,0.2);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateX(-100%);
-    z-index: 201;
 }
 
-.wod.sheet.actor .quick-rolls-panel.open .quick-rolls-content {
+.quick-rolls-panel-overlay.open .quick-rolls-content {
     transform: translateX(0);
 }
 
-.wod.sheet.actor .quick-rolls-content h4 {
+.quick-rolls-content h4 {
     margin: 0 0 16px 0;
-    color: var(--wod-text-main);
+    color: var(--wod-text-main, #000);
     font-size: 1.1em;
     font-weight: 600;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--wod-border-light);
+    border-bottom: 1px solid var(--wod-border-light, #ccc);
 }
 
-.wod.sheet.actor .template-list {
+.template-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.wod.sheet.actor .roll-template-item {
+.roll-template-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--wod-bg-light);
-    border: 1px solid var(--wod-border-light);
+    background: var(--wod-bg-light, #fff);
+    border: 1px solid var(--wod-border-light, #ccc);
     border-radius: 6px;
     padding: 8px;
     transition: all 0.2s ease;
 }
 
-.wod.sheet.actor .roll-template-item:hover {
-    background: var(--wod-bg-secondary);
-    border-color: var(--wod-primary);
+.roll-template-item:hover {
+    background: var(--wod-bg-secondary, #f5f5f5);
+    border-color: var(--wod-primary, #2D5016);
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.wod.sheet.actor .execute-template {
+.execute-template {
     flex: 1;
     background: transparent;
-    color: var(--wod-text-main);
+    color: var(--wod-text-main, #000);
     border: none;
     padding: 0;
     cursor: pointer;
@@ -829,17 +827,17 @@
     font-weight: 500;
 }
 
-.wod.sheet.actor .execute-template:hover {
-    color: var(--wod-primary);
+.execute-template:hover {
+    color: var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .execute-template i {
+.execute-template i {
     margin-right: 8px;
-    color: var(--wod-primary);
+    color: var(--wod-primary, #2D5016);
 }
 
-.wod.sheet.actor .delete-template {
-    color: var(--wod-text-alt);
+.delete-template {
+    color: var(--wod-text-alt, #666);
     cursor: pointer;
     padding: 4px;
     transition: all 0.2s ease;
@@ -847,14 +845,14 @@
     opacity: 0.6;
 }
 
-.wod.sheet.actor .delete-template:hover {
-    color: var(--wod-danger);
+.delete-template:hover {
+    color: var(--wod-danger, #dc143c);
     opacity: 1;
 }
 
-.wod.sheet.actor .no-templates {
+.no-templates {
     font-size: 0.9em;
-    color: var(--wod-text-alt);
+    color: var(--wod-text-alt, #666);
     margin: 0;
     padding: 16px;
     text-align: center;

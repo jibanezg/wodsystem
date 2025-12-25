@@ -2547,14 +2547,124 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Toggle the quick rolls panel visibility
+     * Toggle the quick rolls panel visibility (create/destroy on demand)
      * @param {Event} event - Click event
      * @private
      */
     _onToggleQuickRollsPanel(event) {
         event.preventDefault();
-        const panel = this.element.find('.quick-rolls-panel');
-        panel.toggleClass('open');
+        
+        // Check if panel already exists
+        let panel = document.querySelector('.quick-rolls-panel-overlay');
+        
+        if (panel) {
+            // Close and remove panel
+            panel.classList.remove('open');
+            setTimeout(() => panel.remove(), 300); // Wait for slide animation
+        } else {
+            // Create and show panel
+            this._createQuickRollsPanel();
+        }
+    }
+
+    /**
+     * Create the quick rolls panel dynamically
+     * @private
+     */
+    _createQuickRollsPanel() {
+        const templates = this.actor.system.rollTemplates || [];
+        const maxTemplates = 10;
+        const displayTemplates = templates.slice(0, maxTemplates);
+        
+        // Build template list HTML
+        let templateListHTML = '';
+        if (displayTemplates.length > 0) {
+            templateListHTML = '<div class="template-list">';
+            for (const template of displayTemplates) {
+                templateListHTML += `
+                    <div class="roll-template-item">
+                        <button type="button" class="execute-template" 
+                                data-template-id="${template.id}" 
+                                title="${template.name} (Difficulty ${template.difficulty})">
+                            <i class="fas fa-dice-d10"></i> ${template.name}
+                        </button>
+                        <a class="delete-template" 
+                           data-template-id="${template.id}" 
+                           title="Delete template">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                `;
+            }
+            templateListHTML += '</div>';
+        } else {
+            templateListHTML = '<p class="no-templates">No saved templates yet. Save a roll configuration to create quick access.</p>';
+        }
+        
+        // Create panel element
+        const panelHTML = `
+            <div class="quick-rolls-panel-overlay">
+                <div class="quick-rolls-content">
+                    <h4>Saved Roll Templates</h4>
+                    ${templateListHTML}
+                </div>
+            </div>
+        `;
+        
+        // Insert into document
+        document.body.insertAdjacentHTML('beforeend', panelHTML);
+        
+        // Get the panel
+        const panel = document.querySelector('.quick-rolls-panel-overlay');
+        
+        // Attach event listeners
+        panel.querySelectorAll('.execute-template').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const templateId = e.currentTarget.dataset.templateId;
+                await this.actor.executeTemplate(templateId);
+                
+                // Close panel after executing
+                panel.classList.remove('open');
+                setTimeout(() => panel.remove(), 300);
+            });
+        });
+        
+        panel.querySelectorAll('.delete-template').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const templateId = e.currentTarget.dataset.templateId;
+                
+                const confirmed = await Dialog.confirm({
+                    title: "Delete Roll Template",
+                    content: "<p>Are you sure you want to delete this roll template?</p>",
+                    yes: () => true,
+                    no: () => false
+                });
+                
+                if (confirmed) {
+                    await this.actor.deleteRollTemplate(templateId);
+                    
+                    // Close and recreate panel to show updated list
+                    panel.classList.remove('open');
+                    setTimeout(() => {
+                        panel.remove();
+                        this._createQuickRollsPanel();
+                    }, 300);
+                }
+            });
+        });
+        
+        // Close panel when clicking outside
+        panel.addEventListener('click', (e) => {
+            if (e.target === panel) {
+                panel.classList.remove('open');
+                setTimeout(() => panel.remove(), 300);
+            }
+        });
+        
+        // Trigger animation
+        setTimeout(() => panel.classList.add('open'), 10);
     }
 
     /**

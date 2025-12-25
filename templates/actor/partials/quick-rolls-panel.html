@@ -1,30 +1,5 @@
-<!-- Quick Rolls Sliding Panel -->
-<div class="quick-rolls-panel">
-    <div class="quick-rolls-trigger" title="Quick Rolls">
-        <i class="fas fa-dice-d10"></i>
-    </div>
-    <div class="quick-rolls-content">
-        <h4>Saved Roll Templates</h4>
-        {{#if actor.system.rollTemplates.length}}
-        <div class="template-list">
-            {{#each actor.system.rollTemplates as |template|}}
-            <div class="roll-template-item">
-                <button type="button" class="execute-template" 
-                        data-template-id="{{template.id}}" 
-                        title="{{template.name}} (Difficulty {{template.difficulty}})">
-                    <i class="fas fa-dice-d10"></i> {{template.name}}
-                </button>
-                <a class="delete-template" 
-                   data-template-id="{{template.id}}" 
-                   title="Delete template">
-                    <i class="fas fa-trash"></i>
-                </a>
-            </div>
-            {{/each}}
-        </div>
-        {{else}}
-        <p class="no-templates">No saved templates yet. Save a roll configuration to create quick access.</p>
-        {{/if}}
-    </div>
+<!-- Quick Rolls Trigger Button -->
+<div class="quick-rolls-trigger" title="Quick Rolls">
+    <i class="fas fa-dice-d10"></i>
 </div>
 
