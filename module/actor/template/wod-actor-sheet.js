@@ -16,6 +16,20 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /** @override */
+    async close(options) {
+        // Clean up trigger button when sheet is closed
+        const trigger = document.querySelector(`.quick-rolls-trigger[data-app-id="${this.appId}"]`);
+        if (trigger) {
+            trigger.remove();
+        }
+        
+        // Clean up panel if open
+        this._destroyQuickRollsPanel();
+        
+        return super.close(options);
+    }
+
+    /** @override */
     async getData() {
         const context = await super.getData();
         
@@ -169,7 +183,7 @@ export class WodActorSheet extends ActorSheet {
         html.find('.trait-label').off('click').click(this._onTraitLabelLeftClick.bind(this));
         html.find('.trait-label').off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
         
-        // Create quick rolls trigger button dynamically
+        // Create quick rolls trigger button dynamically (completely outside layout)
         this._createQuickRollsTrigger();
         
         // Health editing handlers
@@ -2553,7 +2567,7 @@ export class WodActorSheet extends ActorSheet {
         if (!windowApp) return;
         
         // Remove existing trigger if any
-        const existingTrigger = windowApp.querySelector('.quick-rolls-trigger');
+        const existingTrigger = document.querySelector(`.quick-rolls-trigger[data-app-id="${this.appId}"]`);
         if (existingTrigger) {
             existingTrigger.remove();
         }
@@ -2564,15 +2578,19 @@ export class WodActorSheet extends ActorSheet {
         const primaryColor = computedStyle.getPropertyValue('--wod-primary') || '#4682B4';
         const primaryDark = computedStyle.getPropertyValue('--wod-primary-dark') || '#2F4F6F';
         
-        // Create trigger button with inline styles (absolute within window-app)
+        // Get window position
+        const windowRect = windowApp.getBoundingClientRect();
+        
+        // Create trigger button with inline styles (fixed position, outside layout)
         const trigger = document.createElement('div');
         trigger.className = 'quick-rolls-trigger';
+        trigger.dataset.appId = this.appId;
         trigger.title = 'Quick Rolls';
         trigger.innerHTML = '<i class="fas fa-dice-d10"></i>';
         trigger.style.cssText = `
-            position: absolute;
-            left: 8px;
-            top: 50%;
+            position: fixed;
+            left: ${windowRect.left + 8}px;
+            top: ${windowRect.top + windowRect.height / 2}px;
             transform: translateY(-50%);
             background: ${primaryColor};
             color: white;
@@ -2585,8 +2603,9 @@ export class WodActorSheet extends ActorSheet {
             justify-content: center;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
-            z-index: 999;
+            z-index: 9999;
             font-size: 1.1em;
+            pointer-events: auto;
         `;
         
         // Add hover effect
@@ -2602,8 +2621,15 @@ export class WodActorSheet extends ActorSheet {
         // Add click listener
         trigger.addEventListener('click', this._onToggleQuickRollsPanel.bind(this));
         
-        // Append to window-app
-        windowApp.appendChild(trigger);
+        // Append to body (completely outside layout)
+        document.body.appendChild(trigger);
+        
+        // Update position when window is dragged/resized
+        this._updateTriggerPosition = () => {
+            const newRect = windowApp.getBoundingClientRect();
+            trigger.style.left = `${newRect.left + 8}px`;
+            trigger.style.top = `${newRect.top + newRect.height / 2}px`;
+        };
     }
 
     /**

@@ -2218,12 +2218,7 @@
     margin-top: 8px;
 }
 
-/* Ensure sheet is positioned for absolute children */
-/* Ensure Foundry window container can contain absolutely positioned elements */
-.window-app:has(.wod.sheet.actor) {
-    position: relative;
-}
-
+/* Sheet positioned for absolute children */
 .wod.sheet.actor {
     position: relative;
 }
