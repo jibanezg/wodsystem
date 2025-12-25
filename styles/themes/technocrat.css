@@ -2218,136 +2218,136 @@
     margin-top: 8px;
 }
 
-/* Quick Rolls Sliding Panel */
+/* Quick Rolls Sliding Panel - ChatGPT Style */
 .wod.sheet.actor .quick-rolls-panel {
     position: absolute;
-    left: -2px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 50;
+    left: 0;
+    top: 0;
+    height: 100%;
+    z-index: 200;
 }
 
 .wod.sheet.actor .quick-rolls-trigger {
     position: absolute;
-    left: 0;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
     background: var(--wod-primary);
     color: white;
-    padding: 20px 6px;
-    border-radius: 0 4px 4px 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
     cursor: pointer;
-    writing-mode: vertical-rl;
-    box-shadow: 1px 0 3px rgba(0,0,0,0.2);
-    transition: background 0.2s ease;
-    font-size: 0.75em;
-    z-index: 52;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+    z-index: 202;
 }
 
 .wod.sheet.actor .quick-rolls-trigger:hover {
     background: var(--wod-primary-dark);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
 .wod.sheet.actor .quick-rolls-trigger i {
-    margin-bottom: 4px;
-    font-size: 0.9em;
+    font-size: 1em;
 }
 
 .wod.sheet.actor .quick-rolls-content {
     position: absolute;
     left: 0;
-    top: -80px;
-    width: 220px;
-    max-height: 300px;
-    overflow-y: auto;
+    top: 0;
+    width: 260px;
+    height: 100%;
     background: var(--wod-bg-main);
-    border: 2px solid var(--wod-border-main);
-    border-left: none;
-    border-radius: 0 4px 4px 0;
-    padding: 10px;
-    box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--wod-border-light);
+    padding: 16px;
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateX(-100%);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 51;
+    z-index: 201;
 }
 
 .wod.sheet.actor .quick-rolls-panel.open .quick-rolls-content {
-    transform: translateX(26px);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateX(0);
 }
 
 .wod.sheet.actor .quick-rolls-content h4 {
-    margin: 0 0 8px 0;
-    color: var(--wod-primary);
-    font-size: 0.95em;
-    border-bottom: 1px solid var(--wod-primary);
-    padding-bottom: 4px;
+    margin: 0 0 16px 0;
+    color: var(--wod-text-main);
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wod-border-light);
 }
 
 .wod.sheet.actor .template-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .wod.sheet.actor .roll-template-item {
     display: flex;
     align-items: center;
-    gap: 4px;
-    background: var(--wod-bg-secondary);
+    gap: 8px;
+    background: var(--wod-bg-light);
     border: 1px solid var(--wod-border-light);
-    border-radius: 3px;
-    padding: 2px;
+    border-radius: 6px;
+    padding: 8px;
     transition: all 0.2s ease;
 }
 
 .wod.sheet.actor .roll-template-item:hover {
-    background: var(--wod-bg-hover);
+    background: var(--wod-bg-secondary);
     border-color: var(--wod-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .wod.sheet.actor .execute-template {
     flex: 1;
-    background: var(--wod-primary);
-    color: white;
+    background: transparent;
+    color: var(--wod-text-main);
     border: none;
-    padding: 6px 8px;
-    border-radius: 2px;
+    padding: 0;
     cursor: pointer;
-    font-size: 0.8em;
+    font-size: 0.9em;
     text-align: left;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease;
+    font-weight: 500;
 }
 
 .wod.sheet.actor .execute-template:hover {
-    background: var(--wod-primary-dark);
-    transform: translateX(2px);
+    color: var(--wod-primary);
 }
 
 .wod.sheet.actor .execute-template i {
-    margin-right: 4px;
-    font-size: 0.9em;
+    margin-right: 8px;
+    color: var(--wod-primary);
 }
 
 .wod.sheet.actor .delete-template {
-    color: var(--wod-danger);
+    color: var(--wod-text-alt);
     cursor: pointer;
     padding: 4px;
     transition: all 0.2s ease;
-    font-size: 0.85em;
+    font-size: 0.9em;
+    opacity: 0.6;
 }
 
 .wod.sheet.actor .delete-template:hover {
-    color: var(--wod-danger-dark);
-    transform: scale(1.2);
+    color: var(--wod-danger);
+    opacity: 1;
 }
 
 .wod.sheet.actor .no-templates {
-    font-size: 0.8em;
+    font-size: 0.9em;
     color: var(--wod-text-alt);
-    font-style: italic;
     margin: 0;
-    padding: 8px;
+    padding: 16px;
     text-align: center;
+    line-height: 1.5;
 }
