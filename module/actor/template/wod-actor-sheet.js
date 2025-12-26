@@ -1107,9 +1107,13 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddArmor(event) {
         event.preventDefault();
+        console.log("Add armor clicked!");
+        console.log("Current equipment:", this.actor.system.equipment);
         const armor = Array.isArray(this.actor.system.equipment?.armor)
             ? foundry.utils.duplicate(this.actor.system.equipment.armor)
             : [];
+        
+        console.log("Current armor array:", armor);
         
         const newArmor = {
             id: foundry.utils.randomID(),
@@ -1122,8 +1126,11 @@ export class WodActorSheet extends ActorSheet {
             grantsEffects: []
         };
         
+        console.log("New armor object:", newArmor);
         armor.push(newArmor);
+        console.log("Armor after push:", armor);
         await this.actor.update({ "system.equipment.armor": armor });
+        console.log("Update complete! New armor count:", this.actor.system.equipment.armor.length);
     }
 
     /**
