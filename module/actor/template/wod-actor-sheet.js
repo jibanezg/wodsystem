@@ -240,6 +240,9 @@ export class WodActorSheet extends ActorSheet {
         html.find('.manage-effects').click(this._onManageItemEffects.bind(this));
         html.find('.equipment-type-tab').click(this._onEquipmentTypeTab.bind(this));
         
+        // Set default equipment filter to weapons on load
+        html.find('.equipment-list').attr('data-filter', 'weapons');
+        
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
         html.find('textarea[name^="system.biography"]').change(this._onBiographyChange.bind(this));
