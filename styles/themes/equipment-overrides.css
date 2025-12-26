@@ -5,6 +5,7 @@
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
+  overflow-x: hidden !important;
 }
 
 /* Compact Header with Tabs */
@@ -53,6 +54,7 @@
   flex-direction: column !important;
   gap: 4px !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
   flex: 1 !important;
 }
 
