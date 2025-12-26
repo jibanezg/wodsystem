@@ -1,15 +1,23 @@
-/* EQUIPMENT TAB - COMPACT LIST REDESIGN */
+/* CONSISTENT TAB STYLING - Visual boundary for all tabs */
+.wod.sheet.actor .tab {
+  background: #F5F7FA !important;
+  border: 1px solid #E1E8ED !important;
+  border-radius: 4px !important;
+  margin: 4px !important;
+  overflow-x: hidden !important;
+}
 
+/* EQUIPMENT TAB - COMPACT LIST REDESIGN */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-tab {
   padding: 8px 16px 8px 8px !important;
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
   overflow-x: hidden !important;
-  background: #F5F7FA !important;
-  border: 1px solid #E1E8ED !important;
-  border-radius: 4px !important;
-  margin: 4px !important;
+  /* Visual styling inherited from .tab above */
+  background: transparent !important; /* Override to prevent double background */
+  border: none !important; /* Override to prevent double border */
+  margin: 0 !important; /* Override to prevent double margin */
 }
 
 /* Compact Header with Tabs */
