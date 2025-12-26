@@ -6,10 +6,10 @@
                 <i class="fas fa-crosshairs"></i> Weapons
             </button>
             <button type="button" class="equipment-type-tab" data-type="armor">
-                <i class="fas fa-shield"></i> Armor
+                <i class="fas fa-shield-alt"></i> Armor
             </button>
             <button type="button" class="equipment-type-tab" data-type="gear">
-                <i class="fas fa-box"></i> Gear
+                <i class="fas fa-toolbox"></i> Gear
             </button>
         </div>
     </div>
@@ -54,7 +54,7 @@
         {{#each system.equipment.armor}}
         <div class="equipment-item armor-item" data-type="armor" data-item-id="{{this.id}}">
             <div class="item-type-badge armor-badge">
-                <i class="fas fa-shield"></i>
+                <i class="fas fa-shield-alt"></i>
             </div>
             <div class="item-equipped">
                 <input type="checkbox" class="armor-equipped" id="eq-a-{{this.id}}" data-armor-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
@@ -85,7 +85,7 @@
         {{#each system.equipment.gear}}
         <div class="equipment-item gear-item" data-type="gear" data-item-id="{{this.id}}">
             <div class="item-type-badge gear-badge">
-                <i class="fas fa-box"></i>
+                <i class="fas fa-toolbox"></i>
             </div>
             <div class="item-name">
                 <input type="text" class="gear-name" name="system.equipment.gear.{{@index}}.name" value="{{this.name}}" placeholder="Gear..." />
