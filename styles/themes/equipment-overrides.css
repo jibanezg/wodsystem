@@ -246,27 +246,27 @@
 
 /* Footer Add Buttons */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-footer {
-  padding: 6px !important;
+  padding: 4px !important;
   display: flex !important;
   justify-content: center !important;
-  gap: 6px !important;
+  gap: 4px !important;
   border-top: 1px solid #E8EEF2 !important;
-  margin-top: 8px !important;
+  margin-top: 6px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn {
   background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
   color: white !important;
   border: none !important;
-  padding: 3px 8px !important;
-  border-radius: 3px !important;
-  font-size: 0.65em !important;
+  padding: 2px 6px !important;
+  border-radius: 2px !important;
+  font-size: 0.6em !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
-  gap: 3px !important;
+  gap: 2px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn:hover {
