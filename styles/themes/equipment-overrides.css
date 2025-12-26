@@ -40,6 +40,13 @@
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-type-tab i {
+  font-size: 0.9em !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-type-tab:hover {
