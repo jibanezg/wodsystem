@@ -87,50 +87,50 @@
    EQUIPMENT TAB - VIBRANT MODERN DESIGN
    ======================================== */
 
-.equipment-tab {
-  padding: 20px;
+.wod.sheet.actor .equipment-tab {
+  padding: 20px !important;
   overflow-y: auto;
   max-height: calc(100vh - 200px);
-  background: linear-gradient(180deg, var(--wod-bg-main) 0%, var(--wod-bg-secondary) 100%);
+  background: linear-gradient(180deg, var(--wod-bg-main) 0%, var(--wod-bg-secondary) 100%) !important;
 }
 
-.equipment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.wod.sheet.actor .equipment-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 30px !important;
+  padding: 20px !important;
+  background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-.equipment-header h2 {
-  margin: 0;
-  color: white;
-  font-size: 1.6em;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.wod.sheet.actor .equipment-header h2 {
+  margin: 0 !important;
+  color: white !important;
+  font-size: 1.6em !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
-.equipment-header h2 i {
-  font-size: 1.3em;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8px;
-  border-radius: 8px;
+.wod.sheet.actor .equipment-header h2 i {
+  font-size: 1.3em !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  padding: 8px !important;
+  border-radius: 8px !important;
 }
 
-.equipment-controls {
-  display: flex;
-  gap: 12px;
+.wod.sheet.actor .equipment-controls {
+  display: flex !important;
+  gap: 12px !important;
 }
 
-.equipment-controls button,
-.add-weapon-empty,
-.add-armor-empty,
-.add-gear-empty {
+.wod.sheet.actor .equipment-controls button,
+.wod.sheet.actor .add-weapon-empty,
+.wod.sheet.actor .add-armor-empty,
+.wod.sheet.actor .add-gear-empty {
   padding: 10px 18px;
   background: white;
   color: var(--wod-primary);
