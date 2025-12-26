@@ -144,6 +144,9 @@ export class WodActorSheet extends ActorSheet {
             context.bgExpandedViewMode = this.actor.getFlag("wodsystem", "bgExpandedViewMode") || "list";
         }
         
+        console.log("getData() - Equipment being passed to template:", context.system?.equipment);
+        console.log("getData() - Weapons array:", context.system?.equipment?.weapons);
+        
         return context;
     }
 
