@@ -238,6 +238,7 @@ export class WodActorSheet extends ActorSheet {
         html.find('.weapon-equipped').change(this._onToggleWeaponEquipped.bind(this));
         html.find('.armor-equipped').change(this._onToggleArmorEquipped.bind(this));
         html.find('.manage-effects').click(this._onManageItemEffects.bind(this));
+        html.find('.equipment-type-tab').click(this._onEquipmentTypeTab.bind(this));
         
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
@@ -1241,6 +1242,27 @@ export class WodActorSheet extends ActorSheet {
      */
     async _removeEquipmentEffects(itemId) {
         await EquipmentEffects.removeEquipmentEffects(this.actor, itemId);
+    }
+
+    /**
+     * Handle equipment type tab switching
+     */
+    _onEquipmentTypeTab(event) {
+        event.preventDefault();
+        const button = event.currentTarget;
+        const type = button.dataset.type;
+        
+        // Update active tab
+        this.element.find('.equipment-type-tab').removeClass('active');
+        $(button).addClass('active');
+        
+        // Filter equipment list
+        const equipmentList = this.element.find('.equipment-list');
+        if (type === 'all') {
+            equipmentList.removeAttr('data-filter');
+        } else {
+            equipmentList.attr('data-filter', type);
+        }
     }
 
     /**

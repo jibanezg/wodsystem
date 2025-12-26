@@ -1,197 +1,131 @@
 <div class="equipment-tab">
-    <div class="equipment-header">
-        <h2><i class="fas fa-shield-alt"></i> Equipment & Gear</h2>
-        <div class="equipment-controls">
-            <button type="button" class="add-weapon" title="Add Weapon">
-                <i class="fas fa-sword"></i> Weapon
+    <!-- Compact Header with Tabs -->
+    <div class="equipment-header-compact">
+        <div class="equipment-type-tabs">
+            <button type="button" class="equipment-type-tab active" data-type="all">
+                <i class="fas fa-list"></i> All
             </button>
-            <button type="button" class="add-armor" title="Add Armor">
-                <i class="fas fa-vest"></i> Armor
+            <button type="button" class="equipment-type-tab" data-type="weapons">
+                <i class="fas fa-crosshairs"></i> Weapons
             </button>
-            <button type="button" class="add-gear" title="Add Gear">
+            <button type="button" class="equipment-type-tab" data-type="armor">
+                <i class="fas fa-shield"></i> Armor
+            </button>
+            <button type="button" class="equipment-type-tab" data-type="gear">
                 <i class="fas fa-box"></i> Gear
             </button>
         </div>
-    </div>
-    
-    <!-- Weapons Section -->
-    <div class="equipment-section weapons-section">
-        <h3><i class="fas fa-crosshairs"></i> Weapons</h3>
-        
-        {{#if system.equipment.weapons.length}}
-        <div class="equipment-grid">
-            {{#each system.equipment.weapons}}
-            <div class="equipment-card weapon-card" data-weapon-id="{{this.id}}">
-                <div class="card-header">
-                    <div class="equipped-toggle">
-                        <input type="checkbox" class="weapon-equipped" id="weapon-equipped-{{this.id}}" data-weapon-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
-                        <label for="weapon-equipped-{{this.id}}" class="equipped-label" title="{{#if this.equipped}}Equipped{{else}}Not Equipped{{/if}}">
-                            <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
-                        </label>
-                    </div>
-                    <input type="text" class="weapon-name" name="system.equipment.weapons.{{@index}}.name" value="{{this.name}}" placeholder="Weapon name..." />
-                    <button type="button" class="delete-weapon" data-weapon-id="{{this.id}}" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                
-                <div class="card-body">
-                    <div class="stat-row">
-                        <div class="stat-group">
-                            <label>Damage</label>
-                            <input type="text" class="weapon-damage" name="system.equipment.weapons.{{@index}}.damage" value="{{this.damage}}" />
-                        </div>
-                        <div class="stat-group">
-                            <label>Diff</label>
-                            <input type="number" class="weapon-difficulty" name="system.equipment.weapons.{{@index}}.difficulty" value="{{this.difficulty}}" min="2" max="10" />
-                        </div>
-                        <div class="stat-group">
-                            <label>Range</label>
-                            <input type="text" class="weapon-range" name="system.equipment.weapons.{{@index}}.range" value="{{this.range}}" />
-                        </div>
-                    </div>
-                    
-                    <div class="stat-row">
-                        <div class="stat-group">
-                            <label>Rate</label>
-                            <input type="text" class="weapon-rate" name="system.equipment.weapons.{{@index}}.rate" value="{{this.rate}}" />
-                        </div>
-                        <div class="stat-group">
-                            <label>Clip</label>
-                            <input type="text" class="weapon-clip" name="system.equipment.weapons.{{@index}}.clip" value="{{this.clip}}" />
-                        </div>
-                        <div class="stat-group">
-                            <label>Conc</label>
-                            <input type="text" class="weapon-concealment" name="system.equipment.weapons.{{@index}}.concealment" value="{{this.concealment}}" />
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card-footer">
-                    <button type="button" class="manage-effects" data-item-id="{{this.id}}" data-item-type="weapon" title="Manage Effects">
-                        <i class="fas fa-magic"></i> Effects
-                    </button>
-                </div>
-            </div>
-            {{/each}}
-        </div>
-        {{else}}
-        <div class="empty-state">
-            <i class="fas fa-sword"></i>
-            <p>No weapons added yet</p>
-            <button type="button" class="add-weapon-empty">
-                <i class="fas fa-plus"></i> Add Your First Weapon
+        <div class="equipment-add-buttons">
+            <button type="button" class="add-weapon compact-add" title="Add Weapon">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button type="button" class="add-armor compact-add" title="Add Armor">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button type="button" class="add-gear compact-add" title="Add Gear">
+                <i class="fas fa-plus"></i>
             </button>
         </div>
-        {{/if}}
     </div>
     
-    <!-- Armor Section -->
-    <div class="equipment-section armor-section">
-        <h3><i class="fas fa-shield"></i> Armor & Protection</h3>
-        
-        {{#if system.equipment.armor.length}}
-        <div class="equipment-grid">
-            {{#each system.equipment.armor}}
-            <div class="equipment-card armor-card" data-armor-id="{{this.id}}">
-                <div class="card-header">
-                    <div class="equipped-toggle">
-                        <input type="checkbox" class="armor-equipped" id="armor-equipped-{{this.id}}" data-armor-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
-                        <label for="armor-equipped-{{this.id}}" class="equipped-label" title="{{#if this.equipped}}Equipped{{else}}Not Equipped{{/if}}">
-                            <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
-                        </label>
-                    </div>
-                    <input type="text" class="armor-name" name="system.equipment.armor.{{@index}}.name" value="{{this.name}}" placeholder="Armor name..." />
-                    <button type="button" class="delete-armor" data-armor-id="{{this.id}}" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                
-                <div class="card-body">
-                    <div class="stat-row">
-                        <div class="stat-group">
-                            <label>Rating</label>
-                            <input type="number" class="armor-rating" name="system.equipment.armor.{{@index}}.rating" value="{{this.rating}}" min="0" max="10" />
-                        </div>
-                        <div class="stat-group">
-                            <label>Penalty</label>
-                            <input type="number" class="armor-penalty" name="system.equipment.armor.{{@index}}.penalty" value="{{this.penalty}}" min="-5" max="0" />
-                        </div>
-                    </div>
-                    
-                    <div class="description-row">
-                        <label>Description</label>
-                        <input type="text" class="armor-description" name="system.equipment.armor.{{@index}}.description" value="{{this.description}}" placeholder="Details about this armor..." />
-                    </div>
-                </div>
-                
-                <div class="card-footer">
-                    <button type="button" class="manage-effects" data-item-id="{{this.id}}" data-item-type="armor" title="Manage Effects">
-                        <i class="fas fa-magic"></i> Effects
-                    </button>
-                </div>
+    <!-- Unified Equipment List -->
+    <div class="equipment-list">
+        <!-- Weapons -->
+        {{#each system.equipment.weapons}}
+        <div class="equipment-item weapon-item" data-type="weapons" data-item-id="{{this.id}}">
+            <div class="item-type-badge weapon-badge">
+                <i class="fas fa-crosshairs"></i>
             </div>
-            {{/each}}
-        </div>
-        {{else}}
-        <div class="empty-state">
-            <i class="fas fa-shield"></i>
-            <p>No armor added yet</p>
-            <button type="button" class="add-armor-empty">
-                <i class="fas fa-plus"></i> Add Your First Armor
-            </button>
-        </div>
-        {{/if}}
-    </div>
-    
-    <!-- Gear Section -->
-    <div class="equipment-section gear-section">
-        <h3><i class="fas fa-toolbox"></i> General Gear</h3>
-        
-        {{#if system.equipment.gear.length}}
-        <div class="equipment-grid gear-grid">
-            {{#each system.equipment.gear}}
-            <div class="equipment-card gear-card" data-gear-id="{{this.id}}">
-                <div class="card-header">
-                    <input type="text" class="gear-name" name="system.equipment.gear.{{@index}}.name" value="{{this.name}}" placeholder="Gear name..." />
-                    <button type="button" class="delete-gear" data-gear-id="{{this.id}}" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                
-                <div class="card-body">
-                    <div class="stat-row">
-                        <div class="stat-group">
-                            <label>Qty</label>
-                            <input type="number" class="gear-quantity" name="system.equipment.gear.{{@index}}.quantity" value="{{this.quantity}}" min="1" />
-                        </div>
-                        <div class="stat-group">
-                            <label>Weight</label>
-                            <input type="text" class="gear-weight" name="system.equipment.gear.{{@index}}.weight" value="{{this.weight}}" placeholder="0 lbs" />
-                        </div>
-                    </div>
-                    
-                    <div class="description-row">
-                        <input type="text" class="gear-description" name="system.equipment.gear.{{@index}}.description" value="{{this.description}}" placeholder="Description..." />
-                    </div>
-                </div>
-                
-                <div class="card-footer">
-                    <button type="button" class="manage-effects" data-item-id="{{this.id}}" data-item-type="gear" title="Manage Effects">
-                        <i class="fas fa-magic"></i> Effects
-                    </button>
-                </div>
+            <div class="item-equipped">
+                <input type="checkbox" class="weapon-equipped" id="eq-w-{{this.id}}" data-weapon-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                <label for="eq-w-{{this.id}}" title="{{#if this.equipped}}Equipped{{else}}Not Equipped{{/if}}">
+                    <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
+                </label>
             </div>
-            {{/each}}
+            <div class="item-name">
+                <input type="text" class="weapon-name" name="system.equipment.weapons.{{@index}}.name" value="{{this.name}}" placeholder="Weapon..." />
+            </div>
+            <div class="item-stats">
+                <span class="stat-mini" title="Damage"><strong>DMG:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.damage" value="{{this.damage}}" /></span>
+                <span class="stat-mini" title="Difficulty"><strong>DIF:</strong> <input type="number" name="system.equipment.weapons.{{@index}}.difficulty" value="{{this.difficulty}}" min="2" max="10" /></span>
+                <span class="stat-mini" title="Range"><strong>RNG:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.range" value="{{this.range}}" /></span>
+                <span class="stat-mini" title="Rate"><strong>RAT:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.rate" value="{{this.rate}}" /></span>
+                <span class="stat-mini" title="Clip"><strong>CLP:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.clip" value="{{this.clip}}" /></span>
+                <span class="stat-mini" title="Concealment"><strong>CON:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.concealment" value="{{this.concealment}}" /></span>
+            </div>
+            <div class="item-actions">
+                <button type="button" class="manage-effects mini-btn" data-item-id="{{this.id}}" data-item-type="weapon" title="Effects">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <button type="button" class="delete-weapon mini-btn danger" data-weapon-id="{{this.id}}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
-        {{else}}
-        <div class="empty-state">
-            <i class="fas fa-toolbox"></i>
-            <p>No gear added yet</p>
-            <button type="button" class="add-gear-empty">
-                <i class="fas fa-plus"></i> Add Your First Gear Item
-            </button>
+        {{/each}}
+        
+        <!-- Armor -->
+        {{#each system.equipment.armor}}
+        <div class="equipment-item armor-item" data-type="armor" data-item-id="{{this.id}}">
+            <div class="item-type-badge armor-badge">
+                <i class="fas fa-shield"></i>
+            </div>
+            <div class="item-equipped">
+                <input type="checkbox" class="armor-equipped" id="eq-a-{{this.id}}" data-armor-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                <label for="eq-a-{{this.id}}" title="{{#if this.equipped}}Equipped{{else}}Not Equipped{{/if}}">
+                    <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
+                </label>
+            </div>
+            <div class="item-name">
+                <input type="text" class="armor-name" name="system.equipment.armor.{{@index}}.name" value="{{this.name}}" placeholder="Armor..." />
+            </div>
+            <div class="item-stats">
+                <span class="stat-mini" title="Rating"><strong>RAT:</strong> <input type="number" name="system.equipment.armor.{{@index}}.rating" value="{{this.rating}}" min="0" max="10" /></span>
+                <span class="stat-mini" title="Penalty"><strong>PEN:</strong> <input type="number" name="system.equipment.armor.{{@index}}.penalty" value="{{this.penalty}}" min="-5" max="0" /></span>
+                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" name="system.equipment.armor.{{@index}}.description" value="{{this.description}}" placeholder="Description..." /></span>
+            </div>
+            <div class="item-actions">
+                <button type="button" class="manage-effects mini-btn" data-item-id="{{this.id}}" data-item-type="armor" title="Effects">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <button type="button" class="delete-armor mini-btn danger" data-armor-id="{{this.id}}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </div>
-        {{/if}}
+        {{/each}}
+        
+        <!-- Gear -->
+        {{#each system.equipment.gear}}
+        <div class="equipment-item gear-item" data-type="gear" data-item-id="{{this.id}}">
+            <div class="item-type-badge gear-badge">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="item-name">
+                <input type="text" class="gear-name" name="system.equipment.gear.{{@index}}.name" value="{{this.name}}" placeholder="Gear..." />
+            </div>
+            <div class="item-stats">
+                <span class="stat-mini" title="Quantity"><strong>QTY:</strong> <input type="number" name="system.equipment.gear.{{@index}}.quantity" value="{{this.quantity}}" min="1" /></span>
+                <span class="stat-mini" title="Weight"><strong>WGT:</strong> <input type="text" name="system.equipment.gear.{{@index}}.weight" value="{{this.weight}}" placeholder="0 lbs" /></span>
+                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" name="system.equipment.gear.{{@index}}.description" value="{{this.description}}" placeholder="Description..." /></span>
+            </div>
+            <div class="item-actions">
+                <button type="button" class="manage-effects mini-btn" data-item-id="{{this.id}}" data-item-type="gear" title="Effects">
+                    <i class="fas fa-magic"></i>
+                </button>
+                <button type="button" class="delete-gear mini-btn danger" data-gear-id="{{this.id}}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        {{/each}}
+        
+        <!-- Empty State -->
+        {{#unless (or system.equipment.weapons.length system.equipment.armor.length system.equipment.gear.length)}}
+        <div class="equipment-empty">
+            <i class="fas fa-shield-alt"></i>
+            <p>No equipment added yet</p>
+        </div>
+        {{/unless}}
     </div>
 </div>

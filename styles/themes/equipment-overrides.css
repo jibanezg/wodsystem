@@ -1,249 +1,281 @@
-/* EMERGENCY EQUIPMENT STYLE OVERRIDES - ULTRA COMPACT */
+/* EQUIPMENT TAB - COMPACT LIST REDESIGN */
 
-/* Overall Tab Padding - Minimal */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-tab {
   padding: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
 }
 
-/* Header Gradient - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header {
-  background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
-  padding: 6px 10px !important;
-  border-radius: 4px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+/* Compact Header with Tabs */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 8px !important;
   margin-bottom: 8px !important;
+  padding: 6px !important;
+  background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
+  border-radius: 4px !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header h2 {
-  color: white !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-  font-size: 0.95em !important;
-  margin: 0 !important;
+/* Type Tabs */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-type-tabs {
+  display: flex !important;
+  gap: 4px !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header h2 i {
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-type-tab {
   background: rgba(255, 255, 255, 0.2) !important;
-  padding: 3px !important;
+  color: white !important;
+  border: none !important;
+  padding: 4px 8px !important;
   border-radius: 3px !important;
-  font-size: 0.9em !important;
+  font-size: 0.7em !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
 }
 
-/* Control Buttons - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-controls {
-  gap: 6px !important;
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-type-tab:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-controls button {
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-type-tab.active {
   background: white !important;
   color: #4682B4 !important;
-  border: 1px solid transparent !important;
-  border-radius: 3px !important;
-  padding: 4px 8px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.3px !important;
-  font-size: 0.7em !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-controls button:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+/* Add Buttons */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-add-buttons {
+  display: flex !important;
+  gap: 4px !important;
 }
 
-/* Section Headers - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-section {
-  margin-bottom: 10px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-section h3 {
+.wod.sheet.actor .tab[data-tab="equipment"] .compact-add {
   background: white !important;
-  border-left: 2px solid #4682B4 !important;
+  color: #4682B4 !important;
+  border: none !important;
   padding: 4px 8px !important;
   border-radius: 3px !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
-  margin-bottom: 6px !important;
   font-size: 0.8em !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-section h3 i {
-  background: #4682B4 !important;
-  color: white !important;
-  padding: 3px !important;
-  border-radius: 3px !important;
-  font-size: 0.85em !important;
+.wod.sheet.actor .tab[data-tab="equipment"] .compact-add:hover {
+  transform: scale(1.05) !important;
 }
 
-/* Equipment Grid - Maximum columns */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important;
-  gap: 8px !important;
+/* Equipment List */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
 }
 
-/* Equipment Cards - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card {
-  background: white !important;
-  border-radius: 4px !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-  overflow: hidden !important;
-  position: relative !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, #4682B4 0%, #6CA6CD 100%) !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .weapon-card::before {
-  background: linear-gradient(90deg, #E53935 0%, #FF6F00 100%) !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .armor-card::before {
-  background: linear-gradient(90deg, #1E88E5 0%, #00ACC1 100%) !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .gear-card::before {
-  background: linear-gradient(90deg, #43A047 0%, #7CB342 100%) !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Card Header - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-header {
-  background: linear-gradient(135deg, #E8EEF2 0%, #F8F9FA 100%) !important;
-  padding: 6px 8px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-header button {
-  padding: 2px 4px !important;
-  font-size: 0.8em !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .weapon-name,
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .armor-name,
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .gear-name {
+/* Equipment Item - Horizontal Layout */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
   padding: 4px 6px !important;
-  font-size: 0.85em !important;
-  font-weight: 600 !important;
+  background: white !important;
+  border-radius: 3px !important;
+  border-left: 3px solid #4682B4 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.2s ease !important;
 }
 
-/* Equipped Toggle - Ultra Small */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipped-label {
-  font-size: 1.1em !important;
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-item:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: translateX(2px) !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .weapon-item {
+  border-left-color: #E53935 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .armor-item {
+  border-left-color: #1E88E5 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .gear-item {
+  border-left-color: #43A047 !important;
+}
+
+/* Type Badge */
+.wod.sheet.actor .tab[data-tab="equipment"] .item-type-badge {
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 3px !important;
+  font-size: 0.7em !important;
+  color: white !important;
+  flex-shrink: 0 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .weapon-badge {
+  background: #E53935 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .armor-badge {
+  background: #1E88E5 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .gear-badge {
+  background: #43A047 !important;
+}
+
+/* Equipped Toggle */
+.wod.sheet.actor .tab[data-tab="equipment"] .item-equipped {
+  flex-shrink: 0 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .item-equipped input {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .item-equipped label {
+  cursor: pointer !important;
+  font-size: 1em !important;
   color: #B0BEC5 !important;
+  transition: all 0.2s ease !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .equipped-toggle input:checked + .equipped-label {
+.wod.sheet.actor .tab[data-tab="equipment"] .item-equipped input:checked + label {
   color: #43A047 !important;
 }
 
-/* Card Body - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-body {
-  padding: 6px !important;
+.wod.sheet.actor .tab[data-tab="equipment"] .item-equipped label:hover {
+  transform: scale(1.1) !important;
 }
 
-.wod.sheet.actor .tab[data-tab="equipment"] .stat-row {
-  gap: 4px !important;
-  margin-bottom: 4px !important;
+/* Item Name */
+.wod.sheet.actor .tab[data-tab="equipment"] .item-name {
+  min-width: 120px !important;
+  flex-shrink: 0 !important;
 }
 
-/* Stat Groups - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .stat-group {
-  background: white !important;
-  padding: 3px !important;
-  border-radius: 3px !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .stat-group label {
-  color: #4682B4 !important;
-  font-weight: 600 !important;
-  font-size: 0.6em !important;
-  text-transform: uppercase !important;
-  margin-bottom: 2px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .stat-group input {
-  background: #F0F4F8 !important;
+.wod.sheet.actor .tab[data-tab="equipment"] .item-name input {
+  width: 100% !important;
+  padding: 2px 4px !important;
   border: 1px solid transparent !important;
   border-radius: 2px !important;
-  padding: 2px 4px !important;
-  font-weight: 600 !important;
-  text-align: center !important;
-  font-size: 0.75em !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .description-row {
-  margin-top: 4px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .description-row label {
-  font-size: 0.6em !important;
-  margin-bottom: 2px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .description-row input {
-  padding: 2px 4px !important;
-  font-size: 0.7em !important;
-}
-
-/* Card Footer - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-footer {
-  padding: 4px 6px !important;
-}
-
-/* Effects Button - Ultra Small */
-.wod.sheet.actor .tab[data-tab="equipment"] .manage-effects {
-  background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
-  color: white !important;
-  border: none !important;
-  padding: 3px 6px !important;
-  border-radius: 3px !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
-  font-size: 0.65em !important;
-}
-
-/* Empty State - Ultra Compact */
-.wod.sheet.actor .tab[data-tab="equipment"] .empty-state {
-  padding: 20px 15px !important;
-  background: linear-gradient(135deg, white 0%, #E8EEF2 100%) !important;
-  border: 2px dashed #B0BEC5 !important;
-  border-radius: 4px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .empty-state i {
-  font-size: 1.8em !important;
-  color: #4682B4 !important;
-  margin-bottom: 6px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .empty-state p {
   font-size: 0.8em !important;
-  margin-bottom: 8px !important;
-}
-
-.wod.sheet.actor .tab[data-tab="equipment"] .add-weapon-empty,
-.wod.sheet.actor .tab[data-tab="equipment"] .add-armor-empty,
-.wod.sheet.actor .tab[data-tab="equipment"] .add-gear-empty {
-  background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
-  color: white !important;
-  border: none !important;
-  padding: 4px 8px !important;
-  border-radius: 3px !important;
   font-weight: 600 !important;
-  text-transform: uppercase !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
-  font-size: 0.7em !important;
+  background: #F8F9FA !important;
 }
 
+.wod.sheet.actor .tab[data-tab="equipment"] .item-name input:focus {
+  border-color: #4682B4 !important;
+  background: white !important;
+  outline: none !important;
+}
+
+/* Item Stats - Inline */
+.wod.sheet.actor .tab[data-tab="equipment"] .item-stats {
+  display: flex !important;
+  gap: 6px !important;
+  flex: 1 !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .stat-mini {
+  display: flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  font-size: 0.7em !important;
+  white-space: nowrap !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .stat-mini strong {
+  color: #4682B4 !important;
+  font-weight: 700 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .stat-mini input {
+  width: 35px !important;
+  padding: 1px 3px !important;
+  border: 1px solid #CFD8DC !important;
+  border-radius: 2px !important;
+  font-size: 1em !important;
+  text-align: center !important;
+  background: white !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .stat-mini.stat-desc input {
+  width: 100px !important;
+  text-align: left !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .stat-mini input:focus {
+  border-color: #4682B4 !important;
+  outline: none !important;
+}
+
+/* Item Actions */
+.wod.sheet.actor .tab[data-tab="equipment"] .item-actions {
+  display: flex !important;
+  gap: 3px !important;
+  flex-shrink: 0 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .mini-btn {
+  padding: 3px 5px !important;
+  border: none !important;
+  border-radius: 2px !important;
+  font-size: 0.7em !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  background: #4682B4 !important;
+  color: white !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .mini-btn:hover {
+  transform: scale(1.1) !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .mini-btn.danger {
+  background: #E53935 !important;
+}
+
+/* Empty State */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-empty {
+  text-align: center !important;
+  padding: 40px 20px !important;
+  color: #B0BEC5 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-empty i {
+  font-size: 2em !important;
+  margin-bottom: 10px !important;
+  display: block !important;
+  color: #4682B4 !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-empty p {
+  font-size: 0.9em !important;
+  margin: 0 !important;
+}
+
+/* Hide items based on active tab */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="weapons"] .armor-item,
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="weapons"] .gear-item {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] .weapon-item,
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] .gear-item {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] .weapon-item,
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] .armor-item {
+  display: none !important;
+}
