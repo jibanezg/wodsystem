@@ -36,6 +36,11 @@ export class WodActorSheet extends ActorSheet {
     async getData() {
         const context = await super.getData();
         
+        console.log("Full context from super.getData():", context);
+        console.log("context.system:", context.system);
+        console.log("context.data:", context.data);
+        console.log("context.actor:", context.actor);
+        
         // Load reference data (archetypes, backgrounds, etc.) via service
         if (window.referenceDataService) {
             context.archetypes = await window.referenceDataService.getArchetypes();
