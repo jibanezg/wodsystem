@@ -244,8 +244,11 @@ export class WodActorSheet extends ActorSheet {
         html.find('.manage-effects').click(this._onManageItemEffects.bind(this));
         html.find('.equipment-type-tab').click(this._onEquipmentTypeTab.bind(this));
         
-        // Set default equipment filter to weapons on load
-        html.find('.equipment-list').attr('data-filter', 'weapons');
+        // Set equipment filter based on stored state or default to weapons
+        const activeEquipmentTab = this._activeEquipmentTab || 'weapons';
+        html.find('.equipment-list').attr('data-filter', activeEquipmentTab);
+        html.find('.equipment-type-tab').removeClass('active');
+        html.find(`.equipment-type-tab[data-type="${activeEquipmentTab}"]`).addClass('active');
         
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
@@ -1266,6 +1269,9 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         const button = event.currentTarget;
         const type = button.dataset.type;
+        
+        // Store the active tab
+        this._activeEquipmentTab = type;
         
         // Update active tab
         this.element.find('.equipment-type-tab').removeClass('active');
