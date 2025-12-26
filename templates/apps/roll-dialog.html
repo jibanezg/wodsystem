@@ -22,6 +22,38 @@
             </label>
         </div>
         
+        {{#if (or mandatoryEffects optionalEffects)}}
+        <div class="active-effects-section">
+            <h4>Active Status Effects</h4>
+            
+            {{#if mandatoryEffects}}
+            <div class="mandatory-effects">
+                <label class="effects-category">Mandatory (Auto-Applied)</label>
+                {{#each mandatoryEffects}}
+                <div class="effect-item mandatory">
+                    <i class="fas fa-lock"></i>
+                    <span class="effect-name">{{this.name}}</span>
+                    <span class="effect-modifier {{this.modifierClass}}">{{this.displayValue}}</span>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+            
+            {{#if optionalEffects}}
+            <div class="optional-effects">
+                <label class="effects-category">Optional (Toggle)</label>
+                {{#each optionalEffects}}
+                <div class="effect-item optional">
+                    <input type="checkbox" class="effect-toggle" data-effect-id="{{this.id}}" {{#if this.enabled}}checked{{/if}} />
+                    <span class="effect-name">{{this.name}}</span>
+                    <span class="effect-modifier {{this.modifierClass}}">{{this.displayValue}}</span>
+                </div>
+                {{/each}}
+            </div>
+            {{/if}}
+        </div>
+        {{/if}}
+        
         <div class="modifiers-section">
             <h4>Modifiers</h4>
             <div class="modifier-list" id="modifier-list">

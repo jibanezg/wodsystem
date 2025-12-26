@@ -16,12 +16,37 @@ export class WodDicePool {
      * @returns {Object} Roll results including successes, botch status, and individual die results
      */
     async roll() {
-        // Apply modifiers to pool size
+        // Apply modifiers by type
         let finalPool = this.poolSize;
+        let finalDifficulty = this.difficulty;
+        let autoSuccesses = 0;
+        let autoFails = 0;
+        
         this.modifiers.forEach(mod => {
-            finalPool += mod.value;
+            const modType = mod.type || 'poolBonus'; // Default to pool bonus for backward compatibility
+            
+            switch(modType) {
+                case 'poolBonus':
+                    finalPool += mod.value;
+                    break;
+                case 'difficultyMod':
+                    finalDifficulty += mod.value;
+                    break;
+                case 'autoSuccess':
+                    autoSuccesses += mod.value;
+                    break;
+                case 'autoFail':
+                    autoFails += mod.value;
+                    break;
+                default:
+                    // Legacy support: treat as pool bonus
+                    finalPool += mod.value;
+            }
         });
+        
+        // Clamp values
         finalPool = Math.max(1, finalPool); // Minimum 1 die
+        finalDifficulty = Math.max(2, Math.min(10, finalDifficulty)); // Difficulty 2-10
         
         // Roll Nd10
         const roll = new Roll(`${finalPool}d10`);
@@ -29,8 +54,8 @@ export class WodDicePool {
         
         // Process results
         const results = [];
-        let successes = 0;
-        let ones = 0;
+        let successes = autoSuccesses; // Start with auto successes
+        let ones = autoFails; // Start with auto fails
         
         roll.dice[0].results.forEach(r => {
             const value = r.result;
@@ -40,7 +65,7 @@ export class WodDicePool {
                 ones++;
                 successes--;
                 dieClass = 'one';
-            } else if (value >= this.difficulty) {
+            } else if (value >= finalDifficulty) {
                 if (this.specialty && value === 10) {
                     successes += 2; // Specialty: 10s count as 2
                     dieClass = 'specialty';
@@ -64,7 +89,9 @@ export class WodDicePool {
             isSuccess,
             results,
             finalPool,
-            difficulty: this.difficulty
+            difficulty: finalDifficulty,
+            autoSuccesses,
+            autoFails
         };
     }
 }

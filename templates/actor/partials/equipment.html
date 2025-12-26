@@ -1,0 +1,175 @@
+<div class="equipment-tab">
+    <div class="equipment-controls">
+        <button type="button" class="add-weapon"><i class="fas fa-plus"></i> Add Weapon</button>
+        <button type="button" class="add-armor"><i class="fas fa-plus"></i> Add Armor</button>
+        <button type="button" class="add-gear"><i class="fas fa-plus"></i> Add Gear</button>
+    </div>
+    
+    <!-- Weapons Section -->
+    <div class="equipment-section weapons-section">
+        <h3><i class="fas fa-sword"></i> Weapons</h3>
+        {{#if system.equipment.weapons.length}}
+        <table class="weapons-table">
+            <thead>
+                <tr>
+                    <th class="col-equipped">Equipped</th>
+                    <th class="col-name">Name</th>
+                    <th class="col-damage">Damage</th>
+                    <th class="col-diff">Diff</th>
+                    <th class="col-range">Range</th>
+                    <th class="col-rate">Rate</th>
+                    <th class="col-clip">Clip</th>
+                    <th class="col-conc">Conc</th>
+                    <th class="col-effects">Effects</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each system.equipment.weapons}}
+                <tr class="weapon-item" data-weapon-id="{{this.id}}">
+                    <td class="col-equipped">
+                        <input type="checkbox" class="weapon-equipped" data-weapon-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                    </td>
+                    <td class="col-name">
+                        <input type="text" class="weapon-name" name="system.equipment.weapons.{{@index}}.name" value="{{this.name}}" />
+                    </td>
+                    <td class="col-damage">
+                        <input type="text" class="weapon-damage" name="system.equipment.weapons.{{@index}}.damage" value="{{this.damage}}" />
+                    </td>
+                    <td class="col-diff">
+                        <input type="number" class="weapon-difficulty" name="system.equipment.weapons.{{@index}}.difficulty" value="{{this.difficulty}}" min="2" max="10" />
+                    </td>
+                    <td class="col-range">
+                        <input type="text" class="weapon-range" name="system.equipment.weapons.{{@index}}.range" value="{{this.range}}" />
+                    </td>
+                    <td class="col-rate">
+                        <input type="text" class="weapon-rate" name="system.equipment.weapons.{{@index}}.rate" value="{{this.rate}}" />
+                    </td>
+                    <td class="col-clip">
+                        <input type="text" class="weapon-clip" name="system.equipment.weapons.{{@index}}.clip" value="{{this.clip}}" />
+                    </td>
+                    <td class="col-conc">
+                        <input type="text" class="weapon-concealment" name="system.equipment.weapons.{{@index}}.concealment" value="{{this.concealment}}" />
+                    </td>
+                    <td class="col-effects">
+                        <button type="button" class="manage-effects" data-item-id="{{this.id}}" data-item-type="weapon" title="Manage Status Effects">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                    </td>
+                    <td class="col-actions">
+                        <button type="button" class="delete-weapon" data-weapon-id="{{this.id}}" title="Delete Weapon">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="empty-message">No weapons added yet. Click "Add Weapon" to get started.</p>
+        {{/if}}
+    </div>
+    
+    <!-- Armor Section -->
+    <div class="equipment-section armor-section">
+        <h3><i class="fas fa-shield-alt"></i> Armor</h3>
+        {{#if system.equipment.armor.length}}
+        <table class="armor-table">
+            <thead>
+                <tr>
+                    <th class="col-equipped">Equipped</th>
+                    <th class="col-name">Name</th>
+                    <th class="col-rating">Rating</th>
+                    <th class="col-penalty">Penalty</th>
+                    <th class="col-description">Description</th>
+                    <th class="col-effects">Effects</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each system.equipment.armor}}
+                <tr class="armor-item" data-armor-id="{{this.id}}">
+                    <td class="col-equipped">
+                        <input type="checkbox" class="armor-equipped" data-armor-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                    </td>
+                    <td class="col-name">
+                        <input type="text" class="armor-name" name="system.equipment.armor.{{@index}}.name" value="{{this.name}}" />
+                    </td>
+                    <td class="col-rating">
+                        <input type="number" class="armor-rating" name="system.equipment.armor.{{@index}}.rating" value="{{this.rating}}" min="0" max="10" />
+                    </td>
+                    <td class="col-penalty">
+                        <input type="number" class="armor-penalty" name="system.equipment.armor.{{@index}}.penalty" value="{{this.penalty}}" min="-5" max="0" />
+                    </td>
+                    <td class="col-description">
+                        <input type="text" class="armor-description" name="system.equipment.armor.{{@index}}.description" value="{{this.description}}" placeholder="Description..." />
+                    </td>
+                    <td class="col-effects">
+                        <button type="button" class="manage-effects" data-item-id="{{this.id}}" data-item-type="armor" title="Manage Status Effects">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                    </td>
+                    <td class="col-actions">
+                        <button type="button" class="delete-armor" data-armor-id="{{this.id}}" title="Delete Armor">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="empty-message">No armor added yet. Click "Add Armor" to get started.</p>
+        {{/if}}
+    </div>
+    
+    <!-- Gear Section -->
+    <div class="equipment-section gear-section">
+        <h3><i class="fas fa-box"></i> General Gear</h3>
+        {{#if system.equipment.gear.length}}
+        <table class="gear-table">
+            <thead>
+                <tr>
+                    <th class="col-name">Name</th>
+                    <th class="col-quantity">Qty</th>
+                    <th class="col-weight">Weight</th>
+                    <th class="col-description">Description</th>
+                    <th class="col-effects">Effects</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each system.equipment.gear}}
+                <tr class="gear-item" data-gear-id="{{this.id}}">
+                    <td class="col-name">
+                        <input type="text" class="gear-name" name="system.equipment.gear.{{@index}}.name" value="{{this.name}}" />
+                    </td>
+                    <td class="col-quantity">
+                        <input type="number" class="gear-quantity" name="system.equipment.gear.{{@index}}.quantity" value="{{this.quantity}}" min="1" />
+                    </td>
+                    <td class="col-weight">
+                        <input type="text" class="gear-weight" name="system.equipment.gear.{{@index}}.weight" value="{{this.weight}}" placeholder="0 lbs" />
+                    </td>
+                    <td class="col-description">
+                        <input type="text" class="gear-description" name="system.equipment.gear.{{@index}}.description" value="{{this.description}}" placeholder="Description..." />
+                    </td>
+                    <td class="col-effects">
+                        <button type="button" class="manage-effects" data-item-id="{{this.id}}" data-item-type="gear" title="Manage Status Effects">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                    </td>
+                    <td class="col-actions">
+                        <button type="button" class="delete-gear" data-gear-id="{{this.id}}" title="Delete Gear">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        {{else}}
+        <p class="empty-message">No gear added yet. Click "Add Gear" to get started.</p>
+        {{/if}}
+    </div>
+</div>
+

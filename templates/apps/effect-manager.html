@@ -1,0 +1,88 @@
+<form class="wod-effect-manager">
+    <div class="effect-header-section">
+        <div class="form-group">
+            <label>Effect Name</label>
+            <input type="text" name="name" value="{{effect.name}}" placeholder="Status name..." />
+        </div>
+        
+        <div class="form-group">
+            <label>Icon Path</label>
+            <input type="text" name="icon" value="{{effect.icon}}" placeholder="icons/svg/aura.svg" />
+        </div>
+    </div>
+    
+    <div class="effect-metadata-section">
+        <div class="form-group">
+            <label>Source Type</label>
+            <select name="sourceType">
+                {{#each sourceTypes}}
+                <option value="{{this.value}}" {{#eq this.value ../effect.sourceType}}selected{{/eq}}>{{this.label}}</option>
+                {{/each}}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Severity (1-5)</label>
+            <input type="number" name="severity" min="1" max="5" value="{{effect.severity}}" />
+        </div>
+        
+        <div class="form-group checkbox-group">
+            <label>
+                <input type="checkbox" name="mandatory" {{#if effect.mandatory}}checked{{/if}} />
+                Mandatory (Auto-Applied)
+            </label>
+        </div>
+    </div>
+    
+    <div class="effect-conditions-section">
+        <h3>Conditions</h3>
+        
+        <div class="form-group">
+            <label>Condition Type</label>
+            <select name="conditionType" class="condition-type-select">
+                {{#each conditionTypes}}
+                <option value="{{this.value}}" {{#eq this.value ../effect.conditionType}}selected{{/eq}}>{{this.label}}</option>
+                {{/each}}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Condition Value</label>
+            <input type="text" name="conditionValue" value="{{effect.conditionValue}}" placeholder="e.g., 'attack', 'Dexterity', 'combat'" />
+            <small>Leave empty if always active. Otherwise specify action/trait/time.</small>
+        </div>
+        
+        <div class="form-group">
+            <label>Target Actor ID (for "Flattered" type effects)</label>
+            <input type="text" name="targetActor" value="{{effect.targetActor}}" placeholder="Leave empty for self-only effects" />
+            <small>Specify actor ID if this effect modifies rolls against the character.</small>
+        </div>
+    </div>
+    
+    <div class="effect-modifiers">
+        <h3>Modifiers</h3>
+        <div class="modifiers-list">
+            {{#each effect.changes}}
+            <div class="modifier-row">
+                <select class="modifier-type" name="modifiers.{{@index}}.key">
+                    <option value="pool" {{#eq this.key "pool"}}selected{{/eq}}>Pool Dice</option>
+                    <option value="difficulty" {{#eq this.key "difficulty"}}selected{{/eq}}>Difficulty</option>
+                    <option value="autoSuccess" {{#eq this.key "autoSuccess"}}selected{{/eq}}>Auto Success</option>
+                    <option value="autoFail" {{#eq this.key "autoFail"}}selected{{/eq}}>Auto Fail</option>
+                </select>
+                <input type="number" class="modifier-value" name="modifiers.{{@index}}.value" value="{{this.value}}" />
+                <button type="button" class="remove-modifier-row"><i class="fas fa-times"></i></button>
+            </div>
+            {{/each}}
+        </div>
+        <button type="button" class="add-modifier-row"><i class="fas fa-plus"></i> Add Modifier</button>
+    </div>
+    
+    <div class="dialog-buttons">
+        <button type="button" class="save-effect">
+            <i class="fas fa-save"></i> Save Effect
+        </button>
+        <button type="button" class="cancel-effect">Cancel</button>
+    </div>
+</form>
+

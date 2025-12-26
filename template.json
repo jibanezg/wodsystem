@@ -97,6 +97,11 @@
                 "log": []
             },
             "rollTemplates": [],
+            "equipment": {
+                "weapons": [],
+                "armor": [],
+                "gear": []
+            },
             "miscellaneous": {
                 "humanity": {
                     "current": 7,

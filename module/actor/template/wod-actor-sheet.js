@@ -1,4 +1,6 @@
 import { WodRollDialog } from "../../apps/wod-roll-dialog.js";
+import { EquipmentEffects } from "../../helpers/equipment-effects.js";
+import { WodEffectManager } from "../../apps/wod-effect-manager.js";
 
 /**
  * Base Actor Sheet for World of Darkness System
@@ -222,6 +224,17 @@ export class WodActorSheet extends ActorSheet {
         // Background pagination handlers
         html.find('.backgrounds-prev-page').click(this._onBackgroundsPrevPage.bind(this));
         html.find('.backgrounds-next-page').click(this._onBackgroundsNextPage.bind(this));
+        
+        // Equipment tab handlers
+        html.find('.add-weapon').click(this._onAddWeapon.bind(this));
+        html.find('.add-armor').click(this._onAddArmor.bind(this));
+        html.find('.add-gear').click(this._onAddGear.bind(this));
+        html.find('.delete-weapon').click(this._onDeleteWeapon.bind(this));
+        html.find('.delete-armor').click(this._onDeleteArmor.bind(this));
+        html.find('.delete-gear').click(this._onDeleteGear.bind(this));
+        html.find('.weapon-equipped').change(this._onToggleWeaponEquipped.bind(this));
+        html.find('.armor-equipped').change(this._onToggleArmorEquipped.bind(this));
+        html.find('.manage-effects').click(this._onManageItemEffects.bind(this));
         
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
@@ -994,6 +1007,237 @@ export class WodActorSheet extends ActorSheet {
                 }
             }, 0);
         }
+    }
+
+    // ========================================
+    // Equipment Tab Handlers
+    // ========================================
+
+    /**
+     * Add a new weapon
+     */
+    async _onAddWeapon(event) {
+        event.preventDefault();
+        const weapons = Array.isArray(this.actor.system.equipment?.weapons) 
+            ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
+            : [];
+        
+        const newWeapon = {
+            id: foundry.utils.randomID(),
+            name: "New Weapon",
+            type: "weapon",
+            subtype: "melee",
+            equipped: false,
+            damage: "1",
+            difficulty: 6,
+            range: "-",
+            rate: "1",
+            clip: "-",
+            concealment: "P",
+            description: "",
+            grantsEffects: []
+        };
+        
+        weapons.push(newWeapon);
+        await this.actor.update({ "system.equipment.weapons": weapons });
+    }
+
+    /**
+     * Delete a weapon
+     */
+    async _onDeleteWeapon(event) {
+        event.preventDefault();
+        const weaponId = event.currentTarget.dataset.weaponId;
+        const weapons = Array.isArray(this.actor.system.equipment?.weapons)
+            ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
+            : [];
+        
+        const index = weapons.findIndex(w => w.id === weaponId);
+        if (index > -1) {
+            // Remove associated effects if weapon was equipped
+            if (weapons[index].equipped) {
+                await this._removeEquipmentEffects(weaponId);
+            }
+            weapons.splice(index, 1);
+            await this.actor.update({ "system.equipment.weapons": weapons });
+        }
+    }
+
+    /**
+     * Toggle weapon equipped status
+     */
+    async _onToggleWeaponEquipped(event) {
+        const weaponId = event.currentTarget.dataset.weaponId;
+        const isEquipped = event.currentTarget.checked;
+        const weapons = Array.isArray(this.actor.system.equipment?.weapons)
+            ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
+            : [];
+        
+        const weapon = weapons.find(w => w.id === weaponId);
+        if (weapon) {
+            weapon.equipped = isEquipped;
+            await this.actor.update({ "system.equipment.weapons": weapons });
+            
+            // Grant or remove effects based on equipped status
+            await this._toggleEquipmentEffects(weaponId, 'weapon', isEquipped);
+        }
+    }
+
+    /**
+     * Add a new armor piece
+     */
+    async _onAddArmor(event) {
+        event.preventDefault();
+        const armor = Array.isArray(this.actor.system.equipment?.armor)
+            ? foundry.utils.duplicate(this.actor.system.equipment.armor)
+            : [];
+        
+        const newArmor = {
+            id: foundry.utils.randomID(),
+            name: "New Armor",
+            type: "armor",
+            equipped: false,
+            rating: 1,
+            penalty: 0,
+            description: "",
+            grantsEffects: []
+        };
+        
+        armor.push(newArmor);
+        await this.actor.update({ "system.equipment.armor": armor });
+    }
+
+    /**
+     * Delete an armor piece
+     */
+    async _onDeleteArmor(event) {
+        event.preventDefault();
+        const armorId = event.currentTarget.dataset.armorId;
+        const armor = Array.isArray(this.actor.system.equipment?.armor)
+            ? foundry.utils.duplicate(this.actor.system.equipment.armor)
+            : [];
+        
+        const index = armor.findIndex(a => a.id === armorId);
+        if (index > -1) {
+            // Remove associated effects if armor was equipped
+            if (armor[index].equipped) {
+                await this._removeEquipmentEffects(armorId);
+            }
+            armor.splice(index, 1);
+            await this.actor.update({ "system.equipment.armor": armor });
+        }
+    }
+
+    /**
+     * Toggle armor equipped status
+     */
+    async _onToggleArmorEquipped(event) {
+        const armorId = event.currentTarget.dataset.armorId;
+        const isEquipped = event.currentTarget.checked;
+        const armor = Array.isArray(this.actor.system.equipment?.armor)
+            ? foundry.utils.duplicate(this.actor.system.equipment.armor)
+            : [];
+        
+        const armorPiece = armor.find(a => a.id === armorId);
+        if (armorPiece) {
+            armorPiece.equipped = isEquipped;
+            await this.actor.update({ "system.equipment.armor": armor });
+            
+            // Grant or remove effects based on equipped status
+            await this._toggleEquipmentEffects(armorId, 'armor', isEquipped);
+        }
+    }
+
+    /**
+     * Add a new gear item
+     */
+    async _onAddGear(event) {
+        event.preventDefault();
+        const gear = Array.isArray(this.actor.system.equipment?.gear)
+            ? foundry.utils.duplicate(this.actor.system.equipment.gear)
+            : [];
+        
+        const newGear = {
+            id: foundry.utils.randomID(),
+            name: "New Gear",
+            type: "gear",
+            quantity: 1,
+            weight: "0 lbs",
+            description: "",
+            grantsEffects: []
+        };
+        
+        gear.push(newGear);
+        await this.actor.update({ "system.equipment.gear": gear });
+    }
+
+    /**
+     * Delete a gear item
+     */
+    async _onDeleteGear(event) {
+        event.preventDefault();
+        const gearId = event.currentTarget.dataset.gearId;
+        const gear = Array.isArray(this.actor.system.equipment?.gear)
+            ? foundry.utils.duplicate(this.actor.system.equipment.gear)
+            : [];
+        
+        const index = gear.findIndex(g => g.id === gearId);
+        if (index > -1) {
+            // Remove associated effects
+            await this._removeEquipmentEffects(gearId);
+            gear.splice(index, 1);
+            await this.actor.update({ "system.equipment.gear": gear });
+        }
+    }
+
+    /**
+     * Manage status effects for an equipment item
+     */
+    async _onManageItemEffects(event) {
+        event.preventDefault();
+        const itemId = event.currentTarget.dataset.itemId;
+        const itemType = event.currentTarget.dataset.itemType;
+        
+        // Open effect manager dialog
+        const manager = new WodEffectManager(this.actor);
+        manager.render(true);
+        
+        ui.notifications.info("Effect Manager opened. Effects created here can be linked to equipment by setting the Source ID to the equipment's ID.");
+    }
+
+    /**
+     * Toggle equipment effects (grant or remove)
+     * @param {string} itemId - Equipment item ID
+     * @param {string} itemType - Equipment type (weapon, armor, gear)
+     * @param {boolean} isEquipped - Whether item is equipped
+     * @private
+     */
+    async _toggleEquipmentEffects(itemId, itemType, isEquipped) {
+        // Find the equipment item
+        const equipmentArray = itemType === 'weapon' ? 'weapons' : itemType === 'armor' ? 'armor' : 'gear';
+        const equipment = this.actor.system.equipment?.[equipmentArray];
+        const item = equipment?.find(i => i.id === itemId);
+        
+        if (!item) {
+            return;
+        }
+        
+        if (isEquipped) {
+            // Grant effects
+            await EquipmentEffects.grantEquipmentEffects(this.actor, item, itemType);
+        } else {
+            // Remove effects
+            await EquipmentEffects.removeEquipmentEffects(this.actor, itemId);
+        }
+    }
+
+    /**
+     * Remove all effects granted by an equipment item
+     * @param {string} itemId - Equipment item ID
+     * @private
+     */
+    async _removeEquipmentEffects(itemId) {
+        await EquipmentEffects.removeEquipmentEffects(this.actor, itemId);
     }
 
     /**

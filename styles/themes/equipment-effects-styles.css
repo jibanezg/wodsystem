@@ -1,0 +1,412 @@
+/* ========================================
+   ACTIVE EFFECTS IN ROLL DIALOG
+   ======================================== */
+
+.wod.dialog.roll-dialog .active-effects-section {
+  margin: 10px 0;
+  padding: 8px;
+  background: var(--wod-bg-subtle);
+  border-radius: 3px;
+  border-left: 3px solid var(--wod-border-info);
+}
+
+.wod.dialog.roll-dialog .active-effects-section h4 {
+  margin: 0 0 6px 0;
+  color: var(--wod-primary);
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wod.dialog.roll-dialog .effects-category {
+  display: block;
+  font-size: 0.75em;
+  color: var(--wod-text-alt);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wod.dialog.roll-dialog .effect-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  margin: 3px 0;
+  background: var(--wod-bg-light);
+  border: 1px solid var(--wod-border-light);
+  border-radius: 3px;
+  font-size: 0.85em;
+  transition: all 0.2s ease;
+}
+
+.wod.dialog.roll-dialog .effect-item.mandatory {
+  border-left: 3px solid var(--wod-danger);
+  background: rgba(229, 57, 53, 0.05);
+}
+
+.wod.dialog.roll-dialog .effect-item.optional {
+  border-left: 3px solid var(--wod-success);
+  background: rgba(67, 160, 71, 0.05);
+}
+
+.wod.dialog.roll-dialog .effect-item:hover {
+  background: var(--wod-bg-hover);
+}
+
+.wod.dialog.roll-dialog .effect-toggle {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.wod.dialog.roll-dialog .effect-name {
+  flex: 1;
+  color: var(--wod-text-main);
+}
+
+.wod.dialog.roll-dialog .effect-modifier {
+  font-weight: bold;
+  font-size: 0.9em;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.wod.dialog.roll-dialog .effect-modifier.positive {
+  color: var(--wod-success);
+  background: rgba(67, 160, 71, 0.1);
+}
+
+.wod.dialog.roll-dialog .effect-modifier.negative {
+  color: var(--wod-danger);
+  background: rgba(229, 57, 53, 0.1);
+}
+
+/* ========================================
+   EQUIPMENT TAB
+   ======================================== */
+
+.equipment-tab {
+  padding: 15px;
+}
+
+.equipment-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.equipment-controls button {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--wod-primary);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.equipment-controls button:hover {
+  background: var(--wod-primary-dark);
+  transform: translateY(-1px);
+}
+
+.equipment-section {
+  margin-bottom: 30px;
+}
+
+.equipment-section h3 {
+  color: var(--wod-primary);
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--wod-primary);
+  padding-bottom: 6px;
+  font-size: 1.1em;
+}
+
+.equipment-section table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--wod-bg-light);
+  border: 1px solid var(--wod-border-light);
+  border-radius: 3px;
+}
+
+.equipment-section table thead {
+  background: var(--wod-bg-secondary);
+}
+
+.equipment-section table th {
+  padding: 8px 6px;
+  text-align: left;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--wod-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--wod-border-light);
+}
+
+.equipment-section table td {
+  padding: 6px;
+  border-bottom: 1px solid var(--wod-border-subtle);
+  vertical-align: middle;
+}
+
+.equipment-section table tbody tr:hover {
+  background: var(--wod-bg-hover);
+}
+
+.equipment-section input[type="text"],
+.equipment-section input[type="number"] {
+  width: 100%;
+  padding: 4px 6px;
+  background: var(--wod-bg-input);
+  border: 1px solid var(--wod-border-light);
+  border-radius: 2px;
+  font-size: 0.85em;
+  transition: all 0.2s ease;
+}
+
+.equipment-section input[type="text"]:focus,
+.equipment-section input[type="number"]:focus {
+  outline: none;
+  border-color: var(--wod-primary);
+  box-shadow: 0 0 0 2px rgba(70, 130, 180, 0.1);
+}
+
+.equipment-section input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.equipment-section button {
+  background: transparent;
+  border: 1px solid var(--wod-border-light);
+  color: var(--wod-text-main);
+  padding: 4px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.equipment-section button:hover {
+  background: var(--wod-bg-hover);
+  border-color: var(--wod-primary);
+}
+
+.equipment-section .manage-effects {
+  color: var(--wod-primary);
+  border-color: var(--wod-primary);
+}
+
+.equipment-section .manage-effects:hover {
+  background: var(--wod-primary);
+  color: white;
+}
+
+.equipment-section .delete-weapon,
+.equipment-section .delete-armor,
+.equipment-section .delete-gear {
+  color: var(--wod-danger);
+  border-color: var(--wod-danger);
+}
+
+.equipment-section .delete-weapon:hover,
+.equipment-section .delete-armor:hover,
+.equipment-section .delete-gear:hover {
+  background: var(--wod-danger);
+  color: white;
+}
+
+.equipment-section .empty-message {
+  padding: 20px;
+  text-align: center;
+  color: var(--wod-text-alt);
+  font-style: italic;
+  background: var(--wod-bg-subtle);
+  border-radius: 3px;
+}
+
+/* Column-specific widths */
+.col-equipped { width: 60px; text-align: center; }
+.col-name { width: auto; min-width: 150px; }
+.col-damage { width: 70px; }
+.col-diff { width: 60px; }
+.col-range { width: 70px; }
+.col-rate { width: 60px; }
+.col-clip { width: 70px; }
+.col-conc { width: 60px; }
+.col-rating { width: 70px; }
+.col-penalty { width: 70px; }
+.col-quantity { width: 60px; }
+.col-weight { width: 80px; }
+.col-description { width: auto; min-width: 150px; }
+.col-effects { width: 60px; text-align: center; }
+.col-actions { width: 60px; text-align: center; }
+
+/* ========================================
+   EFFECT MANAGER DIALOG
+   ======================================== */
+
+.wod.dialog.effect-manager .effect-header-section,
+.wod.dialog.effect-manager .effect-metadata-section,
+.wod.dialog.effect-manager .effect-conditions-section {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.dialog.effect-manager h3 {
+  color: var(--wod-primary);
+  margin: 15px 0 10px 0;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.wod.dialog.effect-manager .form-group {
+  margin: 10px 0;
+}
+
+.wod.dialog.effect-manager .form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 0.85em;
+  color: var(--wod-text-main);
+}
+
+.wod.dialog.effect-manager .form-group small {
+  display: block;
+  font-size: 0.75em;
+  color: var(--wod-text-alt);
+  margin-top: 2px;
+}
+
+.wod.dialog.effect-manager input[type="text"],
+.wod.dialog.effect-manager input[type="number"],
+.wod.dialog.effect-manager select {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--wod-bg-input);
+  border: 1px solid var(--wod-border-light);
+  border-radius: 3px;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.wod.dialog.effect-manager input:focus,
+.wod.dialog.effect-manager select:focus {
+  outline: none;
+  border-color: var(--wod-primary);
+  box-shadow: 0 0 0 2px rgba(70, 130, 180, 0.1);
+}
+
+.wod.dialog.effect-manager .checkbox-group label {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+}
+
+.wod.dialog.effect-manager .checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 8px;
+}
+
+.wod.dialog.effect-manager .modifiers-list {
+  margin: 10px 0;
+}
+
+.wod.dialog.effect-manager .modifier-row {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0;
+  align-items: center;
+}
+
+.wod.dialog.effect-manager .modifier-row select {
+  flex: 2;
+}
+
+.wod.dialog.effect-manager .modifier-row input {
+  flex: 1;
+  width: auto;
+}
+
+.wod.dialog.effect-manager .modifier-row button {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--wod-danger);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wod.dialog.effect-manager .modifier-row button:hover {
+  background: var(--wod-danger-dark);
+}
+
+.wod.dialog.effect-manager .add-modifier-row {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  color: var(--wod-primary);
+  border: 1px dashed var(--wod-primary);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85em;
+}
+
+.wod.dialog.effect-manager .add-modifier-row:hover {
+  background: var(--wod-primary);
+  color: white;
+  border-style: solid;
+}
+
+.wod.dialog.effect-manager .dialog-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.wod.dialog.effect-manager .save-effect {
+  background: var(--wod-primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.wod.dialog.effect-manager .save-effect:hover {
+  background: var(--wod-primary-dark);
+  transform: translateY(-1px);
+}
+
+.wod.dialog.effect-manager .cancel-effect {
+  background: var(--wod-bg-tertiary);
+  color: var(--wod-text-main);
+  border: 1px solid var(--wod-border-light);
+  padding: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wod.dialog.effect-manager .cancel-effect:hover {
+  background: var(--wod-text-alt);
+  color: white;
+}
+

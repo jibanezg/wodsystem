@@ -1,3 +1,5 @@
+import { EffectModifierConverter } from '../effects/effect-modifier-converter.js';
+
 /**
  * Roll Dialog for World of Darkness System
  * Allows configuration of difficulty, modifiers, and specialty before rolling
@@ -26,6 +28,19 @@ export class WodRollDialog extends Application {
         this.actor = actor;
         this.poolData = poolData;
         this.modifiers = [];
+        
+        // Get effect modifiers from actor's active effects
+        this.effectModifiers = EffectModifierConverter.getModifiersFromEffects(
+            actor, 
+            poolData.rollContext || {}
+        );
+        
+        // Track which optional effects are enabled (default: all optional effects enabled)
+        this.enabledOptionalEffects = new Set(
+            this.effectModifiers
+                .filter(m => !m.mandatory)
+                .map(m => m.effectId)
+        );
     }
     
     static get defaultOptions() {
@@ -40,10 +55,32 @@ export class WodRollDialog extends Application {
     }
     
     async getData() {
+        // Separate mandatory vs optional effects
+        const mandatoryEffects = this.effectModifiers
+            .filter(m => m.mandatory)
+            .map(m => ({
+                id: m.effectId,
+                name: m.name,
+                displayValue: this._formatModifierDisplay(m),
+                modifierClass: m.value > 0 ? 'positive' : 'negative'
+            }));
+        
+        const optionalEffects = this.effectModifiers
+            .filter(m => !m.mandatory)
+            .map(m => ({
+                id: m.effectId,
+                name: m.name,
+                enabled: this.enabledOptionalEffects.has(m.effectId),
+                displayValue: this._formatModifierDisplay(m),
+                modifierClass: m.value > 0 ? 'positive' : 'negative'
+            }));
+        
         return {
             ...this.poolData,
             difficulty: 6,
-            modifiers: this.modifiers
+            modifiers: this.modifiers,
+            mandatoryEffects,
+            optionalEffects
         };
     }
     
@@ -55,6 +92,7 @@ export class WodRollDialog extends Application {
         html.find('.add-modifier').click(this._onAddModifier.bind(this));
         html.find('#save-template-check').change(this._onToggleSaveTemplate.bind(this));
         html.find('.remove-modifier').click(this._onRemoveModifier.bind(this));
+        html.find('.effect-toggle').change(this._onToggleEffect.bind(this));
     }
     
     async _onRoll(event) {
@@ -72,6 +110,12 @@ export class WodRollDialog extends Application {
             return;
         }
         
+        // Collect all active modifiers (manual + enabled effect modifiers)
+        const allModifiers = [
+            ...this.modifiers,
+            ...this._getActiveEffectModifiers()
+        ];
+        
         // Execute roll
         await this.actor.rollPool(
             this.poolData.poolName,
@@ -79,7 +123,7 @@ export class WodRollDialog extends Application {
             {
                 difficulty,
                 specialty,
-                modifiers: this.modifiers,
+                modifiers: allModifiers,
                 traits: this.poolData.traits
             }
         );
@@ -126,6 +170,40 @@ export class WodRollDialog extends Application {
         } else {
             nameInput.hide().val('');
         }
+    }
+    
+    _onToggleEffect(event) {
+        const effectId = event.currentTarget.dataset.effectId;
+        const enabled = event.currentTarget.checked;
+        
+        if (enabled) {
+            this.enabledOptionalEffects.add(effectId);
+        } else {
+            this.enabledOptionalEffects.delete(effectId);
+        }
+        
+        // No need to re-render, just track the state
+    }
+    
+    /**
+     * Get active effect modifiers (mandatory + enabled optional)
+     * @returns {Array}
+     * @private
+     */
+    _getActiveEffectModifiers() {
+        return this.effectModifiers.filter(m => 
+            m.mandatory || this.enabledOptionalEffects.has(m.effectId)
+        );
+    }
+    
+    /**
+     * Format modifier for display
+     * @param {Object} modifier
+     * @returns {string}
+     * @private
+     */
+    _formatModifierDisplay(modifier) {
+        return EffectModifierConverter.formatModifierDisplay(modifier);
     }
 }
 

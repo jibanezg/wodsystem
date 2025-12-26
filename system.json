@@ -22,7 +22,8 @@
     "styles/core/variables.css",
     "styles/mortal-sheet.css",
     "styles/themes/mortal.css",
-    "styles/themes/technocrat.css"
+    "styles/themes/technocrat.css",
+    "styles/themes/equipment-effects-styles.css"
   ],
   "languages": [
     {

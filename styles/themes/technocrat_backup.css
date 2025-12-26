@@ -1,0 +1,2267 @@
+﻿/**
+ * Technocrat Theme - Technology, Science, Control
+ * Color Palette: Blue/Silver/Steel - corporate, clinical, precise
+ * Identity: Enlightened science, cold technology, order
+ * 
+ * Mage: The Ascension - Technocracy
+ */
+
+/* Color variables for technocrat actor sheets (lowercase) */
+.wod.sheet.actor.technocrat {
+    /* Primary Colors - Blue/Steel (technology/precision) */
+    --wod-primary: #4682B4;           /* Steel Blue - technology */
+    --wod-primary-dark: #2F4F6F;      /* Dark slate - precision */
+    --wod-primary-light: #6CA6CD;     /* Sky blue - enlightenment */
+    
+    /* Background Colors - Clinical/Sterile */
+    --wod-bg-main: #F8F9FA;           /* Clean white */
+    --wod-bg-secondary: #E8EEF2;      /* Light blue-gray */
+    --wod-bg-tertiary: #D6DEE5;       /* Cool gray */
+    --wod-bg-hover: #C8D4E0;          /* Blue-gray hover */
+    --wod-bg-input: #F8F9FA;          /* Input backgrounds */
+    --wod-bg-subtle: #F0F4F8;         /* Subtle background */
+    --wod-bg-light: #FFFFFF;          /* Pure white for elements */
+    --wod-bg-alt: #E8EEF2;            /* Alternate background */
+    --wod-bg-hover-light: #DFE8F0;    /* Light blue hover */
+    --wod-bg-highlight: #D6DEE5;      /* Highlight color */
+    --wod-bg-info: #E3F2FD;           /* Light blue info background */
+    
+    /* Border Colors - Steel/Chrome */
+    --wod-border-main: #4682B4;       /* Steel blue main borders */
+    --wod-border-dark: #2F4F6F;       /* Dark borders for sections */
+    --wod-border-light: #B0BEC5;      /* Light gray-blue for inputs */
+    --wod-border-subtle: #CFD8DC;     /* Subtle gray-blue borders */
+    --wod-border-info: #64B5F6;       /* Blue info borders */
+    
+    /* Text Colors */
+    --wod-text-main: #1A1A1A;         /* Near-black primary text */
+    --wod-text-light: white;          /* White text on dark backgrounds */
+    --wod-text-alt: #546E7A;          /* Blue-gray secondary text */
+    --wod-text-inverse: #FFFFFF;      /* White inverse text */
+    
+    /* Status Colors */
+    --wod-success: #43A047;           /* Green for success */
+    --wod-danger: #E53935;            /* Red for danger */
+    --wod-error: #E53935;             /* Red for errors */
+    --wod-error-dark: #C62828;        /* Dark red */
+    --wod-danger-dark: #C62828;       /* Dark red danger */
+    --wod-warning: #FFF3E0;           /* Warning background */
+    --wod-info: #E3F2FD;              /* Blue info background */
+    
+    /* Accents - Silver/Chrome */
+    --wod-accent-tech: #B0C4DE;       /* Light steel blue */
+    --wod-accent-chrome: #C0C0C0;     /* Silver chrome */
+    
+    /* Health Damage Colors - Blue theme */
+    --wod-damage-bashing: #4682B4;    /* Blue X mark */
+    --wod-damage-lethal: #4682B4;     /* Blue stripes */
+    --wod-damage-aggravated: #4682B4; /* Blue fill */
+}
+
+/* Color variables for Technocrat dialogs (capital T - Foundry auto-capitalizes) */
+.wod.dialog.Technocrat {
+    /* Primary Colors - Blue/Steel (technology/precision) */
+    --wod-primary: #4682B4;
+    --wod-primary-dark: #2F4F6F;
+    --wod-primary-light: #6CA6CD;
+    
+    /* Background Colors */
+    --wod-bg-main: #F8F9FA;
+    --wod-bg-secondary: #E8EEF2;
+    --wod-bg-tertiary: #D6DEE5;
+    --wod-bg-hover: #C8D4E0;
+    --wod-bg-input: #F8F9FA;
+    --wod-bg-subtle: #F0F4F8;
+    --wod-bg-light: #FFFFFF;
+    
+    /* Border Colors */
+    --wod-border-main: #4682B4;
+    --wod-border-light: #B0BEC5;
+    --wod-border-info: #64B5F6;
+    
+    /* Text Colors */
+    --wod-text-main: #1A1A1A;
+    --wod-text-light: white;
+    --wod-text-alt: #546E7A;
+    
+    /* Status Colors */
+    --wod-success: #43A047;
+    --wod-danger: #E53935;
+    --wod-danger-dark: #C62828;
+}
+
+/* Technocrat-Specific Component Styles */
+
+/* Technocrat Identity Grid - 7 fields need more space */
+.wod.sheet.actor.technocrat .identity-section.Technocrat-identity {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .identity-section.Technocrat-identity .identity-field:nth-child(1),
+.wod.sheet.actor.technocrat .identity-section.Technocrat-identity .identity-field:nth-child(2) {
+    grid-column: span 2;
+}
+
+/* Enlightenment Section */
+.wod.sheet.actor.technocrat .enlightenment-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    background: var(--wod-bg-main);
+}
+
+.wod.sheet.actor.technocrat .enlightenment-section h4 {
+    margin: 0 0 8px 0;
+    padding: 3px 5px;
+    background: var(--wod-bg-tertiary);
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .enlightenment-track {
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+}
+
+/* Primal Energy Section */
+.wod.sheet.actor.technocrat .primal-energy-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    background: var(--wod-bg-main);
+}
+
+.wod.sheet.actor.technocrat .primal-energy-section h4 {
+    margin: 0 0 8px 0;
+    padding: 3px 5px;
+    background: var(--wod-bg-tertiary);
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .primal-info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 8px;
+    font-size: 0.7em;
+    color: var(--wod-text-alt);
+}
+
+.wod.sheet.actor.technocrat .primal-track {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 5px;
+}
+
+.wod.sheet.actor.technocrat .primal-box {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--wod-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    background: var(--wod-bg-light);
+    color: var(--wod-text-alt);
+    transition: all 0.2s ease;
+    border-radius: 2px;
+}
+
+.wod.sheet.actor.technocrat .primal-box:hover {
+    background: var(--wod-bg-hover-light);
+    transform: scale(1.05);
+    border-color: var(--wod-primary-dark);
+}
+
+.wod.sheet.actor.technocrat .primal-box.spent {
+    background: var(--wod-primary);
+    color: var(--wod-text-light);
+    border-color: var(--wod-primary-dark);
+}
+
+/* Paradox Section */
+.wod.sheet.actor.technocrat .paradox-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    background: var(--wod-bg-main);
+}
+
+.wod.sheet.actor.technocrat .paradox-section h4 {
+    margin: 0 0 8px 0;
+    padding: 3px 5px;
+    background: var(--wod-bg-tertiary);
+    font-size: 0.75em;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .paradox-track {
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.wod.sheet.actor.technocrat .paradox-track label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    text-transform: uppercase;
+}
+
+.wod.sheet.actor.technocrat .paradox-track .dot-container {
+    justify-content: center;
+}
+
+/* Technocrat Advantages: 2-column grid for 4 sections */
+.wod.sheet.actor.technocrat .advantages-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .Technocrat-column-1,
+.wod.sheet.actor.technocrat .Technocrat-column-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Section styling - all sections (Column 1: 4 sections, Column 2: 1 section) */
+.wod.sheet.actor.technocrat .willpower-section,
+.wod.sheet.actor.technocrat .enlightenment-section,
+.wod.sheet.actor.technocrat .primal-energy-section,
+.wod.sheet.actor.technocrat .paradox-section,
+.wod.sheet.actor.technocrat .backgrounds-section {
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    padding: 8px;
+    background: var(--wod-bg-main);
+}
+
+/* Enlightenment Section (standalone) */
+.wod.sheet.actor.technocrat .enlightenment-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.75em;
+    text-align: center;
+    color: var(--wod-primary);
+    font-weight: bold;
+}
+
+/* Primal Energy Section (standalone) */
+.wod.sheet.actor.technocrat .primal-energy-section h4 {
+    margin: 0 0 8px 0;
+    font-size: 0.75em;
+    text-align: center;
+    color: var(--wod-primary);
+    font-weight: bold;
+}
+
+/* Primal Energy manual input fields */
+.wod.sheet.actor.technocrat .primal-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .primal-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.wod.sheet.actor.technocrat .primal-field label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-bottom: 3px;
+    text-align: center;
+}
+
+.wod.sheet.actor.technocrat .primal-field input {
+    padding: 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.9em;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Paradox section - 2-track layout */
+.wod.sheet.actor.technocrat .paradox-section .paradox-track {
+    margin-bottom: 5px;
+}
+
+.wod.sheet.actor.technocrat .paradox-section label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-bottom: 3px;
+}
+
+/* Enlightened Science - Spheres Section (styled like Attributes) */
+.wod.sheet.actor.technocrat .tab[data-tab="enlightened-science"] {
+    padding: 5px 25px 5px 5px; /* Reduced padding for more space */
+}
+
+.wod.sheet.actor.technocrat .spheres-section .Technocrat-name {
+    font-weight: normal;
+    color: var(--wod-primary);
+    font-style: italic;
+    font-size: 0.85em;
+}
+
+/* Procedures (Rotes) Section */
+.wod.sheet.actor.technocrat .procedures-section {
+    margin-top: 10px; /* Reduced from 15px */
+}
+
+.wod.sheet.actor.technocrat .procedures-section h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.wod.sheet.actor.technocrat .procedures-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px; /* Reduced from 10px */
+    margin-bottom: 8px; /* Reduced from 10px */
+}
+
+.wod.sheet.actor.technocrat .procedure-item {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    padding: 6px; /* Reduced from 8px */
+    background: var(--wod-bg-light);
+}
+
+.wod.sheet.actor.technocrat .procedure-header {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Reduced from 8px */
+    margin-bottom: 4px; /* Reduced from 5px */
+}
+
+.wod.sheet.actor.technocrat .procedure-name-input {
+    flex: 1;
+    font-weight: bold;
+    font-size: 0.85em; /* Reduced from 0.9em */
+    padding: 3px 6px; /* Reduced from 4px 8px */
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .procedure-name-input:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 3px rgba(70, 130, 180, 0.3);
+}
+
+.wod.sheet.actor.technocrat .delete-procedure {
+    cursor: pointer;
+    color: var(--wod-danger);
+    font-size: 0.9em;
+    padding: 4px;
+}
+
+.wod.sheet.actor.technocrat .delete-procedure:hover {
+    color: var(--wod-danger-dark);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.technocrat .procedure-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Reduced from 5px */
+}
+
+.wod.sheet.actor.technocrat .procedure-spheres-input {
+    padding: 3px 6px; /* Reduced from 4px 8px */
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    font-style: italic;
+}
+
+.wod.sheet.actor.technocrat .procedure-spheres-input:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 3px rgba(70, 130, 180, 0.3);
+}
+
+.wod.sheet.actor.technocrat .procedure-description-input {
+    padding: 3px 6px; /* Reduced from 4px 8px */
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    resize: vertical;
+    min-height: 35px; /* Reduced from 50px */
+    font-family: inherit;
+}
+
+.wod.sheet.actor.technocrat .procedure-description-input:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 3px rgba(70, 130, 180, 0.3);
+}
+
+.wod.sheet.actor.technocrat .procedure-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.wod.sheet.actor.technocrat .add-procedure {
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .add-procedure:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+/* Procedure Pagination */
+.wod.sheet.actor.technocrat .procedure-pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .procedure-pagination .pagination-btn {
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .procedure-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary-dark);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.technocrat .procedure-pagination .pagination-btn:disabled {
+    background: var(--wod-border-light);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.wod.sheet.actor.technocrat .procedure-pagination .pagination-info {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    font-weight: bold;
+}
+
+/* ========================================
+   DEVICES TAB
+   ======================================== */
+
+.wod.sheet.actor.technocrat .devices-section {
+    padding: 10px;
+}
+
+.wod.sheet.actor.technocrat .devices-section h2 {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    color: var(--wod-primary);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary);
+    padding-bottom: 5px;
+}
+
+.wod.sheet.actor.technocrat .devices-section .section-description {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    text-align: center;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.wod.sheet.actor.technocrat .devices-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.wod.sheet.actor.technocrat .device-card {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    padding: 8px;
+    background: var(--wod-bg-light);
+}
+
+.wod.sheet.actor.technocrat .device-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.wod.sheet.actor.technocrat .device-name-input {
+    flex: 1;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 4px 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .delete-device {
+    cursor: pointer;
+    color: var(--wod-danger);
+    font-size: 0.9em;
+    padding: 4px;
+}
+
+.wod.sheet.actor.technocrat .delete-device:hover {
+    color: var(--wod-danger-dark);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.technocrat .device-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wod.sheet.actor.technocrat .device-field label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.technocrat .device-description-input,
+.wod.sheet.actor.technocrat .device-effects-input {
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    resize: vertical;
+    min-height: 40px;
+    font-family: inherit;
+}
+
+.wod.sheet.actor.technocrat .device-spheres-input {
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    font-style: italic;
+}
+
+.wod.sheet.actor.technocrat .device-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+}
+
+.wod.sheet.actor.technocrat .device-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.wod.sheet.actor.technocrat .device-stat label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.technocrat .device-arete-input,
+.wod.sheet.actor.technocrat .device-paradox-input,
+.wod.sheet.actor.technocrat .device-quintessence-input {
+    padding: 4px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .device-paradox-input {
+    border-color: var(--wod-danger);
+}
+
+.wod.sheet.actor.technocrat .devices-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.wod.sheet.actor.technocrat .add-device {
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .add-device:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.technocrat .device-pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .device-pagination .pagination-btn {
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .device-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary-dark);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.technocrat .device-pagination .pagination-btn:disabled {
+    background: var(--wod-border-light);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.wod.sheet.actor.technocrat .device-pagination .pagination-info {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    font-weight: bold;
+}
+
+/* ========================================
+   ENHANCEMENTS TAB
+   ======================================== */
+
+.wod.sheet.actor.technocrat .enhancements-section {
+    padding: 10px;
+}
+
+.wod.sheet.actor.technocrat .enhancements-section h2 {
+    margin: 0 0 5px 0;
+    font-size: 1.2em;
+    color: var(--wod-primary);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary);
+    padding-bottom: 5px;
+}
+
+.wod.sheet.actor.technocrat .enhancements-section .section-description {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    text-align: center;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+.wod.sheet.actor.technocrat .enhancements-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.wod.sheet.actor.technocrat .enhancement-card {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    padding: 8px;
+    background: var(--wod-bg-light);
+}
+
+.wod.sheet.actor.technocrat .enhancement-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.wod.sheet.actor.technocrat .enhancement-name-input {
+    flex: 1;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 4px 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .delete-enhancement {
+    cursor: pointer;
+    color: var(--wod-danger);
+    font-size: 0.9em;
+    padding: 4px;
+}
+
+.wod.sheet.actor.technocrat .delete-enhancement:hover {
+    color: var(--wod-danger-dark);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.technocrat .enhancement-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wod.sheet.actor.technocrat .enhancement-field label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.technocrat .enhancement-location-select {
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .enhancement-description-input,
+.wod.sheet.actor.technocrat .enhancement-effects-input,
+.wod.sheet.actor.technocrat .enhancement-sideeffects-input {
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    resize: vertical;
+    min-height: 35px;
+    font-family: inherit;
+}
+
+.wod.sheet.actor.technocrat .enhancements-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.wod.sheet.actor.technocrat .add-enhancement {
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .add-enhancement:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.technocrat .enhancement-pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .enhancement-pagination .pagination-btn {
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .enhancement-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary-dark);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.technocrat .enhancement-pagination .pagination-btn:disabled {
+    background: var(--wod-border-light);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.wod.sheet.actor.technocrat .enhancement-pagination .pagination-info {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    font-weight: bold;
+}
+
+/* ========================================
+   BACKGROUNDS (EXPANDED) TAB
+   ======================================== */
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section {
+    padding: 5px;
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section h2 {
+    margin: 0 0 3px 0;
+    font-size: 1.1em;
+    color: var(--wod-primary);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary);
+    padding-bottom: 3px;
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .section-description {
+    font-size: 0.7em;
+    color: var(--wod-text-alt);
+    text-align: center;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.wod.sheet.actor.technocrat .bg-selector-container {
+    margin-bottom: 10px;
+    padding: 6px 8px;
+    background: var(--wod-bg-subtle);
+    border-radius: 3px;
+    border: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .bg-selector-container label {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-right: 10px;
+}
+
+.wod.sheet.actor.technocrat .select-background-to-expand {
+    padding: 5px 10px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.85em;
+    background: var(--wod-bg-input);
+    min-width: 250px;
+}
+
+.wod.sheet.actor.technocrat .expanded-backgrounds-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .expanded-bg-card {
+    border: 2px solid var(--wod-primary);
+    border-radius: 4px;
+    background: var(--wod-bg-light);
+    overflow: hidden;
+}
+
+.wod.sheet.actor.technocrat .bg-card-header {
+    background: var(--wod-primary);
+    color: white;
+    padding: 3px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod.sheet.actor.technocrat .bg-card-header h3 {
+    margin: 0;
+    font-size: 0.85em;
+}
+
+.wod.sheet.actor.technocrat .bg-card-header .bg-rating {
+    font-weight: normal;
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.wod.sheet.actor.technocrat .delete-expanded-bg {
+    color: white;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 0 4px;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .delete-expanded-bg:hover {
+    color: var(--wod-danger);
+    transform: scale(1.2);
+}
+
+.wod.sheet.actor.technocrat .bg-card-body {
+    padding: 5px;
+}
+
+.wod.sheet.actor.technocrat .bg-template {
+    margin-bottom: 5px;
+}
+
+.wod.sheet.actor.technocrat .template-field {
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.technocrat .template-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.technocrat .template-field-row-thirds {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.technocrat .template-field-row-split {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.technocrat .template-field label {
+    font-size: 0.65em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    display: block;
+    margin-bottom: 1px;
+}
+
+.wod.sheet.actor.technocrat .template-input,
+.wod.sheet.actor.technocrat .template-select {
+    width: 100%;
+    padding: 2px 5px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.7em;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .template-input-small {
+    width: 100%;
+    padding: 3px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .template-input-number {
+    max-width: 120px;
+    width: auto;
+    padding: 3px 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .template-input-number-tiny {
+    max-width: 80px;
+    width: auto;
+    padding: 3px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .template-input-tiny {
+    width: 50px;
+    padding: 3px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.7em;
+    text-align: center;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .template-textarea {
+    width: 100%;
+    padding: 3px 5px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.65em;
+    background: var(--wod-bg-input);
+    resize: vertical;
+    min-height: 28px;
+    font-family: inherit;
+    line-height: 1.2;
+}
+
+.wod.sheet.actor.technocrat .template-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .template-field-group h4 {
+    font-size: 0.8em;
+    color: var(--wod-primary);
+    margin: 10px 0 5px 0;
+}
+
+/* Allies Template */
+.wod.sheet.actor.technocrat .allies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.wod.sheet.actor.technocrat .ally-entry {
+    border: 1px solid var(--wod-border-subtle);
+    border-radius: 3px;
+    padding: 8px;
+    background: var(--wod-bg-subtle);
+}
+
+.wod.sheet.actor.technocrat .ally-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.wod.sheet.actor.technocrat .ally-name-input {
+    flex: 1;
+    font-weight: bold;
+    padding: 4px 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.8em;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .delete-ally {
+    color: var(--wod-danger);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.wod.sheet.actor.technocrat .ally-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.wod.sheet.actor.technocrat .ally-input,
+.wod.sheet.actor.technocrat .ally-input-small {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .ally-textarea {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    resize: vertical;
+    min-height: 40px;
+    font-family: inherit;
+}
+
+.wod.sheet.actor.technocrat .add-ally {
+    padding: 6px 12px;
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .add-ally:hover {
+    background: var(--wod-primary);
+    transform: scale(1.05);
+}
+
+/* Resources Template */
+.wod.sheet.actor.technocrat .properties-list,
+.wod.sheet.actor.technocrat .assets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.wod.sheet.actor.technocrat .property-entry,
+.wod.sheet.actor.technocrat .asset-entry {
+    border: 1px solid var(--wod-border-subtle);
+    border-radius: 3px;
+    padding: 6px;
+    background: var(--wod-bg-subtle);
+}
+
+.wod.sheet.actor.technocrat .property-header,
+.wod.sheet.actor.technocrat .asset-header {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.wod.sheet.actor.technocrat .property-input,
+.wod.sheet.actor.technocrat .asset-input {
+    flex: 1;
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input);
+    margin-bottom: 4px;
+}
+
+.wod.sheet.actor.technocrat .delete-property,
+.wod.sheet.actor.technocrat .delete-asset {
+    color: var(--wod-danger);
+    cursor: pointer;
+    padding: 2px;
+}
+
+.wod.sheet.actor.technocrat .add-property,
+.wod.sheet.actor.technocrat .add-asset {
+    padding: 5px 10px;
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.7em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 5px;
+}
+
+.wod.sheet.actor.technocrat .add-property:hover,
+.wod.sheet.actor.technocrat .add-asset:hover {
+    background: var(--wod-primary);
+}
+
+/* Familiar Template */
+.wod.sheet.actor.technocrat .familiar-attributes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .familiar-attr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wod.sheet.actor.technocrat .familiar-attr label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt);
+    margin-bottom: 3px;
+}
+
+/* Custom Fields Section */
+.wod.sheet.actor.technocrat .custom-fields-section {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .custom-fields-section h4 {
+    font-size: 0.7em;
+    color: var(--wod-primary);
+    margin: 0 0 3px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod.sheet.actor.technocrat .add-custom-field {
+    background: var(--wod-accent-tech);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .add-custom-field:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.technocrat .custom-fields-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.wod.sheet.actor.technocrat .custom-field {
+    border: 1px solid var(--wod-accent-tech);
+    border-radius: 2px;
+    padding: 3px;
+    background: var(--wod-bg-info);
+}
+
+/* Pagination Controls for Backgrounds Expanded */
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--wod-bg-subtle);
+    border-radius: 3px;
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .pagination-btn {
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-accent-tech);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .pagination-info {
+    font-size: 0.8em;
+    color: var(--wod-text-alt);
+    font-weight: bold;
+}
+
+.wod.sheet.actor.technocrat .custom-field-inputs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.technocrat .custom-field-name {
+    flex: 1;
+    font-weight: bold;
+    padding: 2px 5px;
+    border: 1px solid var(--wod-border-info);
+    border-radius: 2px;
+    font-size: 0.7em;
+    background: var(--wod-bg-input);
+}
+
+.wod.sheet.actor.technocrat .delete-custom-field {
+    color: var(--wod-danger);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.wod.sheet.actor.technocrat .custom-field-value {
+    width: 100%;
+    padding: 2px 5px;
+    border: 1px solid var(--wod-border-info);
+    border-radius: 2px;
+    font-size: 0.65em;
+    background: var(--wod-bg-input);
+    resize: vertical;
+    min-height: 28px;
+    font-family: inherit;
+    line-height: 1.2;
+}
+
+.wod.sheet.actor.technocrat .no-custom-fields {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    font-style: italic;
+    margin: 5px 0;
+}
+
+.wod.sheet.actor.technocrat .no-expanded-backgrounds {
+    text-align: center;
+    padding: 30px;
+    color: var(--wod-text-alt);
+    font-style: italic;
+}
+
+/* ========================================
+   TRAITS TAB (Secondary Abilities + Merits & Flaws)
+   ======================================== */
+
+.wod.sheet.actor.technocrat .traits-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+}
+
+.wod.sheet.actor.technocrat .secondary-abilities-container {
+    width: 100%;
+}
+
+.wod.sheet.actor.technocrat .merits-flaws-container {
+    width: 100%;
+}
+
+/* Secondary abilities styling adjustments for combined view */
+.wod.sheet.actor.technocrat .secondary-abilities-container .abilities-section h2 {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+/* Merits & flaws styling adjustments for combined view */
+.wod.sheet.actor.technocrat .merits-flaws-container h2 {
+    font-size: 1.1em;
+    margin: 0 0 10px 0;
+}
+
+
+/* ==================================================
+   Backgrounds Expanded - List View & Modal System
+   ================================================== */
+
+/* List View - Category Sections */
+.wod.sheet.actor.technocrat .bg-category-section {
+    margin-bottom: 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.technocrat .bg-category-header {
+    background: var(--wod-primary);
+    color: white;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.wod.sheet.actor.technocrat .bg-category-header:hover {
+    background: var(--wod-accent-tech);
+}
+
+.wod.sheet.actor.technocrat .bg-category-header h3 {
+    margin: 0;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod.sheet.actor.technocrat .category-toggle {
+    transition: transform 0.2s;
+    font-size: 0.8em;
+}
+
+.wod.sheet.actor.technocrat .category-toggle.fa-chevron-right {
+    transform: rotate(0deg);
+}
+
+.wod.sheet.actor.technocrat .category-toggle.fa-chevron-down {
+    transform: rotate(0deg);
+}
+
+.wod.sheet.actor.technocrat .category-count {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.wod.sheet.actor.technocrat .bg-category-content {
+    padding: 6px;
+    background: var(--wod-bg-light);
+}
+
+/* Small Cards Grid */
+.wod.sheet.actor.technocrat .bg-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.wod.sheet.actor.technocrat .bg-card-mini {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    background: white;
+    padding: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.wod.sheet.actor.technocrat .bg-card-mini:hover {
+    border-color: var(--wod-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.technocrat .bg-card-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .bg-name {
+    font-weight: bold;
+    font-size: 0.75em;
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.technocrat .bg-rating {
+    font-size: 0.7em;
+    color: var(--wod-accent-tech);
+}
+
+.wod.sheet.actor.technocrat .bg-card-mini-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.wod.sheet.actor.technocrat .bg-card-mini-actions a {
+    color: var(--wod-text-alt);
+    font-size: 0.75em;
+    padding: 1px 3px;
+    transition: color 0.2s;
+}
+
+.wod.sheet.actor.technocrat .bg-card-mini-actions a:hover {
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.technocrat .no-expanded-backgrounds {
+    text-align: center;
+    padding: 30px;
+    color: var(--wod-text-alt);
+    font-style: italic;
+}
+
+/* Floating Add Button */
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .background-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--wod-border-main);
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .floating-add-bg {
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wod.sheet.actor.technocrat .backgrounds-expanded-section .floating-add-bg:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+/* Modal Overlay */
+.wod.sheet.actor.technocrat .bg-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.wod.sheet.actor.technocrat .bg-modal {
+    width: 60%;
+    height: 70%;
+    max-width: 900px;
+    max-height: 800px;
+    background: var(--wod-bg-main);
+    border: 2px solid var(--wod-primary);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.wod.sheet.actor.technocrat .bg-modal-header {
+    background: var(--wod-primary);
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--wod-accent-tech);
+}
+
+.wod.sheet.actor.technocrat .bg-modal-title {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.wod.sheet.actor.technocrat .close-bg-modal {
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.wod.sheet.actor.technocrat .close-bg-modal:hover {
+    opacity: 0.7;
+}
+
+.wod.sheet.actor.technocrat .bg-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.wod.sheet.actor.technocrat .bg-modal-step-category,
+.wod.sheet.actor.technocrat .bg-modal-step-background {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.technocrat .bg-modal-step-category label,
+.wod.sheet.actor.technocrat .bg-modal-step-background label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.technocrat .select-bg-category,
+.wod.sheet.actor.technocrat .bg-modal-step-background select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.technocrat .bg-modal-form {
+    margin-top: 15px;
+}
+
+.wod.sheet.actor.technocrat .bg-modal-footer {
+    padding: 10px 15px;
+    border-top: 1px solid var(--wod-border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.wod.sheet.actor.technocrat .cancel-bg-modal,
+.wod.sheet.actor.technocrat .save-bg-modal {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor.technocrat .cancel-bg-modal {
+    background: var(--wod-bg-light);
+    color: var(--wod-text-main);
+    border: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .cancel-bg-modal:hover {
+    background: var(--wod-bg-dark);
+}
+
+.wod.sheet.actor.technocrat .save-bg-modal {
+    background: var(--wod-primary);
+    color: white;
+}
+
+.wod.sheet.actor.technocrat .save-bg-modal:hover {
+    background: var(--wod-accent-tech);
+}
+
+/* Hover Preview Tooltip */
+.wod.sheet.actor.technocrat .bg-preview-tooltip {
+    position: absolute;
+    background: var(--wod-primary);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 2px solid var(--wod-accent-tech);
+    font-size: 0.8em;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 280px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    line-height: 1.4;
+    line-height: 1.4;
+}
+
+/* Locked background dropdown styling */
+.wod.sheet.actor.technocrat .background-name-select:disabled {
+    background-color: var(--wod-bg-light);
+    color: var(--wod-text-main);
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Lock background icon - positioned beside delete */
+.wod.sheet.actor.technocrat .lock-background {
+    color: var(--wod-text-alt);
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0 4px;
+}
+
+.wod.sheet.actor.technocrat .lock-background:hover {
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.technocrat .lock-background .fa-lock {
+    color: var(--wod-primary);
+}
+
+.wod.sheet.actor.technocrat .lock-background .fa-lock-open {
+    color: var(--wod-text-alt);
+}
+
+/* Backgrounds Expanded Pagination */
+.wod.sheet.actor.technocrat .bg-expanded-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 10px;
+    border-top: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.technocrat .bg-expanded-pagination .pagination-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    background: var(--wod-bg-light);
+    color: var(--wod-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor.technocrat .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary);
+    color: white;
+    border-color: var(--wod-primary);
+}
+
+.wod.sheet.actor.technocrat .bg-expanded-pagination .pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.technocrat .bg-expanded-pagination .pagination-info {
+    font-size: 0.85em;
+    color: var(--wod-text-alt);
+    font-weight: bold;
+}
+
+/* Experience Points Section */
+.wod.sheet.actor.technocrat .experience-section {
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--wod-accent);
+    border-radius: 4px;
+    margin-top: 20px;
+}
+
+.wod.sheet.actor.technocrat .experience-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    text-align: center;
+    color: var(--wod-accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.wod.sheet.actor.technocrat .xp-fields {
+    display: flex;
+    gap: 12px;
+}
+
+.wod.sheet.actor.technocrat .xp-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wod.sheet.actor.technocrat .xp-field label {
+    font-size: 0.75em;
+    font-weight: bold;
+    color: var(--wod-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wod.sheet.actor.technocrat .xp-field input[type='number'] {
+    width: 100%;
+    padding: 4px 8px;
+    background: var(--wod-background);
+    border: 1px solid var(--wod-accent);
+    color: var(--wod-text);
+    border-radius: 3px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.wod.sheet.actor.technocrat .xp-field input[type='number']:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 4px var(--wod-primary);
+}
+
+/* ========================================
+   ROLL SYSTEM STYLES
+   ======================================== */
+
+/* Roll Cards in Chat */
+.wod-roll-card {
+    border: 2px solid var(--wod-accent);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    background: var(--wod-background);
+}
+
+.wod-roll-card.success {
+    border-color: #4caf50;
+}
+
+.wod-roll-card.botch {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.15);
+}
+
+.wod-roll-card .roll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wod-accent);
+}
+
+.wod-roll-card .roll-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.wod-roll-card .roll-type {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.wod-roll-card .traits-used {
+    margin: 8px 0;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.trait-badge, .modifier-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+}
+
+.dice-display {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+    justify-content: center;
+}
+
+.die {
+    width: 36px;
+    height: 36px;
+    border: 2px solid;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.die.success {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.die.specialty {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.2);
+    color: #ffd700;
+}
+
+.die.one {
+    border-color: #f44336;
+    background: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.die.failure {
+    border-color: #666;
+    opacity: 0.5;
+}
+
+.success-summary {
+    text-align: center;
+    margin: 12px 0;
+}
+
+.success-count {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+.botch-warning {
+    color: #f44336;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    margin-top: 8px;
+}
+
+.specialty-note {
+    font-size: 0.85em;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Clickable trait labels */
+.trait-label {
+    cursor: pointer;
+}
+
+/* Willpower and enlightenment labels should also look clickable */
+.willpower-section .trait-label,
+.enlightenment-section .trait-label {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.willpower-section .trait-label:hover,
+.enlightenment-section .trait-label:hover {
+    color: var(--wod-primary);
+}
+
+/* Pool selection mode */
+.pool-selection-active .selectable {
+    color: white !important;
+    animation: pulse 1.5s infinite;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* Talents - Yellow/Gold (instinctive, natural) */
+.pool-selection-active .selectable[data-category="talents"] {
+    background: #F39C12 !important;
+    border: 2px solid #D68910 !important;
+    box-shadow: 0 0 10px #F39C12 !important;
+}
+
+/* Skills - Blue (trained, methodical) */
+.pool-selection-active .selectable[data-category="skills"] {
+    background: #3498DB !important;
+    border: 2px solid #2980B9 !important;
+    box-shadow: 0 0 10px #3498DB !important;
+}
+
+/* Knowledges - Purple (intellectual, scholarly) */
+.pool-selection-active .selectable[data-category="knowledges"] {
+    background: #9B59B6 !important;
+    border: 2px solid #8E44AD !important;
+    box-shadow: 0 0 10px #9B59B6 !important;
+}
+
+/* Attributes - Color coded by type */
+/* Physical - Red (body, physical power) */
+.pool-selection-active .selectable[data-category="attribute"][data-attribute-type="physical"] {
+    background: #E74C3C !important;
+    border: 2px solid #C0392B !important;
+    box-shadow: 0 0 10px #E74C3C !important;
+}
+
+/* Social - Green (interaction, presence) */
+.pool-selection-active .selectable[data-category="attribute"][data-attribute-type="social"] {
+    background: #2ECC71 !important;
+    border: 2px solid #27AE60 !important;
+    box-shadow: 0 0 10px #2ECC71 !important;
+}
+
+/* Mental - Blue (mind, thought) */
+.pool-selection-active .selectable[data-category="attribute"][data-attribute-type="mental"] {
+    background: #3498DB !important;
+    border: 2px solid #2980B9 !important;
+    box-shadow: 0 0 10px #3498DB !important;
+}
+
+/* Background highlighting - use a neutral color */
+.pool-selection-active .selectable[data-category="background"] {
+    background: #95A5A6 !important;
+    border: 2px solid #7F8C8D !important;
+    box-shadow: 0 0 10px #95A5A6 !important;
+}
+
+/* Locked backgrounds are clickable */
+.background-name-select.trait-label,
+.background-custom-name.trait-label {
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+/* Make locked selects look readonly but still clickable */
+.background-name-select.locked {
+    opacity: 0.8;
+    background-color: var(--wod-bg-secondary);
+    pointer-events: auto !important;
+}
+
+.background-custom-name.locked {
+    opacity: 0.8;
+    background-color: var(--wod-bg-secondary);
+    pointer-events: auto !important;
+}
+
+.background-name-select.trait-label:hover,
+.background-custom-name.trait-label:hover {
+    background-color: var(--wod-bg-hover);
+    border-color: var(--wod-primary);
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+/* Roll Dialog */
+/* Roll Dialog Styling - Technocrat Theme */
+.wod.dialog.roll-dialog.Technocrat {
+    background: var(--wod-bg-main);
+    color: var(--wod-text-main);
+}
+
+/* Window header styling to match character sheet */
+.wod.dialog.roll-dialog.Technocrat .window-header {
+    background: #000;
+    color: #fff;
+    border-bottom: 2px solid var(--wod-primary);
+}
+
+.wod.dialog.roll-dialog.Technocrat .window-title {
+    color: #fff;
+}
+
+/* Pool summary - solid background, no transparency */
+.wod.roll-dialog.Technocrat .pool-summary {
+    background: var(--wod-bg-secondary);
+    border: 1px solid var(--wod-border-main);
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.wod.roll-dialog.Technocrat .pool-summary h3 {
+    color: var(--wod-primary);
+    margin: 0 0 8px 0;
+}
+
+.wod.roll-dialog.Technocrat .trait-chip {
+    display: inline-block;
+    background: var(--wod-primary);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 16px;
+    margin: 4px;
+    font-size: 0.9em;
+}
+
+.wod.roll-dialog.Technocrat .total-pool {
+    margin-top: 8px;
+    font-size: 1.1em;
+    color: var(--wod-text-main);
+}
+
+.wod.roll-dialog.Technocrat .roll-config {
+    background: var(--wod-bg-light);
+    padding: 12px;
+    border-radius: 4px;
+}
+
+.wod.roll-dialog.Technocrat .form-group {
+    margin: 12px 0;
+}
+
+.wod.roll-dialog label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+    color: var(--wod-text-main);
+}
+
+.wod.roll-dialog input[type="number"] {
+    width: 80px;
+    padding: 6px;
+    background: var(--wod-bg-input);
+    border: 1px solid var(--wod-border-light);
+    color: var(--wod-text-main);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog input[type="text"] {
+    width: 100%;
+    padding: 6px;
+    background: var(--wod-bg-input);
+    border: 1px solid var(--wod-border-light);
+    color: var(--wod-text-main);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+.wod.roll-dialog.Technocrat .dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Roll button - high contrast, matches sheet */
+.wod.dialog.roll-dialog.Technocrat button.roll-button {
+    background: var(--wod-primary) !important;
+    color: var(--wod-text-light) !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.dialog.roll-dialog.Technocrat button.cancel-button {
+    background: var(--wod-text-alt) !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.dialog.roll-dialog.Technocrat button.add-modifier {
+    background: transparent !important;
+    color: var(--wod-primary) !important;
+    border: 1px dashed var(--wod-primary) !important;
+    border-radius: 3px !important;
+    width: 100% !important;
+    padding: 5px 8px !important;
+    font-size: 0.85em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.roll-dialog.Technocrat .modifiers-section {
+    margin: 12px 0;
+    padding: 10px;
+    background: var(--wod-bg-subtle);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog.Technocrat .modifiers-section h4 {
+    margin: 0 0 8px 0;
+    color: var(--wod-primary);
+}
+
+.wod.roll-dialog.Technocrat .modifier-list {
+    margin: 8px 0;
+}
+
+.wod.roll-dialog.Technocrat .modifier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    margin: 4px 0;
+    background: var(--wod-bg-light);
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog.Technocrat .remove-modifier {
+    background: var(--wod-danger);
+    color: white;
+    border: none;
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.wod.roll-dialog.Technocrat .remove-modifier:hover {
+    background: var(--wod-danger-dark);
+}
+
+/* Add modifier button - matches sheet styling */
+.wod.dialog.roll-dialog.Technocrat button.add-modifier {
+    background: transparent !important;
+    color: var(--wod-primary) !important;
+    border: 1px dashed var(--wod-primary) !important;
+    border-radius: 3px !important;
+    width: 100% !important;
+    padding: 5px 8px !important;
+    font-size: 0.85em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.roll-dialog.Technocrat .add-modifier:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}
+
+.wod.roll-dialog.Technocrat .saved-rolls {
+    margin: 12px 0;
+    padding: 10px;
+    background: var(--wod-bg-info);
+    border: 1px solid var(--wod-border-info);
+    border-radius: 4px;
+}
+
+.wod.roll-dialog #template-name {
+    margin-top: 8px;
+}
+
+/* Quick Rolls - trigger button and panel both dynamically created with inline styles */
+
+/* BUTTON OVERRIDES - MORE SPECIFIC */
+.wod.dialog.roll-dialog.Technocrat form button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; }
+.wod.dialog.roll-dialog.Technocrat form button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; }
+.wod.dialog.roll-dialog.Technocrat form button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }
+
+/* ULTRA SPECIFIC OVERRIDE */
+.wod.dialog.roll-dialog.Technocrat .window-content form.wod-roll-dialog .dialog-buttons button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
+.wod.dialog.roll-dialog.Technocrat .window-content form.wod-roll-dialog .dialog-buttons button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
+.wod.dialog.roll-dialog.Technocrat .window-content form.wod-roll-dialog button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }
+

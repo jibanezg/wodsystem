@@ -6,6 +6,7 @@
     <nav class="sheet-tabs" data-group="primary">
         <a class="item" data-tab="main">Main</a>
         <a class="item" data-tab="traits">Traits</a>
+        <a class="item" data-tab="equipment">Equipment</a>
         <a class="item" data-tab="biography">Biography</a>
     </nav>
 
@@ -48,6 +49,11 @@
                     {{> "systems/wodsystem/templates/actor/partials/merits-flaws.html"}}
                 </div>
             </div>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div class="tab" data-group="primary" data-tab="equipment">
+            {{> "systems/wodsystem/templates/actor/partials/equipment.html"}}
         </div>
 
         <!-- Biography Tab -->
