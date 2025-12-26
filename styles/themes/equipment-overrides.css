@@ -60,13 +60,15 @@
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-item {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  padding: 4px 6px !important;
+  gap: 3px !important;
+  padding: 3px 4px !important;
   background: white !important;
   border-radius: 3px !important;
   border-left: 3px solid #4682B4 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
   transition: all 0.2s ease !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-item:hover {
@@ -88,13 +90,13 @@
 
 /* Type Badge */
 .wod.sheet.actor .tab[data-tab="equipment"] .item-type-badge {
-  width: 20px !important;
-  height: 20px !important;
+  width: 16px !important;
+  height: 16px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 3px !important;
-  font-size: 0.7em !important;
+  border-radius: 2px !important;
+  font-size: 0.6em !important;
   color: white !important;
   flex-shrink: 0 !important;
 }
@@ -137,16 +139,17 @@
 
 /* Item Name */
 .wod.sheet.actor .tab[data-tab="equipment"] .item-name {
-  min-width: 120px !important;
-  flex-shrink: 0 !important;
+  min-width: 80px !important;
+  max-width: 120px !important;
+  flex-shrink: 1 !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .item-name input {
   width: 100% !important;
-  padding: 2px 4px !important;
+  padding: 2px 3px !important;
   border: 1px solid transparent !important;
   border-radius: 2px !important;
-  font-size: 0.8em !important;
+  font-size: 0.7em !important;
   font-weight: 600 !important;
   background: #F8F9FA !important;
 }
@@ -160,18 +163,20 @@
 /* Item Stats - Inline */
 .wod.sheet.actor .tab[data-tab="equipment"] .item-stats {
   display: flex !important;
-  gap: 6px !important;
+  gap: 3px !important;
   flex: 1 !important;
-  flex-wrap: wrap !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
+  overflow: hidden !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-mini {
   display: flex !important;
   align-items: center !important;
-  gap: 3px !important;
-  font-size: 0.7em !important;
+  gap: 2px !important;
+  font-size: 0.65em !important;
   white-space: nowrap !important;
+  flex-shrink: 1 !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-mini strong {
@@ -180,17 +185,17 @@
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-mini input {
-  width: 35px !important;
-  padding: 1px 3px !important;
+  width: 28px !important;
+  padding: 1px 2px !important;
   border: 1px solid #CFD8DC !important;
   border-radius: 2px !important;
-  font-size: 1em !important;
+  font-size: 0.95em !important;
   text-align: center !important;
   background: white !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-mini.stat-desc input {
-  width: 100px !important;
+  width: 60px !important;
   text-align: left !important;
 }
 
