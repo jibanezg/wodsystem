@@ -1256,6 +1256,10 @@ export class WodActorSheet extends ActorSheet {
         this.element.find('.equipment-type-tab').removeClass('active');
         $(button).addClass('active');
         
+        // Update header to show/hide appropriate add buttons
+        const header = this.element.find('.equipment-header-compact');
+        header.attr('data-active', type);
+        
         // Filter equipment list
         const equipmentList = this.element.find('.equipment-list');
         if (type === 'all') {

@@ -46,7 +46,7 @@
   color: #4682B4 !important;
 }
 
-/* Add Buttons */
+/* Add Buttons - Context Aware */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-add-buttons {
   display: flex !important;
   gap: 4px !important;
@@ -56,15 +56,35 @@
   background: white !important;
   color: #4682B4 !important;
   border: none !important;
-  padding: 4px 8px !important;
+  padding: 4px 10px !important;
   border-radius: 3px !important;
-  font-size: 0.8em !important;
+  font-size: 0.75em !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .compact-add:hover {
   transform: scale(1.05) !important;
+}
+
+/* Hide buttons based on active tab */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact[data-active="weapons"] .compact-add[data-for="armor"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact[data-active="weapons"] .compact-add[data-for="gear"] {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact[data-active="armor"] .compact-add[data-for="weapons"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact[data-active="armor"] .compact-add[data-for="gear"] {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact[data-active="gear"] .compact-add[data-for="weapons"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-header-compact[data-active="gear"] .compact-add[data-for="armor"] {
+  display: none !important;
 }
 
 /* Equipment List */
