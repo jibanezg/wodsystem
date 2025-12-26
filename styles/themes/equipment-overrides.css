@@ -1,65 +1,81 @@
-/* EMERGENCY EQUIPMENT STYLE OVERRIDES - HIGH SPECIFICITY */
+/* EMERGENCY EQUIPMENT STYLE OVERRIDES - HIGH SPECIFICITY - COMPACT */
 
-/* Header Gradient */
+/* Header Gradient - Compact */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-header {
   background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
-  padding: 20px !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-  margin-bottom: 30px !important;
+  padding: 10px 15px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  margin-bottom: 15px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-header h2 {
   color: white !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  font-size: 1.1em !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-header h2 i {
   background: rgba(255, 255, 255, 0.2) !important;
-  padding: 8px !important;
-  border-radius: 8px !important;
+  padding: 5px !important;
+  border-radius: 4px !important;
+  font-size: 1em !important;
 }
 
-/* Control Buttons - White with Primary Text */
+/* Control Buttons - White with Primary Text - Compact */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-controls button {
   background: white !important;
   color: #4682B4 !important;
   border: 2px solid transparent !important;
-  border-radius: 8px !important;
-  padding: 10px 18px !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
   font-weight: 700 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  letter-spacing: 0.3px !important;
+  font-size: 0.8em !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-controls button:hover {
-  transform: translateY(-3px) scale(1.05) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
-/* Section Headers */
+/* Section Headers - Compact */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-section {
+  margin-bottom: 20px !important;
+}
+
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-section h3 {
   background: white !important;
-  border-left: 5px solid #4682B4 !important;
-  padding: 12px 20px !important;
-  border-radius: 6px !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-  margin-bottom: 20px !important;
+  border-left: 3px solid #4682B4 !important;
+  padding: 8px 12px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  margin-bottom: 12px !important;
+  font-size: 0.95em !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-section h3 i {
   background: #4682B4 !important;
   color: white !important;
-  padding: 8px !important;
-  border-radius: 6px !important;
+  padding: 5px !important;
+  border-radius: 4px !important;
+  font-size: 0.9em !important;
 }
 
-/* Equipment Cards */
+/* Equipment Grid - More columns */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+/* Equipment Cards - Compact */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-card {
   background: white !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
   overflow: hidden !important;
   position: relative !important;
 }
@@ -70,7 +86,7 @@
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  height: 4px !important;
+  height: 3px !important;
   background: linear-gradient(90deg, #4682B4 0%, #6CA6CD 100%) !important;
 }
 
@@ -87,19 +103,24 @@
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-card:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Card Header */
+/* Card Header - Compact */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-header {
   background: linear-gradient(135deg, #E8EEF2 0%, #F8F9FA 100%) !important;
-  padding: 16px 18px !important;
+  padding: 10px 12px !important;
 }
 
-/* Equipped Toggle */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-header button {
+  padding: 4px 6px !important;
+  font-size: 0.9em !important;
+}
+
+/* Equipped Toggle - Smaller */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipped-label {
-  font-size: 1.6em !important;
+  font-size: 1.3em !important;
   color: #B0BEC5 !important;
 }
 
@@ -107,54 +128,87 @@
   color: #43A047 !important;
 }
 
-/* Stat Groups */
+/* Card Body - Compact */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-body {
+  padding: 10px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .stat-row {
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Stat Groups - Compact */
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-group {
   background: white !important;
-  padding: 10px !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+  padding: 6px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-group label {
   color: #4682B4 !important;
   font-weight: 700 !important;
-  font-size: 0.7em !important;
+  font-size: 0.65em !important;
   text-transform: uppercase !important;
+  margin-bottom: 3px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .stat-group input {
   background: #F0F4F8 !important;
-  border: 2px solid transparent !important;
-  border-radius: 6px !important;
-  padding: 8px 10px !important;
-  font-weight: 700 !important;
+  border: 1px solid transparent !important;
+  border-radius: 3px !important;
+  padding: 4px 6px !important;
+  font-weight: 600 !important;
   text-align: center !important;
+  font-size: 0.85em !important;
 }
 
-/* Effects Button */
+.wod.sheet.actor .tab[data-tab="equipment"] .description-row {
+  margin-top: 6px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .description-row input {
+  padding: 4px 6px !important;
+  font-size: 0.8em !important;
+}
+
+/* Card Footer - Compact */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-card .card-footer {
+  padding: 8px 12px !important;
+}
+
+/* Effects Button - Smaller */
 .wod.sheet.actor .tab[data-tab="equipment"] .manage-effects {
   background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
   color: white !important;
   border: none !important;
-  padding: 8px 16px !important;
-  border-radius: 8px !important;
+  padding: 5px 10px !important;
+  border-radius: 4px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15) !important;
+  font-size: 0.75em !important;
 }
 
-/* Empty State */
+/* Empty State - Compact */
 .wod.sheet.actor .tab[data-tab="equipment"] .empty-state {
-  padding: 80px 40px !important;
+  padding: 40px 20px !important;
   background: linear-gradient(135deg, white 0%, #E8EEF2 100%) !important;
-  border: 3px dashed #B0BEC5 !important;
-  border-radius: 16px !important;
+  border: 2px dashed #B0BEC5 !important;
+  border-radius: 8px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .empty-state i {
-  font-size: 4em !important;
+  font-size: 2.5em !important;
   color: #4682B4 !important;
   animation: floatIcon 3s ease-in-out infinite !important;
+  margin-bottom: 10px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .empty-state p {
+  font-size: 0.95em !important;
+  margin-bottom: 15px !important;
 }
 
 @keyframes floatIcon {
@@ -168,10 +222,16 @@
   background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
   color: white !important;
   border: none !important;
-  padding: 10px 18px !important;
-  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  border-radius: 4px !important;
   font-weight: 700 !important;
   text-transform: uppercase !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+  font-size: 0.8em !important;
+}
+
+/* Overall Tab Padding */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-tab {
+  padding: 12px !important;
 }
 
