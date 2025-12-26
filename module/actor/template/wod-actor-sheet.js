@@ -1025,6 +1025,7 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddWeapon(event) {
         event.preventDefault();
+        console.log("Add weapon clicked!");
         const weapons = Array.isArray(this.actor.system.equipment?.weapons) 
             ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
             : [];
