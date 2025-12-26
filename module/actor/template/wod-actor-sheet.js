@@ -227,8 +227,11 @@ export class WodActorSheet extends ActorSheet {
         
         // Equipment tab handlers
         html.find('.add-weapon').click(this._onAddWeapon.bind(this));
+        html.find('.add-weapon-empty').click(this._onAddWeapon.bind(this));
         html.find('.add-armor').click(this._onAddArmor.bind(this));
+        html.find('.add-armor-empty').click(this._onAddArmor.bind(this));
         html.find('.add-gear').click(this._onAddGear.bind(this));
+        html.find('.add-gear-empty').click(this._onAddGear.bind(this));
         html.find('.delete-weapon').click(this._onDeleteWeapon.bind(this));
         html.find('.delete-armor').click(this._onDeleteArmor.bind(this));
         html.find('.delete-gear').click(this._onDeleteGear.bind(this));
