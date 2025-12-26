@@ -1054,6 +1054,15 @@ export class WodActorSheet extends ActorSheet {
         console.log("Updating actor with:", { "system.equipment.weapons": weapons });
         await this.actor.update({ "system.equipment.weapons": weapons });
         console.log("Update complete! New weapons:", this.actor.system.equipment.weapons);
+        
+        // Scroll to bottom of equipment list to show new item
+        setTimeout(() => {
+            const equipmentList = this.element.find('.equipment-list')[0];
+            if (equipmentList) {
+                equipmentList.scrollTop = equipmentList.scrollHeight;
+                console.log("Scrolled to bottom");
+            }
+        }, 100);
     }
 
     /**
