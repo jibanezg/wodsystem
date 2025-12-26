@@ -20,9 +20,9 @@
   ],
   "styles": [
     "styles/core/variables.css",
+    "styles/mortal-sheet.css",
     "styles/themes/mortal.css",
-    "styles/themes/technocrat.css",
-    "styles/mortal-sheet.css"
+    "styles/themes/technocrat.css"
   ],
   "languages": [
     {

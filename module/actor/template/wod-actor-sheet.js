@@ -2521,6 +2521,13 @@ export class WodActorSheet extends ActorSheet {
         event.stopPropagation();
         
         const element = event.currentTarget;
+        
+        // If this element is selectable, it means we're completing a pool selection
+        // Let the one-time handler in _startPoolSelection handle it.
+        if (element.classList.contains('selectable')) {
+            return;
+        }
+        
         const trait = element.dataset.trait;
         const value = parseInt(element.dataset.value);
         const category = element.dataset.category;

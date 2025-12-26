@@ -6,6 +6,7 @@
  * Mage: The Ascension - Technocracy
  */
 
+/* Color variables for technocrat actor sheets (lowercase) */
 .wod.sheet.actor.technocrat {
     /* Primary Colors - Blue/Steel (technology/precision) */
     --wod-primary: #4682B4;           /* Steel Blue - technology */
@@ -57,16 +58,48 @@
     --wod-damage-aggravated: #4682B4; /* Blue fill */
 }
 
+/* Color variables for Technocrat dialogs (capital T - Foundry auto-capitalizes) */
+.wod.dialog.Technocrat {
+    /* Primary Colors - Blue/Steel (technology/precision) */
+    --wod-primary: #4682B4;
+    --wod-primary-dark: #2F4F6F;
+    --wod-primary-light: #6CA6CD;
+    
+    /* Background Colors */
+    --wod-bg-main: #F8F9FA;
+    --wod-bg-secondary: #E8EEF2;
+    --wod-bg-tertiary: #D6DEE5;
+    --wod-bg-hover: #C8D4E0;
+    --wod-bg-input: #F8F9FA;
+    --wod-bg-subtle: #F0F4F8;
+    --wod-bg-light: #FFFFFF;
+    
+    /* Border Colors */
+    --wod-border-main: #4682B4;
+    --wod-border-light: #B0BEC5;
+    --wod-border-info: #64B5F6;
+    
+    /* Text Colors */
+    --wod-text-main: #1A1A1A;
+    --wod-text-light: white;
+    --wod-text-alt: #546E7A;
+    
+    /* Status Colors */
+    --wod-success: #43A047;
+    --wod-danger: #E53935;
+    --wod-danger-dark: #C62828;
+}
+
 /* Technocrat-Specific Component Styles */
 
 /* Technocrat Identity Grid - 7 fields need more space */
-.wod.sheet.actor.technocrat .identity-section.technocrat-identity {
+.wod.sheet.actor.technocrat .identity-section.Technocrat-identity {
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
 }
 
-.wod.sheet.actor.technocrat .identity-section.technocrat-identity .identity-field:nth-child(1),
-.wod.sheet.actor.technocrat .identity-section.technocrat-identity .identity-field:nth-child(2) {
+.wod.sheet.actor.technocrat .identity-section.Technocrat-identity .identity-field:nth-child(1),
+.wod.sheet.actor.technocrat .identity-section.Technocrat-identity .identity-field:nth-child(2) {
     grid-column: span 2;
 }
 
@@ -199,8 +232,8 @@
     gap: 10px;
 }
 
-.wod.sheet.actor.technocrat .technocrat-column-1,
-.wod.sheet.actor.technocrat .technocrat-column-2 {
+.wod.sheet.actor.technocrat .Technocrat-column-1,
+.wod.sheet.actor.technocrat .Technocrat-column-2 {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -282,7 +315,7 @@
     padding: 5px 25px 5px 5px; /* Reduced padding for more space */
 }
 
-.wod.sheet.actor.technocrat .spheres-section .technocrat-name {
+.wod.sheet.actor.technocrat .spheres-section .Technocrat-name {
     font-weight: normal;
     color: var(--wod-primary);
     font-style: italic;
@@ -2020,24 +2053,24 @@
 
 /* Roll Dialog */
 /* Roll Dialog Styling - Technocrat Theme */
-.wod.dialog.roll-dialog.technocrat {
+.wod.dialog.roll-dialog.Technocrat {
     background: var(--wod-bg-main);
     color: var(--wod-text-main);
 }
 
 /* Window header styling to match character sheet */
-.wod.dialog.roll-dialog.technocrat .window-header {
+.wod.dialog.roll-dialog.Technocrat .window-header {
     background: #000;
     color: #fff;
     border-bottom: 2px solid var(--wod-primary);
 }
 
-.wod.dialog.roll-dialog.technocrat .window-title {
+.wod.dialog.roll-dialog.Technocrat .window-title {
     color: #fff;
 }
 
 /* Pool summary - solid background, no transparency */
-.wod.roll-dialog.technocrat .pool-summary {
+.wod.roll-dialog.Technocrat .pool-summary {
     background: var(--wod-bg-secondary);
     border: 1px solid var(--wod-border-main);
     padding: 12px;
@@ -2045,12 +2078,12 @@
     margin-bottom: 16px;
 }
 
-.wod.roll-dialog.technocrat .pool-summary h3 {
+.wod.roll-dialog.Technocrat .pool-summary h3 {
     color: var(--wod-primary);
     margin: 0 0 8px 0;
 }
 
-.wod.roll-dialog.technocrat .trait-chip {
+.wod.roll-dialog.Technocrat .trait-chip {
     display: inline-block;
     background: var(--wod-primary);
     color: white;
@@ -2060,19 +2093,19 @@
     font-size: 0.9em;
 }
 
-.wod.roll-dialog.technocrat .total-pool {
+.wod.roll-dialog.Technocrat .total-pool {
     margin-top: 8px;
     font-size: 1.1em;
     color: var(--wod-text-main);
 }
 
-.wod.roll-dialog.technocrat .roll-config {
+.wod.roll-dialog.Technocrat .roll-config {
     background: var(--wod-bg-light);
     padding: 12px;
     border-radius: 4px;
 }
 
-.wod.roll-dialog.technocrat .form-group {
+.wod.roll-dialog.Technocrat .form-group {
     margin: 12px 0;
 }
 
@@ -2105,7 +2138,7 @@
     margin-right: 6px;
 }
 
-.wod.roll-dialog.technocrat .dialog-buttons {
+.wod.roll-dialog.Technocrat .dialog-buttons {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
@@ -2113,53 +2146,58 @@
 }
 
 /* Roll button - high contrast, matches sheet */
-.wod.roll-dialog.technocrat .roll-button {
-    background: var(--wod-primary);
-    color: var(--wod-text-light);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
+.wod.dialog.roll-dialog.Technocrat button.roll-button {
+    background: var(--wod-primary) !important;
+    color: var(--wod-text-light) !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.technocrat .roll-button:hover {
-    background: var(--wod-primary-dark);
-    transform: scale(1.05);
+.wod.dialog.roll-dialog.Technocrat button.cancel-button {
+    background: var(--wod-text-alt) !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.technocrat .cancel-button {
-    background: var(--wod-text-alt);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.wod.dialog.roll-dialog.Technocrat button.add-modifier {
+    background: transparent !important;
+    color: var(--wod-primary) !important;
+    border: 1px dashed var(--wod-primary) !important;
+    border-radius: 3px !important;
+    width: 100% !important;
+    padding: 5px 8px !important;
+    font-size: 0.85em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.technocrat .cancel-button:hover {
-    background: #888;
-}
-
-.wod.roll-dialog.technocrat .modifiers-section {
+.wod.roll-dialog.Technocrat .modifiers-section {
     margin: 12px 0;
     padding: 10px;
     background: var(--wod-bg-subtle);
     border-radius: 4px;
 }
 
-.wod.roll-dialog.technocrat .modifiers-section h4 {
+.wod.roll-dialog.Technocrat .modifiers-section h4 {
     margin: 0 0 8px 0;
     color: var(--wod-primary);
 }
 
-.wod.roll-dialog.technocrat .modifier-list {
+.wod.roll-dialog.Technocrat .modifier-list {
     margin: 8px 0;
 }
 
-.wod.roll-dialog.technocrat .modifier-item {
+.wod.roll-dialog.Technocrat .modifier-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2170,7 +2208,7 @@
     border-radius: 4px;
 }
 
-.wod.roll-dialog.technocrat .remove-modifier {
+.wod.roll-dialog.Technocrat .remove-modifier {
     background: var(--wod-danger);
     color: white;
     border: none;
@@ -2181,32 +2219,29 @@
     transition: all 0.2s ease;
 }
 
-.wod.roll-dialog.technocrat .remove-modifier:hover {
+.wod.roll-dialog.Technocrat .remove-modifier:hover {
     background: var(--wod-danger-dark);
 }
 
 /* Add modifier button - matches sheet styling */
-.wod.roll-dialog.technocrat .add-modifier {
-    background: var(--wod-success);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+.wod.dialog.roll-dialog.Technocrat button.add-modifier {
+    background: transparent !important;
+    color: var(--wod-primary) !important;
+    border: 1px dashed var(--wod-primary) !important;
+    border-radius: 3px !important;
+    width: 100% !important;
+    padding: 5px 8px !important;
+    font-size: 0.85em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.technocrat .add-modifier:hover {
+.wod.roll-dialog.Technocrat .add-modifier:hover {
     background: var(--wod-primary);
     transform: scale(1.1);
 }
 
-.wod.roll-dialog.technocrat .saved-rolls {
+.wod.roll-dialog.Technocrat .saved-rolls {
     margin: 12px 0;
     padding: 10px;
     background: var(--wod-bg-info);
@@ -2219,3 +2254,13 @@
 }
 
 /* Quick Rolls - trigger button and panel both dynamically created with inline styles */
+
+/* BUTTON OVERRIDES - MORE SPECIFIC */
+.wod.dialog.roll-dialog.Technocrat form button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; }
+.wod.dialog.roll-dialog.Technocrat form button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; }
+.wod.dialog.roll-dialog.Technocrat form button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }
+
+/* ULTRA SPECIFIC OVERRIDE */
+.wod.dialog.roll-dialog.Technocrat .window-content form.wod-roll-dialog .dialog-buttons button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
+.wod.dialog.roll-dialog.Technocrat .window-content form.wod-roll-dialog .dialog-buttons button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
+.wod.dialog.roll-dialog.Technocrat .window-content form.wod-roll-dialog button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }

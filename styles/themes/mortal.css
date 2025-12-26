@@ -4,7 +4,7 @@
  * Identity: Life force, human vitality, natural existence
  */
 
-.wod.sheet.actor.mortal {
+.wod.sheet.actor.Mortal {
     /* Primary Colors - Green (life/nature) */
     --wod-primary: #2D5016;           /* Deep forest green (life) */
     --wod-primary-dark: #1C3310;      /* Very dark green (almost black) */
@@ -52,7 +52,7 @@
 }
 
 /* Locked background dropdown styling */
-.wod.sheet.actor.mortal .background-name-select:disabled {
+.wod.sheet.actor.Mortal .background-name-select:disabled {
     background-color: var(--wod-bg-light);
     color: var(--wod-text-main);
     cursor: not-allowed;
@@ -60,7 +60,7 @@
 }
 
 /* Lock background icon - positioned beside delete */
-.wod.sheet.actor.mortal .lock-background {
+.wod.sheet.actor.Mortal .lock-background {
     color: var(--wod-text-alt);
     font-size: 0.9em;
     cursor: pointer;
@@ -68,20 +68,20 @@
     padding: 0 4px;
 }
 
-.wod.sheet.actor.mortal .lock-background:hover {
+.wod.sheet.actor.Mortal .lock-background:hover {
     color: var(--wod-primary);
 }
 
-.wod.sheet.actor.mortal .lock-background .fa-lock {
+.wod.sheet.actor.Mortal .lock-background .fa-lock {
     color: var(--wod-primary);
 }
 
-.wod.sheet.actor.mortal .lock-background .fa-lock-open {
+.wod.sheet.actor.Mortal .lock-background .fa-lock-open {
     color: var(--wod-text-alt);
 }
 
 /* Backgrounds Expanded Pagination */
-.wod.sheet.actor.mortal .bg-expanded-pagination {
+.wod.sheet.actor.Mortal .bg-expanded-pagination {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -91,7 +91,7 @@
     border-top: 1px solid var(--wod-border-light);
 }
 
-.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-btn {
+.wod.sheet.actor.Mortal .bg-expanded-pagination .pagination-btn {
     padding: 5px 10px;
     border: 1px solid var(--wod-border-light);
     border-radius: 3px;
@@ -101,31 +101,31 @@
     transition: all 0.2s;
 }
 
-.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
+.wod.sheet.actor.Mortal .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
     background: var(--wod-primary);
     color: white;
     border-color: var(--wod-primary);
 }
 
-.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-btn:disabled {
+.wod.sheet.actor.Mortal .bg-expanded-pagination .pagination-btn:disabled {
     opacity: 0.3;
     cursor: not-allowed;
 }
 
-.wod.sheet.actor.mortal .bg-expanded-pagination .pagination-info {
+.wod.sheet.actor.Mortal .bg-expanded-pagination .pagination-info {
     font-size: 0.85em;
     color: var(--wod-text-alt);
     font-weight: bold;
 }
 
 /* Backgrounds Expanded - Card styling */
-.wod.sheet.actor.mortal .bg-cards-grid {
+.wod.sheet.actor.Mortal .bg-cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 8px;
 }
 
-.wod.sheet.actor.mortal .bg-card-mini {
+.wod.sheet.actor.Mortal .bg-card-mini {
     border: 1px solid var(--wod-border-light);
     border-radius: 3px;
     background: white;
@@ -134,13 +134,13 @@
     cursor: pointer;
 }
 
-.wod.sheet.actor.mortal .bg-card-mini:hover {
+.wod.sheet.actor.Mortal .bg-card-mini:hover {
     border-color: var(--wod-primary);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transform: translateY(-1px);
 }
 
-.wod.sheet.actor.mortal .bg-card-mini-header {
+.wod.sheet.actor.Mortal .bg-card-mini-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -149,43 +149,43 @@
     border-bottom: 1px solid var(--wod-border-light);
 }
 
-.wod.sheet.actor.mortal .bg-name {
+.wod.sheet.actor.Mortal .bg-name {
     font-weight: bold;
     font-size: 0.75em;
     color: var(--wod-primary);
 }
 
-.wod.sheet.actor.mortal .bg-rating {
+.wod.sheet.actor.Mortal .bg-rating {
     font-size: 0.7em;
     color: var(--wod-accent-tech);
 }
 
-.wod.sheet.actor.mortal .bg-card-mini-actions {
+.wod.sheet.actor.Mortal .bg-card-mini-actions {
     display: flex;
     gap: 4px;
     justify-content: center;
 }
 
-.wod.sheet.actor.mortal .bg-card-mini-actions a {
+.wod.sheet.actor.Mortal .bg-card-mini-actions a {
     color: var(--wod-text-alt);
     font-size: 0.75em;
     padding: 1px 3px;
     transition: color 0.2s;
 }
 
-.wod.sheet.actor.mortal .bg-card-mini-actions a:hover {
+.wod.sheet.actor.Mortal .bg-card-mini-actions a:hover {
     color: var(--wod-primary);
 }
 
 /* Category Sections */
-.wod.sheet.actor.mortal .bg-category-section {
+.wod.sheet.actor.Mortal .bg-category-section {
     margin-bottom: 8px;
     border: 1px solid var(--wod-border-light);
     border-radius: 4px;
     overflow: hidden;
 }
 
-.wod.sheet.actor.mortal .bg-category-header {
+.wod.sheet.actor.Mortal .bg-category-header {
     background: var(--wod-primary);
     color: white;
     padding: 4px 8px;
@@ -194,11 +194,11 @@
     transition: background 0.2s;
 }
 
-.wod.sheet.actor.mortal .bg-category-header:hover {
+.wod.sheet.actor.Mortal .bg-category-header:hover {
     background: var(--wod-accent);
 }
 
-.wod.sheet.actor.mortal .bg-category-header h3 {
+.wod.sheet.actor.Mortal .bg-category-header h3 {
     margin: 0;
     font-size: 0.85em;
     display: flex;
@@ -206,13 +206,13 @@
     gap: 6px;
 }
 
-.wod.sheet.actor.mortal .bg-category-content {
+.wod.sheet.actor.Mortal .bg-category-content {
     padding: 6px;
     background: var(--wod-bg-light);
 }
 
 /* Hover Preview Tooltip */
-.wod.sheet.actor.mortal .bg-preview-tooltip {
+.wod.sheet.actor.Mortal .bg-preview-tooltip {
     position: absolute;
     background: var(--wod-primary);
     color: white;
@@ -228,7 +228,7 @@
 }
 
 /* Experience Points Section */
-.wod.sheet.actor.mortal .experience-section {
+.wod.sheet.actor.Mortal .experience-section {
     padding: 12px;
     background: rgba(0, 0, 0, 0.1);
     border: 1px solid var(--wod-accent);
@@ -236,7 +236,7 @@
     margin-top: 20px;
 }
 
-.wod.sheet.actor.mortal .experience-section h3 {
+.wod.sheet.actor.Mortal .experience-section h3 {
     margin: 0 0 8px 0;
     font-size: 0.9em;
     text-align: center;
@@ -245,19 +245,19 @@
     letter-spacing: 1px;
 }
 
-.wod.sheet.actor.mortal .xp-fields {
+.wod.sheet.actor.Mortal .xp-fields {
     display: flex;
     gap: 12px;
 }
 
-.wod.sheet.actor.mortal .xp-field {
+.wod.sheet.actor.Mortal .xp-field {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 4px;
 }
 
-.wod.sheet.actor.mortal .xp-field label {
+.wod.sheet.actor.Mortal .xp-field label {
     font-size: 0.75em;
     font-weight: bold;
     color: var(--wod-text);
@@ -265,7 +265,7 @@
     letter-spacing: 0.5px;
 }
 
-.wod.sheet.actor.mortal .xp-field input[type='number'] {
+.wod.sheet.actor.Mortal .xp-field input[type='number'] {
     width: 100%;
     padding: 4px 8px;
     background: var(--wod-background);
@@ -276,7 +276,7 @@
     text-align: center;
 }
 
-.wod.sheet.actor.mortal .xp-field input[type='number']:focus {
+.wod.sheet.actor.Mortal .xp-field input[type='number']:focus {
     outline: none;
     border-color: var(--wod-primary);
     box-shadow: 0 0 4px var(--wod-primary);
@@ -519,24 +519,24 @@
 
 /* Roll Dialog */
 /* Roll Dialog Styling - Mortal Theme */
-.wod.dialog.roll-dialog.mortal {
+.wod.dialog.roll-dialog.Mortal {
     background: var(--wod-bg-main);
     color: var(--wod-text-main);
 }
 
 /* Window header styling to match character sheet */
-.wod.dialog.roll-dialog.mortal .window-header {
+.wod.dialog.roll-dialog.Mortal .window-header {
     background: #000;
     color: #fff;
     border-bottom: 2px solid var(--wod-primary);
 }
 
-.wod.dialog.roll-dialog.mortal .window-title {
+.wod.dialog.roll-dialog.Mortal .window-title {
     color: #fff;
 }
 
 /* Pool summary - solid background, no transparency */
-.wod.roll-dialog.mortal .pool-summary {
+.wod.dialog.roll-dialog.Mortal .pool-summary {
     background: var(--wod-bg-secondary);
     border: 1px solid var(--wod-border-main);
     padding: 12px;
@@ -544,12 +544,12 @@
     margin-bottom: 16px;
 }
 
-.wod.roll-dialog.mortal .pool-summary h3 {
+.wod.dialog.roll-dialog.Mortal .pool-summary h3 {
     color: var(--wod-primary);
     margin: 0 0 8px 0;
 }
 
-.wod.roll-dialog.mortal .trait-chip {
+.wod.dialog.roll-dialog.Mortal .trait-chip {
     display: inline-block;
     background: var(--wod-primary);
     color: white;
@@ -559,19 +559,19 @@
     font-size: 0.9em;
 }
 
-.wod.roll-dialog.mortal .total-pool {
+.wod.dialog.roll-dialog.Mortal .total-pool {
     margin-top: 8px;
     font-size: 1.1em;
     color: var(--wod-text-main);
 }
 
-.wod.roll-dialog.mortal .roll-config {
+.wod.dialog.roll-dialog.Mortal .roll-config {
     background: var(--wod-bg-light);
     padding: 12px;
     border-radius: 4px;
 }
 
-.wod.roll-dialog.mortal .form-group {
+.wod.dialog.roll-dialog.Mortal .form-group {
     margin: 12px 0;
 }
 
@@ -604,7 +604,7 @@
     margin-right: 6px;
 }
 
-.wod.roll-dialog.mortal .dialog-buttons {
+.wod.dialog.roll-dialog.Mortal .dialog-buttons {
     display: flex;
     gap: 12px;
     justify-content: flex-end;
@@ -612,53 +612,55 @@
 }
 
 /* Roll button - high contrast, matches sheet */
-.wod.roll-dialog.mortal .roll-button {
-    background: var(--wod-primary);
-    color: var(--wod-text-light);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
+.wod.dialog.roll-dialog.Mortal button.roll-button {
+    background: var(--wod-primary) !important;
+    color: var(--wod-text-light) !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.mortal .roll-button:hover {
+.wod.dialog.roll-dialog.Mortal .roll-button:hover {
     background: var(--wod-primary-dark);
     transform: scale(1.05);
 }
 
-.wod.roll-dialog.mortal .cancel-button {
-    background: var(--wod-text-alt);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.wod.dialog.roll-dialog.Mortal button.cancel-button {
+    background: var(--wod-text-alt) !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.mortal .cancel-button:hover {
+.wod.dialog.roll-dialog.Mortal .cancel-button:hover {
     background: #888;
 }
 
-.wod.roll-dialog.mortal .modifiers-section {
+.wod.dialog.roll-dialog.Mortal .modifiers-section {
     margin: 12px 0;
     padding: 10px;
     background: var(--wod-bg-subtle);
     border-radius: 4px;
 }
 
-.wod.roll-dialog.mortal .modifiers-section h4 {
+.wod.dialog.roll-dialog.Mortal .modifiers-section h4 {
     margin: 0 0 8px 0;
     color: var(--wod-primary);
 }
 
-.wod.roll-dialog.mortal .modifier-list {
+.wod.dialog.roll-dialog.Mortal .modifier-list {
     margin: 8px 0;
 }
 
-.wod.roll-dialog.mortal .modifier-item {
+.wod.dialog.roll-dialog.Mortal .modifier-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -669,7 +671,7 @@
     border-radius: 4px;
 }
 
-.wod.roll-dialog.mortal .remove-modifier {
+.wod.dialog.roll-dialog.Mortal .remove-modifier {
     background: var(--wod-danger);
     color: white;
     border: none;
@@ -680,32 +682,30 @@
     transition: all 0.2s ease;
 }
 
-.wod.roll-dialog.mortal .remove-modifier:hover {
+.wod.dialog.roll-dialog.Mortal .remove-modifier:hover {
     background: var(--wod-danger-dark);
 }
 
 /* Add modifier button - matches sheet styling */
-.wod.roll-dialog.mortal .add-modifier {
-    background: var(--wod-success);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+.wod.dialog.roll-dialog.Mortal button.add-modifier {
+    background: transparent !important;
+    color: var(--wod-primary) !important;
+    border: 1px dashed var(--wod-primary) !important;
+    border-radius: 3px !important;
+    width: 100% !important;
+    padding: 5px 8px !important;
+    font-size: 0.85em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
-.wod.roll-dialog.mortal .add-modifier:hover {
+.wod.dialog.roll-dialog.Mortal .add-modifier:hover {
     background: var(--wod-primary);
-    transform: scale(1.1);
+    color: white;
+    border-style: solid;
 }
 
-.wod.roll-dialog.mortal .saved-rolls {
+.wod.dialog.roll-dialog.Mortal .saved-rolls {
     margin: 12px 0;
     padding: 10px;
     background: var(--wod-bg-info);
@@ -718,3 +718,13 @@
 }
 
 /* Quick Rolls - trigger button and panel both dynamically created with inline styles */
+
+/* BUTTON OVERRIDES - MORE SPECIFIC */
+.wod.dialog.roll-dialog.Mortal form button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; }
+.wod.dialog.roll-dialog.Mortal form button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; }
+.wod.dialog.roll-dialog.Mortal form button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }
+
+/* ULTRA SPECIFIC OVERRIDE */
+.wod.dialog.roll-dialog.Mortal .window-content form.wod-roll-dialog .dialog-buttons button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
+.wod.dialog.roll-dialog.Mortal .window-content form.wod-roll-dialog .dialog-buttons button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
+.wod.dialog.roll-dialog.Mortal .window-content form.wod-roll-dialog button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }
