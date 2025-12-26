@@ -26,6 +26,12 @@ export class WodActorSheet extends ActorSheet {
             setTimeout(() => trigger.remove(), 300);
         }
         
+        // Clean up position update interval
+        if (this._positionUpdateInterval) {
+            clearInterval(this._positionUpdateInterval);
+            this._positionUpdateInterval = null;
+        }
+        
         // Clean up panel if open
         this._destroyQuickRollsPanel();
         
@@ -2937,6 +2943,9 @@ export class WodActorSheet extends ActorSheet {
             trigger.style.left = `${newRect.left}px`;
             trigger.style.top = `${newRect.top + newRect.height / 2}px`;
         };
+        
+        // Continuously update position to follow window movement
+        this._positionUpdateInterval = setInterval(this._updateTriggerPosition, 50);
     }
 
     /**
