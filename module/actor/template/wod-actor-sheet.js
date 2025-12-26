@@ -1131,12 +1131,16 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDeleteArmor(event) {
         event.preventDefault();
+        console.log("Delete armor clicked!", event.currentTarget);
         const armorId = event.currentTarget.dataset.armorId;
+        console.log("Armor ID:", armorId);
         const armor = Array.isArray(this.actor.system.equipment?.armor)
             ? foundry.utils.duplicate(this.actor.system.equipment.armor)
             : [];
         
+        console.log("Current armor:", armor);
         const index = armor.findIndex(a => a.id === armorId);
+        console.log("Found index:", index);
         if (index > -1) {
             // Remove associated effects if armor was equipped
             if (armor[index].equipped) {
@@ -1144,6 +1148,7 @@ export class WodActorSheet extends ActorSheet {
             }
             armor.splice(index, 1);
             await this.actor.update({ "system.equipment.armor": armor });
+            console.log("Armor deleted successfully");
         }
     }
 
@@ -1195,17 +1200,22 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDeleteGear(event) {
         event.preventDefault();
+        console.log("Delete gear clicked!", event.currentTarget);
         const gearId = event.currentTarget.dataset.gearId;
+        console.log("Gear ID:", gearId);
         const gear = Array.isArray(this.actor.system.equipment?.gear)
             ? foundry.utils.duplicate(this.actor.system.equipment.gear)
             : [];
         
+        console.log("Current gear:", gear);
         const index = gear.findIndex(g => g.id === gearId);
+        console.log("Found index:", index);
         if (index > -1) {
             // Remove associated effects
             await this._removeEquipmentEffects(gearId);
             gear.splice(index, 1);
             await this.actor.update({ "system.equipment.gear": gear });
+            console.log("Gear deleted successfully");
         }
     }
 
