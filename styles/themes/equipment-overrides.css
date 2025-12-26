@@ -244,6 +244,36 @@
   margin: 0 !important;
 }
 
+/* Footer Add Buttons */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-footer {
+  padding: 6px !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border-top: 1px solid #E8EEF2 !important;
+  margin-top: 8px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn {
+  background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 6px 12px !important;
+  border-radius: 3px !important;
+  font-size: 0.75em !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
 /* Hide items based on active tab - default to weapons view */
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-list:not([data-filter]) .armor-item,
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-list:not([data-filter]) .gear-item,
@@ -260,4 +290,37 @@
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] .weapon-item,
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] .armor-item {
   display: none !important;
+}
+
+/* Hide footer buttons based on active tab - default to weapons */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-footer .footer-add-btn[data-for="armor"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-footer .footer-add-btn[data-for="gear"] {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="weapons"] ~ .equipment-footer .footer-add-btn[data-for="armor"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="weapons"] ~ .equipment-footer .footer-add-btn[data-for="gear"] {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="weapons"] ~ .equipment-footer .footer-add-btn[data-for="weapons"] {
+  display: flex !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] ~ .equipment-footer .footer-add-btn[data-for="weapons"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] ~ .equipment-footer .footer-add-btn[data-for="gear"] {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] ~ .equipment-footer .footer-add-btn[data-for="armor"] {
+  display: flex !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] ~ .equipment-footer .footer-add-btn[data-for="weapons"],
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] ~ .equipment-footer .footer-add-btn[data-for="armor"] {
+  display: none !important;
+}
+
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="gear"] ~ .equipment-footer .footer-add-btn[data-for="gear"] {
+  display: flex !important;
 }
