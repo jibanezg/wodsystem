@@ -1,7 +1,7 @@
 /* EQUIPMENT TAB - COMPACT LIST REDESIGN */
 
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-tab {
-  padding: 8px 16px 8px 8px !important;
+  padding: 8px 24px 8px 8px !important;
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
