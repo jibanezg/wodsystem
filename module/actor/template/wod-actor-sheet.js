@@ -36,10 +36,13 @@ export class WodActorSheet extends ActorSheet {
     async getData() {
         const context = await super.getData();
         
+        // In Foundry v10+, we need to expose system at the top level for templates
+        // The data is in context.data.system, but templates expect context.system
+        context.system = context.data.system;
+        
         console.log("Full context from super.getData():", context);
         console.log("context.system:", context.system);
-        console.log("context.data:", context.data);
-        console.log("context.actor:", context.actor);
+        console.log("context.system.equipment:", context.system?.equipment);
         
         // Load reference data (archetypes, backgrounds, etc.) via service
         if (window.referenceDataService) {
@@ -150,7 +153,7 @@ export class WodActorSheet extends ActorSheet {
         }
         
         console.log("getData() - Equipment being passed to template:", context.system?.equipment);
-        console.log("getData() - Weapons array:", context.system?.equipment?.weapons);
+        console.log("getData() - Weapons count:", context.system?.equipment?.weapons?.length);
         
         return context;
     }
