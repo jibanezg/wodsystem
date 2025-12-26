@@ -1026,9 +1026,12 @@ export class WodActorSheet extends ActorSheet {
     async _onAddWeapon(event) {
         event.preventDefault();
         console.log("Add weapon clicked!");
+        console.log("Current equipment:", this.actor.system.equipment);
         const weapons = Array.isArray(this.actor.system.equipment?.weapons) 
             ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
             : [];
+        
+        console.log("Current weapons array:", weapons);
         
         const newWeapon = {
             id: foundry.utils.randomID(),
@@ -1047,7 +1050,10 @@ export class WodActorSheet extends ActorSheet {
         };
         
         weapons.push(newWeapon);
+        console.log("Weapons after push:", weapons);
+        console.log("Updating actor with:", { "system.equipment.weapons": weapons });
         await this.actor.update({ "system.equipment.weapons": weapons });
+        console.log("Update complete! New weapons:", this.actor.system.equipment.weapons);
     }
 
     /**
