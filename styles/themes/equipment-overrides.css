@@ -258,15 +258,15 @@
   background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
   color: white !important;
   border: none !important;
-  padding: 6px 12px !important;
+  padding: 3px 8px !important;
   border-radius: 3px !important;
-  font-size: 0.75em !important;
+  font-size: 0.65em !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
   display: flex !important;
   align-items: center !important;
-  gap: 4px !important;
+  gap: 3px !important;
 }
 
 .wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn:hover {
