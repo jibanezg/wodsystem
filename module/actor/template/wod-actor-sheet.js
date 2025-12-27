@@ -1103,10 +1103,12 @@ export class WodActorSheet extends ActorSheet {
         
         const weapon = weapons.find(w => w.id === weaponId);
         if (weapon) {
+            console.log("Toggling weapon equipped:", weapon.name, "to", isEquipped);
             weapon.equipped = isEquipped;
             
             // If equipping and weapon has no effects, auto-create a difficulty modifier
             if (isEquipped && (!weapon.grantsEffects || weapon.grantsEffects.length === 0)) {
+                console.log("Creating auto-effect for weapon:", weapon.name);
                 weapon.grantsEffects = [{
                     name: `${weapon.name} Attack`,
                     icon: "icons/svg/sword.svg",
@@ -1120,12 +1122,15 @@ export class WodActorSheet extends ActorSheet {
                         value: weapon.difficulty - 6 // Relative to default difficulty 6
                     }]
                 }];
+                console.log("Weapon effect data:", weapon.grantsEffects[0]);
             }
             
             await this.actor.update({ "system.equipment.weapons": weapons });
             
             // Grant or remove effects based on equipped status
+            console.log("Calling _toggleEquipmentEffects...");
             await this._toggleEquipmentEffects(weaponId, 'weapon', isEquipped);
+            console.log("Actor effects after toggle:", this.actor.effects.size);
         }
     }
 
@@ -1342,9 +1347,14 @@ export class WodActorSheet extends ActorSheet {
         const combatAbilities = ['firearms', 'melee', 'brawl', 'archery', 'thrown', 'heavy weapons'];
         const traitNames = traits.map(t => t.name.toLowerCase());
         
+        console.log("Determining roll context for traits:", traitNames);
+        
         if (traitNames.some(name => combatAbilities.includes(name))) {
             rollContext.action = 'attack';
+            console.log("Detected ATTACK roll!");
         }
+        
+        console.log("Roll context:", rollContext);
         
         // Could add more context detection here:
         // - 'soak' if rolling Stamina alone or in specific contexts
