@@ -1156,7 +1156,10 @@ export class WodActorSheet extends ActorSheet {
                 console.log("Weapon effect data:", weapon.grantsEffects[0]);
             }
             
-            await this.actor.update({ "system.equipment.weapons": weapons });
+            console.log("About to update actor with weapons:", weapons);
+            const updateResult = await this.actor.update({ "system.equipment.weapons": weapons });
+            console.log("Update result:", updateResult);
+            console.log("Equipped state after update:", this.actor.system.equipment.weapons.find(w => w.id === weaponId)?.equipped);
             
             // Grant or remove effects based on equipped status
             console.log("Calling _toggleEquipmentEffects...");
