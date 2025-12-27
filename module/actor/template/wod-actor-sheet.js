@@ -1104,6 +1104,24 @@ export class WodActorSheet extends ActorSheet {
         const weapon = weapons.find(w => w.id === weaponId);
         if (weapon) {
             weapon.equipped = isEquipped;
+            
+            // If equipping and weapon has no effects, auto-create a difficulty modifier
+            if (isEquipped && (!weapon.grantsEffects || weapon.grantsEffects.length === 0)) {
+                weapon.grantsEffects = [{
+                    name: `${weapon.name} Attack`,
+                    icon: "icons/svg/sword.svg",
+                    severity: 1,
+                    mandatory: true,
+                    conditionType: 'specific_action',
+                    conditionValue: 'attack',
+                    changes: [{
+                        key: 'difficultyMod',
+                        mode: 2,
+                        value: weapon.difficulty - 6 // Relative to default difficulty 6
+                    }]
+                }];
+            }
+            
             await this.actor.update({ "system.equipment.weapons": weapons });
             
             // Grant or remove effects based on equipped status
@@ -1169,6 +1187,46 @@ export class WodActorSheet extends ActorSheet {
         const armorPiece = armor.find(a => a.id === armorId);
         if (armorPiece) {
             armorPiece.equipped = isEquipped;
+            
+            // If equipping and armor has no effects, auto-create soak/penalty effects
+            if (isEquipped && (!armorPiece.grantsEffects || armorPiece.grantsEffects.length === 0)) {
+                armorPiece.grantsEffects = [];
+                
+                // Add soak bonus if rating > 0
+                if (armorPiece.rating > 0) {
+                    armorPiece.grantsEffects.push({
+                        name: `${armorPiece.name} - Protection`,
+                        icon: "icons/svg/shield.svg",
+                        severity: 1,
+                        mandatory: true,
+                        conditionType: 'specific_action',
+                        conditionValue: 'soak',
+                        changes: [{
+                            key: 'poolBonus',
+                            mode: 2,
+                            value: armorPiece.rating
+                        }]
+                    });
+                }
+                
+                // Add dexterity penalty if penalty < 0
+                if (armorPiece.penalty < 0) {
+                    armorPiece.grantsEffects.push({
+                        name: `${armorPiece.name} - Encumbrance`,
+                        icon: "icons/svg/downgrade.svg",
+                        severity: 1,
+                        mandatory: true,
+                        conditionType: 'trait_roll',
+                        conditionValue: 'Dexterity',
+                        changes: [{
+                            key: 'poolBonus',
+                            mode: 2,
+                            value: armorPiece.penalty
+                        }]
+                    });
+                }
+            }
+            
             await this.actor.update({ "system.equipment.armor": armor });
             
             // Grant or remove effects based on equipped status
