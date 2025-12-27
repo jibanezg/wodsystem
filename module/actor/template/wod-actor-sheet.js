@@ -247,6 +247,8 @@ export class WodActorSheet extends ActorSheet {
         html.find('.delete-gear').click(this._onDeleteGear.bind(this));
         html.find('.weapon-equipped').change((event) => {
             console.log("Weapon checkbox change event fired!", event.currentTarget);
+            console.log("Weapon ID from dataset:", event.currentTarget.dataset.weaponId);
+            console.log("All weapons:", this.actor.system.equipment?.weapons);
             this._onToggleWeaponEquipped(event);
         });
         html.find('.armor-equipped').change((event) => {
