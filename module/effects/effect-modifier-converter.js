@@ -42,10 +42,14 @@ export class EffectModifierConverter {
             
             // Convert effect changes to modifiers
             for (const change of effect.changes) {
+                console.log("Processing change:", change);
                 const modifier = this._convertChangeToModifier(change, effect, wodFlags);
+                console.log("Converted modifier:", modifier);
                 if (modifier) {
                     console.log("Added modifier:", modifier);
                     modifiers.push(modifier);
+                } else {
+                    console.log("Modifier was null - change key not recognized:", change.key);
                 }
             }
         }
