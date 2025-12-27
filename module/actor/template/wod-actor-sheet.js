@@ -2936,11 +2936,15 @@ export class WodActorSheet extends ActorSheet {
         const trait = element.dataset.trait;
         const value = parseInt(element.dataset.value);
         
+        // Determine roll context for single trait
+        const rollContext = this._determineRollContext([{ name: trait, value: value }]);
+        
         // Open roll dialog for just this trait
         const dialog = new WodRollDialog(this.actor, {
             traits: [{ name: trait, value: value }],
             poolName: trait,
-            totalPool: value
+            totalPool: value,
+            rollContext: rollContext
         });
         dialog.render(true);
     }
