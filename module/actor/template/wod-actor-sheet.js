@@ -1054,11 +1054,14 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         console.log("Add weapon clicked!");
         console.log("Current equipment:", this.actor.system.equipment);
-        const weapons = Array.isArray(this.actor.system.equipment?.weapons) 
-            ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
-            : [];
         
-        console.log("Current weapons:", weapons);
+        // Convert weapons to array (Foundry sometimes stores as object)
+        let weaponsData = this.actor.system.equipment?.weapons;
+        const weapons = Array.isArray(weaponsData) 
+            ? foundry.utils.duplicate(weaponsData)
+            : Object.values(weaponsData || {});
+        
+        console.log("Current weapons (converted to array):", weapons);
         
         const newWeapon = {
             id: foundry.utils.randomID(),
@@ -1097,9 +1100,12 @@ export class WodActorSheet extends ActorSheet {
     async _onDeleteWeapon(event) {
         event.preventDefault();
         const weaponId = event.currentTarget.dataset.weaponId;
-        const weapons = Array.isArray(this.actor.system.equipment?.weapons)
-            ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
-            : [];
+        
+        // Convert weapons to array (Foundry sometimes stores as object)
+        let weaponsData = this.actor.system.equipment?.weapons;
+        const weapons = Array.isArray(weaponsData) 
+            ? foundry.utils.duplicate(weaponsData)
+            : Object.values(weaponsData || {});
         
         const index = weapons.findIndex(w => w.id === weaponId);
         if (index > -1) {
@@ -1118,10 +1124,14 @@ export class WodActorSheet extends ActorSheet {
     async _onToggleWeaponEquipped(event) {
         const weaponId = event.currentTarget.dataset.weaponId;
         const isEquipped = event.currentTarget.checked;
-        const weapons = Array.isArray(this.actor.system.equipment?.weapons)
-            ? foundry.utils.duplicate(this.actor.system.equipment.weapons)
-            : [];
         
+        // Convert weapons to array (Foundry sometimes stores as object)
+        let weaponsData = this.actor.system.equipment?.weapons;
+        const weapons = Array.isArray(weaponsData) 
+            ? foundry.utils.duplicate(weaponsData)
+            : Object.values(weaponsData || {});
+        
+        console.log("Weapons converted to array:", weapons);
         const weapon = weapons.find(w => w.id === weaponId);
         if (weapon) {
             console.log("Toggling weapon equipped:", weapon.name, "to", isEquipped);
