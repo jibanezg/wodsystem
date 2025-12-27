@@ -1327,6 +1327,34 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Determine roll context based on traits being rolled
+     * @param {Array} traits - Array of trait objects {name, value}
+     * @returns {Object} Roll context with action type
+     * @private
+     */
+    _determineRollContext(traits) {
+        const rollContext = {
+            action: null,
+            traits: traits
+        };
+        
+        // Combat abilities indicate attack rolls
+        const combatAbilities = ['firearms', 'melee', 'brawl', 'archery', 'thrown', 'heavy weapons'];
+        const traitNames = traits.map(t => t.name.toLowerCase());
+        
+        if (traitNames.some(name => combatAbilities.includes(name))) {
+            rollContext.action = 'attack';
+        }
+        
+        // Could add more context detection here:
+        // - 'soak' if rolling Stamina alone or in specific contexts
+        // - 'social' for social abilities
+        // - etc.
+        
+        return rollContext;
+    }
+    
+    /**
      * Handle equipment type tab switching
      */
     _onEquipmentTypeTab(event) {
@@ -3369,10 +3397,14 @@ export class WodActorSheet extends ActorSheet {
             const poolName = this._pendingPool.traits.map(t => t.name).join(' + ');
             
             // Open dialog
+            // Detect roll context based on traits involved
+            const rollContext = this._determineRollContext(this._pendingPool.traits);
+            
             const dialog = new WodRollDialog(this.actor, {
                 traits: this._pendingPool.traits,
                 poolName: poolName,
-                totalPool: totalPool
+                totalPool: totalPool,
+                rollContext: rollContext
             });
             dialog.render(true);
             
