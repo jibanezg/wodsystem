@@ -1148,7 +1148,7 @@ export class WodActorSheet extends ActorSheet {
                     conditionType: 'specific_action',
                     conditionValue: 'attack',
                     changes: [{
-                        key: 'difficultyMod',
+                        key: 'difficulty',  // Fixed: was 'difficultyMod', should be 'difficulty'
                         mode: 2,
                         value: weapon.difficulty - 6 // Relative to default difficulty 6
                     }]
@@ -1238,7 +1238,7 @@ export class WodActorSheet extends ActorSheet {
                         conditionType: 'specific_action',
                         conditionValue: 'soak',
                         changes: [{
-                            key: 'poolBonus',
+                            key: 'pool',  // Fixed: was 'poolBonus', should be 'pool'
                             mode: 2,
                             value: armorPiece.rating
                         }]
@@ -1255,7 +1255,7 @@ export class WodActorSheet extends ActorSheet {
                         conditionType: 'trait_roll',
                         conditionValue: 'Dexterity',
                         changes: [{
-                            key: 'poolBonus',
+                            key: 'pool',  // Fixed: was 'poolBonus', should be 'pool'
                             mode: 2,
                             value: armorPiece.penalty
                         }]
