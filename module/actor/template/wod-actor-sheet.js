@@ -245,8 +245,14 @@ export class WodActorSheet extends ActorSheet {
         html.find('.delete-weapon').click(this._onDeleteWeapon.bind(this));
         html.find('.delete-armor').click(this._onDeleteArmor.bind(this));
         html.find('.delete-gear').click(this._onDeleteGear.bind(this));
-        html.find('.weapon-equipped').change(this._onToggleWeaponEquipped.bind(this));
-        html.find('.armor-equipped').change(this._onToggleArmorEquipped.bind(this));
+        html.find('.weapon-equipped').change((event) => {
+            console.log("Weapon checkbox change event fired!", event.currentTarget);
+            this._onToggleWeaponEquipped(event);
+        });
+        html.find('.armor-equipped').change((event) => {
+            console.log("Armor checkbox change event fired!", event.currentTarget);
+            this._onToggleArmorEquipped(event);
+        });
         
         // Also listen to label clicks (since checkbox is hidden)
         html.find('.item-equipped label').click((event) => {
