@@ -13,9 +13,15 @@ export class EffectModifierConverter {
     static getModifiersFromEffects(actor, rollContext = {}) {
         const modifiers = [];
         
+        console.log("EffectModifierConverter - Getting modifiers for actor:", actor.name);
+        console.log("EffectModifierConverter - Roll context:", rollContext);
+        console.log("EffectModifierConverter - Actor effects count:", actor.effects?.size);
+        
         if (!actor.effects) return modifiers;
         
         for (const effect of actor.effects) {
+            console.log("Checking effect:", effect.name, "Active:", effect.active, "Disabled:", effect.disabled);
+            
             // Skip inactive effects
             if (!effect.active) continue;
             
@@ -27,19 +33,24 @@ export class EffectModifierConverter {
             
             // Get WoD-specific flags
             const wodFlags = this._getWodFlags(effect);
+            console.log("Effect flags:", wodFlags);
             
             // Filter by conditions
-            if (!this._conditionsMet(effect, rollContext, wodFlags)) continue;
+            const conditionsMet = this._conditionsMet(effect, rollContext, wodFlags);
+            console.log("Conditions met:", conditionsMet);
+            if (!conditionsMet) continue;
             
             // Convert effect changes to modifiers
             for (const change of effect.changes) {
                 const modifier = this._convertChangeToModifier(change, effect, wodFlags);
                 if (modifier) {
+                    console.log("Added modifier:", modifier);
                     modifiers.push(modifier);
                 }
             }
         }
         
+        console.log("Total modifiers found:", modifiers.length);
         return modifiers;
     }
 
