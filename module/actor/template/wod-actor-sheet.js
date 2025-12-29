@@ -1403,6 +1403,8 @@ export class WodActorSheet extends ActorSheet {
      */
     async _updateWillpower(type, value) {
         const updateData = {};
+        let finalValueForVisuals;
+        let tempValueForVisuals;
         
         if (type === 'temporary') {
             // Temporary willpower cannot exceed permanent
@@ -1413,6 +1415,7 @@ export class WodActorSheet extends ActorSheet {
             console.log(`Willpower Update: current=${currentTemp}, requested=${value}, max=${maxValue}, final=${newValue}`);
             
             updateData[`system.miscellaneous.willpower.temporary`] = newValue;
+            finalValueForVisuals = newValue;
             
             if (value > maxValue) {
                 ui.notifications.warn("Temporary Willpower cannot exceed Permanent Willpower.");
@@ -1423,10 +1426,12 @@ export class WodActorSheet extends ActorSheet {
             const currentTemporary = this.actor.system.miscellaneous.willpower.temporary;
             
             updateData[`system.miscellaneous.willpower.permanent`] = newPermanent;
+            finalValueForVisuals = newPermanent;
             
             // If temporary exceeds new permanent, reduce it
             if (currentTemporary > newPermanent) {
                 updateData[`system.miscellaneous.willpower.temporary`] = newPermanent;
+                tempValueForVisuals = newPermanent;
                 ui.notifications.warn(`Temporary Willpower reduced to match new Permanent value (${newPermanent}).`);
             }
         }
@@ -1437,11 +1442,8 @@ export class WodActorSheet extends ActorSheet {
         const container = this.element.find(`.dot-container[data-willpower="${type}"]`)[0];
         console.log(`Container found for type ${type}:`, !!container);
         if (container) {
-            const finalValue = type === 'temporary' ? 
-                updateData[`system.miscellaneous.willpower.temporary`] : 
-                updateData[`system.miscellaneous.willpower.permanent`];
-            console.log(`About to draw ${finalValue} dots for ${type} willpower`);
-            this._updateDotVisuals(container, finalValue);
+            console.log(`About to draw ${finalValueForVisuals} dots for ${type} willpower`);
+            this._updateDotVisuals(container, finalValueForVisuals);
             console.log(`Finished drawing dots, checking input value...`);
             const input = container.querySelector('.dot-input');
             console.log(`Input hidden value after update:`, input?.value);
@@ -1450,10 +1452,10 @@ export class WodActorSheet extends ActorSheet {
         }
         
         // If we also updated temporary when changing permanent, update its visuals too
-        if (type === 'permanent' && updateData[`system.miscellaneous.willpower.temporary`] !== undefined) {
+        if (type === 'permanent' && tempValueForVisuals !== undefined) {
             const tempContainer = this.element.find(`.dot-container[data-willpower="temporary"]`)[0];
             if (tempContainer) {
-                this._updateDotVisuals(tempContainer, updateData[`system.miscellaneous.willpower.temporary`]);
+                this._updateDotVisuals(tempContainer, tempValueForVisuals);
             }
         }
         
@@ -1461,7 +1463,7 @@ export class WodActorSheet extends ActorSheet {
         if (type === 'permanent') {
             const label = this.element.find(`.trait-label[data-category="willpower"]`)[0];
             if (label) {
-                label.setAttribute('data-value', updateData[`system.miscellaneous.willpower.permanent`]);
+                label.setAttribute('data-value', finalValueForVisuals);
             }
         }
     }
