@@ -13,6 +13,27 @@ export class WodActor extends Actor {
         this._prepareCharacterData(actorData);
     }
 
+    /** @override */
+    async _preUpdate(changed, options, user) {
+        await super._preUpdate(changed, options, user);
+        
+        // Validate willpower: temporary cannot exceed permanent
+        if (changed.system?.miscellaneous?.willpower) {
+            const willpowerChanges = changed.system.miscellaneous.willpower;
+            const currentWillpower = this.system.miscellaneous.willpower;
+            
+            // Get the new values (or keep current if not changed)
+            const newPermanent = willpowerChanges.permanent ?? currentWillpower.permanent;
+            const newTemporary = willpowerChanges.temporary ?? currentWillpower.temporary;
+            
+            // Constrain temporary willpower to not exceed permanent
+            if (newTemporary > newPermanent) {
+                changed.system.miscellaneous.willpower.temporary = newPermanent;
+                ui.notifications.warn("Temporary Willpower cannot exceed Permanent Willpower.");
+            }
+        }
+    }
+
     _prepareCharacterData(actorData) {
         let listData = [];
         actorData.listData = listData;
