@@ -1435,11 +1435,18 @@ export class WodActorSheet extends ActorSheet {
         
         // Update visual dots for the type being changed
         const container = this.element.find(`.dot-container[data-willpower="${type}"]`)[0];
+        console.log(`Container found for type ${type}:`, !!container);
         if (container) {
             const finalValue = type === 'temporary' ? 
                 updateData[`system.miscellaneous.willpower.temporary`] : 
                 updateData[`system.miscellaneous.willpower.permanent`];
+            console.log(`About to draw ${finalValue} dots for ${type} willpower`);
             this._updateDotVisuals(container, finalValue);
+            console.log(`Finished drawing dots, checking input value...`);
+            const input = container.querySelector('.dot-input');
+            console.log(`Input hidden value after update:`, input?.value);
+        } else {
+            console.error(`Container NOT found for willpower type: ${type}`);
         }
         
         // If we also updated temporary when changing permanent, update its visuals too
@@ -1755,11 +1762,15 @@ export class WodActorSheet extends ActorSheet {
      * Update dot visuals
      */
     _updateDotVisuals(container, newValue) {
+        console.log(`_updateDotVisuals called with newValue: ${newValue}`);
         const dots = container.querySelectorAll('.dot');
         const input = container.querySelector('.dot-input');
         
+        console.log(`Found ${dots.length} dots and input:`, !!input);
+        
         if (input) {
             input.value = newValue;
+            console.log(`Set input.value to ${newValue}`);
         }
         
         dots.forEach((dot, index) => {
@@ -1775,6 +1786,7 @@ export class WodActorSheet extends ActorSheet {
                 dot.setAttribute('style', dot.getAttribute('style') + '; background-color: white !important;');
             }
         });
+        console.log(`Finished updating ${newValue} filled dots`);
     }
 
     /**
