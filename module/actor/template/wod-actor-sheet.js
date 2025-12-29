@@ -1407,7 +1407,11 @@ export class WodActorSheet extends ActorSheet {
         if (type === 'temporary') {
             // Temporary willpower cannot exceed permanent
             const maxValue = this.actor.system.miscellaneous.willpower.permanent;
+            const currentTemp = this.actor.system.miscellaneous.willpower.temporary;
             const newValue = Math.min(Math.max(value, 0), maxValue);
+            
+            console.log(`Willpower Update: current=${currentTemp}, requested=${value}, max=${maxValue}, final=${newValue}`);
+            
             updateData[`system.miscellaneous.willpower.temporary`] = newValue;
             
             if (value > maxValue) {
