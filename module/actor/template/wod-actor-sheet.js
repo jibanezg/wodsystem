@@ -2981,7 +2981,9 @@ export class WodActorSheet extends ActorSheet {
      * @private
      */
     _createQuickRollsPanel() {
-        const templates = this.actor.system.rollTemplates || [];
+        // Ensure rollTemplates is always an array (Foundry sometimes converts empty arrays to objects)
+        const rollTemplates = this.actor.system.rollTemplates || [];
+        const templates = Array.isArray(rollTemplates) ? rollTemplates : Object.values(rollTemplates);
         const maxTemplates = 10;
         const displayTemplates = templates.slice(0, maxTemplates);
         
@@ -3364,7 +3366,9 @@ export class WodActorSheet extends ActorSheet {
      * @private
      */
     _showSavedRolls(trait, element) {
-        const templates = this.actor.system.rollTemplates || [];
+        // Ensure rollTemplates is always an array (Foundry sometimes converts empty arrays to objects)
+        const rollTemplates = this.actor.system.rollTemplates || [];
+        const templates = Array.isArray(rollTemplates) ? rollTemplates : Object.values(rollTemplates);
         
         if (templates.length === 0) {
             ui.notifications.info("No saved roll templates yet!");

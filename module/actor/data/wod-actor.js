@@ -963,7 +963,9 @@ export class WodActor extends Actor {
      * @param {Object} template - Template data
      */
     async saveRollTemplate(template) {
-        const templates = this.system.rollTemplates || [];
+        // Ensure rollTemplates is always an array (Foundry sometimes converts empty arrays to objects)
+        const rollTemplates = this.system.rollTemplates || [];
+        const templates = Array.isArray(rollTemplates) ? rollTemplates : Object.values(rollTemplates);
         templates.push({
             id: foundry.utils.randomID(),
             name: template.name,
@@ -981,7 +983,10 @@ export class WodActor extends Actor {
      * @param {string} templateId - ID of the template to execute
      */
     async executeTemplate(templateId) {
-        const template = this.system.rollTemplates.find(t => t.id === templateId);
+        // Ensure rollTemplates is always an array (Foundry sometimes converts empty arrays to objects)
+        const rollTemplates = this.system.rollTemplates || [];
+        const templates = Array.isArray(rollTemplates) ? rollTemplates : Object.values(rollTemplates);
+        const template = templates.find(t => t.id === templateId);
         if (!template) return;
         
         // Calculate current pool from saved traits
@@ -1006,7 +1011,10 @@ export class WodActor extends Actor {
      * @param {string} templateId - ID of the template to delete
      */
     async deleteRollTemplate(templateId) {
-        const templates = (this.system.rollTemplates || []).filter(t => t.id !== templateId);
+        // Ensure rollTemplates is always an array (Foundry sometimes converts empty arrays to objects)
+        const rollTemplates = this.system.rollTemplates || [];
+        const templatesArray = Array.isArray(rollTemplates) ? rollTemplates : Object.values(rollTemplates);
+        const templates = templatesArray.filter(t => t.id !== templateId);
         await this.update({ 'system.rollTemplates': templates });
     }
 
