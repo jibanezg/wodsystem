@@ -26,8 +26,9 @@ export class WodActor extends Actor {
             console.log('_preUpdate hook - currentWillpower:', currentWillpower);
             
             // Get the new values (or keep current if not changed)
-            const newPermanent = willpowerChanges.permanent ?? currentWillpower.permanent;
-            const newTemporary = willpowerChanges.temporary ?? currentWillpower.temporary;
+            // Ensure values are numbers (Foundry sometimes stores as strings)
+            const newPermanent = parseInt(willpowerChanges.permanent ?? currentWillpower.permanent);
+            const newTemporary = parseInt(willpowerChanges.temporary ?? currentWillpower.temporary);
             
             console.log(`_preUpdate hook - newPermanent: ${newPermanent}, newTemporary: ${newTemporary}`);
             
