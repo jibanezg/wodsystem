@@ -728,3 +728,75 @@
 .wod.dialog.roll-dialog.Mortal .window-content form.wod-roll-dialog .dialog-buttons button.roll-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
 .wod.dialog.roll-dialog.Mortal .window-content form.wod-roll-dialog .dialog-buttons button.cancel-button { padding: 6px 12px !important; font-size: 0.9em !important; line-height: 1.2 !important; }
 .wod.dialog.roll-dialog.Mortal .window-content form.wod-roll-dialog button.add-modifier { background: transparent !important; color: var(--wod-primary) !important; border: 1px dashed var(--wod-primary) !important; width: 100% !important; padding: 5px 8px !important; font-size: 0.85em !important; border-radius: 3px !important; }
+
+/* ========================================
+   BACKGROUNDS (EXPANDED) TAB - ADDITIONAL STYLES
+   ======================================== */
+
+.wod.sheet.actor.mortal .backgrounds-expanded-section {
+    padding: 5px;
+}
+
+.wod.sheet.actor.mortal .backgrounds-expanded-section h2 {
+    margin: 0 0 3px 0;
+    font-size: 1.1em;
+    color: var(--wod-primary);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary);
+    padding-bottom: 3px;
+}
+
+.wod.sheet.actor.mortal .backgrounds-expanded-section .section-description {
+    font-size: 0.7em;
+    color: var(--wod-text-alt);
+    text-align: center;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.wod.sheet.actor.mortal .category-toggle {
+    transition: transform 0.2s;
+    font-size: 0.8em;
+}
+
+.wod.sheet.actor.mortal .category-count {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.wod.sheet.actor.mortal .no-expanded-backgrounds {
+    text-align: center;
+    padding: 30px;
+    color: var(--wod-text-alt);
+    font-style: italic;
+}
+
+.wod.sheet.actor.mortal .backgrounds-expanded-section .background-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--wod-border-main);
+}
+
+.wod.sheet.actor.mortal .backgrounds-expanded-section .floating-add-bg {
+    background: var(--wod-success);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wod.sheet.actor.mortal .backgrounds-expanded-section .floating-add-bg:hover {
+    background: var(--wod-primary);
+    transform: scale(1.1);
+}

@@ -1,0 +1,31 @@
+<form class="st-approval-dialog">
+    <div class="dialog-content">
+        <h2>Effect Approval Request</h2>
+        
+        <p class="request-info">
+            <strong>{{playerName}}</strong> wants to use the following effects in their roll:
+        </p>
+        
+        <div class="effects-list">
+            {{#each effects}}
+            <div class="effect-item">
+                <img src="{{this.icon}}" alt="{{this.name}}" class="effect-icon" />
+                <div class="effect-details">
+                    <strong>{{this.name}}</strong>
+                    <span class="effect-modifiers">{{this.modifiers}}</span>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+        
+        <div class="dialog-buttons">
+            <button type="button" class="approve-button">
+                <i class="fas fa-check"></i> Approve
+            </button>
+            <button type="button" class="deny-button">
+                <i class="fas fa-times"></i> Deny
+            </button>
+        </div>
+    </div>
+</form>
+

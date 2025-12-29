@@ -5,14 +5,12 @@
 export class WodActiveEffect extends ActiveEffect {
     // Custom flags for WoD metadata
     static WOD_FLAGS = {
-        SEVERITY: "wodsystem.severity",        // 1-5 scale
-        SOURCE_TYPE: "wodsystem.sourceType",   // "equipment", "power", "environment", "storyteller"
-        SOURCE_ID: "wodsystem.sourceId",       // Reference to granting item/actor
-        MANDATORY: "wodsystem.mandatory",      // true = auto-applied, false = toggleable
-        TARGET_ACTOR: "wodsystem.targetActor", // For "Flattered" type effects
-        CONDITION_TYPE: "wodsystem.conditionType", // "always", "specific_action", "time_based", "trait_roll"
-        CONDITION_VALUE: "wodsystem.conditionValue", // Value for condition (e.g., "attack" for specific_action)
-        EXPIRES_AT: "wodsystem.expiresAt"      // Timestamp for expiration
+        CREATED_BY: "wodsystem.createdBy",        // "player" or "storyteller"
+        MANDATORY: "wodsystem.mandatory",         // true for ST effects (auto-applied)
+        HAS_SIDE_EFFECT: "wodsystem.hasSideEffect", // true if player effect has downside
+        SIDE_EFFECT_AUTO: "wodsystem.sideEffectAuto", // auto-apply the side effect
+        CONDITION_TYPE: "wodsystem.conditionType", // "always", "attack", "soak", etc.
+        CONDITION_VALUE: "wodsystem.conditionValue" // Value for trait_roll conditions
     };
     
     // Modifier types for dice pool system
@@ -32,46 +30,27 @@ export class WodActiveEffect extends ActiveEffect {
     }
 
     /**
-     * Get the severity level of this effect
-     * @returns {number} 1-5
+     * Get who created this effect
+     * @returns {string} "player" or "storyteller"
      */
-    get severity() {
-        return this.getFlag('wodsystem', 'severity') || 1;
+    get createdBy() {
+        return this.getFlag('wodsystem', 'createdBy') || 'storyteller';
     }
 
     /**
-     * Get the source type of this effect
-     * @returns {string}
-     */
-    get sourceType() {
-        return this.getFlag('wodsystem', 'sourceType') || 'storyteller';
-    }
-
-    /**
-     * Check if this effect has expired
+     * Check if this effect has a side effect
      * @returns {boolean}
      */
-    get isExpired() {
-        const expiresAt = this.getFlag('wodsystem', 'expiresAt');
-        if (!expiresAt) return false;
-        return game.time.worldTime >= expiresAt;
+    get hasSideEffect() {
+        return this.getFlag('wodsystem', 'hasSideEffect') === true;
     }
 
     /**
-     * Check expired effects for an actor and remove them
-     * @param {WodActor} actor
+     * Check if side effect is auto-applied
+     * @returns {boolean}
      */
-    static async checkExpiredEffects(actor) {
-        const now = game.time.worldTime;
-        const expired = actor.effects.filter(e => {
-            const expiry = e.getFlag('wodsystem', 'expiresAt');
-            return expiry && expiry <= now;
-        });
-        
-        for (const effect of expired) {
-            await effect.delete();
-            ui.notifications.info(`Status "${effect.name}" has expired for ${actor.name}`);
-        }
+    get sideEffectAuto() {
+        return this.getFlag('wodsystem', 'sideEffectAuto') === true;
     }
 
     /**
@@ -86,14 +65,12 @@ export class WodActiveEffect extends ActiveEffect {
             icon: effectData.icon || "icons/svg/aura.svg",
             flags: {
                 wodsystem: {
-                    severity: effectData.severity || 1,
-                    sourceType: effectData.sourceType || 'storyteller',
-                    sourceId: effectData.sourceId || null,
+                    createdBy: effectData.createdBy || 'storyteller',
                     mandatory: effectData.mandatory !== undefined ? effectData.mandatory : false,
-                    targetActor: effectData.targetActor || null,
+                    hasSideEffect: effectData.hasSideEffect || false,
+                    sideEffectAuto: effectData.sideEffectAuto || false,
                     conditionType: effectData.conditionType || 'always',
-                    conditionValue: effectData.conditionValue || null,
-                    expiresAt: effectData.expiresAt || null
+                    conditionValue: effectData.conditionValue || null
                 }
             },
             changes: effectData.changes || []

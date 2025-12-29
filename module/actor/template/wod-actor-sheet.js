@@ -1,5 +1,4 @@
 import { WodRollDialog } from "../../apps/wod-roll-dialog.js";
-import { EquipmentEffects } from "../../helpers/equipment-effects.js";
 import { WodEffectManager } from "../../apps/wod-effect-manager.js";
 
 /**
@@ -154,6 +153,15 @@ export class WodActorSheet extends ActorSheet {
             context.bgExpandedViewMode = this.actor.getFlag("wodsystem", "bgExpandedViewMode") || "list";
         }
         
+        // Active Effects for the status effects section
+        context.effects = Array.from(this.actor.effects || []).map(effect => ({
+            id: effect.id,
+            name: effect.name,
+            icon: effect.icon,
+            isPlayerCreated: effect.getFlag('wodsystem', 'createdBy') === 'player',
+            isMandatory: effect.getFlag('wodsystem', 'mandatory') === true
+        }));
+        
         return context;
     }
 
@@ -246,23 +254,16 @@ export class WodActorSheet extends ActorSheet {
         html.find('.delete-armor').click(this._onDeleteArmor.bind(this));
         html.find('.delete-gear').click(this._onDeleteGear.bind(this));
         html.find('.weapon-equipped').change((event) => {
-            console.log("Weapon checkbox change event fired!", event.currentTarget);
-            console.log("Weapon ID from dataset:", event.currentTarget.dataset.weaponId);
-            console.log("All weapons:", this.actor.system.equipment?.weapons);
             this._onToggleWeaponEquipped(event);
         });
         html.find('.armor-equipped').change((event) => {
-            console.log("Armor checkbox change event fired!", event.currentTarget);
             this._onToggleArmorEquipped(event);
         });
-        
-        // Also listen to label clicks (since checkbox is hidden)
-        html.find('.item-equipped label').click((event) => {
-            console.log("Equipment label clicked!", event.currentTarget);
-            // The label click will trigger the checkbox change event
-        });
-        html.find('.manage-effects').click(this._onManageItemEffects.bind(this));
         html.find('.equipment-type-tab').click(this._onEquipmentTypeTab.bind(this));
+        
+        // Status Effects Management
+        html.find('.manage-effects-btn').click(this._onManageEffects.bind(this));
+        html.find('.create-first-effect').click(this._onManageEffects.bind(this));
         
         // Set equipment filter based on stored state or default to weapons
         const activeEquipmentTab = this._activeEquipmentTab || 'weapons';
@@ -1079,11 +1080,8 @@ export class WodActorSheet extends ActorSheet {
             grantsEffects: []
         };
         
-        console.log("New weapon created with ID:", newWeapon.id);
         weapons.push(newWeapon);
-        console.log("Weapons array after push:", weapons);
         await this.actor.update({ "system.equipment.weapons": weapons });
-        console.log("Weapons after update:", this.actor.system.equipment.weapons);
         
         // Scroll to bottom of equipment list to show new item
         setTimeout(() => {
@@ -1109,10 +1107,6 @@ export class WodActorSheet extends ActorSheet {
         
         const index = weapons.findIndex(w => w.id === weaponId);
         if (index > -1) {
-            // Remove associated effects if weapon was equipped
-            if (weapons[index].equipped) {
-                await this._removeEquipmentEffects(weaponId);
-            }
             weapons.splice(index, 1);
             await this.actor.update({ "system.equipment.weapons": weapons });
         }
@@ -1131,40 +1125,10 @@ export class WodActorSheet extends ActorSheet {
             ? foundry.utils.duplicate(weaponsData)
             : Object.values(weaponsData || {});
         
-        console.log("Weapons converted to array:", weapons);
         const weapon = weapons.find(w => w.id === weaponId);
         if (weapon) {
-            console.log("Toggling weapon equipped:", weapon.name, "to", isEquipped);
             weapon.equipped = isEquipped;
-            
-            // If equipping and weapon has no effects, auto-create a difficulty modifier
-            if (isEquipped && (!weapon.grantsEffects || weapon.grantsEffects.length === 0)) {
-                console.log("Creating auto-effect for weapon:", weapon.name);
-                weapon.grantsEffects = [{
-                    name: `${weapon.name} Attack`,
-                    icon: "icons/svg/sword.svg",
-                    severity: 1,
-                    mandatory: true,
-                    conditionType: 'specific_action',
-                    conditionValue: 'attack',
-                    changes: [{
-                        key: 'difficulty',  // Fixed: was 'difficultyMod', should be 'difficulty'
-                        mode: 2,
-                        value: weapon.difficulty - 6 // Relative to default difficulty 6
-                    }]
-                }];
-                console.log("Weapon effect data:", weapon.grantsEffects[0]);
-            }
-            
-            console.log("About to update actor with weapons:", weapons);
-            const updateResult = await this.actor.update({ "system.equipment.weapons": weapons });
-            console.log("Update result:", updateResult);
-            console.log("Equipped state after update:", this.actor.system.equipment.weapons.find(w => w.id === weaponId)?.equipped);
-            
-            // Grant or remove effects based on equipped status
-            console.log("Calling _toggleEquipmentEffects...");
-            await this._toggleEquipmentEffects(weaponId, 'weapon', isEquipped);
-            console.log("Actor effects after toggle:", this.actor.effects.size);
+            await this.actor.update({ "system.equipment.weapons": weapons });
         }
     }
 
@@ -1204,10 +1168,6 @@ export class WodActorSheet extends ActorSheet {
         
         const index = armor.findIndex(a => a.id === armorId);
         if (index > -1) {
-            // Remove associated effects if armor was equipped
-            if (armor[index].equipped) {
-                await this._removeEquipmentEffects(armorId);
-            }
             armor.splice(index, 1);
             await this.actor.update({ "system.equipment.armor": armor });
         }
@@ -1226,50 +1186,7 @@ export class WodActorSheet extends ActorSheet {
         const armorPiece = armor.find(a => a.id === armorId);
         if (armorPiece) {
             armorPiece.equipped = isEquipped;
-            
-            // If equipping and armor has no effects, auto-create soak/penalty effects
-            if (isEquipped && (!armorPiece.grantsEffects || armorPiece.grantsEffects.length === 0)) {
-                armorPiece.grantsEffects = [];
-                
-                // Add soak bonus if rating > 0
-                if (armorPiece.rating > 0) {
-                    armorPiece.grantsEffects.push({
-                        name: `${armorPiece.name} - Protection`,
-                        icon: "icons/svg/shield.svg",
-                        severity: 1,
-                        mandatory: true,
-                        conditionType: 'specific_action',
-                        conditionValue: 'soak',
-                        changes: [{
-                            key: 'pool',  // Fixed: was 'poolBonus', should be 'pool'
-                            mode: 2,
-                            value: armorPiece.rating
-                        }]
-                    });
-                }
-                
-                // Add dexterity penalty if penalty < 0
-                if (armorPiece.penalty < 0) {
-                    armorPiece.grantsEffects.push({
-                        name: `${armorPiece.name} - Encumbrance`,
-                        icon: "icons/svg/downgrade.svg",
-                        severity: 1,
-                        mandatory: true,
-                        conditionType: 'trait_roll',
-                        conditionValue: 'Dexterity',
-                        changes: [{
-                            key: 'pool',  // Fixed: was 'poolBonus', should be 'pool'
-                            mode: 2,
-                            value: armorPiece.penalty
-                        }]
-                    });
-                }
-            }
-            
             await this.actor.update({ "system.equipment.armor": armor });
-            
-            // Grant or remove effects based on equipped status
-            await this._toggleEquipmentEffects(armorId, 'armor', isEquipped);
         }
     }
 
@@ -1308,62 +1225,11 @@ export class WodActorSheet extends ActorSheet {
         
         const index = gear.findIndex(g => g.id === gearId);
         if (index > -1) {
-            // Remove associated effects
-            await this._removeEquipmentEffects(gearId);
             gear.splice(index, 1);
             await this.actor.update({ "system.equipment.gear": gear });
         }
     }
 
-    /**
-     * Manage status effects for an equipment item
-     */
-    async _onManageItemEffects(event) {
-        event.preventDefault();
-        const itemId = event.currentTarget.dataset.itemId;
-        const itemType = event.currentTarget.dataset.itemType;
-        
-        // Open effect manager dialog
-        const manager = new WodEffectManager(this.actor);
-        manager.render(true);
-        
-        ui.notifications.info("Effect Manager opened. Effects created here can be linked to equipment by setting the Source ID to the equipment's ID.");
-    }
-
-    /**
-     * Toggle equipment effects (grant or remove)
-     * @param {string} itemId - Equipment item ID
-     * @param {string} itemType - Equipment type (weapon, armor, gear)
-     * @param {boolean} isEquipped - Whether item is equipped
-     * @private
-     */
-    async _toggleEquipmentEffects(itemId, itemType, isEquipped) {
-        // Find the equipment item
-        const equipmentArray = itemType === 'weapon' ? 'weapons' : itemType === 'armor' ? 'armor' : 'gear';
-        const equipment = this.actor.system.equipment?.[equipmentArray];
-        const item = equipment?.find(i => i.id === itemId);
-        
-        if (!item) {
-            return;
-        }
-        
-        if (isEquipped) {
-            // Grant effects
-            await EquipmentEffects.grantEquipmentEffects(this.actor, item, itemType);
-        } else {
-            // Remove effects
-            await EquipmentEffects.removeEquipmentEffects(this.actor, itemId);
-        }
-    }
-
-    /**
-     * Remove all effects granted by an equipment item
-     * @param {string} itemId - Equipment item ID
-     * @private
-     */
-    async _removeEquipmentEffects(itemId) {
-        await EquipmentEffects.removeEquipmentEffects(this.actor, itemId);
-    }
 
     /**
      * Determine roll context based on traits being rolled
@@ -1381,14 +1247,9 @@ export class WodActorSheet extends ActorSheet {
         const combatAbilities = ['firearms', 'melee', 'brawl', 'archery', 'thrown', 'heavy weapons'];
         const traitNames = traits.map(t => t.name.toLowerCase());
         
-        console.log("Determining roll context for traits:", traitNames);
-        
         if (traitNames.some(name => combatAbilities.includes(name))) {
             rollContext.action = 'attack';
-            console.log("Detected ATTACK roll!");
         }
-        
-        console.log("Roll context:", rollContext);
         
         // Could add more context detection here:
         // - 'soak' if rolling Stamina alone or in specific contexts
@@ -1416,6 +1277,15 @@ export class WodActorSheet extends ActorSheet {
         // Filter equipment list
         const equipmentList = this.element.find('.equipment-list');
         equipmentList.attr('data-filter', type);
+    }
+
+    /**
+     * Open the Status Effects Manager
+     */
+    _onManageEffects(event) {
+        event.preventDefault();
+        const manager = new WodEffectManager(this.actor);
+        manager.render(true);
     }
 
     /**
@@ -3018,6 +2888,7 @@ export class WodActorSheet extends ActorSheet {
         
         // Create trigger button - FULLY STYLED BEFORE APPENDING
         const trigger = document.createElement('div');
+        trigger.className = 'quick-rolls-trigger';
         trigger.dataset.appId = this.appId;
         trigger.title = 'Quick Rolls';
         trigger.innerHTML = '<i class="fas fa-dice-d10"></i>';

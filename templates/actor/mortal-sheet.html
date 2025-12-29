@@ -5,6 +5,7 @@
     <!-- Tab Navigation -->
     <nav class="sheet-tabs" data-group="primary">
         <a class="item" data-tab="main">Main</a>
+        <a class="item" data-tab="backgrounds-expanded">Backgrounds (Expanded)</a>
         <a class="item" data-tab="traits">Traits</a>
         <a class="item" data-tab="equipment">Equipment</a>
         <a class="item" data-tab="biography">Biography</a>
@@ -32,8 +33,14 @@
                 <div class="health-sidebar">
                     {{> "systems/wodsystem/templates/actor/partials/health.html"}}
                     {{> "systems/wodsystem/templates/actor/partials/experience.html"}}
+                    {{> "systems/wodsystem/templates/actor/partials/active-effects.html"}}
                 </div>
             </div>
+        </div>
+
+        <!-- Backgrounds (Expanded) Tab -->
+        <div class="tab" data-group="primary" data-tab="backgrounds-expanded">
+            {{> "systems/wodsystem/templates/actor/partials/technocrat-backgrounds-expanded.html"}}
         </div>
 
         <!-- Traits Tab (Secondary Abilities + Merits & Flaws) -->

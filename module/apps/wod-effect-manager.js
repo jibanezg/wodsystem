@@ -28,19 +28,21 @@ export class WodEffectManager extends FormApplication {
     async getData() {
         const data = super.getData();
         
+        // Auto-detect who's creating the effect
+        const createdBy = game.user.isGM ? 'storyteller' : 'player';
+        
         // If editing, get effect data
         if (this.effect) {
             data.effect = {
                 id: this.effect.id,
                 name: this.effect.name,
                 icon: this.effect.icon,
-                severity: this.effect.getFlag('wodsystem', 'severity') || 1,
-                sourceType: this.effect.getFlag('wodsystem', 'sourceType') || 'storyteller',
+                createdBy: this.effect.getFlag('wodsystem', 'createdBy') || createdBy,
                 mandatory: this.effect.getFlag('wodsystem', 'mandatory') === true,
-                targetActor: this.effect.getFlag('wodsystem', 'targetActor') || '',
+                hasSideEffect: this.effect.getFlag('wodsystem', 'hasSideEffect') === true,
+                sideEffectAuto: this.effect.getFlag('wodsystem', 'sideEffectAuto') === true,
                 conditionType: this.effect.getFlag('wodsystem', 'conditionType') || 'always',
                 conditionValue: this.effect.getFlag('wodsystem', 'conditionValue') || '',
-                duration: this.effect.duration,
                 changes: this.effect.changes.map(c => ({
                     key: c.key,
                     value: c.value,
@@ -52,38 +54,26 @@ export class WodEffectManager extends FormApplication {
             data.effect = {
                 name: "New Status",
                 icon: "icons/svg/aura.svg",
-                severity: 1,
-                sourceType: 'storyteller',
-                mandatory: false,
-                targetActor: '',
+                createdBy: createdBy,
+                mandatory: createdBy === 'storyteller', // Default to true for ST effects
+                hasSideEffect: false,
+                sideEffectAuto: false,
                 conditionType: 'always',
                 conditionValue: '',
                 changes: []
             };
         }
         
-        // Modifier type options
-        data.modifierTypes = [
-            { value: 'pool', label: 'Pool Dice (+/-)' },
-            { value: 'difficulty', label: 'Difficulty (+/-)' },
-            { value: 'autoSuccess', label: 'Auto Successes' },
-            { value: 'autoFail', label: 'Auto 1s' }
-        ];
-        
-        // Source type options
-        data.sourceTypes = [
-            { value: 'storyteller', label: 'Storyteller' },
-            { value: 'equipment', label: 'Equipment' },
-            { value: 'power', label: 'Power/Discipline' },
-            { value: 'environment', label: 'Environment' }
-        ];
+        // Check if this is a player effect
+        data.isPlayerEffect = data.effect.createdBy === 'player';
+        data.isGM = game.user.isGM;
         
         // Condition type options
         data.conditionTypes = [
             { value: 'always', label: 'Always Active' },
-            { value: 'specific_action', label: 'Specific Action (e.g., attack, soak)' },
-            { value: 'trait_roll', label: 'Specific Trait Roll' },
-            { value: 'time_based', label: 'Time-Based (combat, day, night)' }
+            { value: 'attack', label: 'Attack Rolls' },
+            { value: 'soak', label: 'Soak Rolls' },
+            { value: 'trait_roll', label: 'Specific Trait Roll' }
         ];
         
         return data;
@@ -153,10 +143,10 @@ export class WodEffectManager extends FormApplication {
             changes: changes,
             flags: {
                 wodsystem: {
-                    severity: Number(formData.severity) || 1,
-                    sourceType: formData.sourceType || 'storyteller',
+                    createdBy: formData.createdBy || (game.user.isGM ? 'storyteller' : 'player'),
                     mandatory: formData.mandatory === true || formData.mandatory === 'true',
-                    targetActor: formData.targetActor || null,
+                    hasSideEffect: formData.hasSideEffect === true || formData.hasSideEffect === 'true',
+                    sideEffectAuto: formData.sideEffectAuto === true || formData.sideEffectAuto === 'true',
                     conditionType: formData.conditionType || 'always',
                     conditionValue: formData.conditionValue || null
                 }

@@ -1,4 +1,5 @@
 import { EffectModifierConverter } from '../effects/effect-modifier-converter.js';
+import { WodStApprovalDialog } from './wod-st-approval-dialog.js';
 
 /**
  * Roll Dialog for World of Darkness System
@@ -108,6 +109,24 @@ export class WodRollDialog extends Application {
         if (saveTemplate && !templateName) {
             ui.notifications.error("Please enter a name for the roll template.");
             return;
+        }
+        
+        // Check for player-created optional effects that need ST approval
+        const playerEffectIds = Array.from(this.enabledOptionalEffects).filter(id => {
+            const effect = this.actor.effects.get(id);
+            return effect && effect.getFlag('wodsystem', 'createdBy') === 'player';
+        });
+        
+        // Request ST approval if needed (only if player is not the GM)
+        if (playerEffectIds.length > 0 && !game.user.isGM) {
+            ui.notifications.info("Requesting Storyteller approval for effects...");
+            const approved = await WodStApprovalDialog.requestApproval(this.actor, playerEffectIds);
+            
+            if (!approved) {
+                ui.notifications.warn("Roll cancelled - Storyteller denied effect application");
+                this.close();
+                return;
+            }
         }
         
         // Collect all active modifiers (manual + enabled effect modifiers)

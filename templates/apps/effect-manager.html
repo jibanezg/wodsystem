@@ -13,25 +13,38 @@
     
     <div class="effect-metadata-section">
         <div class="form-group">
-            <label>Source Type</label>
-            <select name="sourceType">
-                {{#each sourceTypes}}
-                <option value="{{this.value}}" {{#eq this.value ../effect.sourceType}}selected{{/eq}}>{{this.label}}</option>
-                {{/each}}
+            <label>Created By</label>
+            <select name="createdBy">
+                <option value="player" {{#eq effect.createdBy "player"}}selected{{/eq}}>Player</option>
+                <option value="storyteller" {{#eq effect.createdBy "storyteller"}}selected{{/eq}}>Storyteller</option>
             </select>
+            <small>Auto-detected: {{#if isGM}}Storyteller{{else}}Player{{/if}}</small>
         </div>
         
-        <div class="form-group">
-            <label>Severity (1-5)</label>
-            <input type="number" name="severity" min="1" max="5" value="{{effect.severity}}" />
+        {{#if isPlayerEffect}}
+        <div class="form-group checkbox-group">
+            <label>
+                <input type="checkbox" name="hasSideEffect" {{#if effect.hasSideEffect}}checked{{/if}} />
+                Has Side Effect
+            </label>
         </div>
         
+        <div class="form-group checkbox-group">
+            <label>
+                <input type="checkbox" name="sideEffectAuto" {{#if effect.sideEffectAuto}}checked{{/if}} />
+                Auto-Apply Side Effect
+            </label>
+            <small>Check if the side effect should be automatically applied (usually negative)</small>
+        </div>
+        {{else}}
         <div class="form-group checkbox-group">
             <label>
                 <input type="checkbox" name="mandatory" {{#if effect.mandatory}}checked{{/if}} />
                 Mandatory (Auto-Applied)
             </label>
+            <small>ST effects can be mandatory (auto-applied) or optional</small>
         </div>
+        {{/if}}
     </div>
     
     <div class="effect-conditions-section">
@@ -49,13 +62,7 @@
         <div class="form-group">
             <label>Condition Value</label>
             <input type="text" name="conditionValue" value="{{effect.conditionValue}}" placeholder="e.g., 'attack', 'Dexterity', 'combat'" />
-            <small>Leave empty if always active. Otherwise specify action/trait/time.</small>
-        </div>
-        
-        <div class="form-group">
-            <label>Target Actor ID (for "Flattered" type effects)</label>
-            <input type="text" name="targetActor" value="{{effect.targetActor}}" placeholder="Leave empty for self-only effects" />
-            <small>Specify actor ID if this effect modifies rolls against the character.</small>
+            <small>Leave empty if always active. Otherwise specify action (attack, soak) or trait (Dexterity, etc.)</small>
         </div>
     </div>
     

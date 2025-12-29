@@ -8,53 +8,37 @@ export class EffectModifierConverter {
      * Convert actor's active effects to modifier objects for roll dialog
      * @param {WodActor} actor - The actor making the roll
      * @param {Object} rollContext - Context for the roll {action: "attack", target: Actor, traits: []}
-     * @returns {Array} Array of modifier objects [{name, value, type, mandatory, effectId, source}]
+     * @returns {Array} Array of modifier objects [{name, value, type, mandatory, effectId, createdBy}]
      */
     static getModifiersFromEffects(actor, rollContext = {}) {
         const modifiers = [];
         
-        console.log("EffectModifierConverter - Getting modifiers for actor:", actor.name);
-        console.log("EffectModifierConverter - Roll context:", rollContext);
-        console.log("EffectModifierConverter - Actor effects count:", actor.effects?.size);
-        
         if (!actor.effects) return modifiers;
         
         for (const effect of actor.effects) {
-            console.log("Checking effect:", effect.name, "Active:", effect.active, "Disabled:", effect.disabled);
-            
-            // Skip inactive effects
-            if (!effect.active) continue;
-            
-            // Skip disabled effects
-            if (effect.disabled) continue;
-            
-            // Check if effect has expired
-            if (this._isExpired(effect)) continue;
+            // Skip inactive or disabled effects
+            if (!effect.active || effect.disabled) continue;
             
             // Get WoD-specific flags
             const wodFlags = this._getWodFlags(effect);
-            console.log("Effect flags:", wodFlags);
             
-            // Filter by conditions
-            const conditionsMet = this._conditionsMet(effect, rollContext, wodFlags);
-            console.log("Conditions met:", conditionsMet);
-            if (!conditionsMet) continue;
+            // For player-created effects, they should always be included (roll dialog will handle approval)
+            // For ST-created effects, only include if mandatory and conditions are met
+            if (wodFlags.createdBy === 'storyteller') {
+                // ST effects must be mandatory and meet conditions
+                if (!wodFlags.mandatory) continue;
+                if (!this._conditionsMet(effect, rollContext, wodFlags)) continue;
+            }
             
             // Convert effect changes to modifiers
             for (const change of effect.changes) {
-                console.log("Processing change:", change);
                 const modifier = this._convertChangeToModifier(change, effect, wodFlags);
-                console.log("Converted modifier:", modifier);
                 if (modifier) {
-                    console.log("Added modifier:", modifier);
                     modifiers.push(modifier);
-                } else {
-                    console.log("Modifier was null - change key not recognized:", change.key);
                 }
             }
         }
         
-        console.log("Total modifiers found:", modifiers.length);
         return modifiers;
     }
 
@@ -102,14 +86,12 @@ export class EffectModifierConverter {
      */
     static _getWodFlags(effect) {
         return {
-            severity: effect.getFlag('wodsystem', 'severity') || 1,
-            sourceType: effect.getFlag('wodsystem', 'sourceType') || 'storyteller',
-            sourceId: effect.getFlag('wodsystem', 'sourceId') || null,
+            createdBy: effect.getFlag('wodsystem', 'createdBy') || 'storyteller',
             mandatory: effect.getFlag('wodsystem', 'mandatory') === true,
-            targetActor: effect.getFlag('wodsystem', 'targetActor') || null,
+            hasSideEffect: effect.getFlag('wodsystem', 'hasSideEffect') === true,
+            sideEffectAuto: effect.getFlag('wodsystem', 'sideEffectAuto') === true,
             conditionType: effect.getFlag('wodsystem', 'conditionType') || 'always',
-            conditionValue: effect.getFlag('wodsystem', 'conditionValue') || null,
-            expiresAt: effect.getFlag('wodsystem', 'expiresAt') || null
+            conditionValue: effect.getFlag('wodsystem', 'conditionValue') || null
         };
     }
 
@@ -198,8 +180,7 @@ export class EffectModifierConverter {
             type: modifierType,
             mandatory: wodFlags.mandatory,
             effectId: effect.id,
-            source: wodFlags.sourceType,
-            severity: wodFlags.severity,
+            createdBy: wodFlags.createdBy,
             icon: effect.icon
         };
     }

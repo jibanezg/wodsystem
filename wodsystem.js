@@ -4,6 +4,7 @@ import { MortalSheet } from "./module/actor/template/mortal-sheet.js";
 import { TechnocratSheet } from "./module/actor/template/technocrat-sheet.js";
 import { WodDicePool } from "./module/dice/wod-dice-pool.js";
 import { WodRollDialog } from "./module/apps/wod-roll-dialog.js";
+import { initializeApprovalSocket } from "./module/apps/wod-st-approval-dialog.js";
 import { registerHandlebarsHelpers } from "./scripts/utilities.js";
 
 // Import Services
@@ -43,8 +44,10 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/actor/partials/mortal-numina.html",
         "systems/wodsystem/templates/actor/partials/experience.html",
         "systems/wodsystem/templates/actor/partials/equipment.html",
+        "systems/wodsystem/templates/actor/partials/active-effects.html",
         "systems/wodsystem/templates/apps/roll-dialog.html",
         "systems/wodsystem/templates/apps/effect-manager.html",
+        "systems/wodsystem/templates/apps/st-approval-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html"
     ]);
     console.log("WoD | Handlebars partials loaded");
@@ -69,4 +72,8 @@ Hooks.once("init", async function() {
 Hooks.on("ready", async () => {
     console.log("WoD | World of Darkness System ready");
     console.log("WoD | Reference data service loaded:", !!window.referenceDataService);
+    
+    // Initialize socket for effect approval system
+    initializeApprovalSocket();
+    console.log("WoD | Effect approval socket initialized");
 });
