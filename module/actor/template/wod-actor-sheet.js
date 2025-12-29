@@ -1399,24 +1399,55 @@ export class WodActorSheet extends ActorSheet {
      * Update willpower
      */
     async _updateWillpower(type, value) {
-        const maxValue = type === 'temporary' ? this.actor.system.miscellaneous.willpower.permanent : 10;
         const updateData = {};
-        const newValue = Math.min(Math.max(value, 0), maxValue);
-        updateData[`system.miscellaneous.willpower.${type}`] = newValue;
+        
+        if (type === 'temporary') {
+            // Temporary willpower cannot exceed permanent
+            const maxValue = this.actor.system.miscellaneous.willpower.permanent;
+            const newValue = Math.min(Math.max(value, 0), maxValue);
+            updateData[`system.miscellaneous.willpower.temporary`] = newValue;
+            
+            if (value > maxValue) {
+                ui.notifications.warn("Temporary Willpower cannot exceed Permanent Willpower.");
+            }
+        } else if (type === 'permanent') {
+            // When reducing permanent, also reduce temporary if it exceeds new permanent
+            const newPermanent = Math.min(Math.max(value, 0), 10);
+            const currentTemporary = this.actor.system.miscellaneous.willpower.temporary;
+            
+            updateData[`system.miscellaneous.willpower.permanent`] = newPermanent;
+            
+            // If temporary exceeds new permanent, reduce it
+            if (currentTemporary > newPermanent) {
+                updateData[`system.miscellaneous.willpower.temporary`] = newPermanent;
+                ui.notifications.warn(`Temporary Willpower reduced to match new Permanent value (${newPermanent}).`);
+            }
+        }
         
         await this.actor.update(updateData, { render: false });
         
-        // Update visual dots
+        // Update visual dots for the type being changed
         const container = this.element.find(`.dot-container[data-willpower="${type}"]`)[0];
         if (container) {
-            this._updateDotVisuals(container, newValue);
+            const finalValue = type === 'temporary' ? 
+                updateData[`system.miscellaneous.willpower.temporary`] : 
+                updateData[`system.miscellaneous.willpower.permanent`];
+            this._updateDotVisuals(container, finalValue);
+        }
+        
+        // If we also updated temporary when changing permanent, update its visuals too
+        if (type === 'permanent' && updateData[`system.miscellaneous.willpower.temporary`] !== undefined) {
+            const tempContainer = this.element.find(`.dot-container[data-willpower="temporary"]`)[0];
+            if (tempContainer) {
+                this._updateDotVisuals(tempContainer, updateData[`system.miscellaneous.willpower.temporary`]);
+            }
         }
         
         // Update the willpower label's data-value (permanent only)
         if (type === 'permanent') {
             const label = this.element.find(`.trait-label[data-category="willpower"]`)[0];
             if (label) {
-                label.setAttribute('data-value', newValue);
+                label.setAttribute('data-value', updateData[`system.miscellaneous.willpower.permanent`]);
             }
         }
     }
