@@ -1,6 +1,6 @@
 {
     "Actor": {
-        "types": ["Mortal", "Vampire", "Demon", "Technocrat"],
+        "types": ["Mortal", "Technocrat"],
         "baseTraits": {
             "identity": {
                 "name": "",
