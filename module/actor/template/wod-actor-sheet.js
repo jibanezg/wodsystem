@@ -408,7 +408,10 @@ export class WodActorSheet extends ActorSheet {
         }
         
         // Update the visual appearance after data is saved
-        this._updateDotVisuals(container, newValue);
+        // Skip for willpower - it handles its own visuals with validation
+        if (!container.dataset.willpower) {
+            this._updateDotVisuals(container, newValue);
+        }
     }
 
     /**
