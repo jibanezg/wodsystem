@@ -22,24 +22,16 @@ export class WodActor extends Actor {
             const willpowerChanges = changed.system.miscellaneous.willpower;
             const currentWillpower = this.system.miscellaneous.willpower;
             
-            console.log('_preUpdate hook - willpowerChanges:', willpowerChanges);
-            console.log('_preUpdate hook - currentWillpower:', currentWillpower);
-            
             // Get the new values (or keep current if not changed)
             // Ensure values are numbers (Foundry sometimes stores as strings)
             const newPermanent = parseInt(willpowerChanges.permanent ?? currentWillpower.permanent);
             const newTemporary = parseInt(willpowerChanges.temporary ?? currentWillpower.temporary);
             
-            console.log(`_preUpdate hook - newPermanent: ${newPermanent}, newTemporary: ${newTemporary}`);
-            
             // Constrain temporary willpower to not exceed permanent
             if (newTemporary > newPermanent) {
-                console.log(`_preUpdate hook - LIMITING temporary from ${newTemporary} to ${newPermanent}`);
                 changed.system.miscellaneous.willpower.temporary = newPermanent;
                 ui.notifications.warn("Temporary Willpower cannot exceed Permanent Willpower.");
             }
-            
-            console.log('_preUpdate hook - final changed.system.miscellaneous.willpower:', changed.system.miscellaneous.willpower);
         }
     }
 

@@ -1409,10 +1409,7 @@ export class WodActorSheet extends ActorSheet {
         if (type === 'temporary') {
             // Temporary willpower cannot exceed permanent
             const maxValue = this.actor.system.miscellaneous.willpower.permanent;
-            const currentTemp = this.actor.system.miscellaneous.willpower.temporary;
             const newValue = Math.min(Math.max(value, 0), maxValue);
-            
-            console.log(`Willpower Update: current=${currentTemp}, requested=${value}, max=${maxValue}, final=${newValue}`);
             
             updateData[`system.miscellaneous.willpower.temporary`] = newValue;
             finalValueForVisuals = newValue;
@@ -1440,15 +1437,8 @@ export class WodActorSheet extends ActorSheet {
         
         // Update visual dots for the type being changed
         const container = this.element.find(`.dot-container[data-willpower="${type}"]`)[0];
-        console.log(`Container found for type ${type}:`, !!container);
         if (container) {
-            console.log(`About to draw ${finalValueForVisuals} dots for ${type} willpower`);
             this._updateDotVisuals(container, finalValueForVisuals);
-            console.log(`Finished drawing dots, checking input value...`);
-            const input = container.querySelector('.dot-input');
-            console.log(`Input hidden value after update:`, input?.value);
-        } else {
-            console.error(`Container NOT found for willpower type: ${type}`);
         }
         
         // If we also updated temporary when changing permanent, update its visuals too
@@ -1764,15 +1754,11 @@ export class WodActorSheet extends ActorSheet {
      * Update dot visuals
      */
     _updateDotVisuals(container, newValue) {
-        console.log(`_updateDotVisuals called with newValue: ${newValue}`);
         const dots = container.querySelectorAll('.dot');
         const input = container.querySelector('.dot-input');
         
-        console.log(`Found ${dots.length} dots and input:`, !!input);
-        
         if (input) {
             input.value = newValue;
-            console.log(`Set input.value to ${newValue}`);
         }
         
         dots.forEach((dot, index) => {
@@ -1788,7 +1774,6 @@ export class WodActorSheet extends ActorSheet {
                 dot.setAttribute('style', dot.getAttribute('style') + '; background-color: white !important;');
             }
         });
-        console.log(`Finished updating ${newValue} filled dots`);
     }
 
     /**
