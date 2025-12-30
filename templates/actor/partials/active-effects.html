@@ -15,13 +15,13 @@
     {{#if effects.length}}
     <div class="effects-preview">
         {{#each effects}}
-        <div class="effect-preview-item" data-effect-id="{{this.id}}" title="{{this.name}}">
+        <div class="effect-preview-item" data-effect-id="{{this.id}}" title="Left-click to edit, Right-click to delete">
             <img src="{{this.icon}}" alt="{{this.name}}" class="effect-icon-small" />
             <span class="effect-name-short">{{this.name}}</span>
             {{#if this.isPlayerCreated}}
-            <span class="effect-type-indicator player">P</span>
+            <span class="effect-type-indicator player" title="Player Created">P</span>
             {{else}}
-            <span class="effect-type-indicator st">ST</span>
+            <span class="effect-type-indicator st" title="Storyteller Created">ST</span>
             {{/if}}
         </div>
         {{/each}}

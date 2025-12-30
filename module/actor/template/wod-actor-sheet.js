@@ -264,6 +264,8 @@ export class WodActorSheet extends ActorSheet {
         // Status Effects Management
         html.find('.manage-effects-btn').click(this._onManageEffects.bind(this));
         html.find('.create-first-effect').click(this._onManageEffects.bind(this));
+        html.find('.effect-preview-item').click(this._onEditEffect.bind(this));
+        html.find('.effect-preview-item').contextmenu(this._onDeleteEffectQuick.bind(this));
         
         // Set equipment filter based on stored state or default to weapons
         const activeEquipmentTab = this._activeEquipmentTab || 'weapons';
@@ -1283,12 +1285,49 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Open the Status Effects Manager
+     * Open the Status Effects Manager to create a new effect
      */
     _onManageEffects(event) {
         event.preventDefault();
         const manager = new WodEffectManager(this.actor);
         manager.render(true);
+    }
+
+    /**
+     * Edit an existing effect (left-click)
+     */
+    _onEditEffect(event) {
+        event.preventDefault();
+        const effectId = event.currentTarget.dataset.effectId;
+        const manager = new WodEffectManager(this.actor, effectId);
+        manager.render(true);
+    }
+
+    /**
+     * Quick delete an effect (right-click)
+     */
+    async _onDeleteEffectQuick(event) {
+        event.preventDefault();
+        const effectId = event.currentTarget.dataset.effectId;
+        const effect = this.actor.effects.get(effectId);
+        
+        if (!effect) {
+            ui.notifications.warn("Effect not found.");
+            return;
+        }
+        
+        // Confirm deletion
+        const confirmed = await Dialog.confirm({
+            title: "Delete Status Effect",
+            content: `<p>Are you sure you want to delete <strong>${effect.name}</strong>?</p><p>This action cannot be undone.</p>`,
+            yes: () => true,
+            no: () => false
+        });
+        
+        if (confirmed) {
+            await effect.delete();
+            ui.notifications.info(`Effect "${effect.name}" deleted.`);
+        }
     }
 
     /**

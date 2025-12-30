@@ -85,6 +85,7 @@ export class WodEffectManager extends FormApplication {
         html.find('.add-modifier-row').click(this._onAddModifier.bind(this));
         html.find('.remove-modifier-row').click(this._onRemoveModifier.bind(this));
         html.find('.save-effect').click(this._onSaveEffect.bind(this));
+        html.find('.delete-effect').click(this._onDeleteEffect.bind(this));
         html.find('.cancel-effect').click(() => this.close());
     }
     
@@ -163,6 +164,29 @@ export class WodEffectManager extends FormApplication {
         }
         
         this.close();
+    }
+    
+    async _onDeleteEffect(event) {
+        event.preventDefault();
+        
+        if (!this.effect) {
+            ui.notifications.warn("No effect to delete.");
+            return;
+        }
+        
+        // Confirm deletion
+        const confirmed = await Dialog.confirm({
+            title: "Delete Status Effect",
+            content: `<p>Are you sure you want to delete <strong>${this.effect.name}</strong>?</p><p>This action cannot be undone.</p>`,
+            yes: () => true,
+            no: () => false
+        });
+        
+        if (confirmed) {
+            await this.effect.delete();
+            ui.notifications.info(`Effect "${this.effect.name}" deleted.`);
+            this.close();
+        }
     }
     
     async _updateObject(event, formData) {

@@ -89,6 +89,11 @@
         <button type="button" class="save-effect">
             <i class="fas fa-save"></i> Save Effect
         </button>
+        {{#if effect.id}}
+        <button type="button" class="delete-effect" style="background: var(--wod-danger, #dc143c);">
+            <i class="fas fa-trash"></i> Delete Effect
+        </button>
+        {{/if}}
         <button type="button" class="cancel-effect">Cancel</button>
     </div>
 </form>
