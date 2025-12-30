@@ -90,8 +90,8 @@ export class EffectModifierConverter {
             mandatory: effect.getFlag('wodsystem', 'mandatory') === true,
             hasSideEffect: effect.getFlag('wodsystem', 'hasSideEffect') === true,
             sideEffectAuto: effect.getFlag('wodsystem', 'sideEffectAuto') === true,
-            conditionType: effect.getFlag('wodsystem', 'conditionType') || 'always',
-            conditionValue: effect.getFlag('wodsystem', 'conditionValue') || null
+            conditionScope: effect.getFlag('wodsystem', 'conditionScope') || 'always',
+            conditionTarget: effect.getFlag('wodsystem', 'conditionTarget') || null
         };
     }
 
@@ -109,33 +109,54 @@ export class EffectModifierConverter {
 
     /**
      * Check if effect conditions are met for this roll
+     * EXTENSIBLE: Add new scope cases here when adding new condition types
      * @param {ActiveEffect} effect
-     * @param {Object} rollContext
+     * @param {Object} rollContext - {action, traits: [{name, value, type}]}
      * @param {Object} wodFlags
      * @returns {boolean}
      * @private
      */
     static _conditionsMet(effect, rollContext, wodFlags) {
-        const conditionType = wodFlags.conditionType;
-        const conditionValue = wodFlags.conditionValue;
+        const scope = wodFlags.conditionScope;
+        const target = wodFlags.conditionTarget;
         
-        switch(conditionType) {
+        switch(scope) {
             case 'always':
+                // Always applies
                 return true;
                 
-            case 'specific_action':
-                // Check if roll action matches
-                return rollContext.action === conditionValue;
-                
-            case 'time_based':
-                // Check time conditions (e.g., "day", "night", "combat")
-                return this._checkTimeCondition(conditionValue);
-                
-            case 'trait_roll':
-                // Check if specific trait is being rolled
+            case 'attribute':
+                // Check if any rolled trait is the specific attribute
                 return rollContext.traits?.some(t => 
-                    t.name.toLowerCase() === conditionValue?.toLowerCase()
+                    t.type === 'attribute' && t.name === target
                 );
+                
+            case 'ability':
+                // Check if any rolled trait is the specific ability
+                return rollContext.traits?.some(t => 
+                    t.type === 'ability' && t.name === target
+                );
+                
+            case 'advantage':
+                // Check if rolling specific advantage (willpower, background, etc.)
+                if (target === 'Willpower') {
+                    return rollContext.traits?.some(t => 
+                        t.category === 'willpower' || t.name === 'Willpower'
+                    );
+                } else if (target === 'Enlightenment') {
+                    return rollContext.traits?.some(t => 
+                        t.category === 'enlightenment' || t.name === 'Enlightenment'
+                    );
+                } else if (target === 'Background') {
+                    return rollContext.traits?.some(t => t.category === 'background');
+                }
+                return false;
+                
+            // FUTURE: Add cases for 'soak', 'damage', 'combat', etc.
+            // case 'soak':
+            //     return rollContext.action === 'soak';
+            // case 'damage':
+            //     return rollContext.action === 'damage';
                 
             default:
                 return true;

@@ -9,8 +9,8 @@ export class WodActiveEffect extends ActiveEffect {
         MANDATORY: "wodsystem.mandatory",         // true for ST effects (auto-applied)
         HAS_SIDE_EFFECT: "wodsystem.hasSideEffect", // true if player effect has downside
         SIDE_EFFECT_AUTO: "wodsystem.sideEffectAuto", // auto-apply the side effect
-        CONDITION_TYPE: "wodsystem.conditionType", // "always", "attack", "soak", etc.
-        CONDITION_VALUE: "wodsystem.conditionValue" // Value for trait_roll conditions
+        CONDITION_SCOPE: "wodsystem.conditionScope", // "always", "attribute", "ability", "advantage", etc. (EXTENSIBLE)
+        CONDITION_TARGET: "wodsystem.conditionTarget" // Specific target (e.g., "Dexterity", "Firearms", "Willpower")
     };
     
     // Modifier types for dice pool system

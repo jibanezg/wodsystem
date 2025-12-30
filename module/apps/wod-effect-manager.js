@@ -33,6 +33,8 @@ export class WodEffectManager extends FormApplication {
         
         // If editing, get effect data
         if (this.effect) {
+            const effectScope = this.effect.getFlag('wodsystem', 'conditionScope') || 'always';
+            
             data.effect = {
                 id: this.effect.id,
                 name: this.effect.name,
@@ -41,8 +43,9 @@ export class WodEffectManager extends FormApplication {
                 mandatory: this.effect.getFlag('wodsystem', 'mandatory') === true,
                 hasSideEffect: this.effect.getFlag('wodsystem', 'hasSideEffect') === true,
                 sideEffectAuto: this.effect.getFlag('wodsystem', 'sideEffectAuto') === true,
-                conditionType: this.effect.getFlag('wodsystem', 'conditionType') || 'always',
-                conditionValue: this.effect.getFlag('wodsystem', 'conditionValue') || '',
+                conditionScope: effectScope,
+                conditionTarget: this.effect.getFlag('wodsystem', 'conditionTarget') || '',
+                hideConditionTarget: effectScope === 'always',
                 changes: this.effect.changes.map(c => ({
                     key: c.key,
                     value: c.value,
@@ -58,8 +61,9 @@ export class WodEffectManager extends FormApplication {
                 mandatory: createdBy === 'storyteller', // Default to true for ST effects
                 hasSideEffect: false,
                 sideEffectAuto: false,
-                conditionType: 'always',
-                conditionValue: '',
+                conditionScope: 'always',
+                conditionTarget: '',
+                hideConditionTarget: true,
                 changes: []
             };
         }
@@ -68,15 +72,90 @@ export class WodEffectManager extends FormApplication {
         data.isPlayerEffect = data.effect.createdBy === 'player';
         data.isGM = game.user.isGM;
         
-        // Condition type options
-        data.conditionTypes = [
+        // Condition scope options (EXTENSIBLE - add new scopes here in the future)
+        data.conditionScopes = [
             { value: 'always', label: 'Always Active' },
-            { value: 'attack', label: 'Attack Rolls' },
-            { value: 'soak', label: 'Soak Rolls' },
-            { value: 'trait_roll', label: 'Specific Trait Roll' }
+            { value: 'attribute', label: 'Specific Attribute' },
+            { value: 'ability', label: 'Specific Ability' },
+            { value: 'advantage', label: 'Specific Advantage' }
+            // FUTURE: Add { value: 'soak', label: 'Soak Rolls' },
+            // FUTURE: Add { value: 'damage', label: 'Damage Rolls' },
         ];
         
+        // Get targets based on current scope
+        data.conditionTargets = this._getConditionTargets(data.effect.conditionScope);
+        
         return data;
+    }
+    
+    /**
+     * Get available targets based on condition scope
+     * EXTENSIBLE: Add new cases here when adding new scope types
+     */
+    _getConditionTargets(scope) {
+        switch(scope) {
+            case 'attribute':
+                return [
+                    { value: 'Strength', label: 'Strength' },
+                    { value: 'Dexterity', label: 'Dexterity' },
+                    { value: 'Stamina', label: 'Stamina' },
+                    { value: 'Charisma', label: 'Charisma' },
+                    { value: 'Manipulation', label: 'Manipulation' },
+                    { value: 'Appearance', label: 'Appearance' },
+                    { value: 'Perception', label: 'Perception' },
+                    { value: 'Intelligence', label: 'Intelligence' },
+                    { value: 'Wits', label: 'Wits' }
+                ];
+            
+            case 'ability':
+                return [
+                    // Talents
+                    { value: 'Alertness', label: 'Alertness (Talent)' },
+                    { value: 'Athletics', label: 'Athletics (Talent)' },
+                    { value: 'Awareness', label: 'Awareness (Talent)' },
+                    { value: 'Brawl', label: 'Brawl (Talent)' },
+                    { value: 'Empathy', label: 'Empathy (Talent)' },
+                    { value: 'Expression', label: 'Expression (Talent)' },
+                    { value: 'Intimidation', label: 'Intimidation (Talent)' },
+                    { value: 'Leadership', label: 'Leadership (Talent)' },
+                    { value: 'Streetwise', label: 'Streetwise (Talent)' },
+                    { value: 'Subterfuge', label: 'Subterfuge (Talent)' },
+                    // Skills
+                    { value: 'Animal Ken', label: 'Animal Ken (Skill)' },
+                    { value: 'Crafts', label: 'Crafts (Skill)' },
+                    { value: 'Drive', label: 'Drive (Skill)' },
+                    { value: 'Etiquette', label: 'Etiquette (Skill)' },
+                    { value: 'Firearms', label: 'Firearms (Skill)' },
+                    { value: 'Larceny', label: 'Larceny (Skill)' },
+                    { value: 'Melee', label: 'Melee (Skill)' },
+                    { value: 'Performance', label: 'Performance (Skill)' },
+                    { value: 'Stealth', label: 'Stealth (Skill)' },
+                    { value: 'Survival', label: 'Survival (Skill)' },
+                    // Knowledges
+                    { value: 'Academics', label: 'Academics (Knowledge)' },
+                    { value: 'Computer', label: 'Computer (Knowledge)' },
+                    { value: 'Finance', label: 'Finance (Knowledge)' },
+                    { value: 'Investigation', label: 'Investigation (Knowledge)' },
+                    { value: 'Law', label: 'Law (Knowledge)' },
+                    { value: 'Medicine', label: 'Medicine (Knowledge)' },
+                    { value: 'Occult', label: 'Occult (Knowledge)' },
+                    { value: 'Politics', label: 'Politics (Knowledge)' },
+                    { value: 'Science', label: 'Science (Knowledge)' },
+                    { value: 'Technology', label: 'Technology (Knowledge)' }
+                ];
+            
+            case 'advantage':
+                return [
+                    { value: 'Willpower', label: 'Willpower' },
+                    { value: 'Enlightenment', label: 'Enlightenment (Arete)' },
+                    { value: 'Background', label: 'Background (Any)' }
+                ];
+            
+            // FUTURE: Add cases for 'soak', 'damage', etc.
+            
+            default:
+                return [];
+        }
     }
     
     activateListeners(html) {
@@ -87,6 +166,37 @@ export class WodEffectManager extends FormApplication {
         html.find('.save-effect').click(this._onSaveEffect.bind(this));
         html.find('.delete-effect').click(this._onDeleteEffect.bind(this));
         html.find('.cancel-effect').click(() => this.close());
+        
+        // Dynamic condition target dropdown
+        html.find('.condition-scope-select').change(this._onConditionScopeChange.bind(this));
+    }
+    
+    /**
+     * Handle condition scope change to show/hide and populate target dropdown
+     */
+    async _onConditionScopeChange(event) {
+        const scope = event.currentTarget.value;
+        const targetGroup = this.element.find('.condition-target-group');
+        const targetSelect = this.element.find('.condition-target-select');
+        
+        if (scope === 'always') {
+            // Hide target selection for "Always Active"
+            targetGroup.hide();
+        } else {
+            // Show and populate target selection
+            targetGroup.show();
+            
+            // Get available targets for this scope
+            const targets = this._getConditionTargets(scope);
+            
+            // Clear and repopulate the select
+            targetSelect.empty();
+            targetSelect.append('<option value="">-- Select --</option>');
+            
+            targets.forEach(target => {
+                targetSelect.append(`<option value="${target.value}">${target.label}</option>`);
+            });
+        }
     }
     
     async _onAddModifier(event) {
@@ -103,7 +213,7 @@ export class WodEffectManager extends FormApplication {
                     <option value="autoSuccess">Auto Success</option>
                     <option value="autoFail">Auto Fail</option>
                 </select>
-                <input type="number" class="modifier-value" name="modifiers.${index}.value" value="0" />
+                <input type="number" class="modifier-value" name="modifiers.${index}.value" value="0" placeholder="+2 or -2" />
                 <button type="button" class="remove-modifier-row"><i class="fas fa-times"></i></button>
             </div>
         `);
@@ -148,8 +258,8 @@ export class WodEffectManager extends FormApplication {
                     mandatory: formData.mandatory === true || formData.mandatory === 'true',
                     hasSideEffect: formData.hasSideEffect === true || formData.hasSideEffect === 'true',
                     sideEffectAuto: formData.sideEffectAuto === true || formData.sideEffectAuto === 'true',
-                    conditionType: formData.conditionType || 'always',
-                    conditionValue: formData.conditionValue || null
+                    conditionScope: formData.conditionScope || 'always',
+                    conditionTarget: formData.conditionTarget || null
                 }
             }
         };

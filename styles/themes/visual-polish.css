@@ -1,0 +1,624 @@
+/* ============================================
+   VISUAL POLISH - Equipment Tab Look & Feel
+   Focus: Colors, shadows, effects, borders, NOT layout
+   ============================================ */
+
+/* ======================
+   1. REMOVE UGLY BORDERS & USE COLOR HIERARCHY
+   Like Equipment: Header (blue) → Section (light gray) → Cards (white)
+   ====================== */
+
+/* Remove ugly borders from inputs */
+.wod.sheet.actor input[type="text"],
+.wod.sheet.actor input[type="number"],
+.wod.sheet.actor select,
+.wod.sheet.actor textarea {
+    border: 1px solid #e0e0e0 !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.wod.sheet.actor input[type="text"]:focus,
+.wod.sheet.actor input[type="number"]:focus,
+.wod.sheet.actor select:focus,
+.wod.sheet.actor textarea:focus {
+    border-color: var(--wod-primary) !important;
+    box-shadow: 0 0 0 2px rgba(var(--wod-primary-rgb), 0.1) !important;
+    outline: none !important;
+}
+
+/* REMOVE ALL SECTION BORDERS - Use color contrast instead */
+.wod.sheet.actor .section,
+.wod.sheet.actor .attribute-section,
+.wod.sheet.actor .ability-section,
+.wod.sheet.actor .attribute-column,
+.wod.sheet.actor .ability-column,
+.wod.sheet.actor .talents-section,
+.wod.sheet.actor .skills-section,
+.wod.sheet.actor .knowledges-section,
+.wod.sheet.actor .attributes-physical,
+.wod.sheet.actor .attributes-social,
+.wod.sheet.actor .attributes-mental,
+.wod.sheet.actor .willpower-container,
+.wod.sheet.actor .backgrounds-container,
+.wod.sheet.actor .merits-container,
+.wod.sheet.actor .flaws-container,
+.wod.sheet.actor .virtues-container,
+.wod.sheet.actor .attributes-grid,
+.wod.sheet.actor .abilities-grid,
+.wod.sheet.actor .health-section,
+.wod.sheet.actor .health-sidebar,
+.wod.sheet.actor .experience-section,
+.wod.sheet.actor table,
+.wod.sheet.actor .traits-table {
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+/* Remove borders from table elements specifically */
+.wod.sheet.actor table td,
+.wod.sheet.actor table th,
+.wod.sheet.actor table tr {
+    border: none !important;
+}
+
+/* Force remove ALL possible borders from attribute/ability sections */
+.wod.sheet.actor .attributes-grid > *,
+.wod.sheet.actor .abilities-grid > *,
+.wod.sheet.actor .attributes-physical,
+.wod.sheet.actor .attributes-social, 
+.wod.sheet.actor .attributes-mental,
+.wod.sheet.actor .abilities-talents,
+.wod.sheet.actor .abilities-skills,
+.wod.sheet.actor .abilities-knowledges {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove the ugly borders from attribute/ability categories - THE CULPRITS */
+.wod.sheet.actor .attribute-category,
+.wod.sheet.actor .ability-category {
+    border: none !important;
+    background: #f8f8f8 !important;
+    border-radius: 6px !important;
+    padding: 10px !important;
+}
+
+/* Remove borders from advantage columns */
+.wod.sheet.actor .advantage-column {
+    border: none !important;
+    background: #f8f8f8 !important;
+    border-radius: 6px !important;
+    padding: 10px !important;
+}
+
+/* Remove border from advantages-bottom */
+.wod.sheet.actor .advantages-bottom {
+    border-top: none !important;
+}
+
+/* Remove fieldset borders if they exist */
+.wod.sheet.actor fieldset {
+    border: none !important;
+}
+
+/* Remove any legend borders */
+.wod.sheet.actor legend {
+    border: none !important;
+}
+
+/* Section backgrounds - "darker white" like equipment section background */
+.wod.sheet.actor .attribute-column,
+.wod.sheet.actor .ability-column,
+.wod.sheet.actor .talents-section,
+.wod.sheet.actor .skills-section,
+.wod.sheet.actor .knowledges-section {
+    background: #f8f8f8 !important;
+    padding: 12px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+
+/* Section headers inside these areas */
+.wod.sheet.actor .attribute-column h4,
+.wod.sheet.actor .ability-column h4 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 0 10px 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+}
+
+/* Individual trait rows - pure white cards on gray background */
+.wod.sheet.actor .trait-row,
+.wod.sheet.actor .attribute-row,
+.wod.sheet.actor .ability-row {
+    background: #ffffff !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 6px 8px !important;
+    margin-bottom: 4px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ======================
+   2. COLORED LEFT BORDERS FOR "ITEMS"
+   Backgrounds, Merits, Flaws, Secondary Abilities
+   ====================== */
+
+/* All "card" items - pure white (#ffffff) to contrast with section background (#f8f8f8) */
+.wod.sheet.actor .background-item {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+}
+
+.wod.sheet.actor .background-item.locked {
+    border-left-color: #43A047 !important;
+}
+
+.wod.sheet.actor .merit-item {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid #43A047 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+}
+
+.wod.sheet.actor .flaw-item {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid #E53935 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+}
+
+.wod.sheet.actor .secondary-ability-item {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-accent) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+}
+
+.wod.sheet.actor .procedure-item {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
+}
+
+/* Sphere rows */
+.wod.sheet.actor .sphere-row {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 6px 10px !important;
+    margin-bottom: 6px !important;
+}
+
+/* ======================
+   3. ROUNDED CORNERS
+   Cards and buttons
+   ====================== */
+
+.wod.sheet.actor .background-item,
+.wod.sheet.actor .merit-item,
+.wod.sheet.actor .flaw-item,
+.wod.sheet.actor .secondary-ability-item,
+.wod.sheet.actor .procedure-item,
+.wod.sheet.actor .sphere-row {
+    border-radius: 4px !important;
+}
+
+/* Buttons */
+.wod.sheet.actor button {
+    border-radius: 4px !important;
+}
+
+/* ======================
+   4. BUTTON COLORS & GRADIENTS
+   Important buttons: gradient
+   Category/tab buttons: flat color with hover
+   ====================== */
+
+/* Add buttons - gradient like equipment */
+.wod.sheet.actor .add-background,
+.wod.sheet.actor .add-merit,
+.wod.sheet.actor .add-flaw,
+.wod.sheet.actor .add-secondary-ability,
+.wod.sheet.actor .add-procedure {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+
+.wod.sheet.actor .add-background:hover,
+.wod.sheet.actor .add-merit:hover,
+.wod.sheet.actor .add-flaw:hover,
+.wod.sheet.actor .add-secondary-ability:hover,
+.wod.sheet.actor .add-procedure:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Tab/Category style buttons - flat color with border on hover */
+.wod.sheet.actor .backgrounds-prev-page,
+.wod.sheet.actor .backgrounds-next-page,
+.wod.sheet.actor .procedures-prev-page,
+.wod.sheet.actor .procedures-next-page {
+    background: rgba(255, 255, 255, 0.3) !important;
+    color: var(--wod-primary) !important;
+    border: 2px solid transparent !important;
+    padding: 4px 10px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor .backgrounds-prev-page:hover,
+.wod.sheet.actor .backgrounds-next-page:hover,
+.wod.sheet.actor .procedures-prev-page:hover,
+.wod.sheet.actor .procedures-next-page:hover {
+    border-color: white !important;
+    background: white !important;
+    color: var(--wod-primary) !important;
+}
+
+/* Delete buttons - minimalist red */
+.wod.sheet.actor .delete-background,
+.wod.sheet.actor .delete-merit,
+.wod.sheet.actor .delete-flaw,
+.wod.sheet.actor .delete-secondary-ability,
+.wod.sheet.actor .delete-procedure {
+    background: transparent !important;
+    color: #E53935 !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor .delete-background:hover,
+.wod.sheet.actor .delete-merit:hover,
+.wod.sheet.actor .delete-flaw:hover,
+.wod.sheet.actor .delete-secondary-ability:hover,
+.wod.sheet.actor .delete-procedure:hover {
+    background: rgba(229, 57, 53, 0.1) !important;
+    transform: scale(1.1) !important;
+}
+
+/* ======================
+   5. MINIMALIST ICONS
+   Style existing icons to be cleaner
+   ====================== */
+
+.wod.sheet.actor button i {
+    font-size: 0.9em !important;
+    opacity: 0.9 !important;
+}
+
+/* ======================
+   6. WELL-CHOSEN BACKGROUND COLORS
+   Headers, sections, cards for visual hierarchy
+   ====================== */
+
+/* Section headers - gradient like equipment header */
+.wod.sheet.actor h3.section-header,
+.wod.sheet.actor .section-title {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    color: white !important;
+    padding: 10px 16px !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    border: none !important;
+}
+
+/* Subtle section backgrounds - "darker white" container */
+.wod.sheet.actor .advantages-section,
+.wod.sheet.actor .backgrounds-section,
+.wod.sheet.actor .merits-flaws-section,
+.wod.sheet.actor .secondary-abilities-section,
+.wod.sheet.actor .spheres-section,
+.wod.sheet.actor .procedures-section,
+.wod.sheet.actor .health-section,
+.wod.sheet.actor .experience-section {
+    background: #f8f8f8 !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Headers within these sections - match equipment style */
+.wod.sheet.actor .advantages-section h3,
+.wod.sheet.actor .backgrounds-section h3,
+.wod.sheet.actor .merits-flaws-section h3,
+.wod.sheet.actor .secondary-abilities-section h3,
+.wod.sheet.actor .spheres-section h3,
+.wod.sheet.actor .procedures-section h3 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 0 10px 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+}
+
+/* ======================
+   7. HOVER EFFECTS - Animation & Shadow
+   Move and shadow on hover like equipment
+   ====================== */
+
+.wod.sheet.actor .background-item,
+.wod.sheet.actor .merit-item,
+.wod.sheet.actor .flaw-item,
+.wod.sheet.actor .secondary-ability-item,
+.wod.sheet.actor .sphere-row {
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor .background-item:hover,
+.wod.sheet.actor .merit-item:hover,
+.wod.sheet.actor .flaw-item:hover,
+.wod.sheet.actor .secondary-ability-item:hover,
+.wod.sheet.actor .sphere-row:hover {
+    transform: translateX(3px) !important;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.wod.sheet.actor .procedure-item {
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor .procedure-item:hover {
+    transform: translateX(3px) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Trait rows (attributes/abilities) - subtle hover */
+.wod.sheet.actor .trait-row,
+.wod.sheet.actor .attribute-row,
+.wod.sheet.actor .ability-row {
+    transition: all 0.15s ease !important;
+    border-left: 3px solid transparent !important;
+    padding-left: 8px !important;
+}
+
+.wod.sheet.actor .trait-row:hover,
+.wod.sheet.actor .attribute-row:hover,
+.wod.sheet.actor .ability-row:hover {
+    background: rgba(var(--wod-primary-rgb), 0.05) !important;
+    border-left-color: var(--wod-primary) !important;
+    transform: translateX(2px) !important;
+}
+
+/* ======================
+   8. CATEGORY BUTTONS - Colored Border on Hover
+   Like equipment type tabs
+   ====================== */
+
+.wod.sheet.actor .sheet-tabs .item {
+    border: 2px solid transparent !important;
+    transition: all 0.2s ease !important;
+    border-radius: 4px 4px 0 0 !important;
+}
+
+.wod.sheet.actor .sheet-tabs .item:hover {
+    border-color: var(--wod-primary) !important;
+    border-bottom: none !important;
+}
+
+.wod.sheet.actor .sheet-tabs .item.active {
+    border-color: var(--wod-primary) !important;
+}
+
+/* ======================
+   ADDITIONAL POLISH
+   Other elements that benefit from the same treatment
+   ====================== */
+
+/* Health boxes - pure white cards */
+.wod.sheet.actor .health-level {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 3px solid #999 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.15s ease !important;
+    padding: 4px 8px !important;
+    margin-bottom: 3px !important;
+}
+
+.wod.sheet.actor .health-level.marked {
+    border-left-color: #E53935 !important;
+    box-shadow: 0 2px 4px rgba(229, 57, 53, 0.2) !important;
+}
+
+.wod.sheet.actor .health-level:hover {
+    transform: translateX(2px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Willpower section - pure white card */
+.wod.sheet.actor .willpower-section {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-accent) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Health sidebar container */
+.wod.sheet.actor .health-sidebar {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Virtue rows - pure white cards */
+.wod.sheet.actor .virtue-row {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 3px solid var(--wod-accent) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.15s ease !important;
+    padding: 6px 10px !important;
+    margin-bottom: 4px !important;
+}
+
+.wod.sheet.actor .virtue-row:hover {
+    transform: translateX(2px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Humanity/Torment containers - pure white cards */
+.wod.sheet.actor .humanity-container,
+.wod.sheet.actor .torment-container {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px !important;
+}
+
+/* Experience section - pure white card */
+.wod.sheet.actor .experience-container {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid #FFA726 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    padding: 12px !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Backgrounds expanded - pure white cards */
+.wod.sheet.actor .bg-expanded-category {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.2s ease !important;
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+}
+
+.wod.sheet.actor .bg-expanded-category:hover {
+    transform: translateX(2px) !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12) !important;
+}
+
+.wod.sheet.actor .bg-detail-row {
+    background: #f8f8f8 !important;
+    border: none !important;
+    border-radius: 3px !important;
+    padding: 4px 8px !important;
+    margin-bottom: 3px !important;
+}
+
+/* Dots - subtle polish */
+.wod.sheet.actor .dot {
+    border: 1px solid #bbb !important;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.15s ease !important;
+}
+
+.wod.sheet.actor .dot:hover {
+    border-color: var(--wod-primary) !important;
+    transform: scale(1.15) !important;
+}
+
+.wod.sheet.actor .dot.filled {
+    border-color: var(--wod-primary-dark) !important;
+    box-shadow: 0 0 4px rgba(var(--wod-primary-rgb), 0.4) !important;
+}
+
+/* Lock button styling */
+.wod.sheet.actor .lock-background {
+    color: #999 !important;
+    transition: all 0.2s ease !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.wod.sheet.actor .lock-background:hover {
+    color: #43A047 !important;
+    transform: scale(1.15) !important;
+}
+
+.wod.sheet.actor .lock-background.locked {
+    color: #43A047 !important;
+}
+
+/* Active Effects section - pure white card */
+.wod.sheet.actor .active-effects-section {
+    background: #ffffff !important;
+    border: none !important;
+    border-left: 4px solid var(--wod-accent) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    padding: 10px !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+.wod.sheet.actor .effect-preview-item {
+    background: #f8f8f8 !important;
+    border: none !important;
+    border-left: 3px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.15s ease !important;
+    padding: 4px 8px !important;
+    margin-bottom: 3px !important;
+}
+
+.wod.sheet.actor .effect-preview-item:hover {
+    transform: translateX(2px) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    background: #ffffff !important;
+}
+

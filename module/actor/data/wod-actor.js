@@ -388,7 +388,7 @@ export class WodActor extends Actor {
 
     /**
      * Heal damage from this actor
-     * WoD healing: bottom-to-top, most serious first (aggravated → lethal → bashing)
+     * Healing logic: top-to-bottom, least serious first (Bruised → Hurt → ... → Incapacitated)
      * @param {number} amount - Amount to heal (default 1)
      * @param {string} damageType - Optional: specific type to heal
      * @returns {Object} Updated health data
@@ -663,32 +663,31 @@ export class WodActor extends Actor {
     }
 
     /**
-     * Heal one damage from bottom to top, most serious first
+     * Heal one damage from top to bottom, least serious first
      * @private
      */
     _healOneDamage(health) {
-        // Priority: aggravated > lethal > bashing
-        // Direction: bottom to top
+        // Direction: top to bottom (Bruised → Hurt → Injured → ... → Incapacitated)
+        // Always heal the least serious (topmost) damage first
         
-        // Find highest priority damage from bottom
-        for (const damageType of ["aggravated", "lethal", "bashing"]) {
-            for (let i = health.levels.length - 1; i >= 0; i--) {
-                if (health.levels[i].marked && health.levels[i].damageType === damageType) {
-                    // Clear this box
-                    health.levels[i].marked = false;
-                    health.levels[i].damageType = null;
-                    return;
-                }
+        // Find first marked level from top
+        for (let i = 0; i < health.levels.length; i++) {
+            if (health.levels[i].marked) {
+                // Found the topmost marked level, clear it
+                health.levels[i].marked = false;
+                health.levels[i].damageType = null;
+                return;
             }
         }
     }
 
     /**
-     * Heal specific damage type from bottom to top
+     * Heal specific damage type from top to bottom
      * @private
      */
     _healSpecificType(health, damageType) {
-        for (let i = health.levels.length - 1; i >= 0; i--) {
+        // Heal from top to bottom, finding the first instance of the specified type
+        for (let i = 0; i < health.levels.length; i++) {
             if (health.levels[i].marked && health.levels[i].damageType === damageType) {
                 health.levels[i].marked = false;
                 health.levels[i].damageType = null;
