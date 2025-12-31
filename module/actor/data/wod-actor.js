@@ -542,47 +542,98 @@ export class WodActor extends Actor {
         }
         
         // Step 2: All boxes are full - OVERFLOW occurs
-        const lowestPriorityDamage = this._getLowestPriorityDamage(health.levels);
-        const lowestPriority = this._getDamagePriority(lowestPriorityDamage);
-        const lastIndex = health.levels.length - 1;
+        // Strategy: Find an instance of the SAME type being added, upgrade it
+        // If no same type exists, find the NEXT MORE SERIOUS type and upgrade it
+        // Special case: if same type is already max (aggravated), find less serious type to upgrade
         
-        if (newPriority < lowestPriority) {
-            // New damage is LESS serious than the least serious damage
-            // The new damage CANNOT enter the track, but causes upgrade
-            // Simply upgrade one instance of the lowest priority damage
-            const pushedDamageType = health.levels[lastIndex].damageType;
+        // First, try to find an instance of the SAME damage type
+        let sameTypeIndex = health.levels.findIndex(level => 
+            level.marked && level.damageType === damageType
+        );
+        
+        if (sameTypeIndex !== -1) {
+            // Found same type - but check if it can be upgraded
+            const upgraded = this._upgradeDamageType(damageType);
             
-            // Find ANY instance of the pushed damage type to upgrade
-            const upgradeTargetIndex = health.levels.findIndex(level => 
-                level.marked && level.damageType === pushedDamageType
-            );
-            
-            if (upgradeTargetIndex !== -1) {
-                // Simply upgrade this instance - the sort will handle the rest
-                health.levels[upgradeTargetIndex].damageType = this._upgradeDamageType(pushedDamageType);
+            if (upgraded !== damageType) {
+                // Can be upgraded (bashing → lethal, lethal → aggravated)
+                health.levels[sameTypeIndex].damageType = upgraded;
             } else {
-                // No instance to upgrade - cannot apply
-                ui.notifications.warn("Cannot apply damage - no valid upgrade path");
-                return;
+                // Already at max (aggravated → aggravated, no change)
+                // Find a less serious type to upgrade instead
+                const lessSeriousType = this._getLessSeriousType(damageType);
+                
+                if (lessSeriousType) {
+                    const lessSeriousIndex = health.levels.findIndex(level => 
+                        level.marked && level.damageType === lessSeriousType
+                    );
+                    
+                    if (lessSeriousIndex !== -1) {
+                        health.levels[lessSeriousIndex].damageType = this._upgradeDamageType(lessSeriousType);
+                    } else {
+                        // Check even less serious type
+                        const evenLessSeriousType = this._getLessSeriousType(lessSeriousType);
+                        if (evenLessSeriousType) {
+                            const evenLessIndex = health.levels.findIndex(level => 
+                                level.marked && level.damageType === evenLessSeriousType
+                            );
+                            if (evenLessIndex !== -1) {
+                                health.levels[evenLessIndex].damageType = this._upgradeDamageType(evenLessSeriousType);
+                            } else {
+                                ui.notifications.warn("Cannot apply more damage - all health levels at maximum");
+                                return;
+                            }
+                        } else {
+                            ui.notifications.warn("Cannot apply more damage - all health levels at maximum");
+                            return;
+                        }
+                    }
+                } else {
+                    ui.notifications.warn("Cannot apply more damage - all health levels at maximum aggravated damage");
+                    return;
+                }
             }
         } else {
-            // New damage is EQUAL or MORE serious than the least serious damage
-            // Replace the last box with new damage, push the old one off
-            const pushedDamageType = health.levels[lastIndex].damageType;
+            // No same type found - find the next more serious type and upgrade it
+            // For bashing (1): look for lethal (2)
+            // For lethal (2): look for aggravated (3)
+            // For aggravated (3): can't upgrade further, all maxed out
             
-            // Replace last box with new damage
-            health.levels[lastIndex].damageType = damageType;
+            const nextSeriousType = this._getNextMoreSeriousType(damageType);
             
-            // The pushed damage upgrades another instance of itself (if exists)
-            const upgradeTargetIndex = health.levels.findIndex((level, idx) => 
-                idx !== lastIndex && level.marked && level.damageType === pushedDamageType
-            );
-            
-            if (upgradeTargetIndex !== -1) {
-                // Upgrade the first instance of the pushed damage type
-                health.levels[upgradeTargetIndex].damageType = this._upgradeDamageType(pushedDamageType);
+            if (nextSeriousType) {
+                // Find an instance of the next more serious type
+                const nextTypeIndex = health.levels.findIndex(level => 
+                    level.marked && level.damageType === nextSeriousType
+                );
+                
+                if (nextTypeIndex !== -1) {
+                    // Upgrade the next more serious type
+                    health.levels[nextTypeIndex].damageType = this._upgradeDamageType(nextSeriousType);
+                } else {
+                    // Next serious type not found either - check even more serious
+                    // This handles: 4 Agg + 3 Lethal, +1 Bashing (no Bashing or Lethal to upgrade, so check Agg)
+                    const evenMoreSeriousType = this._getNextMoreSeriousType(nextSeriousType);
+                    if (evenMoreSeriousType) {
+                        const evenMoreIndex = health.levels.findIndex(level => 
+                            level.marked && level.damageType === evenMoreSeriousType
+                        );
+                        if (evenMoreIndex !== -1) {
+                            health.levels[evenMoreIndex].damageType = this._upgradeDamageType(evenMoreSeriousType);
+                        } else {
+                            ui.notifications.warn("Cannot apply more damage - all health levels at maximum");
+                            return;
+                        }
+                    } else {
+                        ui.notifications.warn("Cannot apply more damage - all health levels at maximum");
+                        return;
+                    }
+                }
+            } else {
+                // Trying to add aggravated when all is already aggravated
+                ui.notifications.warn("Cannot apply more damage - all health levels at maximum aggravated damage");
+                return;
             }
-            // If no instance to upgrade, the pushed damage is just lost
         }
         
         // Re-sort after push and upgrade
@@ -656,6 +707,26 @@ export class WodActor extends Actor {
         if (currentType === "bashing") return "lethal";
         if (currentType === "lethal") return "aggravated";
         return "aggravated"; // Already max
+    }
+
+    /**
+     * Get the next more serious damage type
+     * @private
+     */
+    _getNextMoreSeriousType(currentType) {
+        if (currentType === "bashing") return "lethal";
+        if (currentType === "lethal") return "aggravated";
+        return null; // aggravated is already max
+    }
+
+    /**
+     * Get the next less serious damage type
+     * @private
+     */
+    _getLessSeriousType(currentType) {
+        if (currentType === "aggravated") return "lethal";
+        if (currentType === "lethal") return "bashing";
+        return null; // bashing is already minimum
     }
 
     /**
