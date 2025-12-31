@@ -196,7 +196,7 @@ export class WodActorSheet extends ActorSheet {
         // Common listeners for all sheets
         html.find('.dot').click(this._onDotClick.bind(this));
         html.find('.health-checkbox').click(this._onHealthCheckboxClick.bind(this));
-        html.find('.health-box').click(this._onHealthBoxClick.bind(this));
+        html.find('.damage-btn').click(this._onDamageButtonClick.bind(this));
         html.find('.health-box').contextmenu(this._onHealthBoxRightClick.bind(this));
         html.find('.reset-health').click(this._onResetHealth.bind(this));
         
@@ -263,6 +263,7 @@ export class WodActorSheet extends ActorSheet {
         
         // Status Effects Management
         html.find('.manage-effects-btn').click(this._onManageEffects.bind(this));
+        html.find('.add-effect-btn').click(this._onManageEffects.bind(this));
         html.find('.create-first-effect').click(this._onManageEffects.bind(this));
         html.find('.effect-preview-item').click(this._onEditEffect.bind(this));
         html.find('.effect-preview-item').contextmenu(this._onDeleteEffectQuick.bind(this));
@@ -444,44 +445,19 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Handle left-clicking on a health box (add damage)
-     * Single click = bashing, double click = lethal, triple click = aggravated
+     * Handle clicking on damage type buttons
      */
-    async _onHealthBoxClick(event) {
+    async _onDamageButtonClick(event) {
         event.preventDefault();
         event.stopPropagation();
         
-        const clickCount = event.detail; // 1, 2, or 3
+        const button = event.currentTarget;
+        const damageType = button.dataset.damageType;
         
-        // For multi-clicks (2 or 3), process immediately
-        // For single clicks, wait a bit to see if it becomes a multi-click
-        if (clickCount >= 2) {
-            // Clear any pending single-click timeout
-            if (this._healthClickTimeout) {
-                clearTimeout(this._healthClickTimeout);
-                this._healthClickTimeout = null;
-            }
-            
-            let damageType = null;
-            if (clickCount === 2) damageType = "lethal";
-            else if (clickCount === 3) damageType = "aggravated";
-            
-            if (damageType) {
-                const updatedHealth = await this.actor.applyDamage(damageType, 1);
-                this._updateHealthDisplay(updatedHealth);
-            }
-        } else {
-            // Single click - wait to see if it becomes a double/triple click
-            if (this._healthClickTimeout) {
-                clearTimeout(this._healthClickTimeout);
-            }
-            
-            this._healthClickTimeout = setTimeout(async () => {
-                const updatedHealth = await this.actor.applyDamage("bashing", 1);
-                this._updateHealthDisplay(updatedHealth);
-                this._healthClickTimeout = null;
-            }, 300); // 300ms delay to detect if this becomes a multi-click
-        }
+        if (!damageType) return;
+        
+        const updatedHealth = await this.actor.applyDamage(damageType, 1);
+        this._updateHealthDisplay(updatedHealth);
     }
     
     /**

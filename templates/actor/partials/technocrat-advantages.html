@@ -58,22 +58,24 @@
     <!-- Section 4: Paradox -->
     <div class="paradox-section">
         <h4>Paradox</h4>
-        <div class="paradox-track">
-            <label>Temporary</label>
-            <div class="dot-container" data-paradox="current">
-                {{#times 10}}
-                <div class="dot {{#if (lt @index ../../actor.system.advantages.paradox.current)}}filled{{/if}}" data-index="{{@index}}"></div>
-                {{/times}}
-                <input type="hidden" class="dot-input" name="system.advantages.paradox.current" value="{{actor.system.advantages.paradox.current}}"/>
+        <div class="paradox-tracks">
+            <div class="paradox-permanent">
+                <label>Permanent</label>
+                <div class="dot-container" data-paradox="permanent">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../../actor.system.advantages.paradox.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.advantages.paradox.permanent" value="{{actor.system.advantages.paradox.permanent}}"/>
+                </div>
             </div>
-        </div>
-        <div class="paradox-track">
-            <label>Permanent</label>
-            <div class="dot-container" data-paradox="permanent">
-                {{#times 10}}
-                <div class="dot {{#if (lt @index ../../actor.system.advantages.paradox.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
-                {{/times}}
-                <input type="hidden" class="dot-input" name="system.advantages.paradox.permanent" value="{{actor.system.advantages.paradox.permanent}}"/>
+            <div class="paradox-temporary">
+                <label>Temporary</label>
+                <div class="dot-container" data-paradox="current">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../../actor.system.advantages.paradox.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.advantages.paradox.current" value="{{actor.system.advantages.paradox.current}}"/>
+                </div>
             </div>
         </div>
     </div>

@@ -189,41 +189,7 @@
     border-color: var(--wod-primary-dark);
 }
 
-/* Paradox Section */
-.wod.sheet.actor.technocrat .paradox-section {
-    margin-bottom: 10px;
-    padding: 8px;
-    border: 1px solid var(--wod-border-main);
-    border-radius: 2px;
-    background: var(--wod-bg-main);
-}
-
-.wod.sheet.actor.technocrat .paradox-section h4 {
-    margin: 0 0 8px 0;
-    padding: 3px 5px;
-    background: var(--wod-bg-tertiary);
-    font-size: 0.75em;
-    text-align: center;
-    border-bottom: 1px solid var(--wod-border-light);
-}
-
-.wod.sheet.actor.technocrat .paradox-track {
-    margin-bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.wod.sheet.actor.technocrat .paradox-track label {
-    font-size: 0.7em;
-    font-weight: bold;
-    color: var(--wod-text-alt);
-    text-transform: uppercase;
-}
-
-.wod.sheet.actor.technocrat .paradox-track .dot-container {
-    justify-content: center;
-}
+/* Paradox Section - uses shared willpower styling from visual-polish.css */
 
 /* Technocrat Advantages: 2-column grid for 4 sections */
 .wod.sheet.actor.technocrat .advantages-bottom {
@@ -243,7 +209,6 @@
 .wod.sheet.actor.technocrat .willpower-section,
 .wod.sheet.actor.technocrat .enlightenment-section,
 .wod.sheet.actor.technocrat .primal-energy-section,
-.wod.sheet.actor.technocrat .paradox-section,
 .wod.sheet.actor.technocrat .backgrounds-section {
     border: 1px solid var(--wod-border-main);
     border-radius: 2px;
@@ -298,17 +263,6 @@
     font-weight: bold;
 }
 
-/* Paradox section - 2-track layout */
-.wod.sheet.actor.technocrat .paradox-section .paradox-track {
-    margin-bottom: 5px;
-}
-
-.wod.sheet.actor.technocrat .paradox-section label {
-    font-size: 0.7em;
-    font-weight: bold;
-    color: var(--wod-text-alt);
-    margin-bottom: 3px;
-}
 
 /* Enlightened Science - Spheres Section (styled like Attributes) */
 .wod.sheet.actor.technocrat .tab[data-tab="enlightened-science"] {

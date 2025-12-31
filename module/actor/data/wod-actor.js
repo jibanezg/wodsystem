@@ -388,7 +388,8 @@ export class WodActor extends Actor {
 
     /**
      * Heal damage from this actor
-     * Healing logic: top-to-bottom, least serious first (Bruised → Hurt → ... → Incapacitated)
+     * Healing logic: bottom-to-top, heals last marked level first (prevents gaps)
+     * Example: If Bruised, Hurt, Injured are marked → heals Injured first
      * @param {number} amount - Amount to heal (default 1)
      * @param {string} damageType - Optional: specific type to heal
      * @returns {Object} Updated health data
@@ -519,94 +520,121 @@ export class WodActor extends Actor {
 
     /**
      * Add damage using WoD cascade mechanics
-     * Priority: More serious damage ALWAYS displaces less serious damage first
+     * CORRECT LOGIC: Fill empty boxes first, maintain hierarchy (most serious on top)
+     * When full: ANY new damage pushes lowest priority off, which upgrades another of its type
+     * Example: 4 Agg + 3 Lethal (full), +1 Bashing = 5 Agg + 2 Lethal
      * @private
      */
     _addDamage(health, damageType) {
         const newPriority = this._getDamagePriority(damageType);
         
-        // Step 1: Check if there's lower-priority damage to displace
-        let displaceIndex = -1;
-        for (let i = 0; i < health.levels.length; i++) {
-            const currentPriority = this._getDamagePriority(health.levels[i].damageType);
-            if (health.levels[i].marked && currentPriority < newPriority) {
-                displaceIndex = i;
-                break;
-            }
-        }
-        
-        if (displaceIndex !== -1) {
-            // Displace lower-priority damage
-            const displacedDamage = health.levels[displaceIndex].damageType;
-            health.levels[displaceIndex].damageType = damageType;
-            
-            // Cascade the displaced damage down
-            this._cascadeDamage(health.levels, displaceIndex + 1, displacedDamage);
-            return;
-        }
-        
-        // Step 2: No displacement needed, find first empty box
+        // Step 1: Check if there are empty boxes
         let emptyIndex = health.levels.findIndex(level => !level.marked);
         
         if (emptyIndex !== -1) {
-            // Mark empty box
+            // Add the new damage to the first empty box
             health.levels[emptyIndex].marked = true;
             health.levels[emptyIndex].damageType = damageType;
+            
+            // Re-sort to maintain damage hierarchy (most serious first)
+            this._sortDamageByPriority(health.levels);
             return;
         }
         
-        // Step 3: All boxes full, check for same type to upgrade
-        let sameTypeIndex = health.levels.findIndex(level => level.marked && level.damageType === damageType);
+        // Step 2: All boxes are full - OVERFLOW occurs
+        const lowestPriorityDamage = this._getLowestPriorityDamage(health.levels);
+        const lowestPriority = this._getDamagePriority(lowestPriorityDamage);
+        const lastIndex = health.levels.length - 1;
         
-        if (sameTypeIndex !== -1) {
-            // Upgrade the first box with same damage type
-            health.levels[sameTypeIndex].damageType = this._upgradeDamageType(damageType);
-            return;
-        }
-        
-        // Step 4: Everything is full with higher priority damage - upgrade first same/lower priority box
-        const firstSameOrLower = health.levels.findIndex(level => 
-            this._getDamagePriority(level.damageType) <= newPriority
-        );
-        if (firstSameOrLower !== -1) {
-            health.levels[firstSameOrLower].damageType = this._upgradeDamageType(
-                health.levels[firstSameOrLower].damageType
+        if (newPriority < lowestPriority) {
+            // New damage is LESS serious than the least serious damage
+            // The new damage CANNOT enter the track, but causes upgrade
+            // Simply upgrade one instance of the lowest priority damage
+            const pushedDamageType = health.levels[lastIndex].damageType;
+            
+            // Find ANY instance of the pushed damage type to upgrade
+            const upgradeTargetIndex = health.levels.findIndex(level => 
+                level.marked && level.damageType === pushedDamageType
             );
+            
+            if (upgradeTargetIndex !== -1) {
+                // Simply upgrade this instance - the sort will handle the rest
+                health.levels[upgradeTargetIndex].damageType = this._upgradeDamageType(pushedDamageType);
+            } else {
+                // No instance to upgrade - cannot apply
+                ui.notifications.warn("Cannot apply damage - no valid upgrade path");
+                return;
+            }
+        } else {
+            // New damage is EQUAL or MORE serious than the least serious damage
+            // Replace the last box with new damage, push the old one off
+            const pushedDamageType = health.levels[lastIndex].damageType;
+            
+            // Replace last box with new damage
+            health.levels[lastIndex].damageType = damageType;
+            
+            // The pushed damage upgrades another instance of itself (if exists)
+            const upgradeTargetIndex = health.levels.findIndex((level, idx) => 
+                idx !== lastIndex && level.marked && level.damageType === pushedDamageType
+            );
+            
+            if (upgradeTargetIndex !== -1) {
+                // Upgrade the first instance of the pushed damage type
+                health.levels[upgradeTargetIndex].damageType = this._upgradeDamageType(pushedDamageType);
+            }
+            // If no instance to upgrade, the pushed damage is just lost
         }
+        
+        // Re-sort after push and upgrade
+        this._sortDamageByPriority(health.levels);
+        return;
     }
-
+    
     /**
-     * Cascade displaced damage down the health track
-     * When damage is displaced, it moves to the next box
-     * If that box has same damage type, both upgrade to next level
+     * Get the lowest priority damage type currently in the health track
      * @private
      */
-    _cascadeDamage(levels, startIndex, displacedDamage) {
-        if (startIndex >= levels.length) {
-            // Fell off the end - damage is lost (character is worse off)
-            return;
-        }
+    _getLowestPriorityDamage(levels) {
+        let lowestPriority = 999;
+        let lowestType = null;
         
-        const targetBox = levels[startIndex];
-        
-        if (targetBox.damageType === displacedDamage) {
-            // Same damage type - upgrade both
-            targetBox.damageType = this._upgradeDamageType(displacedDamage);
-        } else {
-            // Different damage type - check priority
-            const displacedPriority = this._getDamagePriority(displacedDamage);
-            const targetPriority = this._getDamagePriority(targetBox.damageType);
-            
-            if (displacedPriority > targetPriority) {
-                // Displaced damage takes this spot, push current down
-                const furtherDisplaced = targetBox.damageType;
-                targetBox.damageType = displacedDamage;
-                this._cascadeDamage(levels, startIndex + 1, furtherDisplaced);
-            } else {
-                // Target is more serious, displaced damage is lost
-                // (Character is in bad shape)
+        for (const level of levels) {
+            if (level.marked) {
+                const priority = this._getDamagePriority(level.damageType);
+                if (priority < lowestPriority) {
+                    lowestPriority = priority;
+                    lowestType = level.damageType;
+                }
             }
         }
+        
+        return lowestType;
+    }
+    
+    /**
+     * Sort health levels by damage priority (most serious first)
+     * Preserves the original index, name, penalty - only reorders damageType and marked status
+     * @private
+     */
+    _sortDamageByPriority(levels) {
+        // Extract damage info (damageType, marked) from each level
+        const damageData = levels.map(level => ({
+            damageType: level.damageType,
+            marked: level.marked
+        }));
+        
+        // Sort by priority (aggravated → lethal → bashing → empty)
+        damageData.sort((a, b) => {
+            const priorityA = a.marked ? this._getDamagePriority(a.damageType) : -1;
+            const priorityB = b.marked ? this._getDamagePriority(b.damageType) : -1;
+            return priorityB - priorityA; // Descending (highest priority first)
+        });
+        
+        // Apply sorted damage back to levels (preserving index, name, penalty)
+        levels.forEach((level, i) => {
+            level.damageType = damageData[i].damageType;
+            level.marked = damageData[i].marked;
+        });
     }
 
     /**
@@ -663,17 +691,18 @@ export class WodActor extends Actor {
     }
 
     /**
-     * Heal one damage from top to bottom, least serious first
+     * Heal one damage from bottom to top (prevents gaps)
      * @private
      */
     _healOneDamage(health) {
-        // Direction: top to bottom (Bruised → Hurt → Injured → ... → Incapacitated)
-        // Always heal the least serious (topmost) damage first
+        // Direction: bottom to top (Incapacitated → ... → Injured → Hurt → Bruised)
+        // Always heal the last marked level to avoid gaps
+        // Example: If Bruised, Hurt, Injured are marked, heal Injured first
         
-        // Find first marked level from top
-        for (let i = 0; i < health.levels.length; i++) {
+        // Find last marked level from bottom
+        for (let i = health.levels.length - 1; i >= 0; i--) {
             if (health.levels[i].marked) {
-                // Found the topmost marked level, clear it
+                // Found the last marked level, clear it
                 health.levels[i].marked = false;
                 health.levels[i].damageType = null;
                 return;
@@ -682,12 +711,12 @@ export class WodActor extends Actor {
     }
 
     /**
-     * Heal specific damage type from top to bottom
+     * Heal specific damage type from bottom to top (prevents gaps)
      * @private
      */
     _healSpecificType(health, damageType) {
-        // Heal from top to bottom, finding the first instance of the specified type
-        for (let i = 0; i < health.levels.length; i++) {
+        // Heal from bottom to top, finding the last instance of the specified type
+        for (let i = health.levels.length - 1; i >= 0; i--) {
             if (health.levels[i].marked && health.levels[i].damageType === damageType) {
                 health.levels[i].marked = false;
                 health.levels[i].damageType = null;

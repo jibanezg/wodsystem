@@ -62,6 +62,34 @@
     border: none !important;
 }
 
+/* Add padding to content inside card sections (not header) - works for all creature types */
+.wod.sheet.actor .willpower-section > *:not(h4),
+.wod.sheet.actor .paradox-section > *:not(h4),
+.wod.sheet.actor .enlightenment-section > *:not(h4),
+.wod.sheet.actor .primal-energy-section > *:not(h4),
+.wod.sheet.actor .virtues-section > *:not(h4),
+.wod.sheet.actor .numina-section > *:not(h4),
+.wod.sheet.actor .attributes-section > *:not(h2),
+.wod.sheet.actor .abilities-section > *:not(h2),
+.wod.sheet.actor .health-section > *:not(h2),
+.wod.sheet.actor .spheres-section > *:not(h2),
+.wod.sheet.actor .procedures-section > *:not(h2),
+.wod.sheet.actor .devices-section > *:not(h2),
+.wod.sheet.actor .enhancements-section > *:not(h2),
+.wod.sheet.actor .experience-section > *:not(h3),
+.wod.sheet.actor .active-effects-section > *:not(div),
+.wod.sheet.actor .merits-section > *:not(h3),
+.wod.sheet.actor .flaws-section > *:not(h3),
+.wod.sheet.actor .secondary-ability-category > *:not(h4),
+.wod.sheet.actor .biography-section > *:not(h3),
+.wod.sheet.actor .bg-category-section > *:not(.bg-category-header),
+.wod.sheet.actor .bio-fields-section > *:not(h3),
+.wod.sheet.actor .backstory-section > *:not(h3),
+.wod.sheet.actor .notes-section > *:not(h3) {
+    padding: 12px !important;
+}
+
+
 /* Force remove ALL possible borders from attribute/ability sections */
 .wod.sheet.actor .attributes-grid > *,
 .wod.sheet.actor .abilities-grid > *,
@@ -75,21 +103,35 @@
     box-shadow: none !important;
 }
 
-/* Remove the ugly borders from attribute/ability categories - THE CULPRITS */
+/* Remove the ugly borders from attribute/ability categories - NO card effect here */
 .wod.sheet.actor .attribute-category,
 .wod.sheet.actor .ability-category {
     border: none !important;
     background: #f8f8f8 !important;
     border-radius: 6px !important;
     padding: 10px !important;
+    box-shadow: none !important;
+    margin-bottom: 10px !important;
 }
 
-/* Remove borders from advantage columns */
+/* Secondary ability categories - white card like merits/flaws */
+.wod.sheet.actor .secondary-ability-category {
+    background: #ffffff !important;
+    border-radius: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    overflow: visible !important;
+    margin-bottom: 10px !important;
+}
+
+/* Remove borders from advantage columns - NO card effect here */
 .wod.sheet.actor .advantage-column {
     border: none !important;
-    background: #f8f8f8 !important;
-    border-radius: 6px !important;
+    background: transparent !important;
+    border-radius: 0 !important;
     padding: 10px !important;
+    box-shadow: none !important;
 }
 
 /* Remove border from advantages-bottom */
@@ -107,15 +149,11 @@
     border: none !important;
 }
 
-/* Section backgrounds - "darker white" like equipment section background */
-.wod.sheet.actor .attribute-column,
-.wod.sheet.actor .ability-column,
-.wod.sheet.actor .talents-section,
-.wod.sheet.actor .skills-section,
-.wod.sheet.actor .knowledges-section {
-    background: #f8f8f8 !important;
-    padding: 12px !important;
-    border-radius: 6px !important;
+/* Grids inside sections - transparent or inherit to avoid double background */
+.wod.sheet.actor .attributes-grid,
+.wod.sheet.actor .abilities-grid,
+.wod.sheet.actor .secondary-abilities-grid {
+    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     overflow: visible !important;
@@ -245,29 +283,101 @@
    Category/tab buttons: flat color with hover
    ====================== */
 
-/* Add buttons - gradient like equipment */
+/* UNIFIED ADD BUTTONS - Green circular style across all tabs */
 .wod.sheet.actor .add-background,
 .wod.sheet.actor .add-merit,
 .wod.sheet.actor .add-flaw,
 .wod.sheet.actor .add-secondary-ability,
-.wod.sheet.actor .add-procedure {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+.wod.sheet.actor .add-secondary-talent,
+.wod.sheet.actor .add-secondary-skill,
+.wod.sheet.actor .add-secondary-knowledge,
+.wod.sheet.actor .add-procedure,
+.wod.sheet.actor .add-sphere,
+.wod.sheet.actor .add-device,
+.wod.sheet.actor .add-enhancement,
+.wod.sheet.actor .add-health-level,
+.wod.sheet.actor .add-effect-btn,
+.wod.sheet.actor .add-weapon,
+.wod.sheet.actor .add-armor,
+.wod.sheet.actor .add-gear,
+.wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn,
+.wod.sheet.actor .floating-add-bg,
+.wod.sheet.actor.technocrat .add-procedure,
+.wod.sheet.actor.technocrat .add-sphere,
+.wod.sheet.actor.technocrat .add-device,
+.wod.sheet.actor.technocrat .add-enhancement,
+.wod.sheet.actor.technocrat .floating-add-bg,
+.wod.sheet.actor.Mortal .floating-add-bg {
+    background: linear-gradient(135deg, var(--wod-success, #28a745) 0%, #218838 100%) !important;
     color: white !important;
     border: none !important;
-    padding: 6px 12px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-    transition: all 0.2s ease !important;
+    border-radius: 50% !important;
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    font-size: 1.1em !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
     cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    margin: 0 !important;
+}
+
+/* Ensure icons inside add buttons are perfectly centered */
+.wod.sheet.actor .add-background i,
+.wod.sheet.actor .add-merit i,
+.wod.sheet.actor .add-flaw i,
+.wod.sheet.actor .add-secondary-ability i,
+.wod.sheet.actor .add-secondary-talent i,
+.wod.sheet.actor .add-secondary-skill i,
+.wod.sheet.actor .add-secondary-knowledge i,
+.wod.sheet.actor .add-procedure i,
+.wod.sheet.actor .add-sphere i,
+.wod.sheet.actor .add-device i,
+.wod.sheet.actor .add-enhancement i,
+.wod.sheet.actor .add-health-level i,
+.wod.sheet.actor .add-effect-btn i,
+.wod.sheet.actor .add-weapon i,
+.wod.sheet.actor .add-armor i,
+.wod.sheet.actor .add-gear i,
+.wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn i,
+.wod.sheet.actor .floating-add-bg i {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: block !important;
 }
 
 .wod.sheet.actor .add-background:hover,
 .wod.sheet.actor .add-merit:hover,
 .wod.sheet.actor .add-flaw:hover,
 .wod.sheet.actor .add-secondary-ability:hover,
-.wod.sheet.actor .add-procedure:hover {
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
-    transform: translateY(-1px) !important;
+.wod.sheet.actor .add-secondary-talent:hover,
+.wod.sheet.actor .add-secondary-skill:hover,
+.wod.sheet.actor .add-secondary-knowledge:hover,
+.wod.sheet.actor .add-procedure:hover,
+.wod.sheet.actor .add-sphere:hover,
+.wod.sheet.actor .add-device:hover,
+.wod.sheet.actor .add-enhancement:hover,
+.wod.sheet.actor .add-health-level:hover,
+.wod.sheet.actor .add-effect-btn:hover,
+.wod.sheet.actor .add-weapon:hover,
+.wod.sheet.actor .add-armor:hover,
+.wod.sheet.actor .add-gear:hover,
+.wod.sheet.actor .tab[data-tab="equipment"] .footer-add-btn:hover,
+.wod.sheet.actor .floating-add-bg:hover,
+.wod.sheet.actor.technocrat .add-procedure:hover,
+.wod.sheet.actor.technocrat .add-sphere:hover,
+.wod.sheet.actor.technocrat .add-device:hover,
+.wod.sheet.actor.technocrat .add-enhancement:hover,
+.wod.sheet.actor.technocrat .floating-add-bg:hover,
+.wod.sheet.actor.Mortal .floating-add-bg:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Tab/Category style buttons - flat color with border on hover */
@@ -329,43 +439,179 @@
    ====================== */
 
 /* Section headers - gradient like equipment header */
+/* ALL main section headers - gradient based on creature type colors */
+/* ALL section headers - unified gradient style for all creature types */
+.wod.sheet.actor h2,
 .wod.sheet.actor h3.section-header,
-.wod.sheet.actor .section-title {
+.wod.sheet.actor .section-title,
+.wod.sheet.actor .attributes-section > h2,
+.wod.sheet.actor .abilities-section > h2,
+.wod.sheet.actor .health-section > h2,
+.wod.sheet.actor .spheres-section > h2,
+.wod.sheet.actor .procedures-section > h2,
+.wod.sheet.actor .advantages-section > h2,
+.wod.sheet.actor .backgrounds-section > h2,
+.wod.sheet.actor .backgrounds-section > h4,
+.wod.sheet.actor .willpower-section > h4,
+.wod.sheet.actor .enlightenment-section > h4,
+.wod.sheet.actor .primal-energy-section > h4,
+.wod.sheet.actor .paradox-section > h4,
+.wod.sheet.actor .experience-section > h3,
+.wod.sheet.actor .active-effects-section > h4,
+.wod.sheet.actor .merits-flaws-section > div > h3,
+.wod.sheet.actor .merits-section > h3,
+.wod.sheet.actor .flaws-section > h3,
+.wod.sheet.actor .virtues-section > h4,
+.wod.sheet.actor .numina-section > h4,
+.wod.sheet.actor .biography-section h3,
+.wod.sheet.actor .devices-section > h2,
+.wod.sheet.actor .enhancements-section > h2,
+.wod.sheet.actor .bg-category-header h3,
+.wod.sheet.actor .bio-fields-section > h3,
+.wod.sheet.actor .backstory-section > h3,
+.wod.sheet.actor .notes-section > h3,
+.wod.sheet.actor .secondary-ability-category h4 {
     background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
     color: white !important;
     padding: 10px 16px !important;
-    border-radius: 4px !important;
+    border-radius: 6px 6px 0 0 !important;
     text-align: center !important;
     font-weight: 600 !important;
+    font-size: 0.75em !important;
     text-transform: uppercase !important;
     letter-spacing: 1px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
     border: none !important;
+    margin: 0 !important;
 }
 
-/* Subtle section backgrounds - "darker white" container */
+/* Category headers inside sections (Talents, Skills, Knowledges, Physical, Social, Mental) - subtle style */
+.wod.sheet.actor .attribute-category h3,
+.wod.sheet.actor .ability-category h3 {
+    background: #e8e8e8 !important;
+    color: #333 !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-size: 0.85em !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin-bottom: 8px !important;
+}
+
+/* ============================================================
+   WILLPOWER & PARADOX - SHARED STYLING (CLEAN, NO CONFLICTS)
+   ============================================================ */
+
+/* Tracks container - shared between willpower and paradox */
+.wod.sheet.actor .willpower-tracks,
+.wod.sheet.actor .paradox-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px;
+}
+
+/* Permanent tracks - shared between willpower and paradox */
+.wod.sheet.actor .willpower-permanent,
+.wod.sheet.actor .paradox-permanent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7em;
+}
+
+/* Temporary tracks - shared between willpower and paradox */
+.wod.sheet.actor .willpower-temporary,
+.wod.sheet.actor .paradox-temporary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7em;
+}
+
+/* Labels - shared between willpower and paradox */
+.willpower-permanent label,
+.willpower-temporary label,
+.paradox-permanent label,
+.paradox-temporary label {
+    font-weight: bold;
+    margin-right: 3px;
+}
+
+/* Temporary uses SQUARES instead of circles - shared */
+.wod.sheet.actor .willpower-temporary .dot,
+.wod.sheet.actor .paradox-temporary .dot {
+    border-radius: 0;
+}
+
+
+/* Enlightenment section - center the dots */
+.wod.sheet.actor .enlightenment-track {
+    display: flex !important;
+    justify-content: center !important;
+    padding: 5px !important;
+}
+
+.wod.sheet.actor .enlightenment-track .dot-container {
+    justify-content: center !important;
+}
+
+/* Parent containers - transparent, no card effect */
+.wod.sheet.actor .attributes-abilities-section,
+.wod.sheet.actor .secondary-abilities-section,
+.wod.sheet.actor .health-sidebar {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Individual sections - CARD styling with shadow (works for ALL creature types) */
 .wod.sheet.actor .advantages-section,
 .wod.sheet.actor .backgrounds-section,
 .wod.sheet.actor .merits-flaws-section,
-.wod.sheet.actor .secondary-abilities-section,
+.wod.sheet.actor .merits-section,
+.wod.sheet.actor .flaws-section,
 .wod.sheet.actor .spheres-section,
 .wod.sheet.actor .procedures-section,
 .wod.sheet.actor .health-section,
-.wod.sheet.actor .experience-section {
-    background: #f8f8f8 !important;
+.wod.sheet.actor .experience-section,
+.wod.sheet.actor .attributes-section,
+.wod.sheet.actor .abilities-section,
+.wod.sheet.actor .willpower-section,
+.wod.sheet.actor .enlightenment-section,
+.wod.sheet.actor .primal-energy-section,
+.wod.sheet.actor .paradox-section,
+.wod.sheet.actor .virtues-section,
+.wod.sheet.actor .numina-section,
+.wod.sheet.actor .devices-section,
+.wod.sheet.actor .enhancements-section,
+.wod.sheet.actor .biography-section,
+.wod.sheet.actor .active-effects-section,
+.wod.sheet.actor .bg-category-section,
+.wod.sheet.actor .bio-fields-section,
+.wod.sheet.actor .backstory-section,
+.wod.sheet.actor .notes-section {
+    background: #ffffff !important;
     border-radius: 6px !important;
-    padding: 12px !important;
+    padding: 0 !important;
     border: none !important;
-    box-shadow: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     overflow: visible !important;
     max-height: none !important;
+    margin-bottom: 10px !important;
 }
 
 /* Headers within these sections - match equipment style */
 .wod.sheet.actor .advantages-section h3,
 .wod.sheet.actor .backgrounds-section h3,
 .wod.sheet.actor .merits-flaws-section h3,
-.wod.sheet.actor .secondary-abilities-section h3,
 .wod.sheet.actor .spheres-section h3,
 .wod.sheet.actor .procedures-section h3 {
     background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
@@ -476,22 +722,26 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Willpower section - pure white card */
-.wod.sheet.actor .willpower-section {
+/* Health section - card with shadow (same as others) */
+.wod.sheet.actor .health-section {
     background: #ffffff !important;
     border: none !important;
-    border-left: 4px solid var(--wod-accent) !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     padding: 12px !important;
     overflow: visible !important;
     max-height: none !important;
+    margin-bottom: 10px !important;
 }
 
-/* Health sidebar container */
+/* Health sidebar container - transparent, no card effect (just container) */
 .wod.sheet.actor .health-sidebar {
     overflow: visible !important;
     max-height: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
 }
 
 /* Virtue rows - pure white cards */
@@ -522,39 +772,131 @@
     padding: 12px !important;
 }
 
-/* Experience section - pure white card */
-.wod.sheet.actor .experience-container {
+/* Experience section - card with shadow (no special left border, same as others) */
+.wod.sheet.actor .experience-section {
     background: #ffffff !important;
     border: none !important;
-    border-left: 4px solid #FFA726 !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     padding: 12px !important;
     overflow: visible !important;
     max-height: none !important;
-}
-
-/* Backgrounds expanded - pure white cards */
-.wod.sheet.actor .bg-expanded-category {
-    background: #ffffff !important;
-    border: none !important;
-    border-left: 4px solid var(--wod-primary) !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
-    transition: all 0.2s ease !important;
-    padding: 12px !important;
     margin-bottom: 10px !important;
 }
 
-.wod.sheet.actor .bg-expanded-category:hover {
-    transform: translateX(2px) !important;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12) !important;
+/* Backgrounds expanded - remove borders, apply card style */
+.wod.sheet.actor .bg-category-section,
+.wod.sheet.actor.technocrat .bg-category-section,
+.wod.sheet.actor.Mortal .bg-category-section {
+    border: none !important;
+    margin-bottom: 10px !important;
 }
 
-.wod.sheet.actor .bg-detail-row {
-    background: #f8f8f8 !important;
+/* Background category header - remove double background issue */
+.wod.sheet.actor .bg-category-header,
+.wod.sheet.actor.technocrat .bg-category-header,
+.wod.sheet.actor.Mortal .bg-category-header {
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.wod.sheet.actor .bg-category-header:hover,
+.wod.sheet.actor.technocrat .bg-category-header:hover,
+.wod.sheet.actor.Mortal .bg-category-header:hover {
+    background: none !important;
+}
+
+/* Background mini cards - no borders, clean card style like Equipment */
+.wod.sheet.actor .bg-card-mini,
+.wod.sheet.actor.technocrat .bg-card-mini,
+.wod.sheet.actor.Mortal .bg-card-mini {
+    background: #ffffff !important;
     border: none !important;
-    border-radius: 3px !important;
+    border-left: 3px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    padding: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor .bg-card-mini:hover,
+.wod.sheet.actor.technocrat .bg-card-mini:hover,
+.wod.sheet.actor.Mortal .bg-card-mini:hover {
+    transform: translateX(3px) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12) !important;
+    border-left-width: 4px !important;
+}
+
+/* Background card header - no border */
+.wod.sheet.actor .bg-card-mini-header,
+.wod.sheet.actor.technocrat .bg-card-mini-header,
+.wod.sheet.actor.Mortal .bg-card-mini-header {
+    border-bottom: none !important;
+}
+
+/* Floating add background button - now unified with all add buttons above */
+
+/* Health Damage Buttons - Very small, compact, color-coded */
+.wod.sheet.actor .health-damage-buttons {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 6px;
+    justify-content: center;
+}
+
+.wod.sheet.actor .damage-btn {
+    padding: 2px 5px;
+    font-size: 0.55em;
+    font-weight: 600;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.wod.sheet.actor .damage-btn i {
+    font-size: 0.85em;
+}
+
+.wod.sheet.actor .bashing-btn {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    color: white;
+}
+
+.wod.sheet.actor .bashing-btn:hover {
+    background: linear-gradient(135deg, #5a6268 0%, #495057 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.wod.sheet.actor .lethal-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+}
+
+.wod.sheet.actor .lethal-btn:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.wod.sheet.actor .aggravated-btn {
+    background: linear-gradient(135deg, #343a40 0%, #23272b 100%);
+    color: white;
+}
+
+.wod.sheet.actor .aggravated-btn:hover {
+    background: linear-gradient(135deg, #23272b 0%, #1d2124 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
     padding: 4px 8px !important;
     margin-bottom: 3px !important;
 }
@@ -593,16 +935,50 @@
     color: #43A047 !important;
 }
 
-/* Active Effects section - pure white card */
+/* Active Effects section - card with shadow (same as others) */
 .wod.sheet.actor .active-effects-section {
     background: #ffffff !important;
     border: none !important;
-    border-left: 4px solid var(--wod-accent) !important;
-    border-radius: 4px !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
-    padding: 10px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    padding: 12px !important;
     overflow: visible !important;
     max-height: none !important;
+    margin-bottom: 10px !important;
+}
+
+/* Status Effects controls - match background controls style */
+.wod.sheet.actor .effects-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px;
+}
+
+/* Add Effect button - now unified with all add buttons above (no need for specific style) */
+
+/* Manage Effects button - small gear icon */
+.wod.sheet.actor .effects-controls .manage-effects-btn {
+    background: var(--wod-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.wod.sheet.actor .effects-controls .manage-effects-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 .wod.sheet.actor .effect-preview-item {

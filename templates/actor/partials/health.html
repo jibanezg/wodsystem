@@ -36,12 +36,26 @@
         </div>
     {{else}}
         <!-- VIEW MODE: Current display with damage tracking -->
+        
+        <!-- Damage Type Buttons -->
+        <div class="health-damage-buttons">
+            <button class="damage-btn bashing-btn" type="button" data-damage-type="bashing" title="Add Bashing Damage">
+                <i class="fas fa-fist-raised"></i> B
+            </button>
+            <button class="damage-btn lethal-btn" type="button" data-damage-type="lethal" title="Add Lethal Damage">
+                <i class="fas fa-bolt"></i> L
+            </button>
+            <button class="damage-btn aggravated-btn" type="button" data-damage-type="aggravated" title="Add Aggravated Damage">
+                <i class="fas fa-skull"></i> A
+            </button>
+        </div>
+        
         <div class="health-track">
             {{#each actor.system.miscellaneous.health.levels as |level|}}
             <div class="health-level">
                 <div class="health-box {{#if level.marked}}marked damage-{{level.damageType}}{{/if}}" 
                      data-index="{{level.index}}"
-                     title="Left: Single=Bashing, Double=Lethal, Triple=Aggravated | Right: Heal">
+                     title="Right-click to heal">
                 </div>
                 <span class="health-name">{{level.name}}</span>
                 <span class="health-penalty">

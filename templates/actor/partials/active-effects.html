@@ -1,21 +1,16 @@
 <!-- Active Effects Section -->
 <div class="active-effects-section">
-    <div class="effects-header">
-        <h3>
-            <i class="fas fa-magic"></i> Status Effects
-            {{#if effects.length}}
-            <span class="effects-count-badge">{{effects.length}}</span>
-            {{/if}}
-        </h3>
-        <button type="button" class="manage-effects-btn" title="Manage Effects">
-            <i class="fas fa-cog"></i>
-        </button>
-    </div>
+    <h4>
+        <i class="fas fa-magic"></i> Status Effects
+        {{#if effects.length}}
+        <span class="effects-count-badge">{{effects.length}}</span>
+        {{/if}}
+    </h4>
     
     {{#if effects.length}}
     <div class="effects-preview">
         {{#each effects}}
-        <div class="effect-preview-item" data-effect-id="{{this.id}}" title="Left-click to edit, Right-click to delete">
+        <div class="effect-preview-item" data-effect-id="{{this.id}}" title="{{this.name}}">
             <img src="{{this.icon}}" alt="{{this.name}}" class="effect-icon-small" />
             <span class="effect-name-short">{{this.name}}</span>
             {{#if this.isPlayerCreated}}
@@ -23,16 +18,21 @@
             {{else}}
             <span class="effect-type-indicator st" title="Storyteller Created">ST</span>
             {{/if}}
+            <button type="button" class="delete-effect-preview-item" data-effect-id="{{this.id}}" title="Delete Effect"><i class="fas fa-trash"></i></button>
         </div>
         {{/each}}
     </div>
     {{else}}
     <div class="effects-empty">
         <p>No active effects</p>
-        <button type="button" class="create-first-effect" title="Create your first effect">
-            <i class="fas fa-plus"></i> Add Effect
-        </button>
     </div>
     {{/if}}
+    
+    <div class="effects-controls">
+        <button type="button" class="add-effect-btn" title="Add Effect">+</button>
+        <button type="button" class="manage-effects-btn" title="Manage Effects">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
 </div>
 
