@@ -942,6 +942,29 @@
     border-radius: 6px !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     padding: 12px !important;
+}
+
+/* When Effects section is in its own tab, give it more breathing room */
+.wod.sheet.actor .tab[data-tab="effects"] .active-effects-section {
+    max-width: 100% !important;
+    padding: 16px !important;
+}
+
+/* Effects preview in tab - use grid layout to take advantage of horizontal space */
+.wod.sheet.actor .tab[data-tab="effects"] .effects-preview {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 8px !important;
+}
+
+/* Effect items in tab - slightly larger and more detailed */
+.wod.sheet.actor .tab[data-tab="effects"] .effect-preview-item {
+    padding: 10px 12px !important;
+}
+
+.wod.sheet.actor .tab[data-tab="effects"] .effect-name-short {
+    font-size: 0.85em !important;
+}
     overflow: visible !important;
     max-height: none !important;
     margin-bottom: 10px !important;

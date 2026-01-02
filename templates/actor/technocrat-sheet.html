@@ -9,6 +9,7 @@
         <a class="item" data-tab="backgrounds-expanded">Backgrounds (Expanded)</a>
         <a class="item" data-tab="traits">Traits</a>
         <a class="item" data-tab="equipment">Equipment</a>
+        <a class="item" data-tab="effects">Effects</a>
         <a class="item" data-tab="biography">Biography</a>
     </nav>
 
@@ -33,7 +34,6 @@
                 <div class="health-sidebar">
                     {{> "systems/wodsystem/templates/actor/partials/health.html"}}
                     {{> "systems/wodsystem/templates/actor/partials/experience.html"}}
-                    {{> "systems/wodsystem/templates/actor/partials/active-effects.html"}}
                 </div>
             </div>
         </div>
@@ -66,6 +66,11 @@
         <!-- Equipment Tab -->
         <div class="tab" data-group="primary" data-tab="equipment">
             {{> "systems/wodsystem/templates/actor/partials/equipment.html"}}
+        </div>
+
+        <!-- Effects Tab -->
+        <div class="tab" data-group="primary" data-tab="effects">
+            {{> "systems/wodsystem/templates/actor/partials/active-effects.html"}}
         </div>
 
         <!-- Biography Tab -->
