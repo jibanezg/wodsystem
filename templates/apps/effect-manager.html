@@ -1,39 +1,30 @@
 <form class="wod-effect-manager">
+    <!-- Basic Information Section -->
     <div class="effect-header-section">
+        <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+        
         <div class="form-group">
             <label>Effect Name</label>
             <input type="text" name="name" value="{{effect.name}}" placeholder="Status name..." />
         </div>
         
         <div class="form-group">
-            <label>Icon Path</label>
+            <label>Icon Path <span class="help-text">(Optional)</span></label>
             <input type="text" name="icon" value="{{effect.icon}}" placeholder="icons/svg/aura.svg" />
+            <p class="help-text">Leave empty to use default icon (icons/svg/aura.svg)</p>
         </div>
     </div>
     
+    <!-- Metadata Section -->
     <div class="effect-metadata-section">
+        <h3><i class="fas fa-user-tag"></i> Effect Type</h3>
+        
         <div class="form-group">
             <label>Created By</label>
-            <input type="text" value="{{#if isGM}}Storyteller{{else}}Player{{/if}}" readonly disabled style="opacity: 0.7; cursor: not-allowed;" />
+            <input type="text" value="{{#if isGM}}Storyteller{{else}}Player{{/if}}" readonly disabled />
             <input type="hidden" name="createdBy" value="{{effect.createdBy}}" />
         </div>
         
-        {{#if isPlayerEffect}}
-        <div class="form-group checkbox-group">
-            <label>
-                <input type="checkbox" name="hasSideEffect" {{#if effect.hasSideEffect}}checked{{/if}} />
-                Has Side Effect
-            </label>
-        </div>
-        
-        <div class="form-group checkbox-group">
-            <label>
-                <input type="checkbox" name="sideEffectAuto" {{#if effect.sideEffectAuto}}checked{{/if}} />
-                Auto-Apply Side Effect
-            </label>
-            <small>Check if the side effect should be automatically applied (usually negative)</small>
-        </div>
-        {{/if}}
         
         {{#if isGM}}
         <div class="form-group checkbox-group">
@@ -46,8 +37,9 @@
         {{/if}}
     </div>
     
+    <!-- Conditions Section -->
     <div class="effect-conditions-section">
-        <h3>When to Apply Effect</h3>
+        <h3><i class="fas fa-filter"></i> When to Apply Effect</h3>
         
         <div class="form-group">
             <label>Condition Scope</label>
@@ -60,19 +52,22 @@
         </div>
         
         <div class="form-group condition-target-group" style="{{#if effect.hideConditionTarget}}display: none;{{/if}}">
-            <label class="condition-target-label">Specific Target</label>
-            <select name="conditionTarget" class="condition-target-select">
-                <option value="">-- Select --</option>
+            <label class="condition-target-label">Specific Targets (select one or more)</label>
+            <div class="condition-targets-checkboxes">
                 {{#each conditionTargets}}
-                <option value="{{this.value}}" {{#eq this.value ../effect.conditionTarget}}selected{{/eq}}>{{this.label}}</option>
+                <label class="condition-target-checkbox">
+                    <input type="checkbox" name="conditionTargets" value="{{this.value}}" {{#if this.checked}}checked{{/if}} />
+                    <span>{{this.label}}</span>
+                </label>
                 {{/each}}
-            </select>
-            <small class="condition-target-help">Select which specific trait this effect applies to</small>
+            </div>
+            <small class="condition-target-help">Select which specific traits this effect applies to (you can select multiple)</small>
         </div>
     </div>
     
+    <!-- Modifiers Section -->
     <div class="effect-modifiers">
-        <h3>Modifiers</h3>
+        <h3><i class="fas fa-sliders-h"></i> Modifiers</h3>
         <p class="modifiers-help"><small>Use positive values (+2, +3) for bonuses, negative values (-2, -3) for penalties</small></p>
         <div class="modifiers-list">
             {{#each effect.changes}}
@@ -88,19 +83,17 @@
             </div>
             {{/each}}
         </div>
-        <button type="button" class="add-modifier-row"><i class="fas fa-plus"></i> Add Modifier</button>
+        <button type="button" class="add-modifier-row" title="Add Modifier"><i class="fas fa-plus"></i></button>
     </div>
     
+    <!-- Action Buttons -->
     <div class="dialog-buttons">
         <button type="button" class="save-effect">
             <i class="fas fa-save"></i> Save Effect
         </button>
-        {{#if effect.id}}
-        <button type="button" class="delete-effect" style="background: var(--wod-danger, #dc143c);">
-            <i class="fas fa-trash"></i> Delete Effect
+        <button type="button" class="cancel-effect">
+            <i class="fas fa-times"></i> Cancel
         </button>
-        {{/if}}
-        <button type="button" class="cancel-effect">Cancel</button>
     </div>
 </form>
 

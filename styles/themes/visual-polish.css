@@ -947,38 +947,22 @@
     margin-bottom: 10px !important;
 }
 
-/* Status Effects controls - match background controls style */
+/* Status Effects controls - centered add button */
 .wod.sheet.actor .effects-controls {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 6px;
     margin-top: 8px;
     padding: 6px;
 }
 
-/* Add Effect button - now unified with all add buttons above (no need for specific style) */
+/* Add Effect button - unified with all add buttons above (styling inherited) */
 
-/* Manage Effects button - small gear icon */
-.wod.sheet.actor .effects-controls .manage-effects-btn {
-    background: var(--wod-primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.wod.sheet.actor .effects-controls .manage-effects-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+/* Effects preview container */
+.wod.sheet.actor .effects-preview {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
 }
 
 .wod.sheet.actor .effect-preview-item {
@@ -988,13 +972,264 @@
     border-radius: 4px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
     transition: all 0.15s ease !important;
-    padding: 4px 8px !important;
-    margin-bottom: 3px !important;
+    padding: 6px 8px !important;
+    margin-bottom: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
 }
 
 .wod.sheet.actor .effect-preview-item:hover {
     transform: translateX(2px) !important;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
     background: #ffffff !important;
+}
+
+/* ST-locked effects (players can't edit) */
+.wod.sheet.actor .effect-preview-item.st-effect-locked {
+    cursor: default !important;
+    opacity: 0.85 !important;
+}
+
+.wod.sheet.actor .effect-preview-item.st-effect-locked:hover {
+    transform: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    background: #f8f8f8 !important;
+}
+
+/* Secondary ability inputs as trait labels (rollable) */
+.wod.sheet.actor input.ability-name-input.trait-label {
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    font-weight: 500 !important;
+    padding: 2px 4px !important;
+    color: #333 !important; /* Dark text when NOT selectable */
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor input.ability-name-input.trait-label:hover:not(.selectable) {
+    background: rgba(70, 130, 180, 0.1) !important;
+}
+
+/* Pool selection mode - ALL selectable elements (labels AND inputs) */
+.pool-selection-active .trait-label.selectable,
+.pool-selection-active label.trait-label.selectable,
+.pool-selection-active input.ability-name-input.trait-label.selectable,
+.pool-selection-active input.ability-name-input.selectable {
+    color: white !important; /* White text on colored background */
+    font-weight: bold !important;
+    padding: 6px 10px !important;
+    border: 2px solid transparent !important;
+    border-radius: 4px !important;
+    animation: pulse 1.5s infinite !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+    text-align: left !important;
+    display: inline-block !important;
+}
+
+/* Talents - Yellow/Gold (both labels and inputs) */
+.pool-selection-active .trait-label.selectable[data-category="talents"],
+.pool-selection-active label.trait-label.selectable[data-category="talents"],
+.pool-selection-active input.ability-name-input.trait-label.selectable[data-category="talents"],
+.pool-selection-active input.ability-name-input.selectable[data-category="talents"] {
+    background: #F39C12 !important;
+    background-color: #F39C12 !important;
+    border-color: #D68910 !important;
+    box-shadow: 0 0 15px #F39C12 !important;
+}
+
+/* Skills - Blue (both labels and inputs) */
+.pool-selection-active .trait-label.selectable[data-category="skills"],
+.pool-selection-active label.trait-label.selectable[data-category="skills"],
+.pool-selection-active input.ability-name-input.trait-label.selectable[data-category="skills"],
+.pool-selection-active input.ability-name-input.selectable[data-category="skills"] {
+    background: #3498DB !important;
+    background-color: #3498DB !important;
+    border-color: #2980B9 !important;
+    box-shadow: 0 0 15px #3498DB !important;
+}
+
+/* Knowledges - Purple (both labels and inputs) */
+.pool-selection-active .trait-label.selectable[data-category="knowledges"],
+.pool-selection-active label.trait-label.selectable[data-category="knowledges"],
+.pool-selection-active input.ability-name-input.trait-label.selectable[data-category="knowledges"],
+.pool-selection-active input.ability-name-input.selectable[data-category="knowledges"] {
+    background: #9B59B6 !important;
+    background-color: #9B59B6 !important;
+    border-color: #8E44AD !important;
+    box-shadow: 0 0 15px #9B59B6 !important;
+}
+
+/* Super aggressive override for secondary abilities in pool selection */
+.wod.sheet.actor.pool-selection-active input.ability-name-input.trait-label.selectable[data-category="talents"],
+.wod.sheet.actor.pool-selection-active .secondary-ability input.selectable[data-category="talents"] {
+    background: #F39C12 !important;
+    background-color: #F39C12 !important;
+    color: white !important;
+    border: 2px solid #D68910 !important;
+    box-shadow: 0 0 15px #F39C12, inset 0 0 0 100px #F39C12 !important;
+}
+
+.wod.sheet.actor.pool-selection-active input.ability-name-input.trait-label.selectable[data-category="skills"],
+.wod.sheet.actor.pool-selection-active .secondary-ability input.selectable[data-category="skills"] {
+    background: #3498DB !important;
+    background-color: #3498DB !important;
+    color: white !important;
+    border: 2px solid #2980B9 !important;
+    box-shadow: 0 0 15px #3498DB, inset 0 0 0 100px #3498DB !important;
+}
+
+.wod.sheet.actor.pool-selection-active input.ability-name-input.trait-label.selectable[data-category="knowledges"],
+.wod.sheet.actor.pool-selection-active .secondary-ability input.selectable[data-category="knowledges"] {
+    background: #9B59B6 !important;
+    background-color: #9B59B6 !important;
+    color: white !important;
+    border: 2px solid #8E44AD !important;
+    box-shadow: 0 0 15px #9B59B6, inset 0 0 0 100px #9B59B6 !important;
+}
+
+/* Super aggressive override for attributes in pool selection (when secondary ability is clicked first) */
+.wod.sheet.actor.pool-selection-active .trait-label.selectable[data-category="attribute"][data-attribute-type="physical"],
+.wod.sheet.actor.pool-selection-active label.trait-label.selectable[data-attribute-type="physical"] {
+    background: #E74C3C !important;
+    background-color: #E74C3C !important;
+    color: white !important;
+    border: 2px solid #C0392B !important;
+    box-shadow: 0 0 15px #E74C3C !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
+    animation: pulse 1.5s infinite !important;
+}
+
+.wod.sheet.actor.pool-selection-active .trait-label.selectable[data-category="attribute"][data-attribute-type="social"],
+.wod.sheet.actor.pool-selection-active label.trait-label.selectable[data-attribute-type="social"] {
+    background: #2ECC71 !important;
+    background-color: #2ECC71 !important;
+    color: white !important;
+    border: 2px solid #27AE60 !important;
+    box-shadow: 0 0 15px #2ECC71 !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
+    animation: pulse 1.5s infinite !important;
+}
+
+.wod.sheet.actor.pool-selection-active .trait-label.selectable[data-category="attribute"][data-attribute-type="mental"],
+.wod.sheet.actor.pool-selection-active label.trait-label.selectable[data-attribute-type="mental"] {
+    background: #3498DB !important;
+    background-color: #3498DB !important;
+    color: white !important;
+    border: 2px solid #2980B9 !important;
+    box-shadow: 0 0 15px #3498DB !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
+    animation: pulse 1.5s infinite !important;
+}
+
+.wod.sheet.actor .effect-icon-small {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    border-radius: 3px !important;
+    flex: 0 0 auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    border: 1px solid rgba(0, 0, 0, 0.25) !important;
+    background: linear-gradient(135deg, #5a6a7a 0%, #4a5a6a 100%) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 2px !important;
+    box-sizing: border-box !important;
+}
+
+/* Debug: Ensure img tags are shown */
+.wod.sheet.actor .effect-preview-item img {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* Ensure no checkboxes appear in effect preview */
+.wod.sheet.actor .effect-preview-item input[type="checkbox"] {
+    display: none !important;
+}
+
+.wod.sheet.actor .effect-name-short {
+    flex: 1 !important;
+    font-size: 0.75em !important;
+    font-weight: 500 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.wod.sheet.actor .effect-type-indicator {
+    flex: 0 0 auto !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.65em !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+.wod.sheet.actor .effect-type-indicator.player {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
+    color: white !important;
+}
+
+.wod.sheet.actor .effect-type-indicator.st {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
+    color: #333 !important;
+}
+
+.wod.sheet.actor .delete-effect-preview-item {
+    flex: 0 0 auto !important;
+    width: 20px !important;
+    height: 20px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: #dc3545 !important;
+    border: none !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wod.sheet.actor .delete-effect-preview-item:hover {
+    background: rgba(220, 53, 69, 0.1) !important;
+    transform: scale(1.15) !important;
+    color: #c82333 !important;
+}
+
+.wod.sheet.actor .delete-effect-preview-item i {
+    font-size: 0.7em !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.wod.sheet.actor .effects-empty {
+    text-align: center !important;
+    padding: 12px 8px !important;
+    font-style: italic !important;
+    color: #999 !important;
+    font-size: 0.75em !important;
+}
+
+.wod.sheet.actor .effects-empty p {
+    margin: 0 !important;
 }
 

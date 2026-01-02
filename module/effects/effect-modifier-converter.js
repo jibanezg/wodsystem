@@ -85,13 +85,25 @@ export class EffectModifierConverter {
      * @private
      */
     static _getWodFlags(effect) {
+        let conditionTargets = effect.getFlag('wodsystem', 'conditionTargets') || [];
+        
+        // Backwards compatibility: convert old single conditionTarget to array
+        if (!Array.isArray(conditionTargets)) {
+            const oldTarget = effect.getFlag('wodsystem', 'conditionTarget');
+            if (oldTarget) {
+                conditionTargets = [oldTarget];
+            } else {
+                conditionTargets = [];
+            }
+        }
+        
         return {
             createdBy: effect.getFlag('wodsystem', 'createdBy') || 'storyteller',
             mandatory: effect.getFlag('wodsystem', 'mandatory') === true,
             hasSideEffect: effect.getFlag('wodsystem', 'hasSideEffect') === true,
             sideEffectAuto: effect.getFlag('wodsystem', 'sideEffectAuto') === true,
             conditionScope: effect.getFlag('wodsystem', 'conditionScope') || 'always',
-            conditionTarget: effect.getFlag('wodsystem', 'conditionTarget') || null
+            conditionTargets: conditionTargets // Now an array
         };
     }
 
@@ -118,7 +130,12 @@ export class EffectModifierConverter {
      */
     static _conditionsMet(effect, rollContext, wodFlags) {
         const scope = wodFlags.conditionScope;
-        const target = wodFlags.conditionTarget;
+        const targets = wodFlags.conditionTargets || [];
+        
+        // If no targets specified, don't apply (except for 'always')
+        if (scope !== 'always' && targets.length === 0) {
+            return false;
+        }
         
         switch(scope) {
             case 'always':
@@ -126,31 +143,36 @@ export class EffectModifierConverter {
                 return true;
                 
             case 'attribute':
-                // Check if any rolled trait is the specific attribute
+                // Check if any rolled trait is one of the specific attributes
                 return rollContext.traits?.some(t => 
-                    t.type === 'attribute' && t.name === target
+                    t.type === 'attribute' && targets.includes(t.name)
                 );
                 
             case 'ability':
-                // Check if any rolled trait is the specific ability
+                // Check if any rolled trait is one of the specific abilities
                 return rollContext.traits?.some(t => 
-                    t.type === 'ability' && t.name === target
+                    t.type === 'ability' && targets.includes(t.name)
                 );
                 
             case 'advantage':
                 // Check if rolling specific advantage (willpower, background, etc.)
-                if (target === 'Willpower') {
-                    return rollContext.traits?.some(t => 
-                        t.category === 'willpower' || t.name === 'Willpower'
-                    );
-                } else if (target === 'Enlightenment') {
-                    return rollContext.traits?.some(t => 
-                        t.category === 'enlightenment' || t.name === 'Enlightenment'
-                    );
-                } else if (target === 'Background') {
-                    return rollContext.traits?.some(t => t.category === 'background');
-                }
-                return false;
+                return rollContext.traits?.some(t => {
+                    // Check for Willpower
+                    if (targets.includes('Willpower') && 
+                        (t.category === 'willpower' || t.name === 'Willpower')) {
+                        return true;
+                    }
+                    // Check for Enlightenment
+                    if (targets.includes('Enlightenment') && 
+                        (t.category === 'enlightenment' || t.name === 'Enlightenment')) {
+                        return true;
+                    }
+                    // Check for Background
+                    if (targets.includes('Background') && t.category === 'background') {
+                        return true;
+                    }
+                    return false;
+                });
                 
             // FUTURE: Add cases for 'soak', 'damage', 'combat', etc.
             // case 'soak':
@@ -202,7 +224,7 @@ export class EffectModifierConverter {
             mandatory: wodFlags.mandatory,
             effectId: effect.id,
             createdBy: wodFlags.createdBy,
-            icon: effect.icon
+            icon: effect.img || effect.icon || "icons/svg/aura.svg" // Use img (v12+) with fallback
         };
     }
 

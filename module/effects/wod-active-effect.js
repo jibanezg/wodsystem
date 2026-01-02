@@ -7,10 +7,8 @@ export class WodActiveEffect extends ActiveEffect {
     static WOD_FLAGS = {
         CREATED_BY: "wodsystem.createdBy",        // "player" or "storyteller"
         MANDATORY: "wodsystem.mandatory",         // true for ST effects (auto-applied)
-        HAS_SIDE_EFFECT: "wodsystem.hasSideEffect", // true if player effect has downside
-        SIDE_EFFECT_AUTO: "wodsystem.sideEffectAuto", // auto-apply the side effect
         CONDITION_SCOPE: "wodsystem.conditionScope", // "always", "attribute", "ability", "advantage", etc. (EXTENSIBLE)
-        CONDITION_TARGET: "wodsystem.conditionTarget" // Specific target (e.g., "Dexterity", "Firearms", "Willpower")
+        CONDITION_TARGETS: "wodsystem.conditionTargets" // Array of specific targets (e.g., ["Dexterity", "Strength"], ["Firearms", "Melee"])
     };
     
     // Modifier types for dice pool system
@@ -37,21 +35,6 @@ export class WodActiveEffect extends ActiveEffect {
         return this.getFlag('wodsystem', 'createdBy') || 'storyteller';
     }
 
-    /**
-     * Check if this effect has a side effect
-     * @returns {boolean}
-     */
-    get hasSideEffect() {
-        return this.getFlag('wodsystem', 'hasSideEffect') === true;
-    }
-
-    /**
-     * Check if side effect is auto-applied
-     * @returns {boolean}
-     */
-    get sideEffectAuto() {
-        return this.getFlag('wodsystem', 'sideEffectAuto') === true;
-    }
 
     /**
      * Create a new WoD Active Effect with standard flags
@@ -62,15 +45,13 @@ export class WodActiveEffect extends ActiveEffect {
     static async createWodEffect(effectData, actor) {
         const defaultData = {
             name: effectData.name || "New Status",
-            icon: effectData.icon || "icons/svg/aura.svg",
+            img: effectData.icon || effectData.img || "icons/svg/aura.svg", // Use img (v12+)
             flags: {
                 wodsystem: {
                     createdBy: effectData.createdBy || 'storyteller',
                     mandatory: effectData.mandatory !== undefined ? effectData.mandatory : false,
-                    hasSideEffect: effectData.hasSideEffect || false,
-                    sideEffectAuto: effectData.sideEffectAuto || false,
-                    conditionType: effectData.conditionType || 'always',
-                    conditionValue: effectData.conditionValue || null
+                    conditionScope: effectData.conditionScope || 'always',
+                    conditionTargets: effectData.conditionTargets || []
                 }
             },
             changes: effectData.changes || []

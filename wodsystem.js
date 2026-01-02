@@ -72,6 +72,8 @@ Hooks.once("init", async function() {
 Hooks.on("ready", async () => {
     console.log("WoD | World of Darkness System ready");
     console.log("WoD | Reference data service loaded:", !!window.referenceDataService);
+    console.log("WoD | Current user is GM:", game.user.isGM);
+    console.log("WoD | Socket available:", !!game.socket);
     
     // Initialize socket for effect approval system
     initializeApprovalSocket();

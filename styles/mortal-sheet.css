@@ -412,82 +412,9 @@
     font-weight: bold;
 }
 
-.wod.sheet.actor .manage-effects-btn {
-    background: var(--wod-primary);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    width: 24px;
-    height: 24px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
+/* Manage effects button removed - click on effect to edit, trash icon to delete */
 
-.wod.sheet.actor .manage-effects-btn:hover {
-    background: var(--wod-primary-dark);
-    transform: scale(1.05);
-}
-
-.wod.sheet.actor .effects-preview {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.wod.sheet.actor .effect-preview-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 6px;
-    background: var(--wod-bg-subtle);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid var(--wod-border-light);
-    border-radius: 3px;
-    font-size: 0.75em;
-    transition: all 0.2s;
-}
-
-.wod.sheet.actor .effect-preview-item:hover {
-    border-color: var(--wod-primary);
-    background: var(--wod-bg-hover-light);
-}
-
-.wod.sheet.actor .effect-icon-small {
-    width: 16px;
-    height: 16px;
-    border-radius: 2px;
-}
-
-.wod.sheet.actor .effect-name-short {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 500;
-}
-
-.wod.sheet.actor .effect-type-indicator {
-    font-size: 0.65em;
-    padding: 1px 4px;
-    border-radius: 2px;
-    font-weight: bold;
-}
-
-.wod.sheet.actor .effect-type-indicator.player {
-    background: var(--wod-info);
-    color: var(--wod-primary);
-}
-
-.wod.sheet.actor .effect-type-indicator.st {
-    background: var(--wod-primary);
-    color: white;
-}
+/* Effect preview styles moved to visual-polish.css for consistency */
 
 .wod.sheet.actor .effects-empty {
     text-align: center;
@@ -1238,27 +1165,4 @@ button.add-secondary-knowledge:hover {
     margin: 0;
 }
 
-.manage-effects-btn {
-    background: var(--wod-primary);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.manage-effects-btn:hover {
-    background: var(--wod-primary-dark);
-    transform: scale(1.1);
-}
-
-.manage-effects-btn i {
-    margin: 0;
-}
+/* Manage effects button removed - redundant */

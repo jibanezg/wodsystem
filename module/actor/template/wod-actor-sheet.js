@@ -154,13 +154,24 @@ export class WodActorSheet extends ActorSheet {
         }
         
         // Active Effects for the status effects section
-        context.effects = Array.from(this.actor.effects || []).map(effect => ({
-            id: effect.id,
-            name: effect.name,
-            icon: effect.icon,
-            isPlayerCreated: effect.getFlag('wodsystem', 'createdBy') === 'player',
-            isMandatory: effect.getFlag('wodsystem', 'mandatory') === true
-        }));
+        context.effects = Array.from(this.actor.effects || []).map(effect => {
+            // Ensure icon path is valid, fallback to default if empty or invalid
+            // Use img (v12+) with fallback to icon for backwards compatibility
+            let iconPath = effect.img || effect.icon || "icons/svg/aura.svg";
+            if (!iconPath || iconPath.trim() === "" || iconPath === "icons/svg/mystery-man.svg") {
+                iconPath = "icons/svg/aura.svg";
+            }
+            const isPlayerCreated = effect.getFlag('wodsystem', 'createdBy') === 'player';
+            const canDelete = game.user.isGM || isPlayerCreated; // GMs can delete all, players can only delete their own
+            return {
+                id: effect.id,
+                name: effect.name,
+                icon: iconPath,
+                isPlayerCreated: isPlayerCreated,
+                isMandatory: effect.getFlag('wodsystem', 'mandatory') === true,
+                canDelete: canDelete
+            };
+        });
         
         return context;
     }
@@ -262,11 +273,15 @@ export class WodActorSheet extends ActorSheet {
         html.find('.equipment-type-tab').click(this._onEquipmentTypeTab.bind(this));
         
         // Status Effects Management
-        html.find('.manage-effects-btn').click(this._onManageEffects.bind(this));
         html.find('.add-effect-btn').click(this._onManageEffects.bind(this));
         html.find('.create-first-effect').click(this._onManageEffects.bind(this));
         html.find('.effect-preview-item').click(this._onEditEffect.bind(this));
         html.find('.effect-preview-item').contextmenu(this._onDeleteEffectQuick.bind(this));
+        // Delete button on effect preview - stop propagation to prevent opening edit dialog
+        html.find('.delete-effect-preview-item').click((event) => {
+            event.stopPropagation(); // Prevent opening edit dialog
+            this._onDeleteEffectQuick(event);
+        });
         
         // Set equipment filter based on stored state or default to weapons
         const activeEquipmentTab = this._activeEquipmentTab || 'weapons';
@@ -1274,6 +1289,13 @@ export class WodActorSheet extends ActorSheet {
      */
     _onEditEffect(event) {
         event.preventDefault();
+        
+        // Don't open editor for locked ST effects (handled in WodEffectManager constructor too)
+        if (event.currentTarget.classList.contains('st-effect-locked')) {
+            ui.notifications.warn("You cannot edit effects created by the Storyteller.");
+            return;
+        }
+        
         const effectId = event.currentTarget.dataset.effectId;
         const manager = new WodEffectManager(this.actor, effectId);
         manager.render(true);
@@ -1290,6 +1312,15 @@ export class WodActorSheet extends ActorSheet {
         if (!effect) {
             ui.notifications.warn("Effect not found.");
             return;
+        }
+        
+        // Prevent players from deleting ST-created effects
+        if (!game.user.isGM) {
+            const createdBy = effect.getFlag('wodsystem', 'createdBy');
+            if (createdBy === 'storyteller') {
+                ui.notifications.warn("You cannot delete effects created by the Storyteller.");
+                return;
+            }
         }
         
         // Confirm deletion
@@ -1350,9 +1381,9 @@ export class WodActorSheet extends ActorSheet {
     async _onSecondaryAbilityNameChange(event) {
         event.preventDefault();
         const input = event.currentTarget;
-        const category = input.dataset.category;
+        const category = input.dataset.secondaryCategory;
         const index = parseInt(input.dataset.index);
-        const newName = input.value;
+        const newName = input.value.trim();
         
         let abilities = foundry.utils.duplicate(this.actor.system.secondaryAbilities[category]);
         if (!Array.isArray(abilities)) {
@@ -1363,6 +1394,31 @@ export class WodActorSheet extends ActorSheet {
         if (abilities[index]) {
             abilities[index].name = newName;
             await this.actor.update({ [`system.secondaryAbilities.${category}`]: abilities });
+            
+            // Make it rollable if it has a name, otherwise make it editable
+            if (newName && newName.length > 0) {
+                // Add trait-label class and attributes for roll system
+                input.classList.add('trait-label');
+                input.setAttribute('data-trait', newName);
+                input.setAttribute('data-value', abilities[index].value || 0);
+                input.setAttribute('data-category', category);
+                input.setAttribute('readonly', 'readonly');
+                
+                // Attach event listeners for rolls
+                $(input).off('click').click(this._onTraitLabelLeftClick.bind(this));
+                $(input).off('contextmenu').on('contextmenu', this._onTraitLabelRightClick.bind(this));
+            } else {
+                // Remove trait-label class and attributes
+                input.classList.remove('trait-label');
+                input.removeAttribute('data-trait');
+                input.removeAttribute('data-value');
+                input.removeAttribute('data-category');
+                input.removeAttribute('readonly');
+                
+                // Remove event listeners
+                $(input).off('click');
+                $(input).off('contextmenu');
+            }
         }
     }
 
@@ -1733,6 +1789,12 @@ export class WodActorSheet extends ActorSheet {
                 if (input) {
                     input.value = newValue;
                 }
+            }
+            
+            // Update the trait-label's data-value attribute for roll system
+            const abilityInput = this.element.find(`.ability-name-input[data-secondary-category="${category}"][data-index="${index}"]`)[0];
+            if (abilityInput && abilityInput.classList.contains('trait-label')) {
+                abilityInput.setAttribute('data-value', newValue);
             }
         }
     }
@@ -2886,7 +2948,7 @@ export class WodActorSheet extends ActorSheet {
             this._cleanupPoolSelection();
         }
         
-        this._showCombineContextMenu(element, trait, value, category);
+        this._showCombineContextMenu(element);
     }
 
     /**
@@ -2901,13 +2963,33 @@ export class WodActorSheet extends ActorSheet {
         const element = event.currentTarget;
         const trait = element.dataset.trait;
         const value = parseInt(element.dataset.value);
+        const category = element.dataset.category;
+        const attributeType = element.dataset.attributeType;
+        
+        // Determine trait type for roll context
+        let type = 'ability'; // Default to ability
+        if (category === 'attribute' || attributeType) {
+            type = 'attribute';
+        } else if (category === 'background') {
+            type = 'background';
+        } else if (category === 'willpower' || category === 'enlightenment') {
+            type = 'advantage';
+        }
+        
+        // Build trait object with type for effect matching
+        const traitObject = { 
+            name: trait, 
+            value: value,
+            type: type,
+            category: category
+        };
         
         // Determine roll context for single trait
-        const rollContext = this._determineRollContext([{ name: trait, value: value }]);
+        const rollContext = this._determineRollContext([traitObject]);
         
         // Open roll dialog for just this trait
         const dialog = new WodRollDialog(this.actor, {
-            traits: [{ name: trait, value: value }],
+            traits: [traitObject],
             poolName: trait,
             totalPool: value,
             rollContext: rollContext
@@ -3297,39 +3379,56 @@ export class WodActorSheet extends ActorSheet {
     /**
      * Show context menu for combining traits (LEFT-CLICK)
      * @param {HTMLElement} element - The clicked element
-     * @param {string} trait - Trait name
-     * @param {number} value - Trait value
-     * @param {string} category - Trait category
      * @private
      */
-    _showCombineContextMenu(element, trait, value, category) {
-        if (category === 'attribute') {
+    _showCombineContextMenu(element) {
+        const trait = element.dataset.trait;
+        const value = parseInt(element.dataset.value);
+        const category = element.dataset.category;
+        const attributeType = element.dataset.attributeType;
+        
+        // Determine trait type for roll context
+        let type = 'ability'; // Default to ability
+        if (category === 'attribute' || attributeType) {
+            type = 'attribute';
+        } else if (category === 'background') {
+            type = 'background';
+        }
+        
+        // Build trait object with type for effect matching
+        const traitObject = { 
+            name: trait, 
+            value: value,
+            type: type,
+            category: category
+        };
+        
+        if (category === 'attribute' || attributeType) {
             // Attribute clicked - immediately highlight ALL abilities for selection
-            this._startPoolSelection(trait, value, 'abilities');
+            this._startPoolSelection(traitObject, 'abilities');
             return;
         }
         
         if (category === 'background') {
             // Background clicked - immediately highlight ALL attributes for selection
-            this._startPoolSelection(trait, value, 'attributes');
+            this._startPoolSelection(traitObject, 'attributes');
             return;
         }
         
         // Ability clicked - immediately highlight ALL attributes for selection
-        this._startPoolSelection(trait, value, 'attributes');
+        this._startPoolSelection(traitObject, 'attributes');
     }
 
     /**
      * Start pool selection mode - highlight available traits for combination
-     * @param {string} firstTrait - First trait name
-     * @param {number} firstValue - First trait value
+     * @param {Object} firstTraitObject - First trait object {name, value, type, category}
      * @param {string} targetCategory - Category to select from
      * @private
      */
-    _startPoolSelection(firstTrait, firstValue, targetCategory) {
+    _startPoolSelection(firstTraitObject, targetCategory) {
         // Store first trait
         this._pendingPool = {
-            traits: [{ name: firstTrait, value: firstValue }],
+            traits: [firstTraitObject],
             targetCategory: targetCategory
         };
         
@@ -3363,8 +3462,26 @@ export class WodActorSheet extends ActorSheet {
             const secondElement = event.currentTarget;
             const secondTrait = secondElement.dataset.trait;
             const secondValue = parseInt(secondElement.dataset.value);
+            const secondCategory = secondElement.dataset.category;
+            const secondAttributeType = secondElement.dataset.attributeType;
             
-            this._pendingPool.traits.push({ name: secondTrait, value: secondValue });
+            // Determine trait type for roll context
+            let secondType = 'ability'; // Default to ability
+            if (secondCategory === 'attribute' || secondAttributeType) {
+                secondType = 'attribute';
+            } else if (secondCategory === 'background') {
+                secondType = 'background';
+            }
+            
+            // Build second trait object with type for effect matching
+            const secondTraitObject = { 
+                name: secondTrait, 
+                value: secondValue,
+                type: secondType,
+                category: secondCategory
+            };
+            
+            this._pendingPool.traits.push(secondTraitObject);
             
             const totalPool = this._pendingPool.traits.reduce((sum, t) => sum + t.value, 0);
             const poolName = this._pendingPool.traits.map(t => t.name).join(' + ');

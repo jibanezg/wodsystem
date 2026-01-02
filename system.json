@@ -25,7 +25,9 @@
     "styles/themes/technocrat.css",
     "styles/themes/equipment-effects-styles.css",
     "styles/themes/equipment-overrides.css",
-    "styles/themes/visual-polish.css"
+    "styles/themes/visual-polish.css",
+    "styles/themes/dialog-styles.css",
+    "styles/themes/foundry-dialog-override.css"
   ],
   "languages": [
     {

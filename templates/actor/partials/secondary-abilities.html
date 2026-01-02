@@ -7,8 +7,10 @@
             <div class="secondary-ability-list">
                 {{#each actor.system.secondaryAbilities.talents as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" class="ability-name-input"
-                           data-category="talents" data-index="{{abilityIndex}}"/>
+                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" 
+                           class="ability-name-input {{#if ability.name}}trait-label{{/if}}"
+                           data-secondary-category="talents" data-index="{{abilityIndex}}"
+                           {{#if ability.name}}data-trait="{{ability.name}}" data-value="{{ability.value}}" data-category="talents" readonly{{/if}}/>
                     <div class="dot-container" data-secondary-ability="talents" data-secondary-index="{{abilityIndex}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -30,8 +32,10 @@
             <div class="secondary-ability-list">
                 {{#each actor.system.secondaryAbilities.skills as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" class="ability-name-input"
-                           data-category="skills" data-index="{{abilityIndex}}"/>
+                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" 
+                           class="ability-name-input {{#if ability.name}}trait-label{{/if}}"
+                           data-secondary-category="skills" data-index="{{abilityIndex}}"
+                           {{#if ability.name}}data-trait="{{ability.name}}" data-value="{{ability.value}}" data-category="skills" readonly{{/if}}/>
                     <div class="dot-container" data-secondary-ability="skills" data-secondary-index="{{abilityIndex}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -53,8 +57,10 @@
             <div class="secondary-ability-list">
                 {{#each actor.system.secondaryAbilities.knowledges as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" class="ability-name-input"
-                           data-category="knowledges" data-index="{{abilityIndex}}"/>
+                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" 
+                           class="ability-name-input {{#if ability.name}}trait-label{{/if}}"
+                           data-secondary-category="knowledges" data-index="{{abilityIndex}}"
+                           {{#if ability.name}}data-trait="{{ability.name}}" data-value="{{ability.value}}" data-category="knowledges" readonly{{/if}}/>
                     <div class="dot-container" data-secondary-ability="knowledges" data-secondary-index="{{abilityIndex}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../ability.value)}}filled{{/if}}" data-index="{{@index}}"></div>

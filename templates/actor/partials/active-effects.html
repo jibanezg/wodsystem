@@ -10,15 +10,17 @@
     {{#if effects.length}}
     <div class="effects-preview">
         {{#each effects}}
-        <div class="effect-preview-item" data-effect-id="{{this.id}}" title="{{this.name}}">
-            <img src="{{this.icon}}" alt="{{this.name}}" class="effect-icon-small" />
+        <div class="effect-preview-item {{#unless this.canDelete}}st-effect-locked{{/unless}}" data-effect-id="{{this.id}}" title="{{this.name}}{{#unless this.canDelete}} (ST Effect - Cannot Edit){{/unless}}">
+            <img src="{{this.icon}}" alt="{{this.name}}" class="effect-icon-small" onerror="this.src='icons/svg/aura.svg'" />
             <span class="effect-name-short">{{this.name}}</span>
             {{#if this.isPlayerCreated}}
             <span class="effect-type-indicator player" title="Player Created">P</span>
             {{else}}
             <span class="effect-type-indicator st" title="Storyteller Created">ST</span>
             {{/if}}
+            {{#if this.canDelete}}
             <button type="button" class="delete-effect-preview-item" data-effect-id="{{this.id}}" title="Delete Effect"><i class="fas fa-trash"></i></button>
+            {{/if}}
         </div>
         {{/each}}
     </div>
@@ -29,10 +31,7 @@
     {{/if}}
     
     <div class="effects-controls">
-        <button type="button" class="add-effect-btn" title="Add Effect">+</button>
-        <button type="button" class="manage-effects-btn" title="Manage Effects">
-            <i class="fas fa-cog"></i>
-        </button>
+        <button type="button" class="add-effect-btn" title="Add New Effect">+</button>
     </div>
 </div>
 

@@ -1,0 +1,173 @@
+/**
+ * ==============================================
+ * FOUNDRY DIALOG OVERRIDE - NUCLEAR OPTION
+ * Forces all Foundry confirmation dialogs to use our styling
+ * ==============================================
+ */
+
+/* Target ALL dialog windows */
+.app.dialog,
+.window-app.dialog,
+div.dialog.window-app,
+.app.window-app.dialog {
+    background: transparent !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid #4682B4 !important;
+    border-radius: 8px !important;
+}
+
+/* HEADER - Force blue gradient */
+.app.dialog .window-header,
+.window-app.dialog .window-header,
+.app.dialog header,
+.window-app.dialog header,
+div.dialog header.window-header,
+.dialog header.window-header {
+    background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
+    background-color: #4682B4 !important;
+    color: white !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 700 !important;
+    border-radius: 6px 6px 0 0 !important;
+    padding: 12px 16px !important;
+    border-bottom: none !important;
+    border: none !important;
+}
+
+.app.dialog .window-header h4,
+.window-app.dialog .window-header h4,
+.dialog header h4,
+.dialog .window-header .window-title,
+.app.dialog .window-title {
+    color: white !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+}
+
+/* CONTENT - Force white background */
+.app.dialog .window-content,
+.window-app.dialog .window-content,
+.app.dialog section.window-content,
+.window-app.dialog section.window-content,
+div.dialog .window-content,
+.dialog section.window-content {
+    background: white !important;
+    background-color: white !important;
+    padding: 20px !important;
+    font-size: 0.95em !important;
+    line-height: 1.6 !important;
+    color: #333 !important;
+    border: none !important;
+}
+
+/* Text in content */
+.app.dialog .window-content p,
+.window-app.dialog .window-content p,
+.dialog .window-content p {
+    color: #333 !important;
+    margin: 0 0 10px 0 !important;
+}
+
+.app.dialog .window-content strong,
+.window-app.dialog .window-content strong,
+.dialog .window-content strong {
+    color: #4682B4 !important;
+    font-weight: 700 !important;
+}
+
+/* BUTTONS CONTAINER */
+.app.dialog .dialog-buttons,
+.window-app.dialog .dialog-buttons,
+div.dialog .dialog-buttons,
+.dialog .window-content .dialog-buttons,
+.app.dialog .window-content footer,
+.dialog footer {
+    padding: 12px 20px 20px 20px !important;
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: center !important;
+    background: white !important;
+    background-color: white !important;
+    border-top: none !important;
+    margin: 0 !important;
+}
+
+/* ALL BUTTONS - Base styling */
+.app.dialog button,
+.window-app.dialog button,
+.dialog button,
+.app.dialog .dialog-buttons button,
+.window-app.dialog .dialog-buttons button,
+div.dialog button {
+    flex: 1 !important;
+    max-width: 200px !important;
+    min-width: 150px !important;
+    padding: 12px 24px !important;
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border: none !important;
+    border-radius: 6px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* YES BUTTON - GREEN */
+.app.dialog button.yes,
+.window-app.dialog button.yes,
+.dialog button.yes,
+.app.dialog .dialog-buttons button.yes,
+.window-app.dialog .dialog-buttons button.yes,
+.dialog .dialog-buttons button:first-child,
+.app.dialog button[data-button="yes"],
+.dialog button[data-button="yes"] {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+.app.dialog button.yes:hover,
+.window-app.dialog button.yes:hover,
+.dialog button.yes:hover,
+.dialog .dialog-buttons button:first-child:hover {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%) !important;
+    background-color: #218838 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+}
+
+/* NO BUTTON - RED */
+.app.dialog button.no,
+.window-app.dialog button.no,
+.dialog button.no,
+.app.dialog .dialog-buttons button.no,
+.window-app.dialog .dialog-buttons button.no,
+.dialog .dialog-buttons button:last-child,
+.app.dialog button[data-button="no"],
+.dialog button[data-button="no"] {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+.app.dialog button.no:hover,
+.window-app.dialog button.no:hover,
+.dialog button.no:hover,
+.dialog .dialog-buttons button:last-child:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%) !important;
+    background-color: #c82333 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
+}
+
+/* Icons in buttons */
+.app.dialog button i,
+.window-app.dialog button i,
+.dialog button i {
+    margin-right: 6px !important;
+    color: inherit !important;
+}
+

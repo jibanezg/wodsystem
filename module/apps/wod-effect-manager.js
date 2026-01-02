@@ -10,6 +10,17 @@ export class WodEffectManager extends FormApplication {
         this.actor = actor;
         this.effectId = effectId;
         this.effect = effectId ? actor.effects.get(effectId) : null;
+        
+        // Prevent players from editing ST-created effects
+        if (this.effect && !game.user.isGM) {
+            const createdBy = this.effect.getFlag('wodsystem', 'createdBy');
+            if (createdBy === 'storyteller') {
+                ui.notifications.warn("You cannot edit effects created by the Storyteller.");
+                this.effect = null; // Nullify so it won't render
+                setTimeout(() => this.close(), 100);
+                return;
+            }
+        }
     }
     
     static get defaultOptions() {
@@ -34,17 +45,21 @@ export class WodEffectManager extends FormApplication {
         // If editing, get effect data
         if (this.effect) {
             const effectScope = this.effect.getFlag('wodsystem', 'conditionScope') || 'always';
+            let conditionTargets = this.effect.getFlag('wodsystem', 'conditionTargets') || [];
+            
+            // Backwards compatibility: convert old single conditionTarget to array
+            if (!Array.isArray(conditionTargets) && conditionTargets) {
+                conditionTargets = [conditionTargets];
+            }
             
             data.effect = {
                 id: this.effect.id,
                 name: this.effect.name,
-                icon: this.effect.icon,
+                icon: this.effect.img || this.effect.icon || "icons/svg/aura.svg", // Use img (v12+) with fallback
                 createdBy: this.effect.getFlag('wodsystem', 'createdBy') || createdBy,
                 mandatory: this.effect.getFlag('wodsystem', 'mandatory') === true,
-                hasSideEffect: this.effect.getFlag('wodsystem', 'hasSideEffect') === true,
-                sideEffectAuto: this.effect.getFlag('wodsystem', 'sideEffectAuto') === true,
                 conditionScope: effectScope,
-                conditionTarget: this.effect.getFlag('wodsystem', 'conditionTarget') || '',
+                conditionTargets: conditionTargets, // Now an array
                 hideConditionTarget: effectScope === 'always',
                 changes: this.effect.changes.map(c => ({
                     key: c.key,
@@ -59,10 +74,8 @@ export class WodEffectManager extends FormApplication {
                 icon: "icons/svg/aura.svg",
                 createdBy: createdBy,
                 mandatory: createdBy === 'storyteller', // Default to true for ST effects
-                hasSideEffect: false,
-                sideEffectAuto: false,
                 conditionScope: 'always',
-                conditionTarget: '',
+                conditionTargets: [], // Now an array
                 hideConditionTarget: true,
                 changes: []
             };
@@ -82,10 +95,24 @@ export class WodEffectManager extends FormApplication {
             // FUTURE: Add { value: 'damage', label: 'Damage Rolls' },
         ];
         
-        // Get targets based on current scope
-        data.conditionTargets = this._getConditionTargets(data.effect.conditionScope);
+        // Get targets based on current scope with checked flags
+        data.conditionTargets = this._getConditionTargetsWithChecked(data.effect.conditionScope, data.effect.conditionTargets);
         
         return data;
+    }
+    
+    /**
+     * Get available targets based on condition scope with checked flags
+     * @param {string} scope - The condition scope
+     * @param {Array} selectedTargets - Array of selected target values
+     * @returns {Array} Targets with checked flags
+     */
+    _getConditionTargetsWithChecked(scope, selectedTargets = []) {
+        const targets = this._getConditionTargets(scope);
+        return targets.map(target => ({
+            ...target,
+            checked: selectedTargets.includes(target.value)
+        }));
     }
     
     /**
@@ -108,7 +135,8 @@ export class WodEffectManager extends FormApplication {
                 ];
             
             case 'ability':
-                return [
+                // Start with primary abilities
+                const abilities = [
                     // Talents
                     { value: 'Alertness', label: 'Alertness (Talent)' },
                     { value: 'Athletics', label: 'Athletics (Talent)' },
@@ -143,6 +171,61 @@ export class WodEffectManager extends FormApplication {
                     { value: 'Science', label: 'Science (Knowledge)' },
                     { value: 'Technology', label: 'Technology (Knowledge)' }
                 ];
+                
+                // Add secondary abilities if actor is available
+                if (this.actor) {
+                    const secondaryAbilities = this.actor.system.secondaryAbilities || {};
+                    
+                    // Process talents
+                    if (secondaryAbilities.talents) {
+                        const talents = Array.isArray(secondaryAbilities.talents) 
+                            ? secondaryAbilities.talents 
+                            : Object.values(secondaryAbilities.talents);
+                        
+                        talents.forEach(talent => {
+                            if (talent.name) {
+                                abilities.push({
+                                    value: talent.name,
+                                    label: `${talent.name} (Secondary Talent)`
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Process skills
+                    if (secondaryAbilities.skills) {
+                        const skills = Array.isArray(secondaryAbilities.skills) 
+                            ? secondaryAbilities.skills 
+                            : Object.values(secondaryAbilities.skills);
+                        
+                        skills.forEach(skill => {
+                            if (skill.name) {
+                                abilities.push({
+                                    value: skill.name,
+                                    label: `${skill.name} (Secondary Skill)`
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Process knowledges
+                    if (secondaryAbilities.knowledges) {
+                        const knowledges = Array.isArray(secondaryAbilities.knowledges) 
+                            ? secondaryAbilities.knowledges 
+                            : Object.values(secondaryAbilities.knowledges);
+                        
+                        knowledges.forEach(knowledge => {
+                            if (knowledge.name) {
+                                abilities.push({
+                                    value: knowledge.name,
+                                    label: `${knowledge.name} (Secondary Knowledge)`
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                return abilities;
             
             case 'advantage':
                 return [
@@ -164,7 +247,6 @@ export class WodEffectManager extends FormApplication {
         html.find('.add-modifier-row').click(this._onAddModifier.bind(this));
         html.find('.remove-modifier-row').click(this._onRemoveModifier.bind(this));
         html.find('.save-effect').click(this._onSaveEffect.bind(this));
-        html.find('.delete-effect').click(this._onDeleteEffect.bind(this));
         html.find('.cancel-effect').click(() => this.close());
         
         // Dynamic condition target dropdown
@@ -172,29 +254,34 @@ export class WodEffectManager extends FormApplication {
     }
     
     /**
-     * Handle condition scope change to show/hide and populate target dropdown
+     * Handle condition scope change to show/hide and populate target checkboxes
      */
     async _onConditionScopeChange(event) {
         const scope = event.currentTarget.value;
         const targetGroup = this.element.find('.condition-target-group');
-        const targetSelect = this.element.find('.condition-target-select');
+        const targetCheckboxesContainer = this.element.find('.condition-targets-checkboxes');
         
         if (scope === 'always') {
             // Hide target selection for "Always Active"
             targetGroup.hide();
         } else {
-            // Show and populate target selection
+            // Show and populate target checkboxes
             targetGroup.show();
             
-            // Get available targets for this scope
+            // Get available targets for this scope (includes secondary abilities if scope is 'ability')
             const targets = this._getConditionTargets(scope);
             
-            // Clear and repopulate the select
-            targetSelect.empty();
-            targetSelect.append('<option value="">-- Select --</option>');
+            // Clear and repopulate the checkboxes
+            targetCheckboxesContainer.empty();
             
             targets.forEach(target => {
-                targetSelect.append(`<option value="${target.value}">${target.label}</option>`);
+                const checkbox = $(`
+                    <label class="condition-target-checkbox">
+                        <input type="checkbox" name="conditionTargets" value="${target.value}" />
+                        <span>${target.label}</span>
+                    </label>
+                `);
+                targetCheckboxesContainer.append(checkbox);
             });
         }
     }
@@ -225,78 +312,110 @@ export class WodEffectManager extends FormApplication {
     _onRemoveModifier(event) {
         event.preventDefault();
         $(event.currentTarget).closest('.modifier-row').remove();
+        
+        // Reindex all remaining modifier rows to avoid gaps in indices
+        this._reindexModifiers();
+    }
+    
+    /**
+     * Reindex all modifier rows to ensure consecutive indices (0, 1, 2, ...)
+     * This is necessary after deleting a modifier to avoid gaps
+     */
+    _reindexModifiers() {
+        const modifierRows = this.element.find('.modifier-row');
+        modifierRows.each((index, row) => {
+            const $row = $(row);
+            
+            // Update select name
+            const select = $row.find('.modifier-type');
+            select.attr('name', `modifiers.${index}.key`);
+            
+            // Update input name
+            const input = $row.find('.modifier-value');
+            input.attr('name', `modifiers.${index}.value`);
+        });
     }
     
     async _onSaveEffect(event) {
         event.preventDefault();
         
         const form = this.element.find('form')[0];
-        const formData = new FormDataExtended(form).object;
         
-        // Build changes array from modifiers
+        // Use the correct FormDataExtended based on Foundry version
+        const FormDataClass = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
+        const formData = new FormDataClass(form).object;
+        
+        console.log('WodEffectManager - Raw formData:', formData);
+        
+        // Build changes array from modifiers - Handle flat structure from FormDataExtended
         const changes = [];
-        if (formData.modifiers) {
-            for (const [key, modifier] of Object.entries(formData.modifiers)) {
-                if (modifier.key && modifier.value !== undefined) {
-                    changes.push({
-                        key: modifier.key,
-                        mode: 2, // ADD mode
-                        value: Number(modifier.value)
-                    });
-                }
+        
+        // FormDataExtended creates flat properties like "modifiers.0.key" and "modifiers.0.value"
+        // We need to extract and group them
+        const modifierKeys = Object.keys(formData).filter(key => key.startsWith('modifiers.') && key.endsWith('.key'));
+        
+        for (const keyPath of modifierKeys) {
+            const index = keyPath.match(/modifiers\.(\d+)\.key/)[1];
+            const valueKey = `modifiers.${index}.value`;
+            
+            const modifierType = formData[keyPath];
+            const modifierValue = formData[valueKey];
+            
+            if (modifierType && modifierValue !== undefined && modifierValue !== null && modifierValue !== '') {
+                changes.push({
+                    key: modifierType,
+                    mode: 2, // ADD mode
+                    value: Number(modifierValue)
+                });
             }
         }
+        
+        console.log('WodEffectManager - Processed changes:', changes);
+        
+        // Get selected targets from checkboxes - Filter out nulls and ensure it's an array
+        let conditionTargets = formData.conditionTargets || [];
+        if (typeof conditionTargets === 'string') {
+            conditionTargets = [conditionTargets];
+        }
+        // Filter out null/undefined values
+        conditionTargets = conditionTargets.filter(target => target !== null && target !== undefined && target !== '');
+        
+        console.log('WodEffectManager - Condition targets (filtered):', conditionTargets);
         
         // Prepare effect data
         const effectData = {
             name: formData.name || "New Status",
-            icon: formData.icon || "icons/svg/aura.svg",
+            img: formData.icon || "icons/svg/aura.svg", // Use img instead of icon (Foundry v12+)
             changes: changes,
             flags: {
                 wodsystem: {
                     createdBy: formData.createdBy || (game.user.isGM ? 'storyteller' : 'player'),
                     mandatory: formData.mandatory === true || formData.mandatory === 'true',
-                    hasSideEffect: formData.hasSideEffect === true || formData.hasSideEffect === 'true',
-                    sideEffectAuto: formData.sideEffectAuto === true || formData.sideEffectAuto === 'true',
                     conditionScope: formData.conditionScope || 'always',
-                    conditionTarget: formData.conditionTarget || null
+                    conditionTargets: conditionTargets // Now an array
                 }
             }
         };
         
+        console.log('WodEffectManager - Final effectData:', effectData);
+        
         // Create or update effect
         if (this.effect) {
+            console.log('WodEffectManager - Updating existing effect:', this.effect.id);
             await this.effect.update(effectData);
             ui.notifications.info(`Effect "${effectData.name}" updated!`);
         } else {
+            console.log('WodEffectManager - Creating new effect');
             await this.actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
             ui.notifications.info(`Effect "${effectData.name}" created!`);
         }
         
+        // Force actor sheet to re-render
+        if (this.actor.sheet.rendered) {
+            this.actor.sheet.render(false);
+        }
+        
         this.close();
-    }
-    
-    async _onDeleteEffect(event) {
-        event.preventDefault();
-        
-        if (!this.effect) {
-            ui.notifications.warn("No effect to delete.");
-            return;
-        }
-        
-        // Confirm deletion
-        const confirmed = await Dialog.confirm({
-            title: "Delete Status Effect",
-            content: `<p>Are you sure you want to delete <strong>${this.effect.name}</strong>?</p><p>This action cannot be undone.</p>`,
-            yes: () => true,
-            no: () => false
-        });
-        
-        if (confirmed) {
-            await this.effect.delete();
-            ui.notifications.info(`Effect "${this.effect.name}" deleted.`);
-            this.close();
-        }
     }
     
     async _updateObject(event, formData) {
