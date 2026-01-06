@@ -33,10 +33,12 @@ export class WizardValidator {
    * Validate all steps
    */
   validateAll(wizardData) {
-    // For final validation, we only check critical steps
-    // Attributes and Abilities were already validated during their steps,
-    // and freebies may have been spent on them after, making re-validation incorrect
-    const steps = ['concept', 'advantages', 'freebies'];
+    // For final validation, we only check critical steps that don't change after their step
+    // - Attributes/Abilities: Freebies can be spent on them after their steps
+    // - Advantages: Freebies can be spent on backgrounds/spheres/willpower after this step
+    // - Concept: This never changes, so we validate it
+    // - Freebies: Must be fully spent, so we validate it
+    const steps = ['concept', 'freebies'];
     
     console.log('🔍 validateAll - Starting validation of critical steps');
     console.log('🔍 validateAll - wizardData:', JSON.parse(JSON.stringify(wizardData)));
