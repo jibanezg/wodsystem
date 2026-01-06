@@ -762,104 +762,83 @@
     border-radius: 2px;
 }
 
-.wod.sheet.actor .bio-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.wod.sheet.actor .bio-field {
+/* Bio Profile Layout - Image on left, fields on right */
+.wod.sheet.actor .bio-profile-layout {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    gap: 15px;
+    align-items: flex-start;
 }
 
-.bio-field label {
-    font-size: 10px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: var(--wod-primary, #2D5016);
-}
-
-.bio-field input {
-    padding: 3px 5px;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    font-size: 11px;
-}
-
-/* Character Image Section */
-.wod.sheet.actor .character-image-section {
-    padding: 10px;
-}
-
-.wod.sheet.actor .character-image-section h3 {
-    margin: 0 0 10px 0;
-    padding: 3px;
-    background: var(--wod-primary, #2D5016);
-    color: white;
-    font-size: 1em;
-    text-align: center;
-    border-radius: 2px;
-}
-
-.wod.sheet.actor .image-container {
+/* Character Portrait Container (Left Side) */
+.wod.sheet.actor .character-portrait-container {
+    flex: 0 0 180px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .wod.sheet.actor .character-portrait {
-    max-width: 200px;
-    max-height: 200px;
-    border: 2px solid var(--wod-primary, #2D5016);
+    width: 180px;
+    height: 220px;
+    object-fit: cover;
+    border: 3px solid var(--wod-primary, #2D5016);
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .wod.sheet.actor .no-image-placeholder {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 220px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #f5f5f5;
-    border: 2px dashed #ccc;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    border: 3px dashed #ccc;
     border-radius: 4px;
     color: #999;
-    font-size: 0.9em;
 }
 
 .wod.sheet.actor .no-image-placeholder i {
-    font-size: 3em;
-    margin-bottom: 10px;
+    font-size: 4em;
+    opacity: 0.3;
 }
 
 .wod.sheet.actor .image-controls {
     display: flex;
-    gap: 10px;
+    gap: 5px;
+    width: 100%;
 }
 
 .wod.sheet.actor .image-controls button {
-    padding: 6px 12px;
+    flex: 1;
+    padding: 6px;
     border: 1px solid var(--wod-primary, #2D5016);
     background: white;
     color: var(--wod-primary, #2D5016);
-    border-radius: 4px;
+    border-radius: 3px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.85em;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wod.sheet.actor .image-controls button i {
+    font-size: 1em;
 }
 
 .wod.sheet.actor .image-controls button:hover {
     background: var(--wod-primary, #2D5016);
     color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .wod.sheet.actor .clear-image {
-    background: #f5f5f5;
+    background: #fff;
     color: #d32f2f;
     border-color: #d32f2f;
 }
@@ -867,6 +846,45 @@
 .wod.sheet.actor .clear-image:hover {
     background: #d32f2f;
     color: white;
+}
+
+/* Bio Grid (Right Side) */
+.wod.sheet.actor .bio-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    align-content: start;
+}
+
+.wod.sheet.actor .bio-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.bio-field label {
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--wod-primary, #2D5016);
+    letter-spacing: 0.5px;
+}
+
+.bio-field input {
+    padding: 5px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 11px;
+    background: #fafafa;
+    transition: all 0.2s;
+}
+
+.bio-field input:focus {
+    background: white;
+    border-color: var(--wod-primary, #2D5016);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.1);
 }
 
 /* Focus Section */
@@ -884,11 +902,28 @@
     border-radius: 2px;
 }
 
+/* Focus Layout - Paradigm/Practices on left, Instruments on right */
+.wod.sheet.actor .focus-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.wod.sheet.actor .focus-left {
+    flex: 0 0 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wod.sheet.actor .focus-right {
+    flex: 1;
+}
+
 .wod.sheet.actor .focus-field {
     display: flex;
     flex-direction: column;
     gap: 5px;
-    margin-bottom: 10px;
 }
 
 .wod.sheet.actor .focus-field label {
@@ -896,13 +931,24 @@
     font-weight: bold;
     text-transform: uppercase;
     color: var(--wod-primary, #2D5016);
+    letter-spacing: 0.5px;
 }
 
 .wod.sheet.actor .focus-field input {
-    padding: 5px 8px;
+    padding: 8px 10px;
     border: 1px solid #ccc;
-    border-radius: 2px;
+    border-radius: 3px;
     font-size: 11px;
+    background: #fafafa;
+    transition: all 0.2s;
+    min-height: 60px;
+}
+
+.wod.sheet.actor .focus-field input:focus {
+    background: white;
+    border-color: var(--wod-primary, #2D5016);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.1);
 }
 
 .wod.sheet.actor .focus-instruments {
@@ -915,6 +961,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 5px;
 }
 
 .wod.sheet.actor .instruments-header label {
@@ -922,6 +969,7 @@
     font-weight: bold;
     text-transform: uppercase;
     color: var(--wod-primary, #2D5016);
+    letter-spacing: 0.5px;
 }
 
 .wod.sheet.actor .instruments-count {
@@ -931,9 +979,30 @@
 }
 
 .wod.sheet.actor .instruments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.wod.sheet.actor .instruments-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.wod.sheet.actor .instruments-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.wod.sheet.actor .instruments-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.wod.sheet.actor .instruments-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
 }
 
 .wod.sheet.actor .instrument-item {
@@ -944,48 +1013,63 @@
 
 .wod.sheet.actor .instrument-item input {
     flex: 1;
-    padding: 5px 8px;
+    padding: 6px 8px;
     border: 1px solid #ccc;
-    border-radius: 2px;
+    border-radius: 3px;
     font-size: 11px;
+    background: #fafafa;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor .instrument-item input:focus {
+    background: white;
+    border-color: var(--wod-primary, #2D5016);
+    outline: none;
 }
 
 .wod.sheet.actor .remove-instrument {
-    padding: 4px 8px;
-    background: #f5f5f5;
+    padding: 6px 8px;
+    background: #fff;
     border: 1px solid #d32f2f;
     color: #d32f2f;
-    border-radius: 2px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 0.85em;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .wod.sheet.actor .remove-instrument:hover:not(:disabled) {
     background: #d32f2f;
     color: white;
+    transform: translateY(-1px);
 }
 
 .wod.sheet.actor .remove-instrument:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
 .wod.sheet.actor .add-instrument {
-    padding: 6px 12px;
+    padding: 8px 14px;
     background: white;
     border: 1px solid var(--wod-primary, #2D5016);
     color: var(--wod-primary, #2D5016);
-    border-radius: 2px;
+    border-radius: 3px;
     cursor: pointer;
     font-size: 0.9em;
     transition: all 0.2s;
     align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .wod.sheet.actor .add-instrument:hover {
     background: var(--wod-primary, #2D5016);
     color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Secondary Abilities */

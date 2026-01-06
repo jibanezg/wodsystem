@@ -27,6 +27,9 @@ form.wod-roll-dialog {
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* ====================
@@ -48,6 +51,9 @@ form.wod-roll-dialog > div.saved-rolls,
     border: none !important;
     margin-bottom: 12px !important;
     overflow: hidden !important;
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Dialog buttons section - no card style */
@@ -150,6 +156,11 @@ form.wod-roll-dialog h4,
     margin: 0 !important;
     box-shadow: none !important;
     border: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 form.wod-effect-manager h3 i,
