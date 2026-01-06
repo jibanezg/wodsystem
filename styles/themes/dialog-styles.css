@@ -758,9 +758,7 @@ div.app.dialog .dialog-buttons,
 .app.window-app.dialog .dialog-buttons button,
 .dialog .dialog-buttons button,
 div.dialog .dialog-buttons button,
-div.app.dialog .dialog-buttons button,
-.app.window-app.dialog button,
-.dialog button {
+div.app.dialog .dialog-buttons button {
     flex: 1 !important;
     max-width: 200px !important;
     min-width: 150px !important;
@@ -774,6 +772,35 @@ div.app.dialog .dialog-buttons button,
     cursor: pointer !important;
     transition: all 0.2s ease !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Exclude header buttons (close, minimize, etc) - Don't override header buttons */
+.app.window-app.dialog .window-header button,
+.dialog .window-header button,
+.app.window-app.dialog .window-header a,
+.dialog .window-header a {
+    flex: 0 !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    border-radius: 0 !important;
+    transition: none !important;
+}
+
+.app.window-app.dialog .window-header button i,
+.dialog .window-header button i,
+.app.window-app.dialog .window-header a i,
+.dialog .window-header a i {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: inherit !important;
 }
 
 /* YES button (Green) */

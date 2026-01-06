@@ -1141,6 +1141,7 @@ export class WodActor extends Actor {
 
     /** @override */
     async _onCreate(data, options, user) {
+        console.log("🔵 WOD | _onCreate called for:", this.name, "| isCreated:", this.system.isCreated);
         // Create a duplicate of the actor data
         const actorData = foundry.utils.duplicate(this);
         
@@ -1148,10 +1149,15 @@ export class WodActor extends Actor {
         if (!actorData.system.isCreated) {
             const factory = new TraitFactory();
             await factory.createAllTraits(this);
-            // Update isCreated flag
-            await this.update({ "system.isCreated": true });
+            // Note: isCreated flag is now managed by the Character Creation Wizard
+            // Don't auto-set it to true here - let the wizard do it when character is finalized
+            // await this.update({ "system.isCreated": true });
+            console.log("🟢 WOD | Traits created, isCreated NOT changed");
+        } else {
+            console.log("🟡 WOD | Actor already created, skipping trait creation");
         }
         
         await super._onCreate(data, options, user);
+        console.log("✅ WOD | _onCreate complete | Final isCreated:", this.system.isCreated);
     }
 } 

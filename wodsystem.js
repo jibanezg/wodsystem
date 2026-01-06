@@ -6,6 +6,7 @@ import { WodDicePool } from "./module/dice/wod-dice-pool.js";
 import { WodRollDialog } from "./module/apps/wod-roll-dialog.js";
 import { initializeApprovalSocket } from "./module/apps/wod-st-approval-dialog.js";
 import { registerHandlebarsHelpers } from "./scripts/utilities.js";
+import { WodCharacterWizard } from "./module/character-creation/wod-character-wizard.js";
 
 // Import Services
 import "./scripts/reference-data-service.js"; // External data (archetypes, backgrounds)
@@ -48,12 +49,23 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/roll-dialog.html",
         "systems/wodsystem/templates/apps/effect-manager.html",
         "systems/wodsystem/templates/apps/st-approval-dialog.html",
-        "systems/wodsystem/templates/dice/roll-card.html"
+        "systems/wodsystem/templates/dice/roll-card.html",
+        // Character Creation Wizard
+        "systems/wodsystem/templates/apps/wizard-steps/step-concept.html",
+        "systems/wodsystem/templates/apps/wizard-steps/step-attributes.html",
+        "systems/wodsystem/templates/apps/wizard-steps/step-abilities.html",
+        "systems/wodsystem/templates/apps/wizard-steps/step-advantages.html",
+        "systems/wodsystem/templates/apps/wizard-steps/step-freebies.html",
+        "systems/wodsystem/templates/apps/wizard-steps/step-review.html"
     ]);
     console.log("WoD | Handlebars partials loaded");
 
     // Register Actor Classes
     CONFIG.Actor.documentClass = WodActor;
+    
+    // Make Character Wizard available globally
+    game.wodsystem = game.wodsystem || {};
+    game.wodsystem.WodCharacterWizard = WodCharacterWizard;
     
     // Register Actor Sheets
     Actors.registerSheet("wodsystem", MortalSheet, {

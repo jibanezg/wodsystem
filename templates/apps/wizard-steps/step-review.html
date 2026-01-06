@@ -1,0 +1,197 @@
+<div class="wizard-step step-review">
+  <div class="step-header">
+    <h3><i class="fas fa-check-circle"></i> Review Character</h3>
+    <p class="step-description">Review your character before finalizing creation.</p>
+  </div>
+
+  <div class="step-body">
+    <div class="review-grid">
+      
+      <!-- Concept -->
+      <div class="review-section">
+        <h4><i class="fas fa-user"></i> Concept
+          <button type="button" class="review-edit-step" data-step="0"><i class="fas fa-edit"></i></button>
+        </h4>
+        <div class="review-content">
+          <div class="review-row"><strong>Name:</strong> {{wizardData.concept.name}}</div>
+          <div class="review-row"><strong>Concept:</strong> {{wizardData.concept.concept}}</div>
+          <div class="review-row"><strong>Nature:</strong> {{wizardData.concept.nature}}</div>
+          <div class="review-row"><strong>Demeanor:</strong> {{wizardData.concept.demeanor}}</div>
+          {{#if (eq actorType "Technocrat")}}
+          <div class="review-row"><strong>Convention:</strong> {{wizardData.concept.convention}}</div>
+          {{#if wizardData.concept.amalgam}}
+          <div class="review-row"><strong>Amalgam:</strong> {{wizardData.concept.amalgam}}</div>
+          {{/if}}
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- Attributes -->
+      <div class="review-section">
+        <h4><i class="fas fa-dumbbell"></i> Attributes
+          <button type="button" class="review-edit-step" data-step="1"><i class="fas fa-edit"></i></button>
+        </h4>
+        <div class="review-content attributes-review">
+          {{#each wizardData.attributes.values}}
+          <div class="attribute-category">
+            <h5>{{capitalize @key}}</h5>
+            {{#each this}}
+            <div class="review-row">
+              <span>{{@key}}</span>
+              <span class="dots">
+                {{{renderDots this 5}}}
+              </span>
+            </div>
+            {{/each}}
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+      <!-- Abilities -->
+      <div class="review-section">
+        <h4><i class="fas fa-brain"></i> Abilities
+          <button type="button" class="review-edit-step" data-step="2"><i class="fas fa-edit"></i></button>
+        </h4>
+        <div class="review-content abilities-review">
+          {{#each wizardData.abilities.values}}
+          {{#if (hasRatedAbilities this)}}
+          <div class="ability-category">
+            <h5>{{capitalize @key}}</h5>
+            {{#each this}}
+            {{#if (gt this 0)}}
+            <div class="review-row">
+              <span>{{@key}}</span>
+              <span class="dots">
+                {{{renderDots this 5}}}
+              </span>
+            </div>
+            {{/if}}
+            {{/each}}
+          </div>
+          {{/if}}
+          {{/each}}
+          
+          <!-- Secondary Abilities -->
+          {{#each wizardData.abilities.secondary}}
+          {{#if this.length}}
+          <div class="ability-category secondary">
+            <h5>Custom {{capitalize @key}}</h5>
+            {{#each this}}
+            <div class="review-row">
+              <span>{{name}}</span>
+              <span class="dots">
+                {{{renderDots value 5}}}
+              </span>
+            </div>
+            {{/each}}
+          </div>
+          {{/if}}
+          {{/each}}
+        </div>
+      </div>
+
+      <!-- Advantages -->
+      <div class="review-section">
+        <h4><i class="fas fa-star"></i> Advantages
+          <button type="button" class="review-edit-step" data-step="3"><i class="fas fa-edit"></i></button>
+        </h4>
+        <div class="review-content">
+          
+          <!-- Backgrounds -->
+          <div class="advantage-subsection">
+            <h5>Backgrounds</h5>
+            {{#each wizardData.advantages.backgrounds}}
+            {{#if (gt value 0)}}
+            <div class="review-row">
+              <span>{{name}}</span>
+              <span class="dots">
+                {{{renderDots value 5}}}
+              </span>
+            </div>
+            {{/if}}
+            {{/each}}
+          </div>
+
+          <!-- Spheres (Technocrat) -->
+          {{#if (eq actorType "Technocrat")}}
+          <div class="advantage-subsection">
+            <h5>Spheres</h5>
+            {{#each wizardData.advantages.spheres}}
+            {{#if (gt this 0)}}
+            <div class="review-row">
+              <span>{{lookup @root.config.advantages.spheres.available @key}}</span>
+              <span class="dots">
+                {{{renderDots this (default @root.wizardData.advantages.enlightenment @root.config.advantages.enlightenment.starting)}}}
+              </span>
+            </div>
+            {{/if}}
+            {{/each}}
+          </div>
+
+          <!-- Enlightenment -->
+          <div class="advantage-subsection">
+            <h5>Enlightenment</h5>
+            <div class="review-row">
+              <span>Enlightenment</span>
+              <span class="value">{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</span>
+            </div>
+          </div>
+          {{/if}}
+
+          <!-- Willpower -->
+          <div class="advantage-subsection">
+            <h5>Willpower</h5>
+            <div class="review-row">
+              <span>Willpower</span>
+              <span class="value">{{add config.advantages.willpower.starting (default wizardData.freebies.spent.willpower 0)}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Freebie Points -->
+      <div class="review-section">
+        <h4><i class="fas fa-coins"></i> Freebie Points
+          <button type="button" class="review-edit-step" data-step="4"><i class="fas fa-edit"></i></button>
+        </h4>
+        <div class="review-content">
+          <div class="review-row">
+            <strong>Total:</strong> {{config.freebies.total}} points
+          </div>
+          <div class="review-row">
+            <strong>Spent:</strong> {{sub config.freebies.total wizardData.freebies.remaining}} points
+          </div>
+          <div class="review-row {{#if (gt wizardData.freebies.remaining 0)}}unspent{{/if}}">
+            <strong>Remaining:</strong> {{wizardData.freebies.remaining}} points
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="review-summary">
+      <h4>Character Summary</h4>
+      <p class="summary-text">
+        <strong>{{wizardData.concept.name}}</strong>, a <em>{{wizardData.concept.concept}}</em>.
+        {{#if (eq actorType "Technocrat")}}
+        Member of the <strong>{{wizardData.concept.convention}}</strong>{{#if wizardData.concept.amalgam}} ({{wizardData.concept.amalgam}}){{/if}}.
+        {{/if}}
+        {{wizardData.concept.nature}} by nature, but appears {{wizardData.concept.demeanor}} to others.
+      </p>
+      
+      {{#if (gt wizardData.freebies.remaining 0)}}
+      <div class="warning-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        You have {{wizardData.freebies.remaining}} unspent freebie points. You can continue or go back to spend them.
+      </div>
+      {{/if}}
+      
+      <div class="final-confirmation">
+        <p><strong>Ready to finalize this character?</strong></p>
+        <p>Click "Finish Character" to apply all changes. This will mark the character as created and you can start playing!</p>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -193,6 +193,24 @@
                             "numina": {}
                         }
                     }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 0,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
                 }
             },
             "Vampire": {
@@ -229,6 +247,23 @@
                             }
                         }
                     }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": -1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
                 }
             },
             "Demon": {
@@ -266,6 +301,23 @@
                             }
                         }
                     }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": -1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
                 }
             },
             "Technocrat": {
@@ -354,6 +406,24 @@
                         "procedures": [],
                         "backgroundsExpanded": []
                     }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
                 }
             }
         },

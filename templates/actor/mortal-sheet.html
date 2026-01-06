@@ -73,4 +73,27 @@
             {{> "systems/wodsystem/templates/actor/partials/biography.html"}}
         </div>
     </section>
+
+    <!-- Character Creation Wizard Overlay -->
+    {{#if hasWizardSupport}}
+    {{#unless isCreated}}
+    <div class="wizard-overlay">
+        <div class="wizard-overlay-content">
+            <div class="wizard-overlay-icon">
+                <i class="fas fa-hat-wizard"></i>
+            </div>
+            <h2>New Character</h2>
+            <p class="wizard-overlay-description">
+                This character hasn't been created yet. Use the step-by-step wizard to build your character following the creation rules.
+            </p>
+            <button type="button" class="start-character-wizard-overlay">
+                <i class="fas fa-magic"></i> Start Character Creation Wizard
+            </button>
+            <p class="wizard-overlay-hint">
+                Or you can close this and fill the sheet manually
+            </p>
+        </div>
+    </div>
+    {{/unless}}
+    {{/if}}
 </form>

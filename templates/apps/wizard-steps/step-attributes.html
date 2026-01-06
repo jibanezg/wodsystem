@@ -1,0 +1,180 @@
+<div class="wizard-step step-attributes">
+  <div class="step-header">
+    <h3><i class="fas fa-dumbbell"></i> Attributes</h3>
+    <p class="step-description">Distribute points among Physical, Social, and Mental attributes.</p>
+  </div>
+
+  <div class="step-body">
+    <!-- Priority Selection -->
+    <div class="priority-selection">
+      <h4>Choose Priority</h4>
+      <p>Assign primary ({{config.attributes.priorities.primary}} points), secondary ({{config.attributes.priorities.secondary}} points), and tertiary ({{config.attributes.priorities.tertiary}} points).</p>
+      
+      <div class="priority-grid">
+        {{#each config.attributes.categories}}
+        <div class="priority-item">
+          <label>{{capitalize this}}</label>
+          <select class="priority-select" data-category="{{this}}">
+            <option value="">-- Select --</option>
+            <option value="primary" {{#if (eq (lookup ../../wizardData.attributes.prioritySelection "primary") this)}}selected{{/if}}>
+              Primary ({{../config.attributes.priorities.primary}} points)
+            </option>
+            <option value="secondary" {{#if (eq (lookup ../../wizardData.attributes.prioritySelection "secondary") this)}}selected{{/if}}>
+              Secondary ({{../config.attributes.priorities.secondary}} points)
+            </option>
+            <option value="tertiary" {{#if (eq (lookup ../../wizardData.attributes.prioritySelection "tertiary") this)}}selected{{/if}}>
+              Tertiary ({{../config.attributes.priorities.tertiary}} points)
+            </option>
+          </select>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Attribute Distribution -->
+    <div class="attributes-distribution">
+      <!-- Physical Attributes -->
+      <div class="attribute-category">
+        <h4>Physical Attributes</h4>
+        
+        {{#if validation.attributes.physical}}
+        <div class="points-tracker">
+          <span class="spent">{{validation.attributes.physical.spent}}</span> / 
+          <span class="allowed">{{validation.attributes.physical.allowed}}</span> points spent
+          {{#if (gt validation.attributes.physical.remaining 0)}}
+          <span class="remaining">({{validation.attributes.physical.remaining}} remaining)</span>
+          {{/if}}
+        </div>
+        
+        <div class="attribute-list">
+          {{#each wizardData.attributes.values.physical}}
+          <div class="attribute-item">
+            <span class="attr-name">{{@key}}</span>
+            <div class="attr-controls">
+              <button type="button" 
+                      class="attr-decrease" 
+                      data-category="physical" 
+                      data-attr="{{@key}}"
+                      {{#if (eq this 1)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="attr-value">{{this}}</span>
+              <button type="button" 
+                      class="attr-increase" 
+                      data-category="physical" 
+                      data-attr="{{@key}}"
+                      {{#if (eq this 5)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="attr-dots">
+              {{{renderDots this 5}}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Social Attributes -->
+      <div class="attribute-category">
+        <h4>Social Attributes</h4>
+        
+        {{#if validation.attributes.social}}
+        <div class="points-tracker">
+          <span class="spent">{{validation.attributes.social.spent}}</span> / 
+          <span class="allowed">{{validation.attributes.social.allowed}}</span> points spent
+          {{#if (gt validation.attributes.social.remaining 0)}}
+          <span class="remaining">({{validation.attributes.social.remaining}} remaining)</span>
+          {{/if}}
+        </div>
+        
+        <div class="attribute-list">
+          {{#each wizardData.attributes.values.social}}
+          <div class="attribute-item">
+            <span class="attr-name">{{@key}}</span>
+            <div class="attr-controls">
+              <button type="button" 
+                      class="attr-decrease" 
+                      data-category="social" 
+                      data-attr="{{@key}}"
+                      {{#if (eq this 1)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="attr-value">{{this}}</span>
+              <button type="button" 
+                      class="attr-increase" 
+                      data-category="social" 
+                      data-attr="{{@key}}"
+                      {{#if (eq this 5)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="attr-dots">
+              {{{renderDots this 5}}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Mental Attributes -->
+      <div class="attribute-category">
+        <h4>Mental Attributes</h4>
+        
+        {{#if validation.attributes.mental}}
+        <div class="points-tracker">
+          <span class="spent">{{validation.attributes.mental.spent}}</span> / 
+          <span class="allowed">{{validation.attributes.mental.allowed}}</span> points spent
+          {{#if (gt validation.attributes.mental.remaining 0)}}
+          <span class="remaining">({{validation.attributes.mental.remaining}} remaining)</span>
+          {{/if}}
+        </div>
+        
+        <div class="attribute-list">
+          {{#each wizardData.attributes.values.mental}}
+          <div class="attribute-item">
+            <span class="attr-name">{{@key}}</span>
+            <div class="attr-controls">
+              <button type="button" 
+                      class="attr-decrease" 
+                      data-category="mental" 
+                      data-attr="{{@key}}"
+                      {{#if (eq this 1)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="attr-value">{{this}}</span>
+              <button type="button" 
+                      class="attr-increase" 
+                      data-category="mental" 
+                      data-attr="{{@key}}"
+                      {{#if (eq this 5)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="attr-dots">
+              {{{renderDots this 5}}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+
+  <div class="step-help">
+    <div class="help-box">
+      <h4><i class="fas fa-lightbulb"></i> Attribute Guide</h4>
+      <ul>
+        <li><strong>Physical:</strong> Strength, Dexterity, Stamina - your body's capabilities</li>
+        <li><strong>Social:</strong> Charisma, Manipulation, Appearance - your social prowess</li>
+        <li><strong>Mental:</strong> Perception, Intelligence, Wits - your mind's abilities</li>
+        <li>All attributes start at 1. You cannot reduce them below 1.</li>
+        <li>You must spend ALL points in each category before continuing.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+

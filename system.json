@@ -27,7 +27,8 @@
     "styles/themes/equipment-overrides.css",
     "styles/themes/visual-polish.css",
     "styles/themes/dialog-styles.css",
-    "styles/themes/foundry-dialog-override.css"
+    "styles/themes/foundry-dialog-override.css",
+    "styles/character-wizard.css"
   ],
   "languages": [
     {
@@ -41,7 +42,7 @@
     "distance": 2,
     "units": "m"
   },
-  "primaryTokenAttribute": "health",
+  "primaryTokenAttribute": null,
   "url": "https://github.com/jibanezg/wodsystem",
   "manifest": "https://raw.githubusercontent.com/jibanezg/wodsystem/main/system.json",
   "download": "https://github.com/jibanezg/wodsystem/archive/refs/heads/main.zip",

@@ -59,6 +59,10 @@ export class WodActorSheet extends ActorSheet {
         // Add creature type for conditional rendering in templates
         context.creatureType = this.actor.type;
         
+        // Add character creation status
+        context.isCreated = this.actor.system.isCreated ?? false;
+        context.hasWizardSupport = ['Mortal', 'Technocrat'].includes(this.actor.type);
+        
         // Add health edit mode flag
         context.isHealthEditMode = this.actor.getFlag('wodsystem', 'healthEditMode') || false;
         
@@ -203,6 +207,9 @@ export class WodActorSheet extends ActorSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+
+        // Character Creation Wizard
+        html.find('.start-character-wizard-overlay').click(this._onStartCharacterWizard.bind(this));
 
         // Common listeners for all sheets
         html.find('.dot').click(this._onDotClick.bind(this));
@@ -3044,7 +3051,7 @@ export class WodActorSheet extends ActorSheet {
         trigger.style.justifyContent = 'center';
         trigger.style.boxShadow = '1px 0 4px rgba(0,0,0,0.3)';
         trigger.style.transition = 'width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.3s ease';
-        trigger.style.zIndex = '9999';
+        trigger.style.zIndex = '100'; // Reduced from 9999 to avoid covering Foundry UI
         trigger.style.fontSize = '0.8em';
         trigger.style.pointerEvents = 'auto';
         trigger.style.borderLeft = 'none'; // No border on the window edge side
@@ -3558,6 +3565,25 @@ export class WodActorSheet extends ActorSheet {
             menuItems,
             { jQuery: false }
         );
+    }
+
+    /**
+     * Open Character Creation Wizard
+     * @param {Event} event - The click event
+     * @private
+     */
+    async _onStartCharacterWizard(event) {
+        event.preventDefault();
+        
+        // Check if wizard is available
+        if (!game.wodsystem?.WodCharacterWizard) {
+            ui.notifications.error("Character Creation Wizard not available");
+            return;
+        }
+        
+        // Create and render wizard
+        const wizard = new game.wodsystem.WodCharacterWizard(this.actor);
+        wizard.render(true);
     }
 }
 

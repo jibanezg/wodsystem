@@ -1,0 +1,74 @@
+<div class="character-wizard">
+  <!-- Header -->
+  <div class="wizard-header">
+    <h2>{{config.label}} Creation</h2>
+    <div class="wizard-progress">
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{progressPercent}}%"></div>
+      </div>
+      <div class="progress-text">Step {{add currentStep 1}} of {{totalSteps}}: {{step.label}}</div>
+    </div>
+  </div>
+
+  <!-- Step Navigation Tabs -->
+  <div class="wizard-tabs">
+    {{#each config.steps}}
+    <div class="wizard-tab {{#if (eq @index ../currentStep)}}active{{/if}} {{#if (lt @index ../currentStep)}}completed{{/if}}"
+         data-step="{{@index}}">
+      <i class="fas {{icon}}"></i>
+      <span class="tab-label">{{label}}</span>
+    </div>
+    {{/each}}
+  </div>
+
+  <!-- Step Content -->
+  <div class="wizard-content">
+    {{#if (eq stepId "concept")}}
+      {{> "systems/wodsystem/templates/apps/wizard-steps/step-concept.html"}}
+    {{else if (eq stepId "attributes")}}
+      {{> "systems/wodsystem/templates/apps/wizard-steps/step-attributes.html"}}
+    {{else if (eq stepId "abilities")}}
+      {{> "systems/wodsystem/templates/apps/wizard-steps/step-abilities.html"}}
+    {{else if (eq stepId "advantages")}}
+      {{> "systems/wodsystem/templates/apps/wizard-steps/step-advantages.html"}}
+    {{else if (eq stepId "freebies")}}
+      {{> "systems/wodsystem/templates/apps/wizard-steps/step-freebies.html"}}
+    {{else if (eq stepId "review")}}
+      {{> "systems/wodsystem/templates/apps/wizard-steps/step-review.html"}}
+    {{/if}}
+  </div>
+
+  <!-- Footer Navigation -->
+  <div class="wizard-footer">
+    <div class="wizard-validation">
+      {{#if validation.valid}}
+        <i class="fas fa-check-circle"></i> Ready to continue
+      {{else}}
+        <i class="fas fa-exclamation-triangle"></i> {{validation.message}}
+      {{/if}}
+    </div>
+    
+    <div class="wizard-buttons">
+      <button type="button" class="wizard-cancel">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+      
+      {{#unless isFirstStep}}
+      <button type="button" class="wizard-prev">
+        <i class="fas fa-arrow-left"></i> Previous
+      </button>
+      {{/unless}}
+      
+      {{#if isLastStep}}
+      <button type="button" class="wizard-finish {{#unless validation.valid}}disabled{{/unless}}" {{#unless validation.valid}}disabled{{/unless}}>
+        <i class="fas fa-check"></i> Finish Character
+      </button>
+      {{else}}
+      <button type="button" class="wizard-next {{#unless validation.valid}}disabled{{/unless}}" {{#unless validation.valid}}disabled{{/unless}}>
+        Next <i class="fas fa-arrow-right"></i>
+      </button>
+      {{/if}}
+    </div>
+  </div>
+</div>
+

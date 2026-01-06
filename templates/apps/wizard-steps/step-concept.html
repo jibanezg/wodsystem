@@ -1,0 +1,60 @@
+<div class="wizard-step step-concept">
+  <div class="step-header">
+    <h3><i class="fas fa-user"></i> Character Concept</h3>
+    <p class="step-description">Define your character's identity and background.</p>
+  </div>
+
+  <div class="step-body">
+    <div class="form-grid">
+      {{#each config.concept.fields}}
+      <div class="form-group {{#if required}}required{{/if}}">
+        <label for="concept-{{name}}">{{label}}</label>
+        
+        {{#if (eq type "text")}}
+          <input type="text" 
+                 id="concept-{{name}}" 
+                 name="concept.{{name}}" 
+                 value="{{lookup ../../wizardData.concept name}}"
+                 placeholder="{{placeholder}}"
+                 {{#if required}}required{{/if}}>
+        
+        {{else if (eq type "select")}}
+          <select id="concept-{{name}}" 
+                  name="concept.{{name}}"
+                  {{#if required}}required{{/if}}>
+            <option value="">-- Select {{label}} --</option>
+            {{#each options}}
+            <option value="{{this}}" {{#if (eq this (lookup ../../../wizardData.concept ../name))}}selected{{/if}}>
+              {{this}}
+            </option>
+            {{/each}}
+          </select>
+        
+        {{else if (eq type "textarea")}}
+          <textarea id="concept-{{name}}" 
+                    name="concept.{{name}}"
+                    rows="4"
+                    placeholder="{{placeholder}}"
+                    {{#if required}}required{{/if}}>{{lookup ../../wizardData.concept name}}</textarea>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  <div class="step-help">
+    <div class="help-box">
+      <h4><i class="fas fa-lightbulb"></i> Tips</h4>
+      <ul>
+        <li><strong>Concept:</strong> A brief phrase describing your character (e.g., "Cybernetics Specialist", "Reality Engineer")</li>
+        <li><strong>Nature:</strong> Your character's true personality</li>
+        <li><strong>Demeanor:</strong> The personality your character presents to others</li>
+        {{#if (eq ../../actorType "Technocrat")}}
+        <li><strong>Convention:</strong> Your character's Technocratic organization</li>
+        <li><strong>Amalgam:</strong> Your specific subdivision or specialty group (optional)</li>
+        {{/if}}
+      </ul>
+    </div>
+  </div>
+</div>
+

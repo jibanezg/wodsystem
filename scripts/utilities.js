@@ -20,6 +20,130 @@ export function registerHandlebarsHelpers() {
         }
         return accum;
     });
+    
+    /**
+     * Debug helper - logs values
+     */
+    Handlebars.registerHelper('debug', function(label, value) {
+        console.log(`🐛 HANDLEBARS DEBUG [${label}]:`, value);
+        return '';
+    });
+    
+    /**
+     * Concat helper - concatenates strings
+     */
+    Handlebars.registerHelper('concat', function(...args) {
+        // Remove the options object (last arg)
+        args.pop();
+        return args.join('');
+    });
+    
+    /**
+     * Range helper - generates array of numbers from start to end (exclusive)
+     * Usage: {{#each (range 1 6)}} generates [1, 2, 3, 4, 5]
+     */
+    Handlebars.registerHelper('range', function(start, end) {
+        const result = [];
+        for (let i = start; i < end; i++) {
+            result.push(i);
+        }
+        return result;
+    });
+    
+    /**
+     * Render dots helper - generates filled/empty dots based on value
+     * Usage: {{renderDots value maxDots}}
+     */
+    Handlebars.registerHelper('renderDots', function(value, maxDots) {
+        const currentValue = value || 0;
+        let html = '';
+        for (let i = 1; i <= maxDots; i++) {
+            const filled = i <= currentValue ? 'filled' : '';
+            html += `<span class="dot ${filled}"></span>`;
+        }
+        return new Handlebars.SafeString(html);
+    });
+
+    /**
+     * Default value helper - returns first value if truthy, otherwise returns default
+     * Usage: {{default value 0}}
+     */
+    Handlebars.registerHelper('default', function(value, defaultValue) {
+        return (value !== undefined && value !== null) ? value : defaultValue;
+    });
+
+    /**
+     * Logical OR helper
+     * Usage: {{#if (or condition1 condition2)}}
+     */
+    Handlebars.registerHelper('or', function() {
+        return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+    });
+
+    /**
+     * Logical AND helper
+     * Usage: {{#if (and condition1 condition2)}}
+     */
+    Handlebars.registerHelper('and', function() {
+        return Array.prototype.slice.call(arguments, 0, -1).every(Boolean);
+    });
+
+    /**
+     * Greater than or equal helper
+     * Usage: {{#if (gte value1 value2)}}
+     */
+    Handlebars.registerHelper('gte', function(a, b) {
+        return a >= b;
+    });
+
+    /**
+     * Subtract helper
+     * Usage: {{subtract value1 value2}} or {{sub value1 value2}}
+     */
+    Handlebars.registerHelper('subtract', function(a, b) {
+        return (a || 0) - (b || 0);
+    });
+    
+    // Alias for subtract
+    Handlebars.registerHelper('sub', function(a, b) {
+        return (a || 0) - (b || 0);
+    });
+
+    /**
+     * Min helper
+     * Usage: {{min value1 value2}}
+     */
+    Handlebars.registerHelper('min', function(a, b) {
+        return Math.min(a || 0, b || 0);
+    });
+
+    /**
+     * Find background value by name
+     * Usage: {{findBackgroundValue backgrounds "Allies"}}
+     */
+    Handlebars.registerHelper('findBackgroundValue', function(backgrounds, bgName) {
+        if (!backgrounds || !Array.isArray(backgrounds)) return 0;
+        const found = backgrounds.find(bg => bg.name === bgName);
+        return found ? found.value : 0;
+    });
+
+    /**
+     * Find background index by name
+     * Usage: {{findBackgroundIndex backgrounds "Allies"}}
+     */
+    Handlebars.registerHelper('findBackgroundIndex', function(backgrounds, bgName) {
+        if (!backgrounds || !Array.isArray(backgrounds)) return -1;
+        return backgrounds.findIndex(bg => bg.name === bgName);
+    });
+
+    /**
+     * Check if an abilities category has any rated abilities (value > 0)
+     * Usage: {{#if (hasRatedAbilities this)}}
+     */
+    Handlebars.registerHelper('hasRatedAbilities', function(abilityCategory) {
+        if (!abilityCategory || typeof abilityCategory !== 'object') return false;
+        return Object.values(abilityCategory).some(value => value > 0);
+    });
 
     /**
      * Equality comparison

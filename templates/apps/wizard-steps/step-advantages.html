@@ -1,0 +1,161 @@
+<div class="wizard-step step-advantages">
+  <div class="step-header">
+    <h3><i class="fas fa-star"></i> Advantages</h3>
+    <p class="step-description">Select backgrounds{{#if (eq actorType "Technocrat")}}, spheres,{{/if}} and other advantages.</p>
+  </div>
+
+  <div class="step-body">
+    <div class="advantages-grid">
+      
+      <!-- Backgrounds -->
+      <div class="advantage-section">
+        <h4>Backgrounds ({{config.advantages.backgrounds.points}} points)</h4>
+        
+        {{#if validation.backgrounds}}
+        <div class="points-tracker">
+          <span class="spent">{{validation.backgrounds.spent}}</span> / 
+          <span class="allowed">{{validation.backgrounds.allowed}}</span> points spent
+          {{#if (gt validation.backgrounds.remaining 0)}}
+          <span class="remaining">({{validation.backgrounds.remaining}} remaining)</span>
+          {{/if}}
+        </div>
+        {{/if}}
+        
+        <div class="backgrounds-list">
+          {{#each wizardData.advantages.backgrounds}}
+          <div class="background-item">
+            <select class="background-select" data-index="{{@index}}">
+              <option value="">-- Select Background --</option>
+              {{#each @root.backgroundsList}}
+              <option value="{{this}}" {{#if (eq this ../name)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
+            <div class="background-controls">
+              <button type="button" class="bg-decrease" data-index="{{@index}}" {{#if (eq (default value 0) 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="bg-value">{{default value 0}}</span>
+              <button type="button" class="bg-increase" data-index="{{@index}}" {{#if (or (eq (default value 0) @root.config.advantages.backgrounds.maxPerBackground) (and @root.validation.backgrounds (lte @root.validation.backgrounds.remaining 0)))}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="background-dots">
+              {{{renderDots (default value 0) @root.config.advantages.backgrounds.maxPerBackground}}}
+            </div>
+            <button type="button" class="remove-background" data-index="{{@index}}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          {{/each}}
+        </div>
+        
+        <button type="button" class="add-background">
+          <i class="fas fa-plus"></i> Add Background
+        </button>
+      </div>
+
+      <!-- Enlightenment (Technocrat only) -->
+      {{#if (eq actorType "Technocrat")}}
+      <div class="advantage-section enlightenment-section">
+        <h4>Enlightenment (Arete)</h4>
+        <div class="enlightenment-info">
+          <p>Starting Enlightenment: <strong>{{config.advantages.enlightenment.starting}}</strong></p>
+          <p class="note">Your total sphere points cannot exceed your Enlightenment rating.</p>
+          <p class="note">You can spend Freebie Points now to increase Enlightenment ({{config.freebies.costs.enlightenment}} points each).</p>
+        </div>
+        
+        <div class="enlightenment-purchase">
+          <div class="enlightenment-display">
+            <span class="enlightenment-label">Current Enlightenment:</span>
+            <div class="enlightenment-controls">
+              <button type="button" class="enlightenment-decrease" {{#if (eq wizardData.advantages.enlightenment config.advantages.enlightenment.starting)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="enlightenment-value">{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</span>
+              <button type="button" class="enlightenment-increase" {{#if (or (eq wizardData.advantages.enlightenment config.freebies.limits.enlightenment) (gte wizardData.advantages.freebiesSpent config.freebies.total))}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="freebies-spent">
+            <span class="freebies-label">Freebie Points Spent on Enlightenment:</span>
+            <span class="freebies-value">{{default wizardData.advantages.freebiesSpent 0}}</span> / {{config.freebies.total}}
+          </div>
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Spheres (Technocrat only) -->
+      {{#if (eq actorType "Technocrat")}}
+      <div class="advantage-section">
+        <h4>Spheres ({{config.advantages.spheres.points}} points)</h4>
+        <p class="note sphere-limit-note">You have <strong>{{config.advantages.spheres.points}}</strong> sphere points to spend. No individual sphere can exceed your Enlightenment (<strong>{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</strong>).</p>
+        
+        <div class="points-tracker">
+          <span class="spent">{{#if validation.spheres}}{{validation.spheres.spent}}{{else}}0{{/if}}</span> / 
+          <span class="allowed">{{config.advantages.spheres.points}}</span> points spent
+          {{#if validation.spheres}}
+          {{#if (gt validation.spheres.remaining 0)}}
+          <span class="remaining">({{validation.spheres.remaining}} remaining)</span>
+          {{/if}}
+          {{else}}
+          <span class="remaining">({{config.advantages.spheres.points}} remaining)</span>
+          {{/if}}
+        </div>
+        
+        <div class="spheres-list">
+          {{#each config.advantages.spheres.available}}
+          <div class="sphere-item" data-sphere-key="{{@key}}">
+            <span class="sphere-name">{{this}}</span>
+            <div class="sphere-controls">
+              <button type="button" 
+                      class="sphere-decrease" 
+                      data-sphere="{{@key}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.spheres @key) 0) 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="sphere-value">{{default (lookup @root.wizardData.advantages.spheres @key) 0}}</span>
+              <button type="button" 
+                      class="sphere-increase" 
+                      data-sphere="{{@key}}"
+                      {{#if (or (gte (default (lookup @root.wizardData.advantages.spheres @key) 0) (default @root.wizardData.advantages.enlightenment @root.config.advantages.enlightenment.starting)) (and @root.validation.spheres (lte @root.validation.spheres.remaining 0)))}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="sphere-dots">
+              {{{renderDots (default (lookup @root.wizardData.advantages.spheres @key) 0) (default @root.wizardData.advantages.enlightenment @root.config.advantages.enlightenment.starting)}}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Willpower -->
+      <div class="advantage-section">
+        <h4>Willpower</h4>
+        <div class="willpower-info">
+          <p>Starting Willpower: <strong>{{config.advantages.willpower.starting}}</strong></p>
+          <p class="note">You can increase Willpower with Freebie Points in the next step.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="step-help">
+    <div class="help-box">
+      <h4><i class="fas fa-lightbulb"></i> Advantages Guide</h4>
+      <ul>
+        <li><strong>Backgrounds:</strong> Resources, contacts, and external advantages your character has</li>
+        {{#if (eq actorType "Technocrat")}}
+        <li><strong>Spheres:</strong> Your character's understanding of reality's fundamental forces</li>
+        <li>Maximum {{config.advantages.spheres.maxAtCreation}} dots in any sphere at creation</li>
+        {{/if}}
+        <li>Choose backgrounds that fit your character concept and backstory</li>
+        <li>You must spend ALL points before continuing</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
