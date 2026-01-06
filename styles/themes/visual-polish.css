@@ -85,7 +85,9 @@
 .wod.sheet.actor .bg-category-section > *:not(.bg-category-header),
 .wod.sheet.actor .bio-fields-section > *:not(h3),
 .wod.sheet.actor .backstory-section > *:not(h3),
-.wod.sheet.actor .notes-section > *:not(h3) {
+.wod.sheet.actor .notes-section > *:not(h3),
+.wod.sheet.actor .character-image-section > *:not(h3),
+.wod.sheet.actor .focus-section > *:not(h3) {
     padding: 12px !important;
 }
 
@@ -470,6 +472,8 @@
 .wod.sheet.actor .bio-fields-section > h3,
 .wod.sheet.actor .backstory-section > h3,
 .wod.sheet.actor .notes-section > h3,
+.wod.sheet.actor .character-image-section > h3,
+.wod.sheet.actor .focus-section > h3,
 .wod.sheet.actor .secondary-ability-category h4 {
     background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
     color: white !important;
@@ -597,7 +601,9 @@
 .wod.sheet.actor .bg-category-section,
 .wod.sheet.actor .bio-fields-section,
 .wod.sheet.actor .backstory-section,
-.wod.sheet.actor .notes-section {
+.wod.sheet.actor .notes-section,
+.wod.sheet.actor .character-image-section,
+.wod.sheet.actor .focus-section {
     background: #ffffff !important;
     border-radius: 6px !important;
     padding: 0 !important;

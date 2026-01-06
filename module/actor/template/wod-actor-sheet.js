@@ -299,6 +299,10 @@ export class WodActorSheet extends ActorSheet {
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
         html.find('textarea[name^="system.biography"]').change(this._onBiographyChange.bind(this));
+        html.find('.file-picker').click(this._onFilePicker.bind(this));
+        html.find('.clear-image').click(this._onClearImage.bind(this));
+        html.find('.add-instrument').click(this._onAddInstrument.bind(this));
+        html.find('.remove-instrument').click(this._onRemoveInstrument.bind(this));
         
         // Secondary ability handlers
         html.find('.add-secondary-talent').click((ev) => this._onAddSecondaryAbility(ev, 'talents'));
@@ -648,7 +652,72 @@ export class WodActorSheet extends ActorSheet {
         event.preventDefault();
         const field = event.currentTarget.name;
         const value = event.currentTarget.value;
-        await this.actor.update({ [field]: value });
+        
+        // Handle instrument inputs specifically (they're in an array)
+        if (field === 'system.biography.focus.instruments') {
+            const index = parseInt(event.currentTarget.dataset.index);
+            const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
+            instruments[index] = value;
+            await this.actor.update({ 'system.biography.focus.instruments': instruments });
+        } else {
+            await this.actor.update({ [field]: value });
+        }
+    }
+
+    /**
+     * Handle file picker for character portrait
+     */
+    async _onFilePicker(event) {
+        event.preventDefault();
+        const button = event.currentTarget;
+        const target = button.dataset.target;
+        
+        const fp = new FilePicker({
+            type: "image",
+            current: this.actor.system.biography.image || "",
+            callback: async (path) => {
+                await this.actor.update({ [target]: path });
+            }
+        });
+        fp.browse();
+    }
+
+    /**
+     * Clear character portrait image
+     */
+    async _onClearImage(event) {
+        event.preventDefault();
+        const button = event.currentTarget;
+        const target = button.dataset.target;
+        await this.actor.update({ [target]: "" });
+    }
+
+    /**
+     * Add a new instrument to the focus
+     */
+    async _onAddInstrument(event) {
+        event.preventDefault();
+        const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
+        instruments.push("");
+        await this.actor.update({ 'system.biography.focus.instruments': instruments });
+    }
+
+    /**
+     * Remove an instrument from the focus
+     */
+    async _onRemoveInstrument(event) {
+        event.preventDefault();
+        const index = parseInt(event.currentTarget.dataset.index);
+        const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
+        
+        // Ensure minimum of 7 instruments
+        if (instruments.length <= 7) {
+            ui.notifications.warn("You must have at least 7 instruments.");
+            return;
+        }
+        
+        instruments.splice(index, 1);
+        await this.actor.update({ 'system.biography.focus.instruments': instruments });
     }
 
     /**

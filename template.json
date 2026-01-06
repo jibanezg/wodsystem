@@ -81,7 +81,13 @@
                 "hair": "",
                 "nationality": "",
                 "backstory": "",
-                "notes": ""
+                "notes": "",
+                "image": "",
+                "focus": {
+                    "paradigm": "",
+                    "instruments": ["", "", "", "", "", "", ""],
+                    "practices": ""
+                }
             },
             "secondaryAbilities": {
                 "talents": [],

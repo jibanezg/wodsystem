@@ -35,10 +35,77 @@
         </div>
     </div>
 
+    <!-- Character Image -->
+    <div class="character-image-section">
+        <h3>Character Portrait</h3>
+        <div class="image-container">
+            {{#if actor.system.biography.image}}
+            <img src="{{actor.system.biography.image}}" alt="Character Portrait" class="character-portrait" />
+            {{else}}
+            <div class="no-image-placeholder">
+                <i class="fas fa-user"></i>
+                <span>No image uploaded</span>
+            </div>
+            {{/if}}
+            <div class="image-controls">
+                <button type="button" class="file-picker" data-type="image" data-target="system.biography.image" title="Browse Files">
+                    <i class="fas fa-file-import fa-fw"></i> {{#if actor.system.biography.image}}Change Image{{else}}Upload Image{{/if}}
+                </button>
+                {{#if actor.system.biography.image}}
+                <button type="button" class="clear-image" data-target="system.biography.image" title="Clear Image">
+                    <i class="fas fa-times fa-fw"></i> Clear
+                </button>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+
     <!-- Backstory -->
     <div class="backstory-section">
         <h3>Backstory</h3>
         <textarea name="system.biography.backstory" rows="5">{{actor.system.biography.backstory}}</textarea>
+    </div>
+
+    <!-- Focus Section -->
+    <div class="focus-section">
+        <h3>Focus</h3>
+        
+        <!-- Paradigm -->
+        <div class="focus-field">
+            <label>Paradigm</label>
+            <input type="text" name="system.biography.focus.paradigm" value="{{actor.system.biography.focus.paradigm}}" placeholder="Enter your character's paradigm..." />
+        </div>
+
+        <!-- Practices -->
+        <div class="focus-field">
+            <label>Practices</label>
+            <input type="text" name="system.biography.focus.practices" value="{{actor.system.biography.focus.practices}}" placeholder="Enter your character's practices..." />
+        </div>
+
+        <!-- Instruments -->
+        <div class="focus-instruments">
+            <div class="instruments-header">
+                <label>Instruments</label>
+                <span class="instruments-count">(Minimum: 7, Current: {{actor.system.biography.focus.instruments.length}})</span>
+            </div>
+            <div class="instruments-list">
+                {{#each actor.system.biography.focus.instruments}}
+                <div class="instrument-item">
+                    <input type="text" 
+                           name="system.biography.focus.instruments" 
+                           value="{{this}}" 
+                           data-index="{{@index}}"
+                           placeholder="Instrument {{add @index 1}}" />
+                    <button type="button" class="remove-instrument" data-index="{{@index}}" {{#if (lt @root.actor.system.biography.focus.instruments.length 8)}}disabled{{/if}}>
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                {{/each}}
+            </div>
+            <button type="button" class="add-instrument">
+                <i class="fas fa-plus"></i> Add Instrument
+            </button>
+        </div>
     </div>
 
     <!-- Notes -->
