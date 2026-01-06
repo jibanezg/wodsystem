@@ -82,12 +82,7 @@
                 "nationality": "",
                 "backstory": "",
                 "notes": "",
-                "image": "",
-                "focus": {
-                    "paradigm": "",
-                    "instruments": ["", "", "", "", "", "", ""],
-                    "practices": ""
-                }
+                "image": ""
             },
             "secondaryAbilities": {
                 "talents": [],
@@ -336,6 +331,13 @@
                             "convention": "",
                             "amalgam": "",
                             "eidolon": ""
+                        },
+                        "biography": {
+                            "focus": {
+                                "paradigm": "",
+                                "instruments": ["", "", "", "", "", "", ""],
+                                "practices": ""
+                            }
                         },
                         "advantages": {
                             "enlightenment": {

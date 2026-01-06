@@ -299,10 +299,11 @@ export class WodActorSheet extends ActorSheet {
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
         html.find('textarea[name^="system.biography"]').change(this._onBiographyChange.bind(this));
-        html.find('.file-picker').click(this._onFilePicker.bind(this));
         html.find('.clear-image').click(this._onClearImage.bind(this));
         html.find('.add-instrument').click(this._onAddInstrument.bind(this));
         html.find('.remove-instrument').click(this._onRemoveInstrument.bind(this));
+        
+        // File picker uses Foundry's built-in handler (no custom binding needed)
         
         // Secondary ability handlers
         html.find('.add-secondary-talent').click((ev) => this._onAddSecondaryAbility(ev, 'talents'));
@@ -655,6 +656,21 @@ export class WodActorSheet extends ActorSheet {
         
         // Handle instrument inputs specifically (they're in an array)
         if (field === 'system.biography.focus.instruments') {
+            // Initialize focus if it doesn't exist or is incomplete
+            if (!this.actor.system.biography.focus || !this.actor.system.biography.focus.instruments) {
+                if (this.actor.type === "Technocrat") {
+                    await this.actor.update({
+                        'system.biography.focus': {
+                            paradigm: "",
+                            instruments: ["", "", "", "", "", "", ""],
+                            practices: ""
+                        }
+                    });
+                    ui.notifications.info('Focus section initialized.');
+                }
+                return;
+            }
+            
             const index = parseInt(event.currentTarget.dataset.index);
             const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
             instruments[index] = value;
@@ -662,24 +678,6 @@ export class WodActorSheet extends ActorSheet {
         } else {
             await this.actor.update({ [field]: value });
         }
-    }
-
-    /**
-     * Handle file picker for character portrait
-     */
-    async _onFilePicker(event) {
-        event.preventDefault();
-        const button = event.currentTarget;
-        const target = button.dataset.target;
-        
-        const fp = new FilePicker({
-            type: "image",
-            current: this.actor.system.biography.image || "",
-            callback: async (path) => {
-                await this.actor.update({ [target]: path });
-            }
-        });
-        fp.browse();
     }
 
     /**
@@ -697,6 +695,26 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddInstrument(event) {
         event.preventDefault();
+        
+        // Check if actor type supports focus
+        if (this.actor.type !== "Technocrat") {
+            ui.notifications.warn('Focus section is not available for this character type.');
+            return;
+        }
+        
+        // Initialize focus structure if it doesn't exist or is incomplete
+        if (!this.actor.system.biography.focus || !this.actor.system.biography.focus.instruments) {
+            await this.actor.update({
+                'system.biography.focus': {
+                    paradigm: "",
+                    instruments: ["", "", "", "", "", "", ""],
+                    practices: ""
+                }
+            });
+            ui.notifications.info('Focus section initialized. Click again to add an instrument.');
+            return;
+        }
+        
         const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
         instruments.push("");
         await this.actor.update({ 'system.biography.focus.instruments': instruments });
@@ -707,6 +725,26 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onRemoveInstrument(event) {
         event.preventDefault();
+        
+        // Check if actor type supports focus
+        if (this.actor.type !== "Technocrat") {
+            ui.notifications.warn('Focus section is not available for this character type.');
+            return;
+        }
+        
+        // Initialize focus if it doesn't exist or is incomplete
+        if (!this.actor.system.biography.focus || !this.actor.system.biography.focus.instruments) {
+            await this.actor.update({
+                'system.biography.focus': {
+                    paradigm: "",
+                    instruments: ["", "", "", "", "", "", ""],
+                    practices: ""
+                }
+            });
+            ui.notifications.info('Focus section initialized.');
+            return;
+        }
+        
         const index = parseInt(event.currentTarget.dataset.index);
         const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
         

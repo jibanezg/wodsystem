@@ -13,15 +13,18 @@
                     <i class="fas fa-user"></i>
                 </div>
                 {{/if}}
-                <div class="image-controls">
-                    <button type="button" class="file-picker" data-type="image" data-target="system.biography.image" title="Browse Files">
-                        <i class="fas fa-file-import fa-fw"></i>
-                    </button>
-                    {{#if actor.system.biography.image}}
-                    <button type="button" class="clear-image" data-target="system.biography.image" title="Clear Image">
-                        <i class="fas fa-times fa-fw"></i>
-                    </button>
-                    {{/if}}
+                <div class="portrait-input-wrapper">
+                    <div class="image-controls">
+                        <input class="portrait-image-path" type="text" name="system.biography.image" value="{{actor.system.biography.image}}" placeholder="Path to image..." />
+                        <button type="button" class="file-picker" data-type="imagevideo" data-target="system.biography.image" title="Browse Files" tabindex="-1">
+                            <i class="fas fa-file-import fa-fw"></i>
+                        </button>
+                        {{#if actor.system.biography.image}}
+                        <button type="button" class="clear-image" data-target="system.biography.image" title="Clear Image">
+                            <i class="fas fa-times fa-fw"></i>
+                        </button>
+                        {{/if}}
+                    </div>
                 </div>
             </div>
             
@@ -59,7 +62,8 @@
         </div>
     </div>
 
-    <!-- Focus Section -->
+    <!-- Focus Section (Technocrats only) -->
+    {{#if (eq actor.type "Technocrat")}}
     <div class="focus-section">
         <h3>Focus</h3>
         <div class="focus-layout">
@@ -106,6 +110,7 @@
             </div>
         </div>
     </div>
+    {{/if}}
 
     <!-- Backstory -->
     <div class="backstory-section">

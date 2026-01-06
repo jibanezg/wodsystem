@@ -805,15 +805,30 @@
     opacity: 0.3;
 }
 
-.wod.sheet.actor .image-controls {
-    display: flex;
-    gap: 5px;
+.wod.sheet.actor .portrait-input-wrapper {
     width: 100%;
 }
 
-.wod.sheet.actor .image-controls button {
+.wod.sheet.actor .image-controls {
+    display: flex;
+    gap: 3px;
+    width: 100%;
+    align-items: stretch;
+}
+
+.wod.sheet.actor .portrait-image-path {
     flex: 1;
-    padding: 6px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 9px;
+    background: #fafafa;
+    min-width: 0;
+}
+
+.wod.sheet.actor .image-controls button {
+    flex: 0 0 auto;
+    padding: 4px 6px;
     border: 1px solid var(--wod-primary, #2D5016);
     background: white;
     color: var(--wod-primary, #2D5016);
@@ -917,7 +932,7 @@
 }
 
 .wod.sheet.actor .focus-right {
-    flex: 1;
+    flex: 0 0 400px;
 }
 
 .wod.sheet.actor .focus-field {
@@ -954,14 +969,14 @@
 .wod.sheet.actor .focus-instruments {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
 .wod.sheet.actor .instruments-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
 }
 
 .wod.sheet.actor .instruments-header label {
@@ -981,10 +996,10 @@
 .wod.sheet.actor .instruments-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 4px;
     max-height: 300px;
     overflow-y: auto;
-    padding-right: 5px;
+    padding-right: 3px;
 }
 
 .wod.sheet.actor .instruments-list::-webkit-scrollbar {
@@ -1007,18 +1022,19 @@
 
 .wod.sheet.actor .instrument-item {
     display: flex;
-    gap: 5px;
+    gap: 3px;
     align-items: center;
 }
 
 .wod.sheet.actor .instrument-item input {
     flex: 1;
-    padding: 6px 8px;
+    padding: 4px 6px;
     border: 1px solid #ccc;
-    border-radius: 3px;
-    font-size: 11px;
+    border-radius: 2px;
+    font-size: 10px;
     background: #fafafa;
     transition: all 0.2s;
+    min-width: 0;
 }
 
 .wod.sheet.actor .instrument-item input:focus {
@@ -1028,15 +1044,20 @@
 }
 
 .wod.sheet.actor .remove-instrument {
-    padding: 6px 8px;
+    padding: 3px 5px;
     background: #fff;
     border: 1px solid #d32f2f;
     color: #d32f2f;
-    border-radius: 3px;
+    border-radius: 2px;
     cursor: pointer;
-    font-size: 0.85em;
+    font-size: 0.7em;
     transition: all 0.2s;
     flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .wod.sheet.actor .remove-instrument:hover:not(:disabled) {
@@ -1051,18 +1072,18 @@
 }
 
 .wod.sheet.actor .add-instrument {
-    padding: 8px 14px;
+    padding: 5px 8px;
     background: white;
     border: 1px solid var(--wod-primary, #2D5016);
     color: var(--wod-primary, #2D5016);
-    border-radius: 3px;
+    border-radius: 2px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 0.8em;
     transition: all 0.2s;
     align-self: flex-start;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 3px;
 }
 
 .wod.sheet.actor .add-instrument:hover {
