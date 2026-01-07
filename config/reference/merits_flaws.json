@@ -11,7 +11,7 @@
       "cost": [1, 3],
       "costDescription": "1 or 3 points",
       "description": "Your physical senses are unusually sharp, capturing nuances that few people ever notice.",
-      "gameEffects": "Reduces difficulty of Perception-based rolls by -2. At 1-point level, a single sense is more acute; at 3-point level, all five physical senses are equally sharp.",
+      "gameEffects": "Reduces difficulty of Perception-based rolls by -2. At 1-point level, a single sense (vision, hearing, touch, taste, smell) is more acute; at 3-point level, all five physical senses are equally sharp.",
       "keywords": ["senses", "perception", "physical", "awareness"],
       "searchTerms": ["acute", "senses", "sharp", "perception", "hearing", "vision", "touch", "taste", "smell"]
     },
@@ -22,10 +22,10 @@
       "category": "Merit",
       "cost": [3],
       "costDescription": "3 points",
-      "description": "A charming blend of narcissism, Machiavellianism, and sociopathy makes you a smooth-talking rule-breaker.",
-      "gameEffects": "Adds three dice to Seduction, Manipulation, Leadership, Subterfuge, and Charisma-based rolls. Story downside: amoral behavior may have consequences.",
-      "keywords": ["social", "manipulation", "charisma", "leadership"],
-      "searchTerms": ["dark", "triad", "narcissism", "manipulation", "charisma", "leadership"]
+      "description": "A charming and chilling blend of narcissism, Machiavellianism, and sociopathy makes you a smooth-talking rule-breaker. Your devotees are ultimately expendable toys to you.",
+      "gameEffects": "Adds three dice to all Seduction, Manipulation, Leadership, Subterfuge, and Charisma-based rolls. Story downside: amoral behavior may alienate or endanger the character.",
+      "keywords": ["social", "manipulation", "charisma", "leadership", "narcissism"],
+      "searchTerms": ["dark", "triad", "narcissism", "manipulation", "charisma", "leadership", "seduction"]
     },
     {
       "id": "language",
@@ -33,11 +33,83 @@
       "type": "Mental",
       "category": "Merit",
       "cost": [1],
-      "costDescription": "1 point",
-      "description": "Beyond your native language, you understand another form of communication.",
+      "costDescription": "1 point per language",
+      "description": "Beyond your native language, you understand another form of communication in both written and spoken forms.",
       "gameEffects": "Each 1-pt Merit reflects a single language. With 5+ Language Merits, can attempt to unravel unknown languages (Intelligence + Enigmas, difficulty 7+).",
       "keywords": ["language", "communication", "mental", "knowledge"],
-      "searchTerms": ["language", "speak", "communication", "tongue", "dialect"]
+      "searchTerms": ["language", "speak", "communication", "tongue", "dialect", "linguistics"]
+    },
+    {
+      "id": "stormwarden",
+      "name": "Stormwarden/Quantum Voyager",
+      "type": "Supernatural",
+      "category": "Merit",
+      "cost": [3, 5],
+      "costDescription": "3 or 5 points",
+      "description": "Despite the fury of the Avatar Storm, you remain immune and can traverse the Gauntlet without suffering its effects.",
+      "gameEffects": "For 3 points: pass through Gauntlet without harm. For 5 points: protect everyone and everything you touch. Incredibly rare ability.",
+      "keywords": ["supernatural", "gauntlet", "storm", "immunity", "umbra"],
+      "searchTerms": ["storm", "warden", "quantum", "voyager", "avatar", "gauntlet", "umbra"]
+    },
+    {
+      "id": "ties",
+      "name": "Ties",
+      "type": "Social",
+      "category": "Merit",
+      "cost": [3],
+      "costDescription": "3 points per group",
+      "description": "You have connections in high, low, or in-between places - police, underworld, media, etc. Each type must be purchased separately.",
+      "gameEffects": "Subtle requests: -2 difficulty. Significant favors: -1 difficulty. Must be maintained through roleplay.",
+      "keywords": ["social", "connections", "contacts", "influence"],
+      "searchTerms": ["ties", "connections", "contacts", "influence", "network", "favors"]
+    },
+    {
+      "id": "too_tough_to_die",
+      "name": "Too Tough to Die",
+      "type": "Physical",
+      "category": "Merit",
+      "cost": [5],
+      "costDescription": "5 points",
+      "description": "You're badass enough to shrug off injuries that would cripple or kill most people.",
+      "gameEffects": "Can soak lethal damage (NOT aggravated). Still takes normal healing time. Does not apply if Cinematic Damage option is used.",
+      "keywords": ["physical", "soak", "damage", "tough", "resilient"],
+      "searchTerms": ["tough", "die", "soak", "damage", "lethal", "resilient", "hardy"]
+    },
+    {
+      "id": "true_faith",
+      "name": "True Faith",
+      "type": "Supernatural",
+      "category": "Merit",
+      "cost": [7],
+      "costDescription": "7 points per dot",
+      "description": "Possessing convictions in a greater outside power, you can channel that power for miraculous feats beyond mere magick.",
+      "gameEffects": "One dot adds to countermagick and Willpower rolls. Can sense magick, drive away vampires, resist mind control at higher levels. Must be lived, not just recognized.",
+      "keywords": ["supernatural", "faith", "belief", "miracles", "conviction"],
+      "searchTerms": ["true", "faith", "belief", "conviction", "miracles", "god", "divine"]
+    },
+    {
+      "id": "umbral_affinity",
+      "name": "Umbral Affinity",
+      "type": "Supernatural",
+      "category": "Merit",
+      "cost": [4],
+      "costDescription": "4 points",
+      "description": "You have an innate affinity for the Otherworlds, perhaps from shapeshifter blood or Pagan heritage.",
+      "gameEffects": "No ill effects from first and second-degree Acclimation. Other stages affect at one stage less. No Disembodiment worry for six months. Recognized as natural traveler in Umbral Realms.",
+      "keywords": ["supernatural", "umbra", "otherworlds", "spirit", "realms"],
+      "searchTerms": ["umbral", "affinity", "otherworlds", "spirit", "umbra", "realms", "gauntlet"]
+    },
+    {
+      "id": "berserker",
+      "name": "Berserker/Stress Atavism",
+      "type": "Mental",
+      "category": "Merit",
+      "cost": [4],
+      "costDescription": "4 points (Merit or Flaw)",
+      "description": "In combat you become a monster, destroying everything in sight. Can be Merit or Flaw depending on situation.",
+      "gameEffects": "Failed Willpower roll (diff 8) leads to rampage. Gain 3 Bruised levels, ignore wound penalties, +2 Strength, +1 Stamina. Everyone becomes enemy until incapacitated or left alone.",
+      "keywords": ["mental", "combat", "rage", "berserk", "frenzy"],
+      "searchTerms": ["berserker", "berserk", "rage", "frenzy", "combat", "stress", "atavism"]
     }
   ],
   "flaws": [
@@ -48,10 +120,10 @@
       "category": "Flaw",
       "cost": [1, 3],
       "costDescription": "1 or 3 points",
-      "description": "You're addicted to some activity or substance that interferes with your daily life.",
-      "gameEffects": "1 point for harmless habits, 3 points for dangerous/illegal substances. Drives character to irrational extremes.",
+      "description": "You're addicted to some activity or substance that interferes with your daily life, driving you to irrational extremes.",
+      "gameEffects": "1 point for trivial enjoyments (games, tobacco, social media). 3 points for dangerous/illegal substances (cocaine, fight clubs, etc.). Causes social, legal, and physical/psychological costs.",
       "keywords": ["addiction", "compulsion", "physical", "substance"],
-      "searchTerms": ["addiction", "substance", "craving", "habit", "compulsion"]
+      "searchTerms": ["addiction", "substance", "craving", "habit", "compulsion", "drugs", "dependent"]
     },
     {
       "id": "cursed",
@@ -60,11 +132,82 @@
       "category": "Flaw",
       "cost": [1, 2, 3, 4, 5],
       "costDescription": "1 to 5 points",
-      "description": "Misfortune of apparently supernatural origins makes your character's life difficult.",
-      "gameEffects": "Severity increases with point value: 1pt = minor quirks, 3pt = chronic misfortune, 5pt = pervasive bad luck.",
+      "description": "Misfortune of apparently supernatural origins makes your character's life difficult. Severity increases with point value.",
+      "gameEffects": "1pt: minor quirks (hard to keep secrets, tech malfunctions). 3pt: chronic misfortune (tools break, children fear you). 5pt: pervasive bad luck (endeavors fail, chronic pain). Storyteller determines effects and lifting methods.",
       "keywords": ["curse", "misfortune", "supernatural", "bad luck"],
-      "searchTerms": ["cursed", "curse", "misfortune", "bad luck", "jinx"]
+      "searchTerms": ["cursed", "curse", "misfortune", "bad luck", "jinx", "hex", "doomed"]
+    },
+    {
+      "id": "construct",
+      "name": "Construct",
+      "type": "Social",
+      "category": "Flaw",
+      "cost": [2],
+      "costDescription": "2 points",
+      "description": "You came from a lab, not a womb - grown, woven, shaped, or crafted rather than born. Social alienation keeps you at arm's length from humanity.",
+      "gameEffects": "Inflicts penalties on social rolls in many situations. Combination of self-doubt and alienation, or sense of superiority, impedes character socially.",
+      "keywords": ["social", "artificial", "created", "construct", "alienation"],
+      "searchTerms": ["construct", "artificial", "created", "lab", "grown", "crafted", "clone"]
+    },
+    {
+      "id": "deranged",
+      "name": "Deranged",
+      "type": "Mental",
+      "category": "Flaw",
+      "cost": [3, 5],
+      "costDescription": "3 or 5 points",
+      "description": "You suffer from a lasting form of mental illness. Insanity lingers until cured and Flaw bought off.",
+      "gameEffects": "3-point: troubling but manageable insanity. 5-point: intense madness making character dangerous to self and others. Willpower roll might allow temporary coping. Essential for Marauders.",
+      "keywords": ["mental", "insanity", "madness", "derangement", "disorder"],
+      "searchTerms": ["deranged", "insane", "madness", "mental", "illness", "derangement", "crazy"]
+    },
+    {
+      "id": "echoes",
+      "name": "Echoes",
+      "type": "Supernatural",
+      "category": "Flaw",
+      "cost": [1, 2, 3, 4, 5],
+      "costDescription": "1 to 5 points",
+      "description": "You display weird phenomena associated with sorcery - strange vibrations, phantom music, gathering shadows, or visible Resonance marks.",
+      "gameEffects": "1pt: slight manifestations (shadow flickers, milk sours). 3pt: people recognize you as a mage. 5pt: reality shifts around you, animals react strongly, environmental changes radiate. Can be used as Resonance system.",
+      "keywords": ["supernatural", "resonance", "aura", "manifestation", "phenomena"],
+      "searchTerms": ["echoes", "resonance", "aura", "manifestation", "supernatural", "phenomena"]
+    },
+    {
+      "id": "enemy",
+      "name": "Enemy",
+      "type": "Social",
+      "category": "Flaw",
+      "cost": [1, 2, 3, 4, 5],
+      "costDescription": "1 to 5 points",
+      "description": "Someone hates your guts and will do whatever they can to make your life unpleasant.",
+      "gameEffects": "Value determines strength and hatred of enemy: 1pt for minor grudge from inconsequential party, 5pt for deadly plans of powerful entity or group.",
+      "keywords": ["social", "enemy", "antagonist", "rival", "nemesis"],
+      "searchTerms": ["enemy", "rival", "nemesis", "antagonist", "foe", "hatred", "grudge"]
+    },
+    {
+      "id": "ptsd",
+      "name": "PTSD",
+      "type": "Mental",
+      "category": "Flaw",
+      "cost": [2, 3, 4, 5],
+      "costDescription": "2 to 5 points",
+      "description": "Awful experiences have given you a hair-trigger response to certain situations - anxiety, aversions, phobias, rage.",
+      "gameEffects": "2pt: occasional nightmares under rare circumstances. 3pt: phobias in common situations. 4pt: near-panic and rapid mood swings. 5pt: major reactions (flashbacks, terror, catatonia) in fairly common situations. Difficult to treat even with magick.",
+      "keywords": ["mental", "trauma", "stress", "anxiety", "phobia"],
+      "searchTerms": ["ptsd", "trauma", "stress", "anxiety", "phobia", "flashback", "trigger"]
+    },
+    {
+      "id": "stress_atavism",
+      "name": "Stress Atavism",
+      "type": "Mental",
+      "category": "Flaw",
+      "cost": [4],
+      "costDescription": "4 points",
+      "description": "Same as Berserker Merit but as a Flaw - when stressed you enter uncontrollable rage, attacking friend and foe alike.",
+      "gameEffects": "Under stress, failed Willpower (diff 8) causes rampage. Gain 3 Bruised, ignore penalties, +2 Str, +1 Sta. Attack everyone until stopped. Major liability for subtlety-focused groups.",
+      "keywords": ["mental", "flaw", "rage", "berserk", "stress"],
+      "searchTerms": ["stress", "atavism", "berserker", "rage", "frenzy", "uncontrolled", "rampage"]
     }
   ]
 }
-
