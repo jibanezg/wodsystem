@@ -28,7 +28,8 @@
     "styles/themes/visual-polish.css",
     "styles/themes/dialog-styles.css",
     "styles/themes/foundry-dialog-override.css",
-    "styles/character-wizard.css"
+    "styles/character-wizard.css",
+    "styles/reference-system.css"
   ],
   "languages": [
     {

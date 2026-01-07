@@ -245,6 +245,9 @@ export class WodActorSheet extends ActorSheet {
         html.find('.merit-name').change(this._onMeritNameChange.bind(this));
         html.find('.flaw-name').change(this._onFlawNameChange.bind(this));
         
+        // Merit/Flaw reference integration (tooltips and click-to-chat)
+        this._initializeReferenceIntegrations(html);
+        
         // Background handlers
         html.find('.add-background').click(this._onAddBackground.bind(this));
         html.find('.delete-background').click(this._onDeleteBackground.bind(this));
@@ -3711,6 +3714,189 @@ export class WodActorSheet extends ActorSheet {
         // Create and render wizard
         const wizard = new game.wodsystem.WodCharacterWizard(this.actor);
         wizard.render(true);
+    }
+    
+    /* -------------------------------------------- */
+    /*  Reference Data Integration (Tooltips & Click-to-Chat)          */
+    /* -------------------------------------------- */
+    
+    /**
+     * Initialize reference data integrations for merits/flaws
+     * Adds tooltips on hover and click-to-chat functionality
+     * @param {jQuery} html - The rendered HTML
+     * @private
+     */
+    _initializeReferenceIntegrations(html) {
+        const service = game.wod?.referenceDataService;
+        if (!service || !service.initialized) return;
+        
+        // Add tooltips and click handlers to merit names
+        html.find('.merit-name-display, .merit-name').each((index, element) => {
+            const $element = $(element);
+            
+            // Get the merit name from input value or text content
+            const name = $element.is('input') 
+                ? $element.val()?.trim() 
+                : $element.text()?.trim();
+            
+            if (!name) return;
+            
+            const reference = service.getByName(name, 'Merit');
+            
+            if (reference) {
+                $element.addClass('has-reference clickable');
+                $element.attr('data-reference-id', reference.id);
+                $element.attr('data-reference-category', 'Merit');
+                
+                // Tooltip on hover
+                $element.hover(
+                    (e) => this._showReferenceTooltip(e, reference),
+                    () => this._hideReferenceTooltip()
+                );
+                
+                // Click to post to chat (PRIORITY)
+                $element.click((e) => {
+                    // Only if not an input field being edited
+                    if (!$element.is('input') || $element.is(':disabled') || $element.is('[readonly]')) {
+                        this._onReferenceClickToChat(e, reference);
+                    }
+                });
+            }
+        });
+        
+        // Add tooltips and click handlers to flaw names
+        html.find('.flaw-name-display, .flaw-name').each((index, element) => {
+            const $element = $(element);
+            
+            // Get the flaw name from input value or text content
+            const name = $element.is('input')
+                ? $element.val()?.trim()
+                : $element.text()?.trim();
+            
+            if (!name) return;
+            
+            const reference = service.getByName(name, 'Flaw');
+            
+            if (reference) {
+                $element.addClass('has-reference clickable');
+                $element.attr('data-reference-id', reference.id);
+                $element.attr('data-reference-category', 'Flaw');
+                
+                // Tooltip on hover
+                $element.hover(
+                    (e) => this._showReferenceTooltip(e, reference),
+                    () => this._hideReferenceTooltip()
+                );
+                
+                // Click to post to chat (PRIORITY)
+                $element.click((e) => {
+                    // Only if not an input field being edited
+                    if (!$element.is('input') || $element.is(':disabled') || $element.is('[readonly]')) {
+                        this._onReferenceClickToChat(e, reference);
+                    }
+                });
+            }
+        });
+    }
+    
+    /**
+     * Show tooltip for merit/flaw reference
+     * @param {Event} event - The hover event
+     * @param {object} reference - The reference data
+     * @private
+     */
+    _showReferenceTooltip(event, reference) {
+        this._hideReferenceTooltip(); // Remove any existing tooltip
+        
+        const service = game.wod?.referenceDataService;
+        if (!service) return;
+        
+        // Create tooltip element
+        const tooltip = $('<div class="wod-reference-tooltip"></div>');
+        tooltip.html(service.generateTooltipHTML(reference));
+        
+        // Add to body
+        $('body').append(tooltip);
+        
+        // Position tooltip
+        const rect = event.currentTarget.getBoundingClientRect();
+        const tooltipWidth = tooltip.outerWidth();
+        const windowWidth = $(window).width();
+        
+        // Adjust left position to prevent overflow
+        let left = rect.left;
+        if (left + tooltipWidth > windowWidth - 10) {
+            left = windowWidth - tooltipWidth - 10;
+        }
+        
+        tooltip.css({
+            top: rect.bottom + 5,
+            left: left,
+            maxWidth: '400px'
+        });
+        
+        // Fade in
+        tooltip.fadeIn(200);
+    }
+    
+    /**
+     * Hide reference tooltip
+     * @private
+     */
+    _hideReferenceTooltip() {
+        $('.wod-reference-tooltip').fadeOut(100, function() {
+            $(this).remove();
+        });
+    }
+    
+    /**
+     * Handle click on merit/flaw name to post to chat
+     * @param {Event} event - The click event
+     * @param {object} reference - The reference data
+     * @private
+     */
+    async _onReferenceClickToChat(event, reference) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Hide tooltip when clicking
+        this._hideReferenceTooltip();
+        
+        if (!reference) {
+            ui.notifications.warn(`Reference data not found`);
+            return;
+        }
+        
+        // Post to chat
+        await this._postReferenceToChat(reference);
+    }
+    
+    /**
+     * Post merit/flaw reference to chat
+     * @param {object} reference - The reference data
+     * @private
+     */
+    async _postReferenceToChat(reference) {
+        const content = await renderTemplate(
+            "systems/wodsystem/templates/chat/reference-card.html",
+            { reference }
+        );
+        
+        const messageData = {
+            content: content,
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+            type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+            flags: {
+                wodsystem: {
+                    referenceType: reference.category,
+                    referenceId: reference.id
+                }
+            }
+        };
+        
+        await ChatMessage.create(messageData);
+        
+        ui.notifications.info(`Posted ${reference.name} to chat`);
     }
 }
 

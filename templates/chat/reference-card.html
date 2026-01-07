@@ -1,0 +1,27 @@
+<div class="wod-reference-card {{reference.category}}">
+    <div class="reference-header">
+        <h3>{{reference.name}}</h3>
+        <span class="cost-badge">{{reference.costDescription}}</span>
+    </div>
+    
+    <div class="reference-meta">
+        <span class="type-badge {{reference.type}}">{{reference.type}}</span>
+        <span class="category-badge {{reference.category}}">{{reference.category}}</span>
+    </div>
+    
+    <div class="reference-description">
+        <p>{{{reference.description}}}</p>
+    </div>
+    
+    {{#if reference.gameEffects}}
+    <div class="reference-effects">
+        <h4><i class="fas fa-dice-d20"></i> Game Effects</h4>
+        <p>{{{reference.gameEffects}}}</p>
+    </div>
+    {{/if}}
+    
+    <div class="reference-footer">
+        <span class="source"><i class="fas fa-book"></i> Mage: The Ascension 20th Anniversary Edition</span>
+    </div>
+</div>
+

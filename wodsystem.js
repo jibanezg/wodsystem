@@ -10,9 +10,15 @@ import { WodCharacterWizard } from "./module/character-creation/wod-character-wi
 
 // Import Services
 import "./scripts/reference-data-service.js"; // External data (archetypes, backgrounds)
+import { ReferenceDataService } from "./module/services/reference-data-service.js"; // Merits, flaws, etc.
 
 Hooks.once("init", async function() {
     console.log("WoD | Initializing World of Darkness System");
+    
+    // Initialize game reference data service (merits, flaws, abilities, spheres)
+    game.wod = game.wod || {};
+    game.wod.referenceDataService = new ReferenceDataService();
+    await game.wod.referenceDataService.initialize();
     
     // Register Handlebars helpers
     registerHandlebarsHelpers();
