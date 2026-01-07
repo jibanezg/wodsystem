@@ -715,9 +715,19 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
+        // Store scroll position
+        const scrollContainer = this.element.find('.tab[data-tab="biography"]');
+        const scrollTop = scrollContainer.scrollTop();
+        
         const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
         instruments.push("");
         await this.actor.update({ 'system.biography.focus.instruments': instruments });
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            const newScrollContainer = this.element.find('.tab[data-tab="biography"]');
+            newScrollContainer.scrollTop(scrollTop);
+        }, 0);
     }
 
     /**
@@ -754,8 +764,18 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
+        // Store scroll position
+        const scrollContainer = this.element.find('.tab[data-tab="biography"]');
+        const scrollTop = scrollContainer.scrollTop();
+        
         instruments.splice(index, 1);
         await this.actor.update({ 'system.biography.focus.instruments': instruments });
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            const newScrollContainer = this.element.find('.tab[data-tab="biography"]');
+            newScrollContainer.scrollTop(scrollTop);
+        }, 0);
     }
 
     /**

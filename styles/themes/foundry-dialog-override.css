@@ -2,14 +2,27 @@
  * ==============================================
  * FOUNDRY DIALOG OVERRIDE - NUCLEAR OPTION
  * Forces all Foundry confirmation dialogs to use our styling
+ * Excludes document creation dialogs to prevent breaking form elements on iOS
  * ==============================================
  */
 
-/* Target ALL dialog windows */
-.app.dialog,
-.window-app.dialog,
-div.dialog.window-app,
-.app.window-app.dialog {
+/* CRITICAL iOS FIX: Don't override form layouts in document creation dialogs */
+.window-app:has(form.simple-document-sheet),
+.window-app:has(form[autocomplete="off"]) {
+    /* Let Foundry handle these dialogs natively */
+}
+
+.window-app:has(form.simple-document-sheet) *,
+.window-app:has(form[autocomplete="off"]) * {
+    /* Prevent our overrides from breaking create dialogs */
+    max-width: none !important;
+}
+
+/* Target ALL dialog windows EXCEPT create-actor */
+.app.dialog:not(.create-actor),
+.window-app.dialog:not(.create-actor),
+div.dialog.window-app:not(.create-actor),
+.app.window-app.dialog:not(.create-actor) {
     background: transparent !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
     border: 2px solid #4682B4 !important;
@@ -59,6 +72,9 @@ div.dialog .window-content,
     line-height: 1.6 !important;
     color: #333 !important;
     border: none !important;
+    overflow: visible !important;
+    min-height: auto !important;
+    height: auto !important;
 }
 
 /* Text in content */
@@ -93,8 +109,7 @@ div.dialog .dialog-buttons,
     margin: 0 !important;
 }
 
-/* ALL BUTTONS - Base styling */
-.app.dialog button,
+/* ALL BUTTONS - Base styling (only in dialog-buttons container) */
 .app.dialog .dialog-buttons button,
 .window-app.dialog .dialog-buttons button,
 div.dialog .dialog-buttons button {
@@ -197,5 +212,94 @@ div.dialog .dialog-buttons button {
 .dialog .window-content button i {
     margin-right: 6px !important;
     color: inherit !important;
+}
+
+/* FORM ELEMENTS - iOS/Safari compatibility fixes */
+.app.dialog form,
+.window-app.dialog form,
+.dialog form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+}
+
+.app.dialog .form-group,
+.window-app.dialog .form-group,
+.dialog .form-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.app.dialog select,
+.window-app.dialog select,
+.dialog select,
+.app.dialog input[type="text"],
+.window-app.dialog input[type="text"],
+.dialog input[type="text"] {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 10px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    font-size: 16px !important;
+    background: white !important;
+    color: #333 !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    position: relative !important;
+    z-index: 2 !important;
+    
+    /* iOS-specific fixes */
+    -webkit-appearance: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+}
+
+.app.dialog select,
+.window-app.dialog select,
+.dialog select {
+    /* Restore native select appearance for iOS */
+    -webkit-appearance: menulist !important;
+    appearance: menulist !important;
+    min-height: 44px !important;
+    height: auto !important;
+    line-height: normal !important;
+    cursor: pointer !important;
+    
+    /* Ensure select is visible and clickable on iOS */
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+.app.dialog label,
+.window-app.dialog label,
+.dialog label {
+    display: block !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin-bottom: 4px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+/* iOS viewport meta fix - prevent zoom on focus */
+@supports (-webkit-touch-callout: none) {
+    .app.dialog input,
+    .app.dialog select,
+    .app.dialog textarea {
+        font-size: 16px !important;
+    }
 }
 
