@@ -6,8 +6,13 @@
         <div class="merit-list">
             {{#each actor.system.miscellaneous.merits as |merit meritIndex|}}
             <div class="merit-item">
-                <input type="text" value="{{merit.name}}" placeholder="Merit Name" class="merit-name" 
-                       data-index="{{meritIndex}}"/>
+                <div class="merit-name-container">
+                    <input type="text" value="{{merit.name}}" placeholder="Merit Name" class="merit-name" 
+                           data-index="{{meritIndex}}"/>
+                    <a class="merit-reference-btn" data-index="{{meritIndex}}" title="View Merit Details">
+                        <i class="fas fa-book-open"></i>
+                    </a>
+                </div>
                 <div class="dot-container" data-merit="{{meritIndex}}">
                     {{#times 7}}
                     <div class="dot {{#if (lt @index ../merit.value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -29,8 +34,13 @@
         <div class="flaw-list">
             {{#each actor.system.miscellaneous.flaws as |flaw flawIndex|}}
             <div class="flaw-item">
-                <input type="text" value="{{flaw.name}}" placeholder="Flaw Name" class="flaw-name" 
-                       data-index="{{flawIndex}}"/>
+                <div class="flaw-name-container">
+                    <input type="text" value="{{flaw.name}}" placeholder="Flaw Name" class="flaw-name" 
+                           data-index="{{flawIndex}}"/>
+                    <a class="flaw-reference-btn" data-index="{{flawIndex}}" title="View Flaw Details">
+                        <i class="fas fa-book-open"></i>
+                    </a>
+                </div>
                 <div class="dot-container" data-flaw="{{flawIndex}}">
                     {{#times 7}}
                     <div class="dot {{#if (lt @index ../flaw.value)}}filled{{/if}}" data-index="{{@index}}"></div>

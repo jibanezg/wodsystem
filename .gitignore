@@ -23,4 +23,9 @@ yarn-error.log*
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Copyrighted content and extraction tools (local use only)
+docs/
+scripts/extraction/
+datasource/ 

@@ -1250,12 +1250,46 @@ textarea {
     font-size: 0.75em;
 }
 
+.wod.sheet.actor .merit-name-container,
+.wod.sheet.actor .flaw-name-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    position: relative;
+}
+
 .wod.sheet.actor .merit-name, .flaw-name {
     flex: 1;
     padding: 3px 5px;
     border: 1px solid #ccc;
     border-radius: 2px;
     font-size: 11px;
+}
+
+.wod.sheet.actor .merit-reference-btn,
+.wod.sheet.actor .flaw-reference-btn {
+    cursor: pointer;
+    color: var(--wod-primary, #4682B4);
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    transition: all 0.2s;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.wod.sheet.actor .merit-reference-btn.has-reference,
+.wod.sheet.actor .flaw-reference-btn.has-reference {
+    opacity: 0.6;
+    visibility: visible;
+}
+
+.wod.sheet.actor .merit-reference-btn.has-reference:hover,
+.wod.sheet.actor .flaw-reference-btn.has-reference:hover {
+    opacity: 1;
+    color: var(--wod-accent, #2F4F6F);
+    background: rgba(70, 130, 180, 0.1);
 }
 
 .wod.sheet.actor .delete-merit, .delete-flaw, .delete-background {

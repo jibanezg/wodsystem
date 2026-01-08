@@ -10,6 +10,109 @@
   color: var(--text-primary, #e0e0e0);
 }
 
+/* ===== COST SELECTION DIALOG ===== */
+.wod-cost-selection-dialog {
+  max-height: none !important;
+  height: auto !important;
+}
+
+.wod-cost-selection-dialog .window-content {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.wod-cost-selection-dialog .window-header {
+  overflow: hidden !important;
+  padding: 4px 8px !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+}
+
+.wod-cost-selection-dialog .window-title {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 0.95em !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+}
+
+.wod-cost-selection-dialog .header-button {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.wod-cost-selection-dialog .header-button.close,
+.wod-cost-selection-dialog a.close,
+.wod-cost-selection-dialog .window-header .close {
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+  font-size: 0 !important;
+  width: auto !important;
+  padding: 2px 4px !important;
+  line-height: 0 !important;
+}
+
+.wod-cost-selection-dialog .header-button.close i,
+.wod-cost-selection-dialog a.close i,
+.wod-cost-selection-dialog .window-header .close i {
+  margin: 0 !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
+
+.wod-cost-selection-dialog .dialog-content {
+  overflow: visible !important;
+  padding: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.wod-cost-selection-dialog .dialog-buttons {
+  padding: 6px 8px;
+  gap: 6px;
+}
+
+.wod-cost-selection-dialog .dialog-buttons,
+.wod-cost-selection-dialog.dialog .dialog-buttons {
+  justify-content: center !important;
+  padding: 6px 8px !important;
+  margin: 0 !important;
+}
+
+.wod-cost-selection-dialog .dialog-button,
+.wod-cost-selection-dialog.dialog .dialog-button,
+.wod-cost-selection-dialog button.dialog-button {
+  padding: 4px 10px !important;
+  font-size: 0.7em !important;
+  min-height: unset !important;
+  height: auto !important;
+  min-width: 60px !important;
+  max-width: 80px !important;
+  line-height: 1.2 !important;
+  text-transform: none !important;
+}
+
+.wod-cost-selection-dialog .dialog-button i,
+.wod-cost-selection-dialog button.dialog-button i {
+  font-size: 0.75em !important;
+  margin-right: 2px !important;
+}
+
+.wod-cost-selection-dialog .cost-option-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.wod-cost-selection-dialog .cost-option-btn:hover {
+  opacity: 0.85 !important;
+  transform: translateY(-1px);
+}
+
 /* ===== HEADER ===== */
 .wizard-header {
   padding: 1.5rem;
@@ -796,6 +899,16 @@
   border-radius: 3px;
 }
 
+.freebie-bonus-note {
+  font-size: 0.9rem;
+  color: #27ae60;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(39, 174, 96, 0.1);
+  border-left: 3px solid #27ae60;
+  border-radius: 3px;
+}
+
 .enlightenment-spent-display,
 .total-freebies {
   margin-top: 0.75rem;
@@ -1220,5 +1333,229 @@
   .freebies-header {
     grid-template-columns: 1fr;
   }
+  
+  .step-merits-flaws .merits-flaws-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   Merits & Flaws Step
+   ======================================== */
+
+.step-merits-flaws .merits-flaws-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.step-merits-flaws .merit-flaw-section h4 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(70, 130, 180, 0.3);
+  font-size: 1em;
+}
+
+.step-merits-flaws .points-display {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: var(--wod-primary, #4682B4);
+}
+
+.step-merits-flaws .merit-list,
+.step-merits-flaws .flaw-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.step-merits-flaws .merit-flaw-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.step-merits-flaws .name-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-merits-flaws .wizard-merit-name,
+.step-merits-flaws .wizard-flaw-name {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #444;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  font-size: 0.9em;
+}
+
+.step-merits-flaws .wizard-merit-name:focus,
+.step-merits-flaws .wizard-flaw-name:focus {
+  outline: none;
+  border-color: var(--wod-primary, #4682B4);
+  box-shadow: 0 0 0 1px rgba(70, 130, 180, 0.3);
+}
+
+.step-merits-flaws .wizard-merit-reference-btn,
+.step-merits-flaws .wizard-flaw-reference-btn {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+  color: var(--wod-primary, #4682B4);
+  font-size: 13px;
+}
+
+.step-merits-flaws .wizard-merit-reference-btn.has-reference,
+.step-merits-flaws .wizard-flaw-reference-btn.has-reference {
+  opacity: 0.6;
+  visibility: visible;
+}
+
+.step-merits-flaws .wizard-merit-reference-btn.has-reference:hover,
+.step-merits-flaws .wizard-flaw-reference-btn.has-reference:hover {
+  opacity: 1;
+}
+
+.step-merits-flaws .value-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-merits-flaws .value-controls button {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 3px;
+  background: var(--wod-primary, #4682B4);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  font-size: 11px;
+}
+
+.step-merits-flaws .value-controls button:hover:not(:disabled) {
+  background: #5a9fd4;
+}
+
+.step-merits-flaws .value-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.step-merits-flaws .value-display {
+  min-width: 18px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.95em;
+}
+
+.step-merits-flaws .dots-display {
+  display: flex;
+  gap: 2px;
+}
+
+.step-merits-flaws .remove-item {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 3px;
+  background: #e74c3c;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  font-size: 11px;
+}
+
+.step-merits-flaws .remove-item:hover {
+  background: #c0392b;
+}
+
+.step-merits-flaws .add-item {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border: 1px dashed rgba(70, 130, 180, 0.5);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--wod-primary, #4682B4);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9em;
+}
+
+.step-merits-flaws .add-item:hover {
+  border-color: var(--wod-primary, #4682B4);
+  background: rgba(70, 130, 180, 0.1);
+}
+
+.step-merits-flaws .add-item i {
+  margin-right: 4px;
+  font-size: 0.85em;
+}
+
+.step-merits-flaws .balance-summary {
+  padding: 12px 15px;
+  background: rgba(70, 130, 180, 0.08);
+  border-radius: 4px;
+  border: 1px solid rgba(70, 130, 180, 0.25);
+}
+
+.step-merits-flaws .balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.95em;
+}
+
+.step-merits-flaws .balance-row .label {
+  color: #bdc3c7;
+}
+
+.step-merits-flaws .balance-row .value {
+  font-weight: bold;
+}
+
+.step-merits-flaws .balance-row:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.step-merits-flaws .balance-row:last-child {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.step-merits-flaws .balance-status.balanced .value {
+  color: #2ecc71;
+}
+
+.step-merits-flaws .balance-status.unbalanced .value {
+  color: #e74c3c;
+}
+
+.step-merits-flaws .balance-status i {
+  margin-right: 4px;
+  font-size: 0.9em;
 }
 

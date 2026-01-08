@@ -20,6 +20,8 @@ export class WizardValidator {
         return this.validateAbilities(wizardData.abilities);
       case 'advantages':
         return this.validateAdvantages(wizardData.advantages, wizardData.concept);
+      case 'merits-flaws':
+        return this.validateMeritsFlaws(wizardData.meritsFlaws);
       case 'freebies':
         return this.validateFreebies(wizardData.freebies, wizardData.advantages);
       case 'review':
@@ -327,6 +329,50 @@ export class WizardValidator {
     }
     
     return { valid: true, ...details };
+  }
+
+  /**
+   * Validate merits & flaws step
+   */
+  validateMeritsFlaws(meritsFlawsData) {
+    const meritPoints = meritsFlawsData.meritPoints || 0;
+    const flawPoints = meritsFlawsData.flawPoints || 0;
+    
+    // Check if merits exceed 7 points
+    if (meritPoints > 7) {
+      return {
+        valid: false,
+        message: `Cannot exceed 7 merit points (currently ${meritPoints})`
+      };
+    }
+    
+    // Check if flaws exceed 7 points
+    if (flawPoints > 7) {
+      return {
+        valid: false,
+        message: `Cannot exceed 7 flaw points (currently ${flawPoints})`
+      };
+    }
+    
+    // If merits > 0, must be balanced with equal flaws
+    if (meritPoints > 0 && meritPoints !== flawPoints) {
+      const needed = meritPoints - flawPoints;
+      return {
+        valid: false,
+        message: `Merits must be balanced with equal Flaws (need ${needed} more flaw points)`,
+        balanced: false,
+        needed: needed
+      };
+    }
+    
+    // All good - either no merits, or balanced merits/flaws
+    return {
+      valid: true,
+      balanced: meritPoints === 0 || meritPoints === flawPoints,
+      meritPoints: meritPoints,
+      flawPoints: flawPoints,
+      freebieBonus: meritsFlawsData.freebieBonus || 0
+    };
   }
 
   /**

@@ -30,7 +30,7 @@
 /* -------------------------------------------- */
 
 .wod-reference-tooltip {
-    position: absolute;
+    position: fixed;
     z-index: 10000;
     background: white;
     border: 2px solid var(--wod-primary, #4682B4);
@@ -40,6 +40,7 @@
     max-width: 400px;
     display: none;
     font-family: var(--wod-font-family, "Palatino Linotype", "Book Antiqua", Palatino, serif);
+    pointer-events: none;
 }
 
 .wod-reference-tooltip .reference-tooltip-inner {
@@ -245,5 +246,72 @@
 
 .wod-reference-card .reference-footer i {
     margin-right: 4px;
+}
+
+/* ===========================
+   Autocomplete Dropdown
+   =========================== */
+
+div.wod-autocomplete-dropdown {
+    background: #ffffff !important;
+    border: 2px solid var(--wod-primary, #4682B4) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    font-family: var(--wod-font-family, "Palatino Linotype", "Book Antiqua", Palatino, serif) !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item {
+    padding: 10px 14px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 1px solid #e0e0e0 !important;
+    transition: all 0.15s ease !important;
+    color: #333333 !important;
+    background: #ffffff !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item:last-child {
+    border-bottom: none !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item:hover,
+div.wod-autocomplete-dropdown div.autocomplete-item.highlighted {
+    background: linear-gradient(135deg, #4682B4 0%, #5a9fd4 100%) !important;
+    color: #ffffff !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item span.autocomplete-name {
+    font-weight: 600 !important;
+    flex: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    color: inherit !important;
+    font-size: 1em !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item span.autocomplete-meta {
+    font-size: 0.85em !important;
+    opacity: 0.8 !important;
+    margin-left: 12px !important;
+    white-space: nowrap !important;
+    color: inherit !important;
+    font-weight: normal !important;
+}
+
+/* Ensure good contrast on hover */
+div.wod-autocomplete-dropdown div.autocomplete-item:hover span.autocomplete-name,
+div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplete-name {
+    color: #ffffff !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item:hover span.autocomplete-meta,
+div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplete-meta {
+    color: #ffffff !important;
+    opacity: 0.9 !important;
 }
 

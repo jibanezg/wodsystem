@@ -244,6 +244,18 @@ export class WodActorSheet extends ActorSheet {
         html.find('.delete-flaw').click(this._onDeleteFlaw.bind(this));
         html.find('.merit-name').change(this._onMeritNameChange.bind(this));
         html.find('.flaw-name').change(this._onFlawNameChange.bind(this));
+        html.find('.merit-reference-btn').click(this._onMeritReferenceClick.bind(this));
+        html.find('.flaw-reference-btn').click(this._onFlawReferenceClick.bind(this));
+        
+        // Merit/Flaw autocomplete
+        html.find('.merit-name').on('input', this._onMeritNameInput.bind(this));
+        html.find('.flaw-name').on('input', this._onFlawNameInput.bind(this));
+        html.find('.merit-name').on('focus', this._onMeritNameFocus.bind(this));
+        html.find('.flaw-name').on('focus', this._onFlawNameFocus.bind(this));
+        html.find('.merit-name').on('blur', this._onAutocompleteBlur.bind(this));
+        html.find('.flaw-name').on('blur', this._onAutocompleteBlur.bind(this));
+        html.find('.merit-name').on('keydown', this._onAutocompleteKeydown.bind(this));
+        html.find('.flaw-name').on('keydown', this._onAutocompleteKeydown.bind(this));
         
         // Merit/Flaw reference integration (tooltips and click-to-chat)
         this._initializeReferenceIntegrations(html);
@@ -873,6 +885,57 @@ export class WodActorSheet extends ActorSheet {
             merits[index].name = newName;
             await this.actor.update({ "system.miscellaneous.merits": merits });
         }
+        
+        // Re-initialize reference integrations after name change
+        this._initializeReferenceIntegrations($(this.element));
+    }
+
+    _onMeritNameInput(event) {
+        const input = event.currentTarget;
+        const query = input.value.trim();
+        
+        // Update reference button visibility in real-time
+        const service = game.wod?.referenceDataService;
+        if (service && service.initialized) {
+            const $button = $(input).siblings('.merit-reference-btn');
+            const reference = service.getByName(query, 'Merit');
+            
+            if (reference) {
+                $button.addClass('has-reference');
+                $button.data('reference', reference);
+            } else {
+                $button.removeClass('has-reference');
+                $button.removeData('reference');
+            }
+        }
+        
+        if (query.length < 2) {
+            this._hideAutocomplete();
+            return;
+        }
+        
+        if (!service || !service.initialized) {
+            return;
+        }
+        
+        // Search for merits matching the query
+        const results = service.search(query, { category: 'Merit' }).slice(0, 10); // Limit to 10 results
+        
+        if (results.length > 0) {
+            this._showAutocomplete(input, results, 'merit');
+        } else {
+            this._hideAutocomplete();
+        }
+    }
+
+    _onMeritNameFocus(event) {
+        const input = event.currentTarget;
+        const query = input.value.trim();
+        
+        if (query.length >= 2) {
+            // Trigger search on focus if there's already text
+            this._onMeritNameInput(event);
+        }
     }
     
     /**
@@ -895,6 +958,109 @@ export class WodActorSheet extends ActorSheet {
             flaws[index].name = newName;
             await this.actor.update({ "system.miscellaneous.flaws": flaws });
         }
+        
+        // Re-initialize reference integrations after name change
+        this._initializeReferenceIntegrations($(this.element));
+    }
+
+    _onFlawNameInput(event) {
+        const input = event.currentTarget;
+        const query = input.value.trim();
+        
+        // Update reference button visibility in real-time
+        const service = game.wod?.referenceDataService;
+        if (service && service.initialized) {
+            const $button = $(input).siblings('.flaw-reference-btn');
+            const reference = service.getByName(query, 'Flaw');
+            
+            if (reference) {
+                $button.addClass('has-reference');
+                $button.data('reference', reference);
+            } else {
+                $button.removeClass('has-reference');
+                $button.removeData('reference');
+            }
+        }
+        
+        if (query.length < 2) {
+            this._hideAutocomplete();
+            return;
+        }
+        
+        if (!service || !service.initialized) {
+            return;
+        }
+        
+        // Search for flaws matching the query
+        const results = service.search(query, { category: 'Flaw' }).slice(0, 10); // Limit to 10 results
+        
+        if (results.length > 0) {
+            this._showAutocomplete(input, results, 'flaw');
+        } else {
+            this._hideAutocomplete();
+        }
+    }
+
+    _onFlawNameFocus(event) {
+        const input = event.currentTarget;
+        const query = input.value.trim();
+        
+        if (query.length >= 2) {
+            // Trigger search on focus if there's already text
+            this._onFlawNameInput(event);
+        }
+    }
+    
+    /**
+     * Handle click on merit reference button
+     * @param {Event} event - The click event
+     * @private
+     */
+    async _onMeritReferenceClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const $button = $(event.currentTarget);
+        const reference = $button.data('reference');
+        
+        if (!reference) {
+            const index = parseInt($button.data('index'));
+            const $input = $button.siblings('.merit-name');
+            const name = $input.val()?.trim();
+            
+            if (name) {
+                ui.notifications.warn(`No reference data found for "${name}"`);
+            }
+            return;
+        }
+        
+        await this._postReferenceToChat(reference);
+    }
+    
+    /**
+     * Handle click on flaw reference button
+     * @param {Event} event - The click event
+     * @private
+     */
+    async _onFlawReferenceClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const $button = $(event.currentTarget);
+        const reference = $button.data('reference');
+        
+        if (!reference) {
+            const index = parseInt($button.data('index'));
+            const $input = $button.siblings('.flaw-name');
+            const name = $input.val()?.trim();
+            
+            if (name) {
+                ui.notifications.warn(`No reference data found for "${name}"`);
+            }
+            return;
+        }
+        
+        await this._postReferenceToChat(reference);
     }
 
     /**
@@ -3730,71 +3896,69 @@ export class WodActorSheet extends ActorSheet {
         const service = game.wod?.referenceDataService;
         if (!service || !service.initialized) return;
         
-        // Add tooltips and click handlers to merit names
-        html.find('.merit-name-display, .merit-name').each((index, element) => {
-            const $element = $(element);
+        // Process merits
+        html.find('.merit-name').each((index, element) => {
+            const $input = $(element);
+            const $button = $input.siblings('.merit-reference-btn');
             
-            // Get the merit name from input value or text content
-            const name = $element.is('input') 
-                ? $element.val()?.trim() 
-                : $element.text()?.trim();
-            
-            if (!name) return;
+            const name = $input.val()?.trim();
+            if (!name) {
+                $button.removeClass('has-reference');
+                return;
+            }
             
             const reference = service.getByName(name, 'Merit');
             
             if (reference) {
-                $element.addClass('has-reference clickable');
-                $element.attr('data-reference-id', reference.id);
-                $element.attr('data-reference-category', 'Merit');
+                // Show button and store reference data
+                $button.addClass('has-reference');
+                $button.data('reference', reference);
                 
-                // Tooltip on hover
-                $element.hover(
+                // Add tooltip to input on hover
+                $input.addClass('has-reference');
+                $input.hover(
                     (e) => this._showReferenceTooltip(e, reference),
                     () => this._hideReferenceTooltip()
                 );
                 
-                // Click to post to chat (PRIORITY)
-                $element.click((e) => {
-                    // Only if not an input field being edited
-                    if (!$element.is('input') || $element.is(':disabled') || $element.is('[readonly]')) {
-                        this._onReferenceClickToChat(e, reference);
-                    }
-                });
+                // Hide tooltip on click to allow editing
+                $input.on('click', () => this._hideReferenceTooltip());
+            } else {
+                $button.removeClass('has-reference');
+                $input.removeClass('has-reference');
             }
         });
         
-        // Add tooltips and click handlers to flaw names
-        html.find('.flaw-name-display, .flaw-name').each((index, element) => {
-            const $element = $(element);
+        // Process flaws
+        html.find('.flaw-name').each((index, element) => {
+            const $input = $(element);
+            const $button = $input.siblings('.flaw-reference-btn');
             
-            // Get the flaw name from input value or text content
-            const name = $element.is('input')
-                ? $element.val()?.trim()
-                : $element.text()?.trim();
-            
-            if (!name) return;
+            const name = $input.val()?.trim();
+            if (!name) {
+                $button.removeClass('has-reference');
+                return;
+            }
             
             const reference = service.getByName(name, 'Flaw');
             
             if (reference) {
-                $element.addClass('has-reference clickable');
-                $element.attr('data-reference-id', reference.id);
-                $element.attr('data-reference-category', 'Flaw');
+                // Show button and store reference data
+                $button.addClass('has-reference');
+                $button.data('reference', reference);
                 
-                // Tooltip on hover
-                $element.hover(
+                // Add tooltip to input on hover
+                $input.addClass('has-reference');
+                $input.hover(
                     (e) => this._showReferenceTooltip(e, reference),
                     () => this._hideReferenceTooltip()
                 );
                 
-                // Click to post to chat (PRIORITY)
-                $element.click((e) => {
-                    // Only if not an input field being edited
-                    if (!$element.is('input') || $element.is(':disabled') || $element.is('[readonly]')) {
-                        this._onReferenceClickToChat(e, reference);
-                    }
-                });
+                // Hide tooltip on click to allow editing
+                $input.on('click', () => this._hideReferenceTooltip());
+            } else {
+                $button.removeClass('has-reference');
+                $input.removeClass('has-reference');
             }
         });
     }
@@ -3815,24 +3979,52 @@ export class WodActorSheet extends ActorSheet {
         const tooltip = $('<div class="wod-reference-tooltip"></div>');
         tooltip.html(service.generateTooltipHTML(reference));
         
-        // Add to body
+        // Add to body with visibility hidden to measure
+        tooltip.css({ 
+            visibility: 'hidden', 
+            display: 'block',
+            position: 'fixed'  // Use fixed positioning relative to viewport
+        });
         $('body').append(tooltip);
         
-        // Position tooltip
+        // Get dimensions
         const rect = event.currentTarget.getBoundingClientRect();
         const tooltipWidth = tooltip.outerWidth();
+        const tooltipHeight = tooltip.outerHeight();
         const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
         
-        // Adjust left position to prevent overflow
+        // Calculate left position (prevent overflow)
         let left = rect.left;
         if (left + tooltipWidth > windowWidth - 10) {
             left = windowWidth - tooltipWidth - 10;
         }
+        if (left < 10) {
+            left = 10;
+        }
         
+        // Calculate top position - show above the element
+        let top = rect.top - tooltipHeight - 10;
+        
+        // If it goes off the top of the screen, position below instead
+        if (top < 10) {
+            top = rect.bottom + 10;
+            // If it goes off the bottom too, just clamp to top
+            if (top + tooltipHeight > windowHeight - 10) {
+                top = 10;
+            }
+        }
+        
+        // Apply final position and make visible
         tooltip.css({
-            top: rect.bottom + 5,
-            left: left,
-            maxWidth: '400px'
+            position: 'fixed',
+            top: top + 'px',
+            left: left + 'px',
+            maxWidth: '400px',
+            maxHeight: (windowHeight - 20) + 'px',  // Limit height to viewport
+            overflowY: 'auto',  // Allow scrolling if content is too long
+            visibility: 'visible',
+            display: 'none'
         });
         
         // Fade in
@@ -3897,6 +4089,292 @@ export class WodActorSheet extends ActorSheet {
         await ChatMessage.create(messageData);
         
         ui.notifications.info(`Posted ${reference.name} to chat`);
+    }
+
+    // ===========================
+    // Autocomplete Methods
+    // ===========================
+
+    _showAutocomplete(input, results, type) {
+        this._hideAutocomplete(); // Remove any existing dropdown
+        
+        const $input = $(input);
+        const inputPos = $input.offset();
+        const inputHeight = $input.outerHeight();
+        const inputWidth = $input.outerWidth();
+        
+        // Create dropdown
+        const $dropdown = $('<div class="wod-autocomplete-dropdown"></div>');
+        $dropdown.css({
+            position: 'absolute',
+            top: inputPos.top + inputHeight + 2,
+            left: inputPos.left,
+            width: inputWidth,
+            maxHeight: '200px',
+            zIndex: 10000
+        });
+        
+        // Add results
+        results.forEach((result, index) => {
+            const $item = $(`
+                <div class="autocomplete-item" data-index="${index}">
+                    <span class="autocomplete-name">${result.name}</span>
+                    <span class="autocomplete-meta">${result.costDescription} pt</span>
+                </div>
+            `);
+            
+            // Mouse events
+            $item.on('mousedown', (e) => {
+                e.preventDefault(); // Prevent blur
+                this._selectAutocompleteItem(input, result, type);
+            });
+            
+            $item.on('mouseenter', (e) => {
+                $dropdown.find('.autocomplete-item').removeClass('highlighted');
+                $item.addClass('highlighted');
+                this._autocompleteSelectedIndex = index;
+            });
+            
+            $dropdown.append($item);
+        });
+        
+        // Add to body
+        $('body').append($dropdown);
+        
+        // Store reference and data
+        this._autocompleteDropdown = $dropdown;
+        this._autocompleteResults = results;
+        this._autocompleteInput = input;
+        this._autocompleteType = type;
+        this._autocompleteSelectedIndex = -1;
+    }
+
+    _hideAutocomplete() {
+        if (this._autocompleteDropdown) {
+            this._autocompleteDropdown.remove();
+            this._autocompleteDropdown = null;
+            this._autocompleteResults = null;
+            this._autocompleteInput = null;
+            this._autocompleteType = null;
+            this._autocompleteSelectedIndex = -1;
+        }
+    }
+
+    _onAutocompleteBlur(event) {
+        // Delay hiding to allow clicks on dropdown
+        setTimeout(() => {
+            this._hideAutocomplete();
+        }, 200);
+    }
+
+    _onAutocompleteKeydown(event) {
+        if (!this._autocompleteDropdown || !this._autocompleteResults) {
+            return;
+        }
+        
+        const results = this._autocompleteResults;
+        
+        switch(event.key) {
+            case 'ArrowDown':
+                event.preventDefault();
+                this._autocompleteSelectedIndex = Math.min(
+                    this._autocompleteSelectedIndex + 1,
+                    results.length - 1
+                );
+                this._updateAutocompleteHighlight();
+                break;
+                
+            case 'ArrowUp':
+                event.preventDefault();
+                this._autocompleteSelectedIndex = Math.max(
+                    this._autocompleteSelectedIndex - 1,
+                    0
+                );
+                this._updateAutocompleteHighlight();
+                break;
+                
+            case 'Enter':
+                if (this._autocompleteSelectedIndex >= 0) {
+                    event.preventDefault();
+                    const selected = results[this._autocompleteSelectedIndex];
+                    this._selectAutocompleteItem(
+                        this._autocompleteInput,
+                        selected,
+                        this._autocompleteType
+                    );
+                }
+                break;
+                
+            case 'Escape':
+                event.preventDefault();
+                this._hideAutocomplete();
+                break;
+        }
+    }
+
+    _updateAutocompleteHighlight() {
+        if (!this._autocompleteDropdown) return;
+        
+        const $items = this._autocompleteDropdown.find('.autocomplete-item');
+        $items.removeClass('highlighted');
+        
+        if (this._autocompleteSelectedIndex >= 0) {
+            $items.eq(this._autocompleteSelectedIndex).addClass('highlighted');
+            
+            // Scroll into view if needed
+            const $highlighted = $items.eq(this._autocompleteSelectedIndex);
+            if ($highlighted.length) {
+                const dropdown = this._autocompleteDropdown[0];
+                const item = $highlighted[0];
+                
+                if (item.offsetTop < dropdown.scrollTop) {
+                    dropdown.scrollTop = item.offsetTop;
+                } else if (item.offsetTop + item.offsetHeight > dropdown.scrollTop + dropdown.offsetHeight) {
+                    dropdown.scrollTop = item.offsetTop + item.offsetHeight - dropdown.offsetHeight;
+                }
+            }
+        }
+    }
+
+    async _selectAutocompleteItem(input, result, type) {
+        // Hide dropdown first
+        this._hideAutocomplete();
+        
+        // Get the index from the input
+        const index = parseInt(input.dataset.index);
+        
+        // Determine the cost value(s)
+        const costs = Array.isArray(result.cost) ? result.cost : [result.cost];
+        
+        let selectedValue;
+        
+        // If single cost, use it directly
+        if (costs.length === 1) {
+            selectedValue = costs[0];
+        } else {
+            // Multiple costs - show dialog to choose
+            selectedValue = await this._showCostSelectionDialog(result.name, costs, result.category);
+            
+            if (!selectedValue) {
+                // User cancelled
+                return;
+            }
+        }
+        
+        // Update both name and value in a single update
+        if (type === 'merit') {
+            let merits = foundry.utils.duplicate(this.actor.system.miscellaneous.merits);
+            if (merits[index]) {
+                merits[index].name = result.name;
+                merits[index].value = selectedValue;
+                await this.actor.update({ "system.miscellaneous.merits": merits });
+            }
+        } else if (type === 'flaw') {
+            let flaws = foundry.utils.duplicate(this.actor.system.miscellaneous.flaws);
+            if (flaws[index]) {
+                flaws[index].name = result.name;
+                flaws[index].value = selectedValue;
+                await this.actor.update({ "system.miscellaneous.flaws": flaws });
+            }
+        }
+        
+        // Wait a frame for Foundry to process the update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Force re-render the dots for this specific item
+        const $container = $(this.element).find(type === 'merit' ? `.merit-item:eq(${index})` : `.flaw-item:eq(${index})`);
+        const $dots = $container.find('.dot-container .dot');
+        
+        // Update dot visual state
+        $dots.each((dotIndex, dot) => {
+            if (dotIndex < selectedValue) {
+                $(dot).addClass('filled');
+            } else {
+                $(dot).removeClass('filled');
+            }
+        });
+        
+        // Update hidden input
+        $container.find('.dot-input').val(selectedValue);
+        
+        // Show success notification
+        ui.notifications.info(`Selected: ${result.name} (${selectedValue} pt)`);
+    }
+    
+    /**
+     * Show dialog to select cost when multiple options available
+     * @param {string} name - Merit/Flaw name
+     * @param {Array} costs - Array of cost options
+     * @param {string} category - 'Merit' or 'Flaw'
+     * @returns {Promise<number|null>} Selected cost or null if cancelled
+     * @private
+     */
+    async _showCostSelectionDialog(name, costs, category) {
+        return new Promise((resolve) => {
+            const color = category === 'Merit' ? '#4CAF50' : '#f44336';
+            let resolved = false;
+            
+            const safeResolve = (value) => {
+                if (!resolved) {
+                    resolved = true;
+                    resolve(value);
+                }
+            };
+            
+            const content = `
+                <div style="text-align: center; padding: 10px;">
+                    <p style="margin-bottom: 15px; font-size: 1.1em;">
+                        <strong>${name}</strong> has multiple cost options.<br>
+                        Select the point value:
+                    </p>
+                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                        ${costs.map(cost => `
+                            <button type="button" class="cost-option-btn" data-cost="${cost}" 
+                                    style="padding: 10px 20px; font-size: 1.1em; font-weight: bold; 
+                                           background: ${color}; color: white; border: none; 
+                                           border-radius: 4px; cursor: pointer; min-width: 60px;">
+                                ${cost} pt
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            const dialog = new Dialog({
+                title: `Select ${category} Cost`,
+                content: content,
+                buttons: {
+                    cancel: {
+                        icon: '<i class="fas fa-times"></i>',
+                        label: "Cancel",
+                        callback: () => safeResolve(null)
+                    }
+                },
+                default: "cancel",
+                render: (html) => {
+                    // Add click handlers to cost buttons
+                    html.find('.cost-option-btn').click((event) => {
+                        const selectedCost = parseInt(event.currentTarget.dataset.cost);
+                        safeResolve(selectedCost);
+                        dialog.close();
+                    });
+                    
+                    // Add hover effect
+                    html.find('.cost-option-btn').hover(
+                        function() { $(this).css('opacity', '0.8'); },
+                        function() { $(this).css('opacity', '1'); }
+                    );
+                },
+                close: () => {
+                    // If dialog is closed without selection, resolve null
+                    safeResolve(null);
+                }
+            }, {
+                width: 400
+            });
+            
+            dialog.render(true);
+        });
     }
 }
 

@@ -91,7 +91,16 @@ export class WodCharacterWizard extends FormApplication {
         freebiesSpent: 0  // Track freebies spent on Enlightenment
       },
 
-      // Step 5: Freebies
+      // Step 5: Merits & Flaws
+      meritsFlaws: {
+        merits: [],
+        flaws: [],
+        meritPoints: 0,
+        flawPoints: 0,
+        freebieBonus: 0  // Flaws without merits convert to freebie points
+      },
+
+      // Step 6: Freebies
       freebies: {
         spent: {},
         remaining: this.config.freebies.total
@@ -199,16 +208,21 @@ export class WodCharacterWizard extends FormApplication {
     
     const step = this.config.steps[this.currentStep];
     
-    // Adjust freebies.remaining if entering for the first time after Enlightenment spending
+    // Adjust freebies.remaining if entering for the first time after Enlightenment spending or if merits/flaws changed
     if (step.id === 'freebies') {
       const enlightenmentSpent = this.wizardData.advantages.freebiesSpent || 0;
+      const freebieBonus = this.wizardData.meritsFlaws.freebieBonus || 0;
+      const baseFreebiesTotalWithBonus = this.config.freebies.total + freebieBonus;
       
-      // Only adjust if remaining equals total (meaning no freebies have been spent yet in this step)
-      if (this.wizardData.freebies.remaining === this.config.freebies.total && enlightenmentSpent > 0) {
-        console.log(`💰 getData - First time in Freebies, adjusting for Enlightenment: ${this.config.freebies.total} - ${enlightenmentSpent} = ${this.config.freebies.total - enlightenmentSpent}`);
-        this.wizardData.freebies.remaining = this.config.freebies.total - enlightenmentSpent;
+      // Check if any freebies have been spent in the freebies step itself
+      const freebiesSpentInStep = Object.values(this.wizardData.freebies.spent || {}).reduce((sum, val) => sum + (val || 0), 0);
+      
+      // Recalculate if no freebies have been spent in this step yet (allows for changes to merits/flaws)
+      if (freebiesSpentInStep === 0) {
+        console.log(`💰 getData - Calculating freebies: ${this.config.freebies.total} + ${freebieBonus} (flaws) - ${enlightenmentSpent} (enlightenment) = ${baseFreebiesTotalWithBonus - enlightenmentSpent}`);
+        this.wizardData.freebies.remaining = baseFreebiesTotalWithBonus - enlightenmentSpent;
       } else {
-        console.log(`💰 getData - Freebies step, remaining: ${this.wizardData.freebies.remaining}, enlightenment: ${enlightenmentSpent}`);
+        console.log(`💰 getData - Freebies step, already spent ${freebiesSpentInStep} in this step, remaining: ${this.wizardData.freebies.remaining}`);
       }
     }
     
@@ -221,6 +235,9 @@ export class WodCharacterWizard extends FormApplication {
     }
     
     
+    // Calculate actual freebie total including bonus from merits/flaws
+    const freebieBonus = this.wizardData.meritsFlaws?.freebieBonus || 0;
+    const actualFreebieTotal = this.config.freebies.total + freebieBonus;
     
     return {
       actor: this.actor,
@@ -235,7 +252,9 @@ export class WodCharacterWizard extends FormApplication {
       backgroundsList: backgroundsList, // List from ReferenceDataService
       isFirstStep: this.currentStep === 0,
       isLastStep: this.currentStep === this.config.steps.length - 1,
-      progressPercent: Math.round((this.currentStep / (this.config.steps.length - 1)) * 100)
+      progressPercent: Math.round((this.currentStep / (this.config.steps.length - 1)) * 100),
+      actualFreebieTotal: actualFreebieTotal, // Base + bonus from flaws
+      freebieBonus: freebieBonus
     };
   }
 
@@ -290,6 +309,9 @@ export class WodCharacterWizard extends FormApplication {
         break;
       case 'advantages':
         this._activateAdvantagesListeners(html);
+        break;
+      case 'merits-flaws':
+        this._activateMeritsFlawsListeners(html);
         break;
       case 'freebies':
         this._activateFreebiesListeners(html);
@@ -694,27 +716,30 @@ export class WodCharacterWizard extends FormApplication {
       event.preventDefault();
       document.activeElement?.blur();
       
-      const scrollElement = this.element.find('.window-content')[0];
-      const scrollPos = scrollElement ? scrollElement.scrollTop : 0;
-      
       const index = parseInt(event.currentTarget.dataset.index);
       this.wizardData.advantages.backgrounds.splice(index, 1);
       await this._saveProgress();
-      await this.render();
       
-      // Aggressively restore scroll position
-      requestAnimationFrame(() => {
-        const newScrollElement = this.element.find('.window-content')[0];
-        if (newScrollElement) {
-          newScrollElement.scrollTop = scrollPos;
-          setTimeout(() => {
-            newScrollElement.scrollTop = scrollPos;
-          }, 0);
-          setTimeout(() => {
-            newScrollElement.scrollTop = scrollPos;
-          }, 50);
-        }
+      // Remove DOM element
+      $(event.currentTarget).closest('.background-item').remove();
+      
+      // Reindex remaining items
+      html.find('.background-item').each((i, item) => {
+        const $item = $(item);
+        $item.find('.background-select').attr('data-index', i);
+        $item.find('.bg-increase').attr('data-index', i);
+        $item.find('.bg-decrease').attr('data-index', i);
+        $item.find('.remove-background').attr('data-index', i);
       });
+      
+      // Update validation and buttons
+      const validation = this._validateCurrentStep();
+      if (validation.backgrounds) {
+        const tracker = html.find('.advantage-section:has(h4:contains("Backgrounds")) .points-tracker');
+        tracker.find('.spent').text(validation.backgrounds.spent);
+        tracker.find('.remaining').text(validation.backgrounds.remaining);
+      }
+      this._updateNavigationButtons(html);
     });
 
     // Background selection
@@ -722,40 +747,13 @@ export class WodCharacterWizard extends FormApplication {
       event.preventDefault();
       document.activeElement?.blur();
       
-      const scrollElement = this.element.find('.window-content')[0];
-      const scrollPos = scrollElement ? scrollElement.scrollTop : 0;
-      
       const index = parseInt(event.currentTarget.dataset.index);
       const value = event.currentTarget.value;
       
       if (this.wizardData.advantages.backgrounds[index]) {
         this.wizardData.advantages.backgrounds[index].name = value;
         await this._saveProgress();
-        await this.render();
-        
-        // Aggressively restore scroll position
-        requestAnimationFrame(() => {
-          const newScrollElement = this.element.find('.window-content')[0];
-          if (newScrollElement) {
-            newScrollElement.scrollTop = scrollPos;
-            setTimeout(() => {
-              newScrollElement.scrollTop = scrollPos;
-            }, 0);
-            setTimeout(() => {
-              newScrollElement.scrollTop = scrollPos;
-            }, 50);
-          }
-        });
-        
-        // Force update the background select dropdowns after render
-        setTimeout(() => {
-          const html = this.element;
-          html.find('.background-select').each((i, select) => {
-            const idx = parseInt($(select).data('index'));
-            const bgName = this.wizardData.advantages.backgrounds[idx]?.name || '';
-            $(select).val(bgName);
-          });
-        }, 0);
+        // No render needed - dropdown already shows the selected value
       }
     });
 
@@ -990,6 +988,728 @@ export class WodCharacterWizard extends FormApplication {
   }
 
   /**
+   * Step: Merits & Flaws listeners
+   */
+  _activateMeritsFlawsListeners(html) {
+    const service = game.wod?.referenceDataService;
+    
+    // Hide tooltip when clicking anywhere else in the wizard
+    html.find('.step-merits-flaws').on('click', (event) => {
+      // Don't hide if clicking on a reference button or the tooltip itself
+      if (!$(event.target).closest('.wizard-merit-reference-btn, .wizard-flaw-reference-btn, .wod-reference-tooltip').length) {
+        this._hideReferenceTooltip();
+      }
+    });
+    
+    // Add Merit
+    html.find('.add-item[data-type="merit"]').click(async () => {
+      this.wizardData.meritsFlaws.merits.push({ name: "", value: 0 });
+      await this._saveProgress();
+      
+      // Re-render only the merits section instead of full wizard
+      const service = game.wod?.referenceDataService;
+      const meritsContainer = html.find('.merit-list');
+      const newIndex = this.wizardData.meritsFlaws.merits.length - 1;
+      const newItem = $(`
+        <div class="merit-flaw-item">
+          <div class="name-input-container">
+            <input type="text" class="wizard-merit-name" data-index="${newIndex}" value="" placeholder="Merit Name" />
+            <a class="wizard-merit-reference-btn" data-index="${newIndex}" title="View Merit Details">
+              <i class="fas fa-book-open"></i>
+            </a>
+          </div>
+          <div class="value-controls">
+            <button type="button" class="value-decrease" data-type="merit" data-index="${newIndex}" disabled>
+              <i class="fas fa-minus"></i>
+            </button>
+            <span class="value-display">0</span>
+            <button type="button" class="value-increase" data-type="merit" data-index="${newIndex}">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="dots-display">
+            ${Handlebars.helpers.renderDots(0, 7).toString()}
+          </div>
+          <button type="button" class="remove-item" data-type="merit" data-index="${newIndex}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `);
+      
+      meritsContainer.find('.add-item').before(newItem);
+      this._attachMeritFlawItemListeners(newItem, 'merit', newIndex, service);
+    });
+    
+    // Add Flaw
+    html.find('.add-item[data-type="flaw"]').click(async () => {
+      this.wizardData.meritsFlaws.flaws.push({ name: "", value: 0 });
+      await this._saveProgress();
+      
+      // Re-render only the flaws section instead of full wizard
+      const service = game.wod?.referenceDataService;
+      const flawsContainer = html.find('.flaw-list');
+      const newIndex = this.wizardData.meritsFlaws.flaws.length - 1;
+      const newItem = $(`
+        <div class="merit-flaw-item">
+          <div class="name-input-container">
+            <input type="text" class="wizard-flaw-name" data-index="${newIndex}" value="" placeholder="Flaw Name" />
+            <a class="wizard-flaw-reference-btn" data-index="${newIndex}" title="View Flaw Details">
+              <i class="fas fa-book-open"></i>
+            </a>
+          </div>
+          <div class="value-controls">
+            <button type="button" class="value-decrease" data-type="flaw" data-index="${newIndex}" disabled>
+              <i class="fas fa-minus"></i>
+            </button>
+            <span class="value-display">0</span>
+            <button type="button" class="value-increase" data-type="flaw" data-index="${newIndex}">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="dots-display">
+            ${Handlebars.helpers.renderDots(0, 7).toString()}
+          </div>
+          <button type="button" class="remove-item" data-type="flaw" data-index="${newIndex}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `);
+      
+      flawsContainer.find('.add-item').before(newItem);
+      this._attachMeritFlawItemListeners(newItem, 'flaw', newIndex, service);
+    });
+    
+    // Remove Merit
+    html.find('.remove-item[data-type="merit"]').click(async (event) => {
+      const index = parseInt(event.currentTarget.dataset.index);
+      this.wizardData.meritsFlaws.merits.splice(index, 1);
+      this._recalculateMeritsFlaws();
+      await this._saveProgress();
+      
+      // Remove the DOM element and reindex remaining items
+      $(event.currentTarget).closest('.merit-flaw-item').remove();
+      html.find('.merit-flaw-item').each((i, item) => {
+        const $item = $(item);
+        if ($item.find('.wizard-merit-name').length) {
+          $item.find('.wizard-merit-name').attr('data-index', i);
+          $item.find('.wizard-merit-reference-btn').attr('data-index', i);
+          $item.find('.value-decrease[data-type="merit"]').attr('data-index', i);
+          $item.find('.value-increase[data-type="merit"]').attr('data-index', i);
+          $item.find('.remove-item[data-type="merit"]').attr('data-index', i);
+        }
+      });
+      
+      this._updateMeritsFlawsUI(html);
+    });
+    
+    // Remove Flaw
+    html.find('.remove-item[data-type="flaw"]').click(async (event) => {
+      const index = parseInt(event.currentTarget.dataset.index);
+      this.wizardData.meritsFlaws.flaws.splice(index, 1);
+      this._recalculateMeritsFlaws();
+      await this._saveProgress();
+      
+      // Remove the DOM element and reindex remaining items
+      $(event.currentTarget).closest('.merit-flaw-item').remove();
+      html.find('.merit-flaw-item').each((i, item) => {
+        const $item = $(item);
+        if ($item.find('.wizard-flaw-name').length) {
+          $item.find('.wizard-flaw-name').attr('data-index', i);
+          $item.find('.wizard-flaw-reference-btn').attr('data-index', i);
+          $item.find('.value-decrease[data-type="flaw"]').attr('data-index', i);
+          $item.find('.value-increase[data-type="flaw"]').attr('data-index', i);
+          $item.find('.remove-item[data-type="flaw"]').attr('data-index', i);
+        }
+      });
+      
+      this._updateMeritsFlawsUI(html);
+    });
+    
+    // Increase/Decrease Merit value
+    html.find('.value-increase[data-type="merit"], .value-decrease[data-type="merit"]').click(async (event) => {
+      const index = parseInt(event.currentTarget.dataset.index);
+      const isIncrease = event.currentTarget.classList.contains('value-increase');
+      
+      if (this.wizardData.meritsFlaws.merits[index]) {
+        const current = this.wizardData.meritsFlaws.merits[index].value || 0;
+        const newValue = Math.max(0, Math.min(7, current + (isIncrease ? 1 : -1)));
+        
+        if (isIncrease) {
+          const totalMerits = this.wizardData.meritsFlaws.merits.reduce((sum, m) => sum + (m.value || 0), 0);
+          if (totalMerits >= 7) {
+            ui.notifications.warn("Cannot exceed 7 total merit points.");
+            return;
+          }
+        }
+        
+        this.wizardData.meritsFlaws.merits[index].value = newValue;
+        this._recalculateMeritsFlaws();
+        await this._saveProgress();
+        this._updateMeritsFlawsUI(html);
+      }
+    });
+    
+    // Increase/Decrease Flaw value
+    html.find('.value-increase[data-type="flaw"], .value-decrease[data-type="flaw"]').click(async (event) => {
+      const index = parseInt(event.currentTarget.dataset.index);
+      const isIncrease = event.currentTarget.classList.contains('value-increase');
+      
+      if (this.wizardData.meritsFlaws.flaws[index]) {
+        const current = this.wizardData.meritsFlaws.flaws[index].value || 0;
+        const newValue = Math.max(0, Math.min(7, current + (isIncrease ? 1 : -1)));
+        
+        if (isIncrease) {
+          const totalFlaws = this.wizardData.meritsFlaws.flaws.reduce((sum, f) => sum + (f.value || 0), 0);
+          if (totalFlaws >= 7) {
+            ui.notifications.warn("Cannot exceed 7 total flaw points.");
+            return;
+          }
+        }
+        
+        this.wizardData.meritsFlaws.flaws[index].value = newValue;
+        this._recalculateMeritsFlaws();
+        await this._saveProgress();
+        this._updateMeritsFlawsUI(html);
+      }
+    });
+    
+    // Hide tooltip when clicking on input fields
+    html.find('.wizard-merit-name, .wizard-flaw-name').on('click', () => {
+      this._hideReferenceTooltip();
+    });
+    
+    // Merit/Flaw name inputs
+    html.find('.wizard-merit-name, .wizard-flaw-name').on('input', (event) => {
+      const input = event.currentTarget;
+      const index = parseInt(input.dataset.index);
+      const query = input.value.trim();
+      const isMerit = input.classList.contains('wizard-merit-name');
+      const category = isMerit ? 'Merit' : 'Flaw';
+      
+      if (isMerit && this.wizardData.meritsFlaws.merits[index]) {
+        this.wizardData.meritsFlaws.merits[index].name = input.value;
+      } else if (!isMerit && this.wizardData.meritsFlaws.flaws[index]) {
+        this.wizardData.meritsFlaws.flaws[index].name = input.value;
+      }
+      
+      const $button = $(input).siblings(isMerit ? '.wizard-merit-reference-btn' : '.wizard-flaw-reference-btn');
+      if (service && service.initialized && query) {
+        const reference = service.getByName(query, category);
+        if (reference) {
+          $button.addClass('has-reference');
+          $button.data('reference', reference);
+        } else {
+          $button.removeClass('has-reference');
+          $button.removeData('reference');
+        }
+      }
+      
+      if (query.length >= 2 && service && service.initialized) {
+        const results = service.search(query, { category }).slice(0, 10);
+        if (results.length > 0) {
+          this._showWizardAutocomplete(input, results, category, index);
+        } else {
+          this._hideWizardAutocomplete();
+        }
+      } else {
+        this._hideWizardAutocomplete();
+      }
+    });
+    
+    html.find('.wizard-merit-name, .wizard-flaw-name').on('blur', async () => {
+      await this._saveProgress();
+      setTimeout(() => {
+        this._hideWizardAutocomplete();
+        this._hideReferenceTooltip();
+      }, 200);
+    });
+    
+    // Update reference button visibility and data for existing items
+    html.find('.wizard-merit-name, .wizard-flaw-name').each((idx, element) => {
+      const $input = $(element);
+      const isMerit = element.classList.contains('wizard-merit-name');
+      const category = isMerit ? 'Merit' : 'Flaw';
+      const name = $input.val()?.trim();
+      
+      const $button = $input.siblings(isMerit ? '.wizard-merit-reference-btn' : '.wizard-flaw-reference-btn');
+      
+      if (name && service && service.initialized) {
+        const reference = service.getByName(name, category);
+        if (reference) {
+          $button.addClass('has-reference');
+          $button.data('reference', reference);
+        } else {
+          $button.removeClass('has-reference');
+          $button.removeData('reference');
+        }
+      }
+    });
+    
+    // Reference button click - show tooltip on click (not hover)
+    html.find('.wizard-merit-reference-btn, .wizard-flaw-reference-btn').click((event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const $button = $(event.currentTarget);
+      const reference = $button.data('reference');
+      
+      if (reference) {
+        // Toggle tooltip on click
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+          this._hideReferenceTooltip();
+        } else {
+          this._showReferenceTooltip(event, reference);
+        }
+      }
+    });
+  }
+  
+  _attachMeritFlawItemListeners($item, type, index, service) {
+    const html = this.element;
+    const isMerit = type === 'merit';
+    const category = isMerit ? 'Merit' : 'Flaw';
+    
+    // Value controls
+    $item.find(`.value-increase[data-type="${type}"]`).click(async () => {
+      const current = isMerit ? this.wizardData.meritsFlaws.merits[index].value : this.wizardData.meritsFlaws.flaws[index].value;
+      const newValue = Math.min(7, (current || 0) + 1);
+      
+      const totalPoints = (isMerit ? this.wizardData.meritsFlaws.merits : this.wizardData.meritsFlaws.flaws).reduce((sum, item) => sum + (item.value || 0), 0);
+      if (totalPoints >= 7) {
+        ui.notifications.warn(`Cannot exceed 7 total ${type} points.`);
+        return;
+      }
+      
+      if (isMerit) {
+        this.wizardData.meritsFlaws.merits[index].value = newValue;
+      } else {
+        this.wizardData.meritsFlaws.flaws[index].value = newValue;
+      }
+      
+      this._recalculateMeritsFlaws();
+      await this._saveProgress();
+      
+      $item.find('.value-display').text(newValue);
+      $item.find('.dots-display').html(Handlebars.helpers.renderDots(newValue, 7).toString());
+      $item.find('.value-decrease').prop('disabled', newValue === 0);
+      $item.find('.value-increase').prop('disabled', newValue === 7);
+      
+      this._updateMeritsFlawsUI(html);
+    });
+    
+    $item.find(`.value-decrease[data-type="${type}"]`).click(async () => {
+      const current = isMerit ? this.wizardData.meritsFlaws.merits[index].value : this.wizardData.meritsFlaws.flaws[index].value;
+      const newValue = Math.max(0, (current || 0) - 1);
+      
+      if (isMerit) {
+        this.wizardData.meritsFlaws.merits[index].value = newValue;
+      } else {
+        this.wizardData.meritsFlaws.flaws[index].value = newValue;
+      }
+      
+      this._recalculateMeritsFlaws();
+      await this._saveProgress();
+      
+      $item.find('.value-display').text(newValue);
+      $item.find('.dots-display').html(Handlebars.helpers.renderDots(newValue, 7).toString());
+      $item.find('.value-decrease').prop('disabled', newValue === 0);
+      $item.find('.value-increase').prop('disabled', newValue === 7);
+      
+      this._updateMeritsFlawsUI(html);
+    });
+    
+    // Remove button
+    $item.find(`.remove-item[data-type="${type}"]`).click(async () => {
+      if (isMerit) {
+        this.wizardData.meritsFlaws.merits.splice(index, 1);
+      } else {
+        this.wizardData.meritsFlaws.flaws.splice(index, 1);
+      }
+      this._recalculateMeritsFlaws();
+      await this._saveProgress();
+      
+      $item.remove();
+      
+      // Reindex remaining items
+      html.find('.merit-flaw-item').each((i, item) => {
+        const $otherItem = $(item);
+        const nameClass = isMerit ? '.wizard-merit-name' : '.wizard-flaw-name';
+        if ($otherItem.find(nameClass).length) {
+          $otherItem.find(nameClass).attr('data-index', i);
+          $otherItem.find(isMerit ? '.wizard-merit-reference-btn' : '.wizard-flaw-reference-btn').attr('data-index', i);
+          $otherItem.find(`.value-decrease[data-type="${type}"]`).attr('data-index', i);
+          $otherItem.find(`.value-increase[data-type="${type}"]`).attr('data-index', i);
+          $otherItem.find(`.remove-item[data-type="${type}"]`).attr('data-index', i);
+        }
+      });
+      
+      this._updateMeritsFlawsUI(html);
+    });
+    
+    // Name input
+    const $input = $item.find(isMerit ? '.wizard-merit-name' : '.wizard-flaw-name');
+    
+    // Hide tooltip when clicking on input field
+    $input.on('click', () => {
+      this._hideReferenceTooltip();
+    });
+    
+    $input.on('input', (event) => {
+      const query = event.currentTarget.value.trim();
+      
+      if (isMerit) {
+        this.wizardData.meritsFlaws.merits[index].name = event.currentTarget.value;
+      } else {
+        this.wizardData.meritsFlaws.flaws[index].name = event.currentTarget.value;
+      }
+      
+      const $button = $input.siblings(isMerit ? '.wizard-merit-reference-btn' : '.wizard-flaw-reference-btn');
+      if (service && service.initialized && query) {
+        const reference = service.getByName(query, category);
+        if (reference) {
+          $button.addClass('has-reference');
+          $button.data('reference', reference);
+        } else {
+          $button.removeClass('has-reference');
+          $button.removeData('reference');
+        }
+      }
+      
+      if (query.length >= 2 && service && service.initialized) {
+        const results = service.search(query, { category }).slice(0, 10);
+        if (results.length > 0) {
+          this._showWizardAutocomplete(event.currentTarget, results, category, index);
+        } else {
+          this._hideWizardAutocomplete();
+        }
+      } else {
+        this._hideWizardAutocomplete();
+      }
+    });
+    
+    $input.on('blur', async () => {
+      await this._saveProgress();
+      setTimeout(() => {
+        this._hideWizardAutocomplete();
+        this._hideReferenceTooltip();
+      }, 200);
+    });
+    
+    // Reference button - show tooltip on click
+    const $refButton = $item.find(isMerit ? '.wizard-merit-reference-btn' : '.wizard-flaw-reference-btn');
+    $refButton.click((event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const $button = $(event.currentTarget);
+      const reference = $button.data('reference');
+      
+      if (reference) {
+        // Toggle tooltip on click
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+          this._hideReferenceTooltip();
+        } else {
+          this._showReferenceTooltip(event, reference);
+        }
+      }
+    });
+  }
+  
+  _recalculateMeritsFlaws() {
+    const meritPoints = this.wizardData.meritsFlaws.merits.reduce((sum, m) => sum + (m.value || 0), 0);
+    const flawPoints = this.wizardData.meritsFlaws.flaws.reduce((sum, f) => sum + (f.value || 0), 0);
+    
+    this.wizardData.meritsFlaws.meritPoints = meritPoints;
+    this.wizardData.meritsFlaws.flawPoints = flawPoints;
+    this.wizardData.meritsFlaws.freebieBonus = meritPoints === 0 ? flawPoints : 0;
+  }
+  
+  _updateMeritsFlawsUI(html) {
+    html.find('.merits-total').text(this.wizardData.meritsFlaws.meritPoints);
+    html.find('.flaws-total').text(this.wizardData.meritsFlaws.flawPoints);
+    
+    const balanced = this.wizardData.meritsFlaws.meritPoints === 0 || 
+                     this.wizardData.meritsFlaws.meritPoints === this.wizardData.meritsFlaws.flawPoints;
+    html.find('.balance-status').toggleClass('balanced', balanced).toggleClass('unbalanced', !balanced);
+    
+    // Update merit dots and values
+    this.wizardData.meritsFlaws.merits.forEach((merit, index) => {
+      const $item = html.find(`.merit-flaw-item`).filter((i, el) => {
+        return $(el).find('.wizard-merit-name').data('index') === index;
+      });
+      if ($item.length) {
+        const value = merit.value || 0;
+        $item.find('.value-display').text(value);
+        $item.find('.dots-display').html(Handlebars.helpers.renderDots(value, 7).toString());
+        $item.find('.value-decrease').prop('disabled', value === 0);
+        $item.find('.value-increase').prop('disabled', value === 7);
+      }
+    });
+    
+    // Update flaw dots and values
+    this.wizardData.meritsFlaws.flaws.forEach((flaw, index) => {
+      const $item = html.find(`.merit-flaw-item`).filter((i, el) => {
+        return $(el).find('.wizard-flaw-name').data('index') === index;
+      });
+      if ($item.length) {
+        const value = flaw.value || 0;
+        $item.find('.value-display').text(value);
+        $item.find('.dots-display').html(Handlebars.helpers.renderDots(value, 7).toString());
+        $item.find('.value-decrease').prop('disabled', value === 0);
+        $item.find('.value-increase').prop('disabled', value === 7);
+      }
+    });
+    
+    this._updateNavigationButtons(html);
+  }
+  
+  _showWizardAutocomplete(input, results, category, index) {
+    this._hideWizardAutocomplete();
+    
+    const $input = $(input);
+    const inputPos = $input.offset();
+    const $dropdown = $('<div class="wod-autocomplete-dropdown"></div>');
+    $dropdown.css({
+      position: 'fixed',
+      top: inputPos.top + $input.outerHeight() + 2,
+      left: inputPos.left,
+      minWidth: Math.max($input.outerWidth(), 300) + 'px',  // Ensure minimum width
+      maxHeight: '200px',
+      zIndex: 100000
+    });
+    
+    results.forEach((result) => {
+      const $item = $(`<div class="autocomplete-item"><span class="autocomplete-name">${result.name}</span><span class="autocomplete-meta">${result.costDescription} pt</span></div>`);
+      $item.on('mousedown', async (e) => {
+        e.preventDefault();
+        await this._selectWizardAutocomplete(input, result, category, index);
+      });
+      $dropdown.append($item);
+    });
+    
+    $('body').append($dropdown);
+    this._wizardAutocompleteDropdown = $dropdown;
+  }
+  
+  _hideWizardAutocomplete() {
+    if (this._wizardAutocompleteDropdown) {
+      this._wizardAutocompleteDropdown.remove();
+      this._wizardAutocompleteDropdown = null;
+    }
+  }
+  
+  async _selectWizardAutocomplete(input, result, category, index) {
+    this._hideWizardAutocomplete();
+    
+    const costs = Array.isArray(result.cost) ? result.cost : [result.cost];
+    let selectedValue = costs.length === 1 ? costs[0] : await this._showCostSelectionDialog(result.name, costs, category);
+    if (!selectedValue) return;
+    
+    // Update data
+    if (category === 'Merit' && this.wizardData.meritsFlaws.merits[index]) {
+      this.wizardData.meritsFlaws.merits[index].name = result.name;
+      this.wizardData.meritsFlaws.merits[index].value = selectedValue;
+    } else if (category === 'Flaw' && this.wizardData.meritsFlaws.flaws[index]) {
+      this.wizardData.meritsFlaws.flaws[index].name = result.name;
+      this.wizardData.meritsFlaws.flaws[index].value = selectedValue;
+    }
+    
+    this._recalculateMeritsFlaws();
+    await this._saveProgress();
+    
+    // Update DOM without full render
+    const $input = $(input);
+    $input.val(result.name);
+    
+    // Find the item container
+    const $item = $input.closest('.merit-flaw-item');
+    
+    // Update value display
+    $item.find('.value-display').text(selectedValue);
+    
+    // Update dots
+    const dotsHtml = Handlebars.helpers.renderDots(selectedValue, 7);
+    $item.find('.dots-display').html(dotsHtml.toString());
+    
+    // Update buttons
+    $item.find('.value-decrease').prop('disabled', selectedValue === 0);
+    $item.find('.value-increase').prop('disabled', selectedValue === 7);
+    
+    // Update reference button
+    const service = game.wod?.referenceDataService;
+    if (service && service.initialized) {
+      const reference = service.getByName(result.name, category);
+      const $button = $input.siblings(category === 'Merit' ? '.wizard-merit-reference-btn' : '.wizard-flaw-reference-btn');
+      if (reference) {
+        $button.addClass('has-reference');
+        $button.data('reference', reference);
+      }
+    }
+    
+    // Update UI totals
+    this._updateMeritsFlawsUI(this.element);
+    
+    ui.notifications.info(`Selected: ${result.name} (${selectedValue} pt)`);
+  }
+  
+  async _showCostSelectionDialog(name, costs, category) {
+    return new Promise((resolve) => {
+      const color = category === 'Merit' ? '#4CAF50' : '#f44336';
+      let resolved = false;
+      const safeResolve = (value) => { 
+        if (!resolved) { 
+          resolved = true; 
+          resolve(value); 
+        } 
+      };
+      
+      // Shorter title to avoid horizontal scroll
+      const shortTitle = `Select Cost`;
+      
+      const content = `
+        <div style="padding: 8px;">
+          <p style="margin: 0 0 10px 0; font-size: 0.9em; line-height: 1.3;">
+            <strong style="display: block; margin-bottom: 6px; font-size: 0.95em;">${name}</strong>
+            <span style="font-size: 0.85em; color: #666;">Select point value:</span>
+          </p>
+          <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin: 0;">
+            ${costs.map(cost => `<button type="button" class="cost-option-btn" data-cost="${cost}" style="padding: 4px 10px; font-size: 0.85em; font-weight: 600; background: ${color}; color: white; border: none; border-radius: 2px; cursor: pointer; min-width: 35px; transition: opacity 0.2s;">${cost} pt</button>`).join('')}
+          </div>
+        </div>`;
+      
+      const dialog = new Dialog({
+        title: shortTitle,
+        content: content,
+        buttons: { 
+          cancel: { 
+            icon: '<i class="fas fa-times"></i>', 
+            label: "Cancel", 
+            callback: () => safeResolve(null) 
+          } 
+        },
+        default: "cancel",
+        render: (html) => {
+          html.find('.cost-option-btn').click((e) => { 
+            const cost = parseInt(e.currentTarget.dataset.cost);
+            safeResolve(cost);
+            dialog.close();  // Explicitly close the dialog
+          });
+          html.find('.cost-option-btn').hover(
+            function() { $(this).css('opacity', '0.8'); }, 
+            function() { $(this).css('opacity', '1'); }
+          );
+          
+          // Remove the "Close " text from the close button
+          setTimeout(() => {
+            const closeButton = html.closest('.app').find('.header-button.close')[0];
+            if (closeButton) {
+              // Remove all text nodes, keep only the icon
+              Array.from(closeButton.childNodes).forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                  node.remove();
+                }
+              });
+            }
+          }, 0);
+        },
+        close: () => safeResolve(null)
+      }, { 
+        width: 280,
+        height: "auto",
+        resizable: false,
+        classes: ["dialog", "wod-cost-selection-dialog"]
+      }).render(true);
+    });
+  }
+  
+  async _postReferenceToChat(reference) {
+    const service = game.wod?.referenceDataService;
+    if (!service) return;
+    const html = await renderTemplate('systems/wodsystem/templates/chat/reference-card.html', { reference });
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), content: html, type: CONST.CHAT_MESSAGE_TYPES.OTHER });
+  }
+
+  /**
+   * Show tooltip for merit/flaw reference
+   * @param {Event} event - The hover event
+   * @param {object} reference - The reference data
+   * @private
+   */
+  _showReferenceTooltip(event, reference) {
+    this._hideReferenceTooltip(); // Remove any existing tooltip
+    
+    const service = game.wod?.referenceDataService;
+    if (!service) return;
+    
+    // Create tooltip element
+    const tooltip = $('<div class="wod-reference-tooltip"></div>');
+    tooltip.html(service.generateTooltipHTML(reference));
+    
+    // Add to body with visibility hidden to measure
+    tooltip.css({ 
+      visibility: 'hidden', 
+      display: 'block',
+      position: 'fixed'  // Use fixed positioning relative to viewport
+    });
+    $('body').append(tooltip);
+    
+    // Get dimensions
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltipWidth = tooltip.outerWidth();
+    const tooltipHeight = tooltip.outerHeight();
+    const windowWidth = $(window).width();
+    const windowHeight = $(window).height();
+    
+    // Calculate left position (prevent overflow)
+    let left = rect.left;
+    if (left + tooltipWidth > windowWidth - 10) {
+      left = windowWidth - tooltipWidth - 10;
+    }
+    if (left < 10) {
+      left = 10;
+    }
+    
+    // Calculate top position - show above the element
+    let top = rect.top - tooltipHeight - 10;
+    
+    // If it goes off the top of the screen, position below instead
+    if (top < 10) {
+      top = rect.bottom + 10;
+      // If it goes off the bottom too, just clamp to top
+      if (top + tooltipHeight > windowHeight - 10) {
+        top = 10;
+      }
+    }
+    
+    // Apply final position and make visible
+    tooltip.css({
+      position: 'fixed',
+      top: top + 'px',
+      left: left + 'px',
+      maxWidth: '400px',
+      maxHeight: (windowHeight - 20) + 'px',  // Limit height to viewport
+      overflowY: 'auto',  // Allow scrolling if content is too long
+      visibility: 'visible',
+      display: 'none'
+    });
+    
+    // Fade in
+    tooltip.fadeIn(200);
+  }
+  
+  /**
+   * Hide reference tooltip
+   * @private
+   */
+  _hideReferenceTooltip() {
+    $('.wod-reference-tooltip').fadeOut(100, function() {
+      $(this).remove();
+    });
+  }
+
+  /**
    * Step: Freebies listeners
    */
   _activateFreebiesListeners(html) {
@@ -1161,30 +1881,45 @@ export class WodCharacterWizard extends FormApplication {
     const name = prompt(`Enter new ${category} ability name:`);
     if (!name) return;
     
-    const scrollElement = this.element.find('.window-content')[0];
-    const scrollPos = scrollElement ? scrollElement.scrollTop : 0;
-    
     this.wizardData.abilities.secondary[category].push({
       name: name,
       value: 0
     });
     
     await this._saveProgress();
-    await this.render();
     
-    // Aggressively restore scroll position
-    requestAnimationFrame(() => {
-      const newScrollElement = this.element.find('.window-content')[0];
-      if (newScrollElement) {
-        newScrollElement.scrollTop = scrollPos;
-        setTimeout(() => {
-          newScrollElement.scrollTop = scrollPos;
-        }, 0);
-        setTimeout(() => {
-          newScrollElement.scrollTop = scrollPos;
-        }, 50);
-      }
-    });
+    // Create new secondary ability DOM element
+    const newIndex = this.wizardData.abilities.secondary[category].length - 1;
+    const maxValue = this.config.abilities.maxAtCreation;
+    
+    const newItem = $(`
+      <div class="ability-item secondary" data-index="${newIndex}">
+        <input type="text" 
+               class="ability-name-input" 
+               value="${name}" 
+               placeholder="Ability name">
+        <div class="ability-controls">
+          <button type="button" class="ability-decrease" data-index="${newIndex}" disabled>
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="ability-value">0</span>
+          <button type="button" class="ability-increase" data-index="${newIndex}">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="ability-dots">
+          ${Handlebars.helpers.renderDots(0, maxValue).toString()}
+        </div>
+      </div>
+    `);
+    
+    // Add to DOM
+    const html = this.element;
+    const secondaryContainer = html.find(`.secondary-abilities[data-category="${category}"]`);
+    secondaryContainer.find('.add-secondary').before(newItem);
+    
+    // Re-attach listeners for abilities step
+    this._activateAbilitiesListeners(html);
   }
 
   /**
@@ -1261,30 +1996,55 @@ export class WodCharacterWizard extends FormApplication {
    * Add background
    */
   async _addBackground() {
-    const scrollElement = this.element.find('.window-content')[0];
-    const scrollPos = scrollElement ? scrollElement.scrollTop : 0;
-    
     this.wizardData.advantages.backgrounds.push({
       name: "",
       value: 0
     });
     
     await this._saveProgress();
-    await this.render();
     
-    // Aggressively restore scroll position
-    requestAnimationFrame(() => {
-      const newScrollElement = this.element.find('.window-content')[0];
-      if (newScrollElement) {
-        newScrollElement.scrollTop = scrollPos;
-        setTimeout(() => {
-          newScrollElement.scrollTop = scrollPos;
-        }, 0);
-        setTimeout(() => {
-          newScrollElement.scrollTop = scrollPos;
-        }, 50);
-      }
+    // Get backgrounds list
+    const backgroundsList = window.referenceDataService ? await window.referenceDataService.getBackgrounds(this.actorType) : [];
+    const newIndex = this.wizardData.advantages.backgrounds.length - 1;
+    const maxValue = this.config.advantages.backgrounds.maxPerBackground;
+    
+    // Build dropdown options
+    let optionsHTML = '<option value="">-- Select Background --</option>';
+    backgroundsList.forEach(bg => {
+      optionsHTML += `<option value="${bg}">${bg}</option>`;
     });
+    
+    // Create new background item
+    const newItem = $(`
+      <div class="background-item">
+        <select class="background-select" data-index="${newIndex}">
+          ${optionsHTML}
+        </select>
+        <div class="background-controls">
+          <button type="button" class="bg-decrease" data-index="${newIndex}" disabled>
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="bg-value">0</span>
+          <button type="button" class="bg-increase" data-index="${newIndex}">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="background-dots">
+          ${Handlebars.helpers.renderDots(0, maxValue).toString()}
+        </div>
+        <button type="button" class="remove-background" data-index="${newIndex}">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    `);
+    
+    // Add to DOM
+    const html = this.element;
+    const bgList = html.find('.backgrounds-list');
+    bgList.append(newItem);
+    
+    // Re-attach listeners for the advantages step
+    this._activateAdvantagesListeners(html);
   }
 
   /**
@@ -1509,7 +2269,9 @@ export class WodCharacterWizard extends FormApplication {
     }
     
     // Update freebies remaining counter (format: Remaining / Total)
-    html.find('.freebies-remaining .value').text(`${this.wizardData.freebies.remaining} / ${this.config.freebies.total}`);
+    const freebieBonus = this.wizardData.meritsFlaws?.freebieBonus || 0;
+    const actualTotal = this.config.freebies.total + freebieBonus;
+    html.find('.freebies-remaining .value').text(`${this.wizardData.freebies.remaining} / ${actualTotal}`);
     
     // Update all increase buttons based on remaining freebies and current values
     html.find('.freebie-increase').each((i, btn) => {

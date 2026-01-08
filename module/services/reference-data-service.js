@@ -40,7 +40,7 @@ export class ReferenceDataService {
      */
     async loadMeritsFlaws() {
         try {
-            const response = await fetch('systems/wodsystem/config/reference/merits_flaws.json');
+            const response = await fetch('systems/wodsystem/datasource/merits_flaws.json');
             if (!response.ok) {
                 throw new Error(`Failed to load merits_flaws.json: ${response.statusText}`);
             }

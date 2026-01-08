@@ -8,6 +8,12 @@
       You spent {{wizardData.advantages.freebiesSpent}} freebie points on Enlightenment in the previous step.
     </p>
     {{/if}}
+    {{#if (gt freebieBonus 0)}}
+    <p class="note freebie-bonus-note">
+      <i class="fas fa-star"></i> 
+      You gained {{freebieBonus}} extra freebie points from taking Flaws!
+    </p>
+    {{/if}}
   </div>
 
   <div class="step-body">
@@ -16,7 +22,7 @@
         <div class="freebies-remaining">
           <span class="label">Freebie Points:</span>
           <span class="value {{#if (lt wizardData.freebies.remaining 0)}}negative{{/if}}">
-            {{wizardData.freebies.remaining}} / {{config.freebies.total}}
+            {{wizardData.freebies.remaining}} / {{actualFreebieTotal}}
           </span>
           <span class="sublabel">(Remaining / Total)</span>
         </div>
@@ -216,7 +222,7 @@
     <div class="help-box">
       <h4><i class="fas fa-lightbulb"></i> Freebie Points Guide</h4>
       <ul>
-        <li>You have {{config.freebies.total}} freebie points to customize your character</li>
+        <li>You have {{actualFreebieTotal}} freebie points to customize your character{{#if (gt freebieBonus 0)}} ({{config.freebies.total}} base + {{freebieBonus}} from flaws){{/if}}</li>
         <li>You don't have to spend all your freebie points</li>
         <li>Consider increasing abilities or attributes that define your character concept</li>
         <li>Willpower is often a good investment for starting characters</li>

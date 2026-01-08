@@ -13,6 +13,7 @@ export const WIZARD_CONFIG = {
       { id: "attributes", label: "Attributes", icon: "fa-dumbbell" },
       { id: "abilities", label: "Abilities", icon: "fa-brain" },
       { id: "advantages", label: "Advantages", icon: "fa-star" },
+      { id: "merits-flaws", label: "Merits & Flaws", icon: "fa-balance-scale" },
       { id: "freebies", label: "Freebie Points", icon: "fa-coins" },
       { id: "review", label: "Review", icon: "fa-check-circle" }
     ],

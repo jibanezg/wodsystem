@@ -56,11 +56,13 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/effect-manager.html",
         "systems/wodsystem/templates/apps/st-approval-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html",
+        "systems/wodsystem/templates/chat/reference-card.html",
         // Character Creation Wizard
         "systems/wodsystem/templates/apps/wizard-steps/step-concept.html",
         "systems/wodsystem/templates/apps/wizard-steps/step-attributes.html",
         "systems/wodsystem/templates/apps/wizard-steps/step-abilities.html",
         "systems/wodsystem/templates/apps/wizard-steps/step-advantages.html",
+        "systems/wodsystem/templates/apps/wizard-steps/step-merits-flaws.html",
         "systems/wodsystem/templates/apps/wizard-steps/step-freebies.html",
         "systems/wodsystem/templates/apps/wizard-steps/step-review.html"
     ]);
@@ -89,7 +91,8 @@ Hooks.once("init", async function() {
 
 Hooks.on("ready", async () => {
     console.log("WoD | World of Darkness System ready");
-    console.log("WoD | Reference data service loaded:", !!window.referenceDataService);
+    console.log("WoD | Reference data service loaded:", !!game.wod.referenceDataService);
+    console.log("WoD | Reference data initialized:", game.wod.referenceDataService?.initialized);
     console.log("WoD | Current user is GM:", game.user.isGM);
     console.log("WoD | Socket available:", !!game.socket);
     

@@ -1,0 +1,131 @@
+<div class="wizard-step step-merits-flaws">
+  <div class="step-header">
+    <h3><i class="fas fa-balance-scale"></i> Merits & Flaws</h3>
+    <p class="step-description">
+      You may take up to 7 points of Merits, but must balance them with equal Flaws.<br>
+      Flaws without Merits convert to Freebie Points.
+    </p>
+  </div>
+
+  <div class="step-body">
+    <div class="merits-flaws-grid">
+      
+      <!-- Merits Section -->
+      <div class="merit-flaw-section">
+        <h4>
+          Merits
+          <span class="points-display">
+            {{wizardData.meritsFlaws.meritPoints}} points
+          </span>
+        </h4>
+        
+        <div class="merit-list">
+          {{#each wizardData.meritsFlaws.merits}}
+          <div class="merit-flaw-item">
+            <div class="name-input-container">
+              <input type="text" 
+                     class="wizard-merit-name" 
+                     data-index="{{@index}}" 
+                     value="{{this.name}}" 
+                     placeholder="Merit Name" />
+              <a class="wizard-merit-reference-btn" data-index="{{@index}}" title="View Merit Details">
+                <i class="fas fa-book-open"></i>
+              </a>
+            </div>
+            <div class="value-controls">
+              <button type="button" class="value-decrease" data-type="merit" data-index="{{@index}}" {{#if (lte (default this.value 0) 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="value-display">{{default this.value 0}}</span>
+              <button type="button" class="value-increase" data-type="merit" data-index="{{@index}}" {{#if (gte (default this.value 0) 7)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="dots-display">
+              {{{renderDots (default this.value 0) 7}}}
+            </div>
+            <button type="button" class="remove-item" data-type="merit" data-index="{{@index}}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          {{/each}}
+          
+          <button type="button" class="add-item" data-type="merit">
+            <i class="fas fa-plus"></i> Add Merit
+          </button>
+        </div>
+      </div>
+
+      <!-- Flaws Section -->
+      <div class="merit-flaw-section">
+        <h4>
+          Flaws
+          <span class="points-display">
+            {{wizardData.meritsFlaws.flawPoints}} points
+          </span>
+        </h4>
+        
+        <div class="flaw-list">
+          {{#each wizardData.meritsFlaws.flaws}}
+          <div class="merit-flaw-item">
+            <div class="name-input-container">
+              <input type="text" 
+                     class="wizard-flaw-name" 
+                     data-index="{{@index}}" 
+                     value="{{this.name}}" 
+                     placeholder="Flaw Name" />
+              <a class="wizard-flaw-reference-btn" data-index="{{@index}}" title="View Flaw Details">
+                <i class="fas fa-book-open"></i>
+              </a>
+            </div>
+            <div class="value-controls">
+              <button type="button" class="value-decrease" data-type="flaw" data-index="{{@index}}" {{#if (lte (default this.value 0) 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="value-display">{{default this.value 0}}</span>
+              <button type="button" class="value-increase" data-type="flaw" data-index="{{@index}}" {{#if (gte (default this.value 0) 7)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="dots-display">
+              {{{renderDots (default this.value 0) 7}}}
+            </div>
+            <button type="button" class="remove-item" data-type="flaw" data-index="{{@index}}">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          {{/each}}
+          
+          <button type="button" class="add-item" data-type="flaw">
+            <i class="fas fa-plus"></i> Add Flaw
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Balance Summary -->
+    <div class="balance-summary">
+      <div class="balance-row">
+        <span class="label">Merit Points:</span>
+        <span class="value merits-total">{{wizardData.meritsFlaws.meritPoints}}</span>
+      </div>
+      <div class="balance-row">
+        <span class="label">Flaw Points:</span>
+        <span class="value flaws-total">{{wizardData.meritsFlaws.flawPoints}}</span>
+      </div>
+      <div class="balance-row balance-status {{#if validation.meritsFlaws.balanced}}balanced{{else}}unbalanced{{/if}}">
+        <span class="label">Status:</span>
+        <span class="value">
+          {{#if validation.meritsFlaws.balanced}}
+            <i class="fas fa-check-circle"></i> Balanced
+          {{else if (eq wizardData.meritsFlaws.meritPoints 0)}}
+            <i class="fas fa-info-circle"></i> {{wizardData.meritsFlaws.freebieBonus}} Freebie Points Gained
+          {{else}}
+            <i class="fas fa-exclamation-triangle"></i> Needs {{validation.meritsFlaws.needed}} more Flaw points
+          {{/if}}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
