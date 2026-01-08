@@ -233,7 +233,14 @@ export class WizardValidator {
     // Validate backgrounds
     if (this.config.advantages.backgrounds) {
       const bgConfig = this.config.advantages.backgrounds;
-      const totalBgPoints = advantagesData.backgrounds.reduce((sum, bg) => sum + (bg.value || 0), 0);
+      const doubleCostBgs = bgConfig.doubleCost || [];
+      
+      // Calculate total background points spent, accounting for double cost backgrounds
+      const totalBgPoints = advantagesData.backgrounds.reduce((sum, bg) => {
+        const value = bg.value || 0;
+        const isDoubleCost = doubleCostBgs.includes(bg.name);
+        return sum + (value * (isDoubleCost ? 2 : 1));
+      }, 0);
       const bgRemaining = bgConfig.points - totalBgPoints;
       
       details.backgrounds = { spent: totalBgPoints, remaining: bgRemaining, allowed: bgConfig.points };

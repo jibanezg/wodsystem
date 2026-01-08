@@ -88,10 +88,12 @@ export const WIZARD_CONFIG = {
         maxPerBackground: 5,
         available: [
           "Allies", "Alternate Identity", "Arcane", "Avatar", "Backup", "Certification",
-          "Contacts", "Cult", "Destiny", "Dream", "Enhancement", "Fame", "Influence",
+          "Contacts", "Cult", "Destiny", "Device", "Dream", "Enhancement", "Fame", "Influence",
           "Library", "Mentor", "Node", "Patron", "Rank", "Requisitions", "Resources",
           "Retainers", "Sanctum", "Secret Weapons", "Spies", "Status", "Wonder"
-        ]
+        ],
+        // Backgrounds that cost 2 points per dot instead of 1
+        doubleCost: ["Enhancement", "Device"]
       },
       spheres: {
         points: 6,
