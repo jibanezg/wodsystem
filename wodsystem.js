@@ -57,6 +57,7 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/st-approval-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html",
         "systems/wodsystem/templates/chat/reference-card.html",
+        "systems/wodsystem/templates/chat/background-reference-card.html",
         // Character Creation Wizard
         "systems/wodsystem/templates/apps/wizard-steps/step-concept.html",
         "systems/wodsystem/templates/apps/wizard-steps/step-attributes.html",

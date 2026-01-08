@@ -46,9 +46,14 @@ export class WodActorSheet extends ActorSheet {
         context.system = context.data.system;
         
         // Load reference data (archetypes, backgrounds, etc.) via service
-        if (window.referenceDataService) {
+        const service = game.wod?.referenceDataService;
+        if (service && service.initialized) {
+            context.archetypes = await window.referenceDataService?.getArchetypes?.() || [];
+            // Load base + creature-specific backgrounds from new service
+            context.backgroundsList = service.getBackgroundsList(this.actor.type);
+        } else if (window.referenceDataService) {
+            // Fallback to old service
             context.archetypes = await window.referenceDataService.getArchetypes();
-            // Load base + creature-specific backgrounds
             context.backgroundsList = await window.referenceDataService.getBackgrounds(this.actor.type);
         } else {
             console.error("ReferenceDataService not available");
@@ -266,6 +271,9 @@ export class WodActorSheet extends ActorSheet {
         html.find('.lock-background').click(this._onLockBackground.bind(this));
         html.find('.background-name-select').change(this._onBackgroundNameChange.bind(this));
         html.find('.background-custom-name').change(this._onBackgroundCustomNameChange.bind(this));
+        
+        // Background reference buttons (tooltips and click-to-chat)
+        html.find('.background-reference-btn').click(this._onBackgroundReferenceClick.bind(this));
         
         // Prevent locked backgrounds from being changed via dropdown
         html.find('.background-name-select.locked').on('mousedown', (e) => {
@@ -918,8 +926,8 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
-        // Search for merits matching the query
-        const results = service.search(query, { category: 'Merit' }).slice(0, 10); // Limit to 10 results
+        // Search for merits matching the query, filtered by actor type
+        const results = service.search(query, { category: 'Merit', actorType: this.actor.type }).slice(0, 10); // Limit to 10 results
         
         if (results.length > 0) {
             this._showAutocomplete(input, results, 'merit');
@@ -991,8 +999,8 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
-        // Search for flaws matching the query
-        const results = service.search(query, { category: 'Flaw' }).slice(0, 10); // Limit to 10 results
+        // Search for flaws matching the query, filtered by actor type
+        const results = service.search(query, { category: 'Flaw', actorType: this.actor.type }).slice(0, 10); // Limit to 10 results
         
         if (results.length > 0) {
             this._showAutocomplete(input, results, 'flaw');
@@ -1209,6 +1217,114 @@ export class WodActorSheet extends ActorSheet {
                 newSheetBody.scrollTop(scrollPos);
             }
         }, 50);
+    }
+
+    /**
+     * Handle background reference button click (show tooltip and post to chat)
+     */
+    _onBackgroundReferenceClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const service = game.wod?.referenceDataService;
+        if (!service || !service.initialized) return;
+        
+        const backgroundName = $(event.currentTarget).data('background-name');
+        if (!backgroundName) return;
+        
+        const background = service.getBackgroundByName(backgroundName);
+        if (!background) return;
+        
+        // Toggle tooltip on click
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+            this._hideReferenceTooltip();
+        } else {
+            this._showBackgroundTooltip(event, background);
+        }
+    }
+
+    /**
+     * Show tooltip for background reference
+     */
+    _showBackgroundTooltip(event, background) {
+        this._hideReferenceTooltip(); // Remove any existing tooltip
+        
+        const service = game.wod?.referenceDataService;
+        if (!service) return;
+        
+        // Create tooltip element
+        const tooltip = $('<div class="wod-reference-tooltip"></div>');
+        tooltip.html(service.generateBackgroundTooltipHTML(background));
+        
+        // Add to body with visibility hidden to measure
+        tooltip.css({ 
+            visibility: 'hidden', 
+            display: 'block',
+            position: 'fixed'
+        });
+        $('body').append(tooltip);
+        
+        // Get dimensions
+        const rect = event.currentTarget.getBoundingClientRect();
+        const tooltipWidth = tooltip.outerWidth();
+        const tooltipHeight = tooltip.outerHeight();
+        const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
+        
+        // Calculate left position (prevent overflow)
+        let left = rect.left;
+        if (left + tooltipWidth > windowWidth - 10) {
+            left = windowWidth - tooltipWidth - 10;
+        }
+        if (left < 10) {
+            left = 10;
+        }
+        
+        // Calculate top position - show above the element
+        let top = rect.top - tooltipHeight - 10;
+        
+        // If it goes off the top of the screen, position below instead
+        if (top < 10) {
+            top = rect.bottom + 10;
+            // If it goes off the bottom too, just clamp to top
+            if (top + tooltipHeight > windowHeight - 10) {
+                top = 10;
+            }
+        }
+        
+        // Apply final position and make visible
+        tooltip.css({
+            position: 'fixed',
+            top: top + 'px',
+            left: left + 'px',
+            maxWidth: '400px',
+            maxHeight: (windowHeight - 20) + 'px',
+            overflowY: 'auto',
+            visibility: 'visible',
+            display: 'none'
+        });
+        
+        // Fade in
+        tooltip.fadeIn(200);
+        
+        // Add click handler to post to chat
+        tooltip.find('.reference-tooltip-inner').click(() => {
+            this._postBackgroundToChat(background);
+            this._hideReferenceTooltip();
+        });
+    }
+
+    /**
+     * Post background reference to chat
+     */
+    async _postBackgroundToChat(background) {
+        const html = await renderTemplate('systems/wodsystem/templates/chat/background-reference-card.html', { background });
+        await ChatMessage.create({ 
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }), 
+            content: html, 
+            type: CONST.CHAT_MESSAGE_TYPES.OTHER 
+        });
     }
 
     /**
@@ -4321,27 +4437,23 @@ export class WodActorSheet extends ActorSheet {
                 }
             };
             
+            // Shorter title to avoid horizontal scroll
+            const shortTitle = `Select Cost`;
+            
             const content = `
-                <div style="text-align: center; padding: 10px;">
-                    <p style="margin-bottom: 15px; font-size: 1.1em;">
-                        <strong>${name}</strong> has multiple cost options.<br>
-                        Select the point value:
+                <div style="padding: 8px;">
+                    <p style="margin: 0 0 10px 0; font-size: 0.9em; line-height: 1.3;">
+                        <strong style="display: block; margin-bottom: 6px; font-size: 0.95em; word-wrap: break-word;">${name}</strong>
+                        <span style="font-size: 0.85em; color: #666;">Select point value:</span>
                     </p>
-                    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                        ${costs.map(cost => `
-                            <button type="button" class="cost-option-btn" data-cost="${cost}" 
-                                    style="padding: 10px 20px; font-size: 1.1em; font-weight: bold; 
-                                           background: ${color}; color: white; border: none; 
-                                           border-radius: 4px; cursor: pointer; min-width: 60px;">
-                                ${cost} pt
-                            </button>
-                        `).join('')}
+                    <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin: 0;">
+                        ${costs.map(cost => `<button type="button" class="cost-option-btn" data-cost="${cost}" style="padding: 4px 10px; font-size: 0.85em; font-weight: 600; background: ${color}; color: white; border: none; border-radius: 2px; cursor: pointer; min-width: 35px; transition: opacity 0.2s;">${cost} pt</button>`).join('')}
                     </div>
                 </div>
             `;
             
             const dialog = new Dialog({
-                title: `Select ${category} Cost`,
+                title: shortTitle,
                 content: content,
                 buttons: {
                     cancel: {
@@ -4356,7 +4468,7 @@ export class WodActorSheet extends ActorSheet {
                     html.find('.cost-option-btn').click((event) => {
                         const selectedCost = parseInt(event.currentTarget.dataset.cost);
                         safeResolve(selectedCost);
-                        dialog.close();
+                        dialog.close();  // Explicitly close the dialog
                     });
                     
                     // Add hover effect
@@ -4364,16 +4476,30 @@ export class WodActorSheet extends ActorSheet {
                         function() { $(this).css('opacity', '0.8'); },
                         function() { $(this).css('opacity', '1'); }
                     );
+                    
+                    // Remove the "Close" text from the close button
+                    setTimeout(() => {
+                        const closeButton = html.closest('.app').find('.header-button.close')[0];
+                        if (closeButton) {
+                            // Remove all text nodes, keep only the icon
+                            Array.from(closeButton.childNodes).forEach(node => {
+                                if (node.nodeType === Node.TEXT_NODE) {
+                                    node.remove();
+                                }
+                            });
+                        }
+                    }, 0);
                 },
                 close: () => {
                     // If dialog is closed without selection, resolve null
                     safeResolve(null);
                 }
             }, {
-                width: 400
-            });
-            
-            dialog.render(true);
+                width: 280,
+                height: "auto",
+                resizable: false,
+                classes: ["dialog", "wod-cost-selection-dialog"]
+            }).render(true);
         });
     }
 }

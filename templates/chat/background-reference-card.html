@@ -1,0 +1,40 @@
+<div class="wod-reference-card background">
+    <div class="reference-header">
+        <h3>{{background.name}}</h3>
+        <span class="cost-badge">Background{{#if background.doubleCost}} (2 pts/dot){{/if}}{{#if background.canExceedFive}} (max {{background.maxRating}}){{/if}}</span>
+    </div>
+    
+    <div class="reference-meta">
+        <span class="type-badge background">Background</span>
+        {{#if background.doubleCost}}
+        <span class="special-badge">Double Cost</span>
+        {{/if}}
+        {{#if background.canExceedFive}}
+        <span class="special-badge">Can Exceed 5</span>
+        {{/if}}
+        {{#if background.canBePooled}}
+        <span class="special-badge">Can Be Pooled</span>
+        {{/if}}
+    </div>
+    
+    <div class="reference-description">
+        <p>{{{background.description}}}</p>
+    </div>
+    
+    {{#if background.costLevels}}
+    {{#if (gt background.costLevels.length 0)}}
+    <div class="reference-cost-levels">
+        <h4><i class="fas fa-list"></i> Cost Levels</h4>
+        <ul>
+            {{#each background.costLevels}}
+            <li><strong>{{this.label}}</strong> {{this.description}}</li>
+            {{/each}}
+        </ul>
+    </div>
+    {{/if}}
+    {{/if}}
+    
+    <div class="reference-footer">
+        <span class="source"><i class="fas fa-book"></i> Mage: The Ascension 20th Anniversary Edition</span>
+    </div>
+</div>

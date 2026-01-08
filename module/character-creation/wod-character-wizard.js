@@ -103,7 +103,8 @@ export class WodCharacterWizard extends FormApplication {
       // Step 6: Freebies
       freebies: {
         spent: {},
-        remaining: this.config.freebies.total
+        remaining: this.config.freebies.total,
+        baselines: null // Will be set when first entering freebies step
       }
     };
   }
@@ -221,6 +222,22 @@ export class WodCharacterWizard extends FormApplication {
       if (freebiesSpentInStep === 0) {
         console.log(`💰 getData - Calculating freebies: ${this.config.freebies.total} + ${freebieBonus} (flaws) - ${enlightenmentSpent} (enlightenment) = ${baseFreebiesTotalWithBonus - enlightenmentSpent}`);
         this.wizardData.freebies.remaining = baseFreebiesTotalWithBonus - enlightenmentSpent;
+        
+        // Capture baseline values when first entering freebies step
+        // These represent what was set in previous steps and cannot be reduced below
+        if (!this.wizardData.freebies.baselines) {
+          this.wizardData.freebies.baselines = {
+            attributes: JSON.parse(JSON.stringify(this.wizardData.attributes.values)),
+            abilities: JSON.parse(JSON.stringify(this.wizardData.abilities.values)),
+            backgrounds: this.wizardData.advantages.backgrounds.map(bg => ({
+              name: bg.name,
+              value: bg.value || 0
+            })),
+            spheres: JSON.parse(JSON.stringify(this.wizardData.advantages.spheres)),
+            willpower: 0 // Willpower starts at 0 in freebies
+          };
+          console.log('💰 Captured baselines:', this.wizardData.freebies.baselines);
+        }
       } else {
         console.log(`💰 getData - Freebies step, already spent ${freebiesSpentInStep} in this step, remaining: ${this.wizardData.freebies.remaining}`);
       }
@@ -228,9 +245,13 @@ export class WodCharacterWizard extends FormApplication {
     
     const validation = this._validateCurrentStep();
     
-    // Load backgrounds from ReferenceDataService (same as character sheet)
+    // Load backgrounds from ReferenceDataService
     let backgroundsList = [];
-    if ((step.id === 'advantages' || step.id === 'freebies') && window.referenceDataService) {
+    const service = game.wod?.referenceDataService;
+    if ((step.id === 'advantages' || step.id === 'freebies') && service && service.initialized) {
+      backgroundsList = service.getBackgroundsList(this.actorType);
+    } else if ((step.id === 'advantages' || step.id === 'freebies') && window.referenceDataService) {
+      // Fallback to old service if new one not available
       backgroundsList = await window.referenceDataService.getBackgrounds(this.actorType);
     }
     
@@ -706,6 +727,8 @@ export class WodCharacterWizard extends FormApplication {
    * Step: Advantages listeners
    */
   _activateAdvantagesListeners(html) {
+    const service = game.wod.referenceDataService;
+    
     // Add background
     html.find('.add-background').click(async () => {
       await this._addBackground();
@@ -753,7 +776,41 @@ export class WodCharacterWizard extends FormApplication {
       if (this.wizardData.advantages.backgrounds[index]) {
         this.wizardData.advantages.backgrounds[index].name = value;
         await this._saveProgress();
-        // No render needed - dropdown already shows the selected value
+        
+        // Update reference button visibility
+        const $item = $(event.currentTarget).closest('.background-item');
+        const $refBtn = $item.find('.background-reference-btn');
+        
+        if (value && service && service.initialized) {
+          const background = service.getBackgroundByName(value);
+          if (background) {
+            $refBtn.show().data('background', background);
+            $item.attr('data-background-name', value);
+          } else {
+            $refBtn.hide().removeData('background');
+          }
+        } else {
+          $refBtn.hide().removeData('background');
+        }
+      }
+    });
+
+    // Background reference buttons
+    html.find('.background-reference-btn').click((event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const $button = $(event.currentTarget);
+      const background = $button.data('background');
+      
+      if (background) {
+        // Toggle tooltip on click
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+          this._hideReferenceTooltip();
+        } else {
+          this._showBackgroundTooltip(event, background);
+        }
       }
     });
 
@@ -1205,7 +1262,7 @@ export class WodCharacterWizard extends FormApplication {
       }
       
       if (query.length >= 2 && service && service.initialized) {
-        const results = service.search(query, { category }).slice(0, 10);
+        const results = service.search(query, { category, actorType: this.actorType }).slice(0, 10);
         if (results.length > 0) {
           this._showWizardAutocomplete(input, results, category, index);
         } else {
@@ -1377,7 +1434,7 @@ export class WodCharacterWizard extends FormApplication {
       }
       
       if (query.length >= 2 && service && service.initialized) {
-        const results = service.search(query, { category }).slice(0, 10);
+        const results = service.search(query, { category, actorType: this.actorType }).slice(0, 10);
         if (results.length > 0) {
           this._showWizardAutocomplete(event.currentTarget, results, category, index);
         } else {
@@ -1710,9 +1767,99 @@ export class WodCharacterWizard extends FormApplication {
   }
 
   /**
+   * Show tooltip for background reference
+   * @param {Event} event - The click event
+   * @param {object} background - The background data
+   * @private
+   */
+  _showBackgroundTooltip(event, background) {
+    this._hideReferenceTooltip(); // Remove any existing tooltip
+    
+    const service = game.wod?.referenceDataService;
+    if (!service) return;
+    
+    // Create tooltip element
+    const tooltip = $('<div class="wod-reference-tooltip"></div>');
+    tooltip.html(service.generateBackgroundTooltipHTML(background));
+    
+    // Add to body with visibility hidden to measure
+    tooltip.css({ 
+      visibility: 'hidden', 
+      display: 'block',
+      position: 'fixed'
+    });
+    $('body').append(tooltip);
+    
+    // Get dimensions
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltipWidth = tooltip.outerWidth();
+    const tooltipHeight = tooltip.outerHeight();
+    const windowWidth = $(window).width();
+    const windowHeight = $(window).height();
+    
+    // Calculate left position (prevent overflow)
+    let left = rect.left;
+    if (left + tooltipWidth > windowWidth - 10) {
+      left = windowWidth - tooltipWidth - 10;
+    }
+    if (left < 10) {
+      left = 10;
+    }
+    
+    // Calculate top position - show above the element
+    let top = rect.top - tooltipHeight - 10;
+    
+    // If it goes off the top of the screen, position below instead
+    if (top < 10) {
+      top = rect.bottom + 10;
+      // If it goes off the bottom too, just clamp to top
+      if (top + tooltipHeight > windowHeight - 10) {
+        top = 10;
+      }
+    }
+    
+    // Apply final position and make visible
+    tooltip.css({
+      position: 'fixed',
+      top: top + 'px',
+      left: left + 'px',
+      maxWidth: '400px',
+      maxHeight: (windowHeight - 20) + 'px',
+      overflowY: 'auto',
+      visibility: 'visible',
+      display: 'none'
+    });
+    
+    // Fade in
+    tooltip.fadeIn(200);
+    
+    // Add click handler to post to chat
+    tooltip.find('.reference-tooltip-inner').click(() => {
+      this._postBackgroundToChat(background);
+      this._hideReferenceTooltip();
+    });
+  }
+
+  /**
+   * Post background reference to chat
+   * @param {object} background - The background data
+   * @private
+   */
+  async _postBackgroundToChat(background) {
+    const html = await renderTemplate('systems/wodsystem/templates/chat/background-reference-card.html', { background });
+    await ChatMessage.create({ 
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }), 
+      content: html, 
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER 
+    });
+  }
+
+  /**
    * Step: Freebies listeners
    */
   _activateFreebiesListeners(html) {
+    const service = game.wod.referenceDataService;
+    
     // Freebie spending
     html.find('.freebie-increase').click(async (event) => {
       const type = event.currentTarget.dataset.type;
@@ -1726,6 +1873,78 @@ export class WodCharacterWizard extends FormApplication {
       const target = event.currentTarget.dataset.target;
       const bgName = event.currentTarget.dataset.bgName; // For backgrounds
       await this._spendFreebie(type, target, -1, bgName);
+    });
+    
+    // Background reference buttons in freebies step
+    html.find('.background-reference-btn').click((event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const backgroundName = $(event.currentTarget).data('background-name');
+      if (backgroundName && service && service.initialized) {
+        const background = service.getBackgroundByName(backgroundName);
+        if (background) {
+          // Toggle tooltip on click
+          const existingTooltip = $('.wod-reference-tooltip');
+          if (existingTooltip.length) {
+            this._hideReferenceTooltip();
+          } else {
+            this._showBackgroundTooltip(event, background);
+          }
+        }
+      }
+    });
+    
+    // Initial update of decrease button states based on baselines
+    this._updateFreebiesButtonStates(html);
+  }
+  
+  /**
+   * Update freebie button states (separate method for reuse)
+   */
+  _updateFreebiesButtonStates(html) {
+    const baselines = this.wizardData.freebies.baselines;
+    if (!baselines) return;
+    
+    // Update all decrease buttons based on baseline values
+    html.find('.freebie-decrease').each((i, btn) => {
+      const $btn = $(btn);
+      const btnType = $btn.data('type');
+      const btnTarget = $btn.data('target');
+      let atBaseline = false;
+      
+      if (btnType === 'attribute') {
+        const [cat, attr] = btnTarget.split('.');
+        const currentValue = this.wizardData.attributes.values[cat][attr];
+        const baselineValue = baselines.attributes[cat][attr];
+        atBaseline = currentValue <= baselineValue;
+      } else if (btnType === 'ability') {
+        const [cat, ability] = btnTarget.split('.');
+        const currentValue = this.wizardData.abilities.values[cat][ability] || 0;
+        const baselineValue = baselines.abilities[cat][ability] || 0;
+        atBaseline = currentValue <= baselineValue;
+      } else if (btnType === 'background') {
+        const bgIndex = parseInt(btnTarget);
+        const bg = this.wizardData.advantages.backgrounds[bgIndex];
+        if (bg) {
+          const currentValue = bg.value || 0;
+          const baselineBg = baselines.backgrounds.find(b => b.name === bg.name);
+          const baselineValue = baselineBg?.value || 0;
+          atBaseline = currentValue <= baselineValue;
+        } else {
+          atBaseline = true; // No background, disable
+        }
+      } else if (btnType === 'sphere') {
+        const currentValue = this.wizardData.advantages.spheres[btnTarget] || 0;
+        const baselineValue = baselines.spheres[btnTarget] || 0;
+        atBaseline = currentValue <= baselineValue;
+      } else if (btnType === 'willpower') {
+        const currentSpent = this.wizardData.freebies.spent.willpower || 0;
+        atBaseline = currentSpent <= 0; // Can't go below 0 willpower spent
+      }
+      
+      // Disable if at or below baseline
+      $btn.prop('disabled', atBaseline);
     });
   }
 
@@ -2004,7 +2223,8 @@ export class WodCharacterWizard extends FormApplication {
     await this._saveProgress();
     
     // Get backgrounds list
-    const backgroundsList = window.referenceDataService ? await window.referenceDataService.getBackgrounds(this.actorType) : [];
+    const service = game.wod?.referenceDataService;
+    const backgroundsList = service && service.initialized ? service.getBackgroundsList(this.actorType) : [];
     const newIndex = this.wizardData.advantages.backgrounds.length - 1;
     const maxValue = this.config.advantages.backgrounds.maxPerBackground;
     
@@ -2016,10 +2236,13 @@ export class WodCharacterWizard extends FormApplication {
     
     // Create new background item
     const newItem = $(`
-      <div class="background-item">
+      <div class="background-item" data-background-name="">
         <select class="background-select" data-index="${newIndex}">
           ${optionsHTML}
         </select>
+        <button type="button" class="background-reference-btn" data-background-name="" title="View details" style="display: none;">
+          <i class="fas fa-book"></i>
+        </button>
         <div class="background-controls">
           <button type="button" class="bg-decrease" data-index="${newIndex}" disabled>
             <i class="fas fa-minus"></i>
@@ -2043,8 +2266,129 @@ export class WodCharacterWizard extends FormApplication {
     const bgList = html.find('.backgrounds-list');
     bgList.append(newItem);
     
-    // Re-attach listeners for the advantages step
-    this._activateAdvantagesListeners(html);
+    // Attach listeners ONLY to the new item
+    newItem.find('.background-select').on('change', async (event) => {
+      event.preventDefault();
+      document.activeElement?.blur();
+      
+      const index = parseInt(event.currentTarget.dataset.index);
+      const value = event.currentTarget.value;
+      
+      if (this.wizardData.advantages.backgrounds[index]) {
+        this.wizardData.advantages.backgrounds[index].name = value;
+        await this._saveProgress();
+        
+        // Update reference button visibility
+        const $refBtn = newItem.find('.background-reference-btn');
+        
+        if (value && service && service.initialized) {
+          const background = service.getBackgroundByName(value);
+          if (background) {
+            $refBtn.show().data('background', background).attr('data-background-name', value).attr('title', `View ${value} details`);
+            newItem.attr('data-background-name', value);
+          } else {
+            $refBtn.hide().removeData('background').attr('data-background-name', '');
+          }
+        } else {
+          $refBtn.hide().removeData('background').attr('data-background-name', '');
+        }
+      }
+    });
+    
+    newItem.find('.background-reference-btn').click((event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const $button = $(event.currentTarget);
+      const background = $button.data('background');
+      
+      if (background) {
+        // Toggle tooltip on click
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+          this._hideReferenceTooltip();
+        } else {
+          this._showBackgroundTooltip(event, background);
+        }
+      }
+    });
+    
+    newItem.find('.bg-increase').click(async (event) => {
+      const index = parseInt(event.currentTarget.dataset.index);
+      await this._modifyBackground(index, 1);
+    });
+    
+    newItem.find('.bg-decrease').click(async (event) => {
+      const index = parseInt(event.currentTarget.dataset.index);
+      await this._modifyBackground(index, -1);
+    });
+    
+    newItem.find('.remove-background').click(async (event) => {
+      event.preventDefault();
+      document.activeElement?.blur();
+      
+      const index = parseInt(event.currentTarget.dataset.index);
+      this.wizardData.advantages.backgrounds.splice(index, 1);
+      await this._saveProgress();
+      
+      // Remove DOM element
+      $(event.currentTarget).closest('.background-item').remove();
+      
+      // Reindex remaining items
+      html.find('.background-item').each((i, item) => {
+        const $item = $(item);
+        $item.find('.background-select').attr('data-index', i);
+        $item.find('.bg-increase').attr('data-index', i);
+        $item.find('.bg-decrease').attr('data-index', i);
+        $item.find('.remove-background').attr('data-index', i);
+      });
+      
+      // Update validation and buttons
+      const validation = this._validateCurrentStep();
+      if (validation.backgrounds) {
+        const tracker = html.find('.advantage-section:has(h4:contains("Backgrounds")) .points-tracker');
+        tracker.find('.spent').text(validation.backgrounds.spent);
+        tracker.find('.remaining').text(validation.backgrounds.remaining);
+      }
+      this._updateNavigationButtons(html);
+    });
+    
+    newItem.find('.background-select').on('change', async (event) => {
+      event.preventDefault();
+      document.activeElement?.blur();
+      
+      const index = parseInt(event.currentTarget.dataset.index);
+      const value = event.currentTarget.value;
+      
+      if (this.wizardData.advantages.backgrounds[index]) {
+        this.wizardData.advantages.backgrounds[index].name = value;
+        await this._saveProgress();
+      }
+    });
+    
+    // Update validation display and button states
+    const validation = this._validateCurrentStep();
+    if (validation.backgrounds) {
+      const tracker = html.find('.advantage-section:has(h4:contains("Backgrounds")) .points-tracker');
+      tracker.find('.spent').text(validation.backgrounds.spent);
+      tracker.find('.remaining').text(validation.backgrounds.remaining);
+      
+      // Update all background increase button states based on remaining points
+      const doubleCostBgs = this.config.advantages.backgrounds.doubleCost || [];
+      const max = this.config.advantages.backgrounds.maxPerBackground;
+      html.find('.bg-increase').each((i, btn) => {
+        const $btn = $(btn);
+        const bgIndex = parseInt($btn.data('index'));
+        const bg = this.wizardData.advantages.backgrounds[bgIndex];
+        const currentValue = bg?.value || 0;
+        const atMax = currentValue >= max;
+        const bgCostPerDot = doubleCostBgs.includes(bg?.name) ? 2 : 1;
+        const notEnoughPoints = validation.backgrounds.remaining < bgCostPerDot;
+        $btn.prop('disabled', atMax || notEnoughPoints);
+      });
+    }
+    
+    this._updateNavigationButtons(html);
   }
 
   /**
@@ -2061,10 +2405,15 @@ export class WodCharacterWizard extends FormApplication {
     const max = this.config.advantages.backgrounds.maxPerBackground;
     const newValue = Math.max(0, Math.min(max, current + delta));
     
-    // Check if we have points available
+    // Check if this is a double cost background
+    const doubleCostBgs = this.config.advantages.backgrounds.doubleCost || [];
+    const isDoubleCost = doubleCostBgs.includes(background.name);
+    const costPerDot = isDoubleCost ? 2 : 1;
+    
+    // Check if we have enough points available
     const validation = this._validateCurrentStep();
-    if (delta > 0 && validation.backgrounds?.remaining <= 0) {
-      ui.notifications.warn("No more background points available.");
+    if (delta > 0 && validation.backgrounds?.remaining < costPerDot) {
+      ui.notifications.warn(`Not enough background points. ${background.name} costs ${costPerDot} point${costPerDot > 1 ? 's' : ''} per dot.`);
       return;
     }
     
@@ -2108,14 +2457,16 @@ export class WodCharacterWizard extends FormApplication {
       }
       
       // Enable/disable all increase buttons based on remaining points
-      const noPointsLeft = newValidation.backgrounds.remaining <= 0;
+      const doubleCostBgs = this.config.advantages.backgrounds.doubleCost || [];
       html.find('.bg-increase').each((i, btn) => {
         const $btn = $(btn);
         const bgIndex = parseInt($btn.data('index'));
         const bg = this.wizardData.advantages.backgrounds[bgIndex];
         const currentValue = bg?.value || 0;
         const atMax = currentValue >= max;
-        $btn.prop('disabled', atMax || noPointsLeft);
+        const bgCostPerDot = doubleCostBgs.includes(bg?.name) ? 2 : 1;
+        const notEnoughPoints = newValidation.backgrounds.remaining < bgCostPerDot;
+        $btn.prop('disabled', atMax || notEnoughPoints);
       });
     }
     
@@ -2127,12 +2478,71 @@ export class WodCharacterWizard extends FormApplication {
    * Spend freebie point
    */
   async _spendFreebie(type, target, delta, bgName = null) {
-    const cost = this.config.freebies.costs[type];
+    let cost = this.config.freebies.costs[type];
+    
+    // For backgrounds, check if it's a double cost background
+    if (type === 'background') {
+      const doubleCostBgs = this.config.advantages.backgrounds.doubleCost || [];
+      const bgIndex = parseInt(target);
+      let actualBgName = bgName;
+      
+      // If modifying existing background, get its name
+      if (bgIndex >= 0 && bgIndex < this.wizardData.advantages.backgrounds.length) {
+        actualBgName = this.wizardData.advantages.backgrounds[bgIndex].name;
+      }
+      
+      // Double the cost if it's a double cost background
+      if (actualBgName && doubleCostBgs.includes(actualBgName)) {
+        cost = cost * 2; // 1 * 2 = 2 freebie points per dot
+      }
+    }
+    
     const change = cost * delta;
     
     if (delta > 0 && this.wizardData.freebies.remaining < cost) {
       ui.notifications.warn("Not enough freebie points.");
       return;
+    }
+    
+    // Check baseline values for decrease operations
+    const baselines = this.wizardData.freebies.baselines;
+    if (delta < 0 && baselines) {
+      let atBaseline = false;
+      
+      if (type === 'attribute') {
+        const [cat, attr] = target.split('.');
+        const currentValue = this.wizardData.attributes.values[cat][attr];
+        const baselineValue = baselines.attributes[cat][attr];
+        atBaseline = currentValue <= baselineValue;
+      } else if (type === 'ability') {
+        const [cat, ability] = target.split('.');
+        const currentValue = this.wizardData.abilities.values[cat][ability] || 0;
+        const baselineValue = baselines.abilities[cat][ability] || 0;
+        atBaseline = currentValue <= baselineValue;
+      } else if (type === 'background') {
+        const bgIndex = parseInt(target);
+        const bg = this.wizardData.advantages.backgrounds[bgIndex];
+        if (bg) {
+          const currentValue = bg.value || 0;
+          const baselineBg = baselines.backgrounds.find(b => b.name === bg.name);
+          const baselineValue = baselineBg?.value || 0;
+          atBaseline = currentValue <= baselineValue;
+        } else {
+          atBaseline = true;
+        }
+      } else if (type === 'sphere') {
+        const currentValue = this.wizardData.advantages.spheres[target] || 0;
+        const baselineValue = baselines.spheres[target] || 0;
+        atBaseline = currentValue <= baselineValue;
+      } else if (type === 'willpower') {
+        const currentSpent = this.wizardData.freebies.spent.willpower || 0;
+        atBaseline = currentSpent <= 0;
+      }
+      
+      if (atBaseline) {
+        ui.notifications.warn("Cannot decrease below the value set in previous steps.");
+        return;
+      }
     }
     
     let valueChanged = false;
@@ -2143,7 +2553,8 @@ export class WodCharacterWizard extends FormApplication {
       case 'attribute':
         const [attrCat, attrName] = target.split('.');
         const attrCurrent = this.wizardData.attributes.values[attrCat][attrName];
-        const attrNew = Math.max(1, Math.min(5, attrCurrent + delta));
+        const attrBaseline = baselines?.attributes[attrCat][attrName] || 1;
+        const attrNew = Math.max(attrBaseline, Math.min(5, attrCurrent + delta));
         if (attrNew !== attrCurrent) {
           this.wizardData.attributes.values[attrCat][attrName] = attrNew;
           this.wizardData.freebies.remaining -= change;
@@ -2155,7 +2566,8 @@ export class WodCharacterWizard extends FormApplication {
       case 'ability':
         const [abCat, abName] = target.split('.');
         const abCurrent = this.wizardData.abilities.values[abCat][abName] || 0;
-        const abNew = Math.max(0, Math.min(5, abCurrent + delta));
+        const abBaseline = baselines?.abilities[abCat][abName] || 0;
+        const abNew = Math.max(abBaseline, Math.min(5, abCurrent + delta));
         if (abNew !== abCurrent) {
           this.wizardData.abilities.values[abCat][abName] = abNew;
           this.wizardData.freebies.remaining -= change;
@@ -2181,7 +2593,10 @@ export class WodCharacterWizard extends FormApplication {
         // Only proceed if we have a valid index
         if (bgIndex >= 0 && bgIndex < this.wizardData.advantages.backgrounds.length) {
           const bgCurrent = this.wizardData.advantages.backgrounds[bgIndex].value;
-          const bgNew = Math.max(0, Math.min(5, bgCurrent + delta));
+          const bg = this.wizardData.advantages.backgrounds[bgIndex];
+          const baselineBg = baselines?.backgrounds.find(b => b.name === bg.name);
+          const bgBaseline = baselineBg?.value || 0;
+          const bgNew = Math.max(bgBaseline, Math.min(5, bgCurrent + delta));
           if (bgNew !== bgCurrent) {
             this.wizardData.advantages.backgrounds[bgIndex].value = bgNew;
             this.wizardData.freebies.remaining -= change;
@@ -2202,7 +2617,8 @@ export class WodCharacterWizard extends FormApplication {
       case 'sphere':
         const sphereCurrent = this.wizardData.advantages.spheres[target] || 0;
         const enlightenment = this.wizardData.advantages.enlightenment || this.config.advantages.enlightenment.starting;
-        const sphereNew = Math.max(0, Math.min(enlightenment, sphereCurrent + delta));
+        const sphereBaseline = baselines?.spheres[target] || 0;
+        const sphereNew = Math.max(sphereBaseline, Math.min(enlightenment, sphereCurrent + delta));
         if (sphereNew !== sphereCurrent) {
           this.wizardData.advantages.spheres[target] = sphereNew;
           this.wizardData.freebies.remaining -= change;
@@ -2274,11 +2690,21 @@ export class WodCharacterWizard extends FormApplication {
     html.find('.freebies-remaining .value').text(`${this.wizardData.freebies.remaining} / ${actualTotal}`);
     
     // Update all increase buttons based on remaining freebies and current values
+    const doubleCostBgs = this.config.advantages.backgrounds.doubleCost || [];
     html.find('.freebie-increase').each((i, btn) => {
       const $btn = $(btn);
       const btnType = $btn.data('type');
       const btnTarget = $btn.data('target');
-      const btnCost = this.config.freebies.costs[btnType];
+      let btnCost = this.config.freebies.costs[btnType];
+      
+      // For backgrounds, check if it's a double cost background
+      if (btnType === 'background') {
+        const bgIndex = parseInt(btnTarget);
+        const bgName = this.wizardData.advantages.backgrounds[bgIndex]?.name;
+        if (bgName && doubleCostBgs.includes(bgName)) {
+          btnCost = btnCost * 2; // Double the cost
+        }
+      }
       
       // Check if we have enough freebies
       const notEnoughFreebies = this.wizardData.freebies.remaining < btnCost;
@@ -2309,6 +2735,9 @@ export class WodCharacterWizard extends FormApplication {
       // Enable or disable based on both conditions
       $btn.prop('disabled', notEnoughFreebies || atMaxValue);
     });
+    
+    // Update decrease button states based on baselines
+    this._updateFreebiesButtonStates(html);
     
     // Update navigation buttons
     this._updateNavigationButtons(html);

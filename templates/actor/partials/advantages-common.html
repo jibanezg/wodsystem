@@ -35,7 +35,7 @@
         <h4>Backgrounds</h4>
         <div class="background-list">
             {{#each backgroundsPagination.backgrounds as |background|}}
-            <div class="background-item">
+            <div class="background-item" data-background-name="{{#if (eq background.name 'Custom')}}{{background.customName}}{{else}}{{background.name}}{{/if}}">
                 {{#if (eq background.name "Custom")}}
                 <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
                        value="{{background.customName}}" placeholder="Custom Background" 
@@ -60,6 +60,11 @@
                     <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
                     {{/each}}
                 </select>
+                {{/if}}
+                {{#if (and (ne background.name "Custom") background.name)}}
+                <button type="button" class="background-reference-btn" data-background-name="{{background.name}}" title="View {{background.name}} details">
+                    <i class="fas fa-book"></i>
+                </button>
                 {{/if}}
                 <div class="dot-container" data-background="{{background.actualIndex}}">
                     {{#times 5}}

@@ -10,6 +10,12 @@
       <!-- Backgrounds -->
       <div class="advantage-section">
         <h4>Backgrounds ({{config.advantages.backgrounds.points}} points)</h4>
+        {{#if config.advantages.backgrounds.doubleCost}}
+        <p class="note double-cost-note">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>{{#each config.advantages.backgrounds.doubleCost}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong> cost 2 points per dot
+        </p>
+        {{/if}}
         
         {{#if validation.backgrounds}}
         <div class="points-tracker">
@@ -23,13 +29,18 @@
         
         <div class="backgrounds-list">
           {{#each wizardData.advantages.backgrounds}}
-          <div class="background-item">
+          <div class="background-item" data-background-name="{{name}}">
             <select class="background-select" data-index="{{@index}}">
               <option value="">-- Select Background --</option>
               {{#each @root.backgroundsList}}
               <option value="{{this}}" {{#if (eq this ../name)}}selected{{/if}}>{{this}}</option>
               {{/each}}
             </select>
+            {{#if name}}
+            <button type="button" class="background-reference-btn" data-background-name="{{name}}" title="View {{name}} details">
+              <i class="fas fa-book"></i>
+            </button>
+            {{/if}}
             <div class="background-controls">
               <button type="button" class="bg-decrease" data-index="{{@index}}" {{#if (eq (default value 0) 0)}}disabled{{/if}}>
                 <i class="fas fa-minus"></i>

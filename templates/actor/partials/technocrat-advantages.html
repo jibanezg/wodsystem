@@ -115,6 +115,11 @@
                     {{/each}}
                 </select>
                 {{/if}}
+                {{#if (and (ne background.name "Custom") background.name)}}
+                <button type="button" class="background-reference-btn" data-background-name="{{background.name}}" title="View {{background.name}} details">
+                    <i class="fas fa-book"></i>
+                </button>
+                {{/if}}
                 <div class="dot-container" data-background="{{background.actualIndex}}">
                     {{#times 5}}
                     <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}}" data-index="{{@index}}"></div>

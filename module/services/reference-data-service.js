@@ -10,6 +10,7 @@ export class ReferenceDataService {
         this.data = {
             merits: [],
             flaws: [],
+            backgrounds: [],
             abilities: [],
             spheres: [],
             attributes: []
@@ -27,6 +28,7 @@ export class ReferenceDataService {
         
         try {
             await this.loadMeritsFlaws();
+            await this.loadBackgrounds();
             this.buildTrieIndices();
             this.initialized = true;
             console.log("WoD System | Reference Data Service initialized successfully");
@@ -54,6 +56,26 @@ export class ReferenceDataService {
             console.error("WoD System | Error loading merits/flaws:", error);
             this.data.merits = [];
             this.data.flaws = [];
+        }
+    }
+
+    /**
+     * Load backgrounds from JSON
+     */
+    async loadBackgrounds() {
+        try {
+            const response = await fetch('systems/wodsystem/datasource/backgrounds.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load backgrounds.json: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            this.data.backgrounds = data.backgrounds || [];
+            
+            console.log(`WoD System | Loaded ${this.data.backgrounds.length} backgrounds`);
+        } catch (error) {
+            console.error("WoD System | Error loading backgrounds:", error);
+            this.data.backgrounds = [];
         }
     }
 
@@ -115,7 +137,7 @@ export class ReferenceDataService {
     search(query, options = {}) {
         if (!this.initialized || !query) return [];
         
-        const { category, type, minCost, maxCost } = options;
+        const { category, type, minCost, maxCost, actorType } = options;
         
         // Get trie results
         let results = this.trieIndices.meritsFlaws.search(query);
@@ -133,6 +155,15 @@ export class ReferenceDataService {
         
         if (type) {
             filtered = filtered.filter(r => r.type === type);
+        }
+        
+        // Filter by actor type (mage, technocrat, or both)
+        if (actorType) {
+            const normalizedActorType = actorType.toLowerCase();
+            filtered = filtered.filter(r => {
+                const availableTo = r.availableTo || 'both';
+                return availableTo === 'both' || availableTo === normalizedActorType;
+            });
         }
         
         if (minCost !== undefined) {
@@ -245,6 +276,92 @@ export class ReferenceDataService {
      */
     getFlawsByType(type) {
         return this.data.flaws.filter(f => f.type === type);
+    }
+
+    /**
+     * Get background by name (case-insensitive)
+     * @param {string} name - Background name
+     * @returns {object|null} Background data or null
+     */
+    getBackgroundByName(name) {
+        if (!this.initialized || !name) return null;
+        
+        const normalized = name.trim().toLowerCase();
+        return this.data.backgrounds.find(bg => bg.name.toLowerCase() === normalized) || null;
+    }
+
+    /**
+     * Get all backgrounds as a sorted list, optionally filtered by actor type
+     * @param {string} actorType - Optional actor type filter (e.g., "Technocrat", "Mage")
+     * @returns {Array} Array of background names
+     */
+    getBackgroundsList(actorType = null) {
+        if (!this.initialized) return [];
+        
+        let backgrounds = this.data.backgrounds;
+        
+        // Filter by actor type if provided
+        if (actorType) {
+            const normalizedActorType = actorType.toLowerCase();
+            backgrounds = backgrounds.filter(bg => {
+                const availableTo = bg.availableTo || 'both';
+                return availableTo === 'both' || availableTo === normalizedActorType;
+            });
+        }
+        
+        // Return sorted list of names
+        return backgrounds
+            .map(bg => bg.name)
+            .sort((a, b) => a.localeCompare(b));
+    }
+
+    /**
+     * Check if a background has double cost
+     * @param {string} name - Background name
+     * @returns {boolean} True if background costs 2 points per dot
+     */
+    isDoubleCostBackground(name) {
+        if (!this.initialized || !name) return false;
+        
+        const background = this.getBackgroundByName(name);
+        return background ? (background.doubleCost === true) : false;
+    }
+
+    /**
+     * Generate HTML for background tooltip display
+     * @param {object} background - Background item
+     * @returns {string} HTML string
+     */
+    generateBackgroundTooltipHTML(background) {
+        if (!background) return '';
+        
+        const description = background.description.length > 200 
+            ? background.description.substring(0, 200) + '...' 
+            : background.description;
+        
+        const maxRating = background.maxRating || 5;
+        const doubleCostNote = background.doubleCost ? ' (2 pts/dot)' : '';
+        const canExceedNote = background.canExceedFive ? ` (max ${maxRating})` : '';
+        
+        return `
+            <div class="reference-tooltip-inner">
+                <h4>${background.name} <span class="cost">Background${doubleCostNote}${canExceedNote}</span></h4>
+                <span class="type-badge background">Background</span>
+                <p class="description">${description}</p>
+                ${background.costLevels && background.costLevels.length > 0 ? `
+                    <div class="cost-levels-preview">
+                        <strong>Levels:</strong>
+                        <ul>
+                            ${background.costLevels.slice(0, 3).map(level => 
+                                `<li>${level.label} ${level.description}</li>`
+                            ).join('')}
+                            ${background.costLevels.length > 3 ? '<li><em>...and more</em></li>' : ''}
+                        </ul>
+                    </div>
+                ` : ''}
+                <p class="tooltip-hint"><em>Click to post full details to chat</em></p>
+            </div>
+        `;
     }
 }
 
