@@ -9,8 +9,7 @@ import { registerHandlebarsHelpers } from "./scripts/utilities.js";
 import { WodCharacterWizard } from "./module/character-creation/wod-character-wizard.js";
 
 // Import Services
-import "./scripts/reference-data-service.js"; // External data (archetypes, backgrounds)
-import { ReferenceDataService } from "./module/services/reference-data-service.js"; // Merits, flaws, etc.
+import { ReferenceDataService } from "./module/services/reference-data-service.js"; // Merits, flaws, backgrounds
 
 Hooks.once("init", async function() {
     console.log("WoD | Initializing World of Darkness System");
