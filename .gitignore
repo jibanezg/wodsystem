@@ -26,6 +26,7 @@ yarn-error.log*
 *.temp
 
 # Copyrighted content and extraction tools (local use only)
-docs/
-scripts/extraction/
-datasource/ 
+source-materials/      # Copyrighted source files (.md)
+datasource/           # Extracted data (backgrounds.json, merits_flaws.json)
+scripts/extraction/   # Python extraction scripts
+docs/                 # Documentation and reports 
