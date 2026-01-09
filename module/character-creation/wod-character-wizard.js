@@ -130,7 +130,7 @@ export class WodCharacterWizard extends FormApplication {
       }
     }
 
-    console.log('🎯 INITIALIZED ABILITY VALUES:', abilityValues);
+    // console.log('🎯 INITIALIZED ABILITY VALUES:', abilityValues);
     return abilityValues;
   }
 
@@ -146,7 +146,7 @@ export class WodCharacterWizard extends FormApplication {
       for (const sphereKey in this.config.advantages.spheres.available) {
         spheres[sphereKey] = 0;
       }
-      console.log('🎯 INITIALIZED SPHERE VALUES:', spheres);
+      // console.log('🎯 INITIALIZED SPHERE VALUES:', spheres);
     }
     
     return spheres;
@@ -220,7 +220,7 @@ export class WodCharacterWizard extends FormApplication {
       
       // Recalculate if no freebies have been spent in this step yet (allows for changes to merits/flaws)
       if (freebiesSpentInStep === 0) {
-        console.log(`💰 getData - Calculating freebies: ${this.config.freebies.total} + ${freebieBonus} (flaws) - ${enlightenmentSpent} (enlightenment) = ${baseFreebiesTotalWithBonus - enlightenmentSpent}`);
+        // console.log(`💰 getData - Calculating freebies: ${this.config.freebies.total} + ${freebieBonus} (flaws) - ${enlightenmentSpent} (enlightenment) = ${baseFreebiesTotalWithBonus - enlightenmentSpent}`);
         this.wizardData.freebies.remaining = baseFreebiesTotalWithBonus - enlightenmentSpent;
         
         // Capture baseline values when first entering freebies step
@@ -236,10 +236,10 @@ export class WodCharacterWizard extends FormApplication {
             spheres: JSON.parse(JSON.stringify(this.wizardData.advantages.spheres)),
             willpower: 0 // Willpower starts at 0 in freebies
           };
-          console.log('💰 Captured baselines:', this.wizardData.freebies.baselines);
+          // console.log('💰 Captured baselines:', this.wizardData.freebies.baselines);
         }
       } else {
-        console.log(`💰 getData - Freebies step, already spent ${freebiesSpentInStep} in this step, remaining: ${this.wizardData.freebies.remaining}`);
+        // console.log(`💰 getData - Freebies step, already spent ${freebiesSpentInStep} in this step, remaining: ${this.wizardData.freebies.remaining}`);
       }
     }
     
@@ -386,32 +386,32 @@ export class WodCharacterWizard extends FormApplication {
       // Capture scroll position IMMEDIATELY
       const scrollElement = this.element.find('.window-content');
       const scrollPosAtEvent = scrollElement.scrollTop();
-      console.log('📜 SCROLL DEBUG - AT EVENT TIME:', scrollPosAtEvent);
+      // console.log('📜 SCROLL DEBUG - AT EVENT TIME:', scrollPosAtEvent);
       
       const category = event.currentTarget.dataset.category;  // e.g., "physical"
       const newPriority = event.currentTarget.value;          // e.g., "primary"
       
-      console.log('🔄 Priority change EVENT:', {category, newPriority});
-      console.log('🔄 Event target:', event.currentTarget);
-      console.log('🔄 Dataset:', event.currentTarget.dataset);
-      console.log('🔄 Value:', event.currentTarget.value);
-      console.log('🔄 Before:', JSON.parse(JSON.stringify(this.wizardData.attributes.prioritySelection)));
+      // console.log('🔄 Priority change EVENT:', {category, newPriority});
+      // console.log('🔄 Event target:', event.currentTarget);
+      // console.log('🔄 Dataset:', event.currentTarget.dataset);
+      // console.log('🔄 Value:', event.currentTarget.value);
+      // console.log('🔄 Before:', JSON.parse(JSON.stringify(this.wizardData.attributes.prioritySelection)));
       
       if (!newPriority) {
-        console.log('🔄 Clearing category from all priorities (newPriority is empty)');
+        // console.log('🔄 Clearing category from all priorities (newPriority is empty)');
         // Clear this category from all priorities if deselecting
         for (const priority of ['primary', 'secondary', 'tertiary']) {
           if (this.wizardData.attributes.prioritySelection[priority] === category) {
-            console.log(`🔄 Clearing ${priority} (was ${category})`);
+            // console.log(`🔄 Clearing ${priority} (was ${category})`);
             this.wizardData.attributes.prioritySelection[priority] = null;
           }
         }
       } else {
-        console.log('🔄 Assigning new priority...');
+        // console.log('🔄 Assigning new priority...');
         // Step 1: Clear this category from any priority it currently has
         for (const priority of ['primary', 'secondary', 'tertiary']) {
           if (this.wizardData.attributes.prioritySelection[priority] === category) {
-            console.log(`🔄 Step 1: Clearing ${priority} because it was assigned to ${category}`);
+            // console.log(`🔄 Step 1: Clearing ${priority} because it was assigned to ${category}`);
             this.wizardData.attributes.prioritySelection[priority] = null;
           }
         }
@@ -419,16 +419,16 @@ export class WodCharacterWizard extends FormApplication {
         // Step 2: Clear the new priority from any category that has it
         const oldCategory = this.wizardData.attributes.prioritySelection[newPriority];
         if (oldCategory) {
-          console.log(`🔄 Step 2: Clearing ${newPriority} (was ${oldCategory})`);
+          // console.log(`🔄 Step 2: Clearing ${newPriority} (was ${oldCategory})`);
           this.wizardData.attributes.prioritySelection[newPriority] = null;
         }
         
         // Step 3: Assign the new priority to this category
-        console.log(`🔄 Step 3: Assigning ${newPriority} = ${category}`);
+        // console.log(`🔄 Step 3: Assigning ${newPriority} = ${category}`);
         this.wizardData.attributes.prioritySelection[newPriority] = category;
       }
       
-      console.log('🔄 After:', JSON.parse(JSON.stringify(this.wizardData.attributes.prioritySelection)));
+      // console.log('🔄 After:', JSON.parse(JSON.stringify(this.wizardData.attributes.prioritySelection)));
       
       // Save progress
       await this._saveProgress();
@@ -439,7 +439,7 @@ export class WodCharacterWizard extends FormApplication {
       
       if (needsRender) {
         // First time all 3 priorities are set - need full render to create controls
-        console.log('🔄 Structure changed, doing full render');
+        // console.log('🔄 Structure changed, doing full render');
         
         // Store scroll and focus
         const scrollElement = this.element.find('.window-content')[0];
@@ -459,7 +459,7 @@ export class WodCharacterWizard extends FormApplication {
         }
       } else {
         // Just update dropdown values, no render needed
-        console.log('🔄 Just updating dropdowns, no render');
+        // console.log('🔄 Just updating dropdowns, no render');
         const html = this.element;
         html.find('.priority-select').each((i, select) => {
           const category = $(select).data('category');
@@ -495,7 +495,7 @@ export class WodCharacterWizard extends FormApplication {
     
     // Restore dropdown values on initial load
     setTimeout(() => {
-      console.log('🔄 Initial dropdown restoration for attributes');
+      // console.log('🔄 Initial dropdown restoration for attributes');
       html.find('.priority-select').each((i, select) => {
         const category = $(select).data('category');
         let selectedPriority = '';
@@ -508,7 +508,7 @@ export class WodCharacterWizard extends FormApplication {
           }
         }
         
-        console.log(`📋 Initial restore: ${category} -> ${selectedPriority}`);
+        // console.log(`📋 Initial restore: ${category} -> ${selectedPriority}`);
         $(select).val(selectedPriority);
       });
     }, 0);
@@ -526,7 +526,7 @@ export class WodCharacterWizard extends FormApplication {
       // Capture scroll position IMMEDIATELY
       const scrollElement = this.element.find('.window-content');
       const scrollPosAtEvent = scrollElement.scrollTop();
-      console.log('📜 ABILITIES SCROLL - AT EVENT TIME:', scrollPosAtEvent);
+      // console.log('📜 ABILITIES SCROLL - AT EVENT TIME:', scrollPosAtEvent);
       
       const category = event.currentTarget.dataset.category;  // e.g., "talents"
       const newPriority = event.currentTarget.value;          // e.g., "primary"
@@ -564,18 +564,18 @@ export class WodCharacterWizard extends FormApplication {
       const selected = Object.values(prioritySelection).filter(v => v !== null);
       const needsRender = selected.length === 3 && this.element.find('.ability-category .points-tracker').length === 0;
       
-      console.log('🔄 ABILITIES - Selected priorities:', selected.length);
-      console.log('🔄 ABILITIES - Trackers found:', this.element.find('.ability-category .points-tracker').length);
-      console.log('🔄 ABILITIES - Needs render:', needsRender);
+      // console.log('🔄 ABILITIES - Selected priorities:', selected.length);
+      // console.log('🔄 ABILITIES - Trackers found:', this.element.find('.ability-category .points-tracker').length);
+      // console.log('🔄 ABILITIES - Needs render:', needsRender);
       
       if (needsRender) {
         // First time all 3 priorities are set - need full render to create controls
-        console.log('🔄 ABILITIES - Structure changed, doing full render');
+        // console.log('🔄 ABILITIES - Structure changed, doing full render');
         
         // Store scroll and focus
         const scrollElement = this.element.find('.window-content')[0];
         const scrollPos = scrollElement ? scrollElement.scrollTop : 0;
-        console.log('📜 ABILITIES - Saving scroll position:', scrollPos);
+        // console.log('📜 ABILITIES - Saving scroll position:', scrollPos);
         const activeElement = document.activeElement;
         if (activeElement) activeElement.blur();
         
@@ -586,7 +586,7 @@ export class WodCharacterWizard extends FormApplication {
         if (newScrollElement) {
           const forceScroll = () => {
             newScrollElement.scrollTop = scrollPos;
-            console.log('📜 ABILITIES - Forced scroll to:', scrollPos, 'actual:', newScrollElement.scrollTop);
+            // console.log('📜 ABILITIES - Forced scroll to:', scrollPos, 'actual:', newScrollElement.scrollTop);
           };
           
           forceScroll();
@@ -615,7 +615,7 @@ export class WodCharacterWizard extends FormApplication {
         }, 0);
       } else {
         // Just update dropdown values, no render needed
-        console.log('🔄 ABILITIES - Just updating dropdowns, no render');
+        // console.log('🔄 ABILITIES - Just updating dropdowns, no render');
         const html = this.element;
         html.find('.priority-select').each((i, select) => {
           const category = $(select).data('category');
@@ -671,24 +671,24 @@ export class WodCharacterWizard extends FormApplication {
     html.on('click', '.ability-item.secondary .ability-increase', async (event) => {
       event.preventDefault();
       event.stopPropagation();
-      console.log('🔘 SECONDARY ABILITY CLICK - Increase button clicked');
+      // console.log('🔘 SECONDARY ABILITY CLICK - Increase button clicked');
       const $item = $(event.currentTarget).closest('.ability-item.secondary');
       const index = parseInt($item.data('index'));
       const $section = $item.closest('.secondary-abilities');
       const category = $section.data('category');
-      console.log(`🔘 SECONDARY ABILITY CLICK - category: ${category}, index: ${index}`);
+      // console.log(`🔘 SECONDARY ABILITY CLICK - category: ${category}, index: ${index}`);
       await this._modifySecondaryAbility(category, index, 1);
     });
 
     html.on('click', '.ability-item.secondary .ability-decrease', async (event) => {
       event.preventDefault();
       event.stopPropagation();
-      console.log('🔘 SECONDARY ABILITY CLICK - Decrease button clicked');
+      // console.log('🔘 SECONDARY ABILITY CLICK - Decrease button clicked');
       const $item = $(event.currentTarget).closest('.ability-item.secondary');
       const index = parseInt($item.data('index'));
       const $section = $item.closest('.secondary-abilities');
       const category = $section.data('category');
-      console.log(`🔘 SECONDARY ABILITY CLICK - category: ${category}, index: ${index}`);
+      // console.log(`🔘 SECONDARY ABILITY CLICK - category: ${category}, index: ${index}`);
       await this._modifySecondaryAbility(category, index, -1);
     });
 
@@ -700,7 +700,7 @@ export class WodCharacterWizard extends FormApplication {
     
     // Restore dropdown values on initial load
     setTimeout(() => {
-      console.log('🔄 Initial dropdown restoration for abilities');
+      // console.log('🔄 Initial dropdown restoration for abilities');
       html.find('.priority-select').each((i, select) => {
         const category = $(select).data('category');
         let selectedPriority = '';
@@ -713,14 +713,14 @@ export class WodCharacterWizard extends FormApplication {
           }
         }
         
-        console.log(`📋 Initial restore: ${category} -> ${selectedPriority}`);
+        // console.log(`📋 Initial restore: ${category} -> ${selectedPriority}`);
         $(select).val(selectedPriority);
       });
     }, 0);
     
     // Debug: Check how many secondary ability buttons exist
-    console.log(`🔘 SECONDARY ABILITY LISTENERS - Found ${html.find('.ability-item.secondary .ability-increase').length} increase buttons`);
-    console.log(`🔘 SECONDARY ABILITY LISTENERS - Found ${html.find('.ability-item.secondary .ability-decrease').length} decrease buttons`);
+    // console.log(`🔘 SECONDARY ABILITY LISTENERS - Found ${html.find('.ability-item.secondary .ability-increase').length} increase buttons`);
+    // console.log(`🔘 SECONDARY ABILITY LISTENERS - Found ${html.find('.ability-item.secondary .ability-decrease').length} decrease buttons`);
   }
 
   /**
@@ -803,11 +803,11 @@ export class WodCharacterWizard extends FormApplication {
       const $button = $(event.currentTarget);
       const backgroundName = $button.attr('data-background-name');
       
-      console.log('Background reference button clicked in advantages step:', backgroundName);
+      // console.log('Background reference button clicked in advantages step:', backgroundName);
       
       if (backgroundName && service && service.initialized) {
         const background = service.getBackgroundByName(backgroundName);
-        console.log('Found background data:', background);
+        // console.log('Found background data:', background);
         if (background) {
           // Toggle tooltip on click
           const existingTooltip = $('.wod-reference-tooltip');
@@ -1932,11 +1932,11 @@ export class WodCharacterWizard extends FormApplication {
       const $button = $(event.currentTarget);
       const backgroundName = $button.attr('data-background-name');
       
-      console.log('Background reference button clicked in freebies step:', backgroundName);
+      // console.log('Background reference button clicked in freebies step:', backgroundName);
       
       if (backgroundName && service && service.initialized) {
         const background = service.getBackgroundByName(backgroundName);
-        console.log('Found background data:', background);
+        // console.log('Found background data:', background);
         if (background) {
           // Toggle tooltip on click
           const existingTooltip = $('.wod-reference-tooltip');
@@ -2230,7 +2230,7 @@ export class WodCharacterWizard extends FormApplication {
     const targetItem = html.find(`.secondary-abilities[data-category="${category}"] .ability-item.secondary[data-index="${index}"]`);
     
     if (targetItem.length) {
-      console.log(`🔄 SECONDARY ABILITY UPDATE - ${category}[${index}]: ${current} -> ${newValue}`);
+      // console.log(`🔄 SECONDARY ABILITY UPDATE - ${category}[${index}]: ${current} -> ${newValue}`);
       
       // Update the value display
       targetItem.find('.ability-value').text(newValue);
@@ -2238,7 +2238,7 @@ export class WodCharacterWizard extends FormApplication {
       // Update the dots using the helper
       const dotsDiv = targetItem.find('.ability-dots');
       const dotsHtml = Handlebars.helpers.renderDots(newValue, max);
-      console.log(`🔄 SECONDARY ABILITY UPDATE - Dots HTML:`, dotsHtml.toString());
+      // console.log(`🔄 SECONDARY ABILITY UPDATE - Dots HTML:`, dotsHtml.toString());
       dotsDiv.html(dotsHtml.toString());
       
       // Update button states
@@ -2483,7 +2483,7 @@ export class WodCharacterWizard extends FormApplication {
     const bgItem = html.find(`.background-item:has(.background-select[data-index="${index}"])`);
     
     if (bgItem.length) {
-      console.log(`🔄 BACKGROUND UPDATE - [${index}] ${background.name}: ${current} -> ${newValue}`);
+      // console.log(`🔄 BACKGROUND UPDATE - [${index}] ${background.name}: ${current} -> ${newValue}`);
       
       // Update the value display
       bgItem.find('.bg-value').text(newValue);
@@ -2840,8 +2840,8 @@ export class WodCharacterWizard extends FormApplication {
     const finishButton = html.find('.wizard-finish');
     
     // Debug logging
-    console.log('Validation result:', validation);
-    console.log('Current step data:', this.wizardData[this.config.steps[this.currentStep].id]);
+    // console.log('Validation result:', validation);
+    // console.log('Current step data:', this.wizardData[this.config.steps[this.currentStep].id]);
     
     if (validation.valid) {
       nextButton.prop('disabled', false).removeClass('disabled');
@@ -2874,7 +2874,7 @@ export class WodCharacterWizard extends FormApplication {
     
     // Final validation
     const validation = this.validator.validateAll(this.wizardData);
-    console.log('🏁 FINISH - Final validation:', validation);
+    // console.log('🏁 FINISH - Final validation:', validation);
     if (!validation.valid) {
       ui.notifications.error(`Character creation incomplete: ${validation.message}`);
       console.error('🏁 FINISH - Validation failed:', validation);
@@ -2935,7 +2935,7 @@ export class WodCharacterWizard extends FormApplication {
    * Apply wizard data to actor
    */
   async _applyToActor() {
-    console.log('🎯 APPLY TO ACTOR - Starting...');
+    // console.log('🎯 APPLY TO ACTOR - Starting...');
     
     const updateData = {};
     
@@ -2988,21 +2988,21 @@ export class WodCharacterWizard extends FormApplication {
     }
     
     // Backgrounds - filter out backgrounds with no name or value
-    console.log('🎯 BACKGROUNDS CHECK - Raw array:', JSON.stringify(this.wizardData.advantages.backgrounds));
+    // console.log('🎯 BACKGROUNDS CHECK - Raw array:', JSON.stringify(this.wizardData.advantages.backgrounds));
     
     const validBackgrounds = this.wizardData.advantages.backgrounds.filter(bg => {
       const isValid = bg.name && bg.name.trim() !== "" && bg.value > 0;
       if (!isValid) {
-        console.log('🎯 BACKGROUNDS - Filtering out invalid:', bg);
+        // console.log('🎯 BACKGROUNDS - Filtering out invalid:', bg);
       }
       return isValid;
     });
     
-    console.log('🎯 BACKGROUNDS CHECK - Valid backgrounds:', JSON.stringify(validBackgrounds));
+    // console.log('🎯 BACKGROUNDS CHECK - Valid backgrounds:', JSON.stringify(validBackgrounds));
     
     // Always set backgrounds (even if empty array) to ensure initialization
     updateData["system.miscellaneous.backgrounds"] = validBackgrounds;
-    console.log('🎯 BACKGROUNDS - Setting', validBackgrounds.length, 'backgrounds to system.miscellaneous.backgrounds');
+    // console.log('🎯 BACKGROUNDS - Setting', validBackgrounds.length, 'backgrounds to system.miscellaneous.backgrounds');
     
     // Willpower (base + freebies)
     const baseWillpower = this.config.advantages.willpower.starting;
@@ -3011,12 +3011,12 @@ export class WodCharacterWizard extends FormApplication {
     updateData["system.miscellaneous.willpower.permanent"] = totalWillpower;
     updateData["system.miscellaneous.willpower.temporary"] = totalWillpower;
     
-    console.log('🎯 WILLPOWER - Base:', baseWillpower, 'Freebies:', freebieWillpower, 'Total:', totalWillpower);
+    // console.log('🎯 WILLPOWER - Base:', baseWillpower, 'Freebies:', freebieWillpower, 'Total:', totalWillpower);
     
     // Apply update
     await this.actor.update(updateData);
     
-    console.log('🎯 APPLY TO ACTOR - Update complete. Backgrounds applied:', updateData["system.miscellaneous.backgrounds"]);
+    // console.log('🎯 APPLY TO ACTOR - Update complete. Backgrounds applied:', updateData["system.miscellaneous.backgrounds"]);
   }
 
   /**

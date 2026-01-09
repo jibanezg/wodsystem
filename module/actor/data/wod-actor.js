@@ -322,7 +322,7 @@ export class WodActor extends Actor {
         
         for (const category in this.system.attributes) {
             if (this.system.attributes[category][attributeName]) {
-                return this.system.attributes[category][attributeName];
+                return parseInt(this.system.attributes[category][attributeName]) || 0;
             }
         }
         return 0;
@@ -339,7 +339,7 @@ export class WodActor extends Actor {
         
         for (const category in this.system.abilities) {
             if (this.system.abilities[category][abilityName]) {
-                return this.system.abilities[category][abilityName];
+                return parseInt(this.system.abilities[category][abilityName]) || 0;
             }
         }
         
@@ -349,7 +349,7 @@ export class WodActor extends Actor {
                 const abilities = this.system.secondaryAbilities[category];
                 if (Array.isArray(abilities)) {
                     const found = abilities.find(a => a.name === abilityName);
-                    if (found) return found.value || 0;
+                    if (found) return parseInt(found.value) || 0;
                 }
             }
         }
@@ -1134,7 +1134,8 @@ export class WodActor extends Actor {
             const value = this._findAttributeValue(trait.name) || 
                          this._findAbilityValue(trait.name) || 
                          trait.value;
-            totalPool += value;
+            // Ensure value is parsed as integer to prevent string concatenation
+            totalPool += parseInt(value) || 0;
         }
         
         await this.rollPool(template.name, totalPool, {

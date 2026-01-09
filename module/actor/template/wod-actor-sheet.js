@@ -31,6 +31,12 @@ export class WodActorSheet extends ActorSheet {
             this._positionUpdateInterval = null;
         }
         
+        // Clean up wizard check interval
+        if (this._wizardCheckInterval) {
+            clearInterval(this._wizardCheckInterval);
+            this._wizardCheckInterval = null;
+        }
+        
         // Clean up panel if open
         this._destroyQuickRollsPanel();
         
@@ -1605,8 +1611,8 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddWeapon(event) {
         event.preventDefault();
-        console.log("Add weapon clicked!");
-        console.log("Current equipment:", this.actor.system.equipment);
+        // console.log("Add weapon clicked!");
+        // console.log("Current equipment:", this.actor.system.equipment);
         
         // Convert weapons to array (Foundry sometimes stores as object)
         let weaponsData = this.actor.system.equipment?.weapons;
@@ -1614,7 +1620,7 @@ export class WodActorSheet extends ActorSheet {
             ? foundry.utils.duplicate(weaponsData)
             : Object.values(weaponsData || {});
         
-        console.log("Current weapons (converted to array):", weapons);
+        // console.log("Current weapons (converted to array):", weapons);
         
         const newWeapon = {
             id: foundry.utils.randomID(),
@@ -3572,7 +3578,11 @@ export class WodActorSheet extends ActorSheet {
             console.warn('WoD | Could not create Quick Rolls trigger: window-app not found');
             return;
         }
-        console.log('WoD | Creating Quick Rolls trigger for app', this.appId);
+        
+        // Don't create button for uncreated characters (they need to go through wizard)
+        if (!this.actor.system.isCreated) {
+            return;
+        }
         
         // Remove existing trigger if any
         const existingTrigger = document.querySelector(`.quick-rolls-trigger[data-app-id="${this.appId}"]`);
@@ -3651,6 +3661,18 @@ export class WodActorSheet extends ActorSheet {
         
         // Continuously update position to follow window movement
         this._positionUpdateInterval = setInterval(this._updateTriggerPosition, 50);
+        
+        // Monitor for wizard windows and hide/show button accordingly
+        this._wizardCheckInterval = setInterval(() => {
+            const wizardOpen = document.querySelector('.window-app.character-wizard');
+            const currentDisplay = trigger.style.display;
+            
+            if (wizardOpen && currentDisplay !== 'none') {
+                trigger.style.display = 'none';
+            } else if (!wizardOpen && currentDisplay === 'none') {
+                trigger.style.display = 'flex';
+            }
+        }, 500);
     }
 
     /**

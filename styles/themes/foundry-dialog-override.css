@@ -99,7 +99,9 @@
 
 .app.dialog form,
 .window-app.dialog form,
-form.wod-roll-dialog {
+form.wod-roll-dialog,
+form.wod-effect-manager,
+form.wod-st-approval-dialog {
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
@@ -112,7 +114,9 @@ form.wod-roll-dialog {
 
 .app.dialog form > *,
 .window-app.dialog form > *,
-form.wod-roll-dialog > * {
+form.wod-roll-dialog > *,
+form.wod-effect-manager > *,
+form.wod-st-approval-dialog > * {
     display: block !important;
     visibility: visible !important;
     width: 100% !important;
@@ -120,10 +124,15 @@ form.wod-roll-dialog > * {
     box-sizing: border-box !important;
 }
 
-/* Add spacing between rows */
-form.wod-roll-dialog > .active-effects-section,
+/* Add spacing between rows - use margin-top for consistent gaps */
+form.wod-roll-dialog > .active-effects-section {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
 form.wod-roll-dialog > .saved-rolls {
     margin-top: 20px !important;
+    margin-bottom: 0 !important;
 }
 
 form.wod-roll-dialog > .dialog-buttons {
@@ -159,6 +168,17 @@ form.wod-roll-dialog > .dialog-buttons {
     width: auto !important;
     box-sizing: border-box !important;
     margin-bottom: 12px !important;
+}
+
+/* Exception: Allow condition-target-group to be hidden by JavaScript */
+form.wod-effect-manager .condition-target-group {
+    display: block !important;
+    flex-direction: column !important;
+    width: 100% !important;
+}
+
+form.wod-effect-manager .condition-target-group[style*="display: none"] {
+    display: none !important;
 }
 
 .app.dialog .form-group label,
@@ -274,32 +294,64 @@ form.wod-roll-dialog .checkbox-group label {
     flex-shrink: 0 !important;
 }
 
-/* Roll button - green */
+/* Primary action buttons - green */
 .app.dialog button.roll-button,
+.app.dialog button.save-effect,
+.app.dialog button.approve-button,
 .window-app.dialog button.roll-button,
-.app.dialog .dialog-buttons button:first-child,
-.window-app.dialog .dialog-buttons button:first-child {
+.window-app.dialog button.save-effect,
+.window-app.dialog button.approve-button,
+form.wod-roll-dialog .roll-button,
+form.wod-effect-manager .save-effect,
+form.wod-st-approval-dialog .approve-button {
     background: #28a745 !important;
     color: white !important;
 }
 
 .app.dialog button.roll-button:hover,
-.window-app.dialog button.roll-button:hover {
+.app.dialog button.save-effect:hover,
+.app.dialog button.approve-button:hover,
+.window-app.dialog button.roll-button:hover,
+.window-app.dialog button.save-effect:hover,
+.window-app.dialog button.approve-button:hover,
+form.wod-roll-dialog .roll-button:hover,
+form.wod-effect-manager .save-effect:hover,
+form.wod-st-approval-dialog .approve-button:hover {
     background: #218838 !important;
 }
 
-/* Cancel button - gray */
+/* Secondary/Cancel buttons - gray */
 .app.dialog button.cancel-button,
+.app.dialog button.cancel-effect,
 .window-app.dialog button.cancel-button,
-.app.dialog .dialog-buttons button:last-child,
-.window-app.dialog .dialog-buttons button:last-child {
+.window-app.dialog button.cancel-effect,
+form.wod-roll-dialog .cancel-button,
+form.wod-effect-manager .cancel-effect {
     background: #6c757d !important;
     color: white !important;
 }
 
 .app.dialog button.cancel-button:hover,
-.window-app.dialog button.cancel-button:hover {
+.app.dialog button.cancel-effect:hover,
+.window-app.dialog button.cancel-button:hover,
+.window-app.dialog button.cancel-effect:hover,
+form.wod-roll-dialog .cancel-button:hover,
+form.wod-effect-manager .cancel-effect:hover {
     background: #5a6268 !important;
+}
+
+/* Destructive buttons - red */
+.app.dialog button.deny-button,
+.window-app.dialog button.deny-button,
+form.wod-st-approval-dialog .deny-button {
+    background: #dc3545 !important;
+    color: white !important;
+}
+
+.app.dialog button.deny-button:hover,
+.window-app.dialog button.deny-button:hover,
+form.wod-st-approval-dialog .deny-button:hover {
+    background: #c82333 !important;
 }
 
 /* ====================================
@@ -355,7 +407,7 @@ form.wod-roll-dialog .first-row-container {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    margin-bottom: 0 !important;
+    margin-bottom: 20px !important;
 }
 
 /* Pool summary section - left column (constrained width) */
@@ -477,10 +529,10 @@ form.wod-roll-dialog .active-effects-section {
     padding: 16px !important;
     border-radius: 6px !important;
     border: 1px solid #e0e0e0 !important;
-    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    border: 1px solid #e0e0e0 !important;
 }
 
 .app.dialog .mandatory-effects,
@@ -610,7 +662,8 @@ form.wod-roll-dialog .saved-rolls {
     flex-direction: column !important;
     background: white !important;
     padding: 16px !important;
-    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
     width: 100% !important;
     box-sizing: border-box !important;
     border: 1px solid #e0e0e0 !important;
@@ -659,31 +712,38 @@ form.wod-roll-dialog .saved-rolls input[type="text"],
    EFFECT MANAGER SPECIFIC
    ==================================== */
 
-.app.dialog.effect-manager .modifiers-list,
-.window-app.dialog.effect-manager .modifiers-list {
-    max-height: 200px !important;
-    overflow-y: auto !important;
+form.wod-effect-manager .effect-header-section,
+form.wod-effect-manager .effect-metadata-section,
+form.wod-effect-manager .effect-conditions-section,
+form.wod-effect-manager .effect-modifiers {
+    padding: 16px !important;
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    margin-bottom: 16px !important;
 }
 
-.app.dialog.effect-manager .modifier-row,
-.window-app.dialog.effect-manager .modifier-row {
+form.wod-effect-manager .modifiers-list {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    margin-bottom: 8px !important;
+}
+
+form.wod-effect-manager .modifier-row {
     display: flex !important;
     gap: 8px !important;
     margin-bottom: 8px !important;
     align-items: stretch !important;
 }
 
-.app.dialog.effect-manager .modifier-row select,
-.app.dialog.effect-manager .modifier-row input,
-.window-app.dialog.effect-manager .modifier-row select,
-.window-app.dialog.effect-manager .modifier-row input {
+form.wod-effect-manager .modifier-row select,
+form.wod-effect-manager .modifier-row input[type="number"] {
     height: 32px !important;
     padding: 6px 8px !important;
     box-sizing: border-box !important;
 }
 
-.app.dialog.effect-manager .modifier-row button,
-.window-app.dialog.effect-manager .modifier-row button {
+form.wod-effect-manager .remove-modifier-row {
     height: 32px !important;
     min-width: 32px !important;
     padding: 6px !important;
@@ -691,19 +751,147 @@ form.wod-roll-dialog .saved-rolls input[type="text"],
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    background: #dc3545 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
 }
 
-.app.dialog.effect-manager .condition-targets-checkboxes,
-.window-app.dialog.effect-manager .condition-targets-checkboxes {
+form.wod-effect-manager .remove-modifier-row:hover {
+    background: #c82333 !important;
+}
+
+form.wod-effect-manager .add-modifier-row {
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    background: #28a745 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    line-height: 24px !important;
+    transition: all 0.2s !important;
+    margin: 8px auto 0 auto !important;
+}
+
+form.wod-effect-manager .add-modifier-row:hover {
+    background: #218838 !important;
+    transform: scale(1.1) !important;
+}
+
+form.wod-effect-manager .add-modifier-row i {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+form.wod-effect-manager .condition-targets-checkboxes {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
     gap: 8px !important;
     max-height: 200px !important;
     overflow-y: auto !important;
+    padding: 8px !important;
+    background: #f8f9fa !important;
+    border-radius: 4px !important;
 }
 
-/* Ensure condition target group respects inline display:none */
-.app.dialog.effect-manager .condition-target-group[style*="display: none"],
-.window-app.dialog.effect-manager .condition-target-group[style*="display: none"] {
-    display: none !important;
+form.wod-effect-manager .condition-target-checkbox {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+}
+
+/* Don't force hide - let JavaScript control visibility */
+
+form.wod-effect-manager .help-text,
+form.wod-effect-manager .modifiers-help {
+    font-size: 0.85em !important;
+    color: #666 !important;
+    margin-top: 4px !important;
+    font-style: italic !important;
+}
+
+/* ====================================
+   ST APPROVAL DIALOG SPECIFIC
+   ==================================== */
+
+form.wod-st-approval-dialog .dialog-content {
+    padding: 16px !important;
+    background: white !important;
+}
+
+form.wod-st-approval-dialog h2 {
+    color: #4682B4 !important;
+    font-size: 1.3em !important;
+    font-weight: 600 !important;
+    margin: 0 0 16px 0 !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px solid #4682B4 !important;
+}
+
+form.wod-st-approval-dialog .request-info {
+    font-size: 1em !important;
+    color: #333 !important;
+    margin-bottom: 16px !important;
+    padding: 12px !important;
+    background: #e7f3ff !important;
+    border-left: 4px solid #4682B4 !important;
+    border-radius: 4px !important;
+}
+
+form.wod-st-approval-dialog .effects-list {
+    margin: 16px 0 !important;
+}
+
+form.wod-st-approval-dialog .effect-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    margin-bottom: 8px !important;
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    transition: all 0.2s !important;
+}
+
+form.wod-st-approval-dialog .effect-item:hover {
+    border-color: #4682B4 !important;
+    box-shadow: 0 2px 8px rgba(70, 130, 180, 0.15) !important;
+}
+
+form.wod-st-approval-dialog .effect-icon {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+    border-radius: 4px !important;
+}
+
+form.wod-st-approval-dialog .effect-details {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+}
+
+form.wod-st-approval-dialog .effect-details strong {
+    color: #333 !important;
+    font-size: 1em !important;
+}
+
+form.wod-st-approval-dialog .effect-modifiers {
+    color: #666 !important;
+    font-size: 0.9em !important;
 }
