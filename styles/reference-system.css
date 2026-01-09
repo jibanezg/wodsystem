@@ -103,6 +103,71 @@
     color: #333;
 }
 
+/* Bullet sections within descriptions */
+.wod-reference-tooltip .description ul.bullet-section {
+    margin: 12px 0;
+    padding: 10px 12px 10px 30px;
+    background: rgba(123, 31, 162, 0.08);
+    border-left: 3px solid #9C27B0;
+    border-radius: 4px;
+    list-style: none;
+}
+
+.wod-reference-tooltip .description ul.bullet-section li {
+    margin: 6px 0;
+    padding-left: 0;
+    line-height: 1.6;
+    color: #222;
+    position: relative;
+}
+
+.wod-reference-tooltip .description ul.bullet-section li::before {
+    content: "▸";
+    position: absolute;
+    left: -20px;
+    color: #9C27B0;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.wod-reference-tooltip .description ul.bullet-section li strong {
+    color: #7B1FA2;
+    font-weight: 600;
+}
+
+/* Table sections within descriptions */
+.wod-reference-tooltip .description table {
+    margin: 12px 0;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9em;
+}
+
+.wod-reference-tooltip .description table thead {
+    background: #9C27B0;
+    color: white;
+}
+
+.wod-reference-tooltip .description table th {
+    padding: 8px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.wod-reference-tooltip .description table td {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    color: #222;
+}
+
+.wod-reference-tooltip .description table tr:nth-child(even) {
+    background: rgba(123, 31, 162, 0.05);
+}
+
+.wod-reference-tooltip .description table tr:hover {
+    background: rgba(123, 31, 162, 0.12);
+}
+
 .wod-reference-tooltip .game-effects {
     margin: 8px 0;
     padding: 6px;
@@ -342,6 +407,71 @@
 
 .wod-reference-card .reference-description p {
     margin: 0;
+}
+
+/* Bullet sections within chat card descriptions */
+.wod-reference-card .reference-description ul.bullet-section {
+    margin: 12px 0;
+    padding: 10px 12px 10px 30px;
+    background: rgba(123, 31, 162, 0.08);
+    border-left: 3px solid #9C27B0;
+    border-radius: 4px;
+    list-style: none;
+}
+
+.wod-reference-card .reference-description ul.bullet-section li {
+    margin: 6px 0;
+    padding-left: 0;
+    line-height: 1.6;
+    color: #222;
+    position: relative;
+}
+
+.wod-reference-card .reference-description ul.bullet-section li::before {
+    content: "▸";
+    position: absolute;
+    left: -20px;
+    color: #9C27B0;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.wod-reference-card .reference-description ul.bullet-section li strong {
+    color: #7B1FA2;
+    font-weight: 600;
+}
+
+/* Table sections within chat card descriptions */
+.wod-reference-card .reference-description table {
+    margin: 12px 0;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9em;
+}
+
+.wod-reference-card .reference-description table thead {
+    background: #9C27B0;
+    color: white;
+}
+
+.wod-reference-card .reference-description table th {
+    padding: 8px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.wod-reference-card .reference-description table td {
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    color: #222;
+}
+
+.wod-reference-card .reference-description table tr:nth-child(even) {
+    background: rgba(123, 31, 162, 0.05);
+}
+
+.wod-reference-card .reference-description table tr:hover {
+    background: rgba(123, 31, 162, 0.12);
 }
 
 /* Effects section */
