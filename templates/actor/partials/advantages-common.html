@@ -66,9 +66,11 @@
                     <i class="fas fa-book"></i>
                 </button>
                 {{/if}}
-                <div class="dot-container" data-background="{{background.actualIndex}}">
-                    {{#times 5}}
-                    <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}}" data-index="{{@index}}"></div>
+                <div class="dot-container" data-background="{{background.actualIndex}}" data-max-rating="{{background.maxRating}}">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}} {{#if (gte @index ../background.maxRating)}}disabled{{/if}}" 
+                         data-index="{{@index}}" 
+                         {{#if (gte @index ../background.maxRating)}}data-disabled="true"{{/if}}></div>
                     {{/times}}
                     <input type="hidden" class="dot-input" value="{{background.value}}"/>
                 </div>

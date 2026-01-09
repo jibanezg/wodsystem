@@ -194,8 +194,10 @@
 /* Technocrat Advantages: 2-column grid for 4 sections */
 .wod.sheet.actor.technocrat .advantages-bottom {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 10px;
+    width: 100%;
+    overflow: hidden;
 }
 
 .wod.sheet.actor.technocrat .Technocrat-column-1,
@@ -203,6 +205,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
 }
 
 /* Section styling - all sections (Column 1: 4 sections, Column 2: 1 section) */
@@ -214,6 +217,57 @@
     border-radius: 2px;
     padding: 8px;
     background: var(--wod-bg-main);
+}
+
+/* Backgrounds section - constrain dimensions */
+.wod.sheet.actor.technocrat .backgrounds-section {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Ensure background items fit properly */
+.wod.sheet.actor.technocrat .background-item {
+    display: flex !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Constrain dropdown width */
+.wod.sheet.actor.technocrat .background-name-select {
+    flex: 1 1 auto;
+    min-width: 80px;
+    max-width: 150px;
+}
+
+/* Dot container - force 5 dots per row */
+.wod.sheet.actor.technocrat .background-item .dot-container {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 2px !important;
+    max-width: 50px !important; /* 5 dots * 8px + 4 gaps * 2px = 48px */
+    width: 50px !important;
+}
+
+/* Smaller dots for all backgrounds to fit 10 dots in 2 rows */
+.wod.sheet.actor.technocrat .background-item .dot-container .dot {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+/* Disabled dots - grayed out and non-clickable */
+.wod.sheet.actor.technocrat .background-item .dot-container .dot.disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background-color: #ccc !important;
+    border-color: #999 !important;
+}
+
+.wod.sheet.actor.technocrat .background-item .dot-container .dot.disabled.filled {
+    background-color: #999 !important;
+    border-color: #777 !important;
 }
 
 /* Enlightenment Section (standalone) */

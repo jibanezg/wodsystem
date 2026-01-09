@@ -335,9 +335,8 @@ export class ReferenceDataService {
     generateBackgroundTooltipHTML(background) {
         if (!background) return '';
         
-        const description = background.description.length > 200 
-            ? background.description.substring(0, 200) + '...' 
-            : background.description;
+        // Show full description (no truncation)
+        const description = background.description;
         
         const maxRating = background.maxRating || 5;
         const doubleCostNote = background.doubleCost ? ' (2 pts/dot)' : '';
@@ -352,14 +351,18 @@ export class ReferenceDataService {
                     <div class="cost-levels-preview">
                         <strong>Levels:</strong>
                         <ul>
-                            ${background.costLevels.slice(0, 3).map(level => 
-                                `<li>${level.label} ${level.description}</li>`
+                            ${background.costLevels.map(level => 
+                                `<li><strong>${level.label}</strong> ${level.description}</li>`
                             ).join('')}
-                            ${background.costLevels.length > 3 ? '<li><em>...and more</em></li>' : ''}
                         </ul>
                     </div>
                 ` : ''}
-                <p class="tooltip-hint"><em>Click to post full details to chat</em></p>
+                <div class="tooltip-footer">
+                    <button class="post-to-chat-btn" type="button" title="Post full details to chat">
+                        <i class="fas fa-comment-dots"></i>
+                    </button>
+                    <span class="tooltip-hint-text">Post to chat</span>
+                </div>
             </div>
         `;
     }

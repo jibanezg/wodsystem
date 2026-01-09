@@ -1823,21 +1823,35 @@ export class WodCharacterWizard extends FormApplication {
       position: 'fixed',
       top: top + 'px',
       left: left + 'px',
-      maxWidth: '400px',
-      maxHeight: (windowHeight - 20) + 'px',
+      maxWidth: '500px',
+      maxHeight: '400px',
       overflowY: 'auto',
       visibility: 'visible',
-      display: 'none'
+      display: 'none',
+      pointerEvents: 'auto'
     });
     
     // Fade in
     tooltip.fadeIn(200);
     
-    // Add click handler to post to chat
-    tooltip.find('.reference-tooltip-inner').click(() => {
+    // Add click handler to the chat button only
+    tooltip.find('.post-to-chat-btn').click((e) => {
+      e.stopPropagation();
       this._postBackgroundToChat(background);
       this._hideReferenceTooltip();
     });
+    
+    // Prevent tooltip from closing when clicking inside it
+    tooltip.on('click', (e) => {
+      e.stopPropagation();
+    });
+    
+    // Close tooltip when clicking outside (use setTimeout to prevent immediate closure)
+    setTimeout(() => {
+      $(document).one('click', () => {
+        this._hideReferenceTooltip();
+      });
+    }, 100);
   }
 
   /**
@@ -1880,7 +1894,10 @@ export class WodCharacterWizard extends FormApplication {
       event.preventDefault();
       event.stopPropagation();
       
-      const backgroundName = $(event.currentTarget).data('background-name');
+      // Read from the adjacent text input, not the data attribute
+      const $button = $(event.currentTarget);
+      const backgroundName = $button.siblings('.background-name').val();
+      
       if (backgroundName && service && service.initialized) {
         const background = service.getBackgroundByName(backgroundName);
         if (background) {

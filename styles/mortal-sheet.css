@@ -1311,6 +1311,35 @@ textarea {
     font-size: 0.75em;
 }
 
+/* Adaptive dot sizing for backgrounds - force 5 dots per row */
+.wod.sheet.actor .background-item .dot-container {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 2px !important;
+    max-width: 50px !important; /* 5 dots * 8px + 4 gaps * 2px = 48px */
+    width: 50px !important;
+}
+
+/* Smaller dots for all backgrounds */
+.wod.sheet.actor .background-item .dot-container .dot {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+/* Disabled dots - grayed out and non-clickable */
+.wod.sheet.actor .background-item .dot-container .dot.disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background-color: #ccc !important;
+    border-color: #999 !important;
+}
+
+.wod.sheet.actor .background-item .dot-container .dot.disabled.filled {
+    background-color: #999 !important;
+    border-color: #777 !important;
+}
+
 .wod.sheet.actor .background-name-select {
     flex: 1;
     padding: 2px 4px;

@@ -37,10 +37,12 @@
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     padding: 0;
-    max-width: 400px;
+    max-width: 500px;
+    max-height: 400px;
+    overflow-y: auto;
     display: none;
     font-family: var(--wod-font-family, "Palatino Linotype", "Book Antiqua", Palatino, serif);
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .wod-reference-tooltip .reference-tooltip-inner {
@@ -123,6 +125,46 @@
     text-align: center;
     padding-top: 8px;
     border-top: 1px solid #e0e0e0;
+}
+
+/* Tooltip footer with chat button */
+.wod-reference-tooltip .tooltip-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.wod-reference-tooltip .tooltip-hint-text {
+    font-style: italic;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.wod-reference-tooltip .post-to-chat-btn {
+    background: var(--wod-primary, #4682B4);
+    border: none;
+    border-radius: 3px;
+    padding: 4px 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wod-reference-tooltip .post-to-chat-btn:hover {
+    background: var(--wod-accent, #2F4F6F);
+    transform: scale(1.05);
+}
+
+.wod-reference-tooltip .post-to-chat-btn i {
+    pointer-events: none;
 }
 
 /* -------------------------------------------- */
@@ -268,7 +310,9 @@
 }
 
 .wod-reference-tooltip .cost-levels-preview strong {
-    color: #9C27B0;
+    color: #7B1FA2;
+    font-weight: bold;
+    font-size: 1.1em;
 }
 
 .wod-reference-tooltip .cost-levels-preview ul {
@@ -278,8 +322,15 @@
 }
 
 .wod-reference-tooltip .cost-levels-preview li {
-    margin: 2px 0;
-    font-size: 0.9em;
+    margin: 4px 0;
+    font-size: 0.95em;
+    line-height: 1.4;
+    color: #333;
+}
+
+.wod-reference-tooltip .cost-levels-preview li strong {
+    color: #7B1FA2;
+    margin-right: 6px;
 }
 
 /* Description */

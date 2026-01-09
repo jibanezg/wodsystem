@@ -87,10 +87,29 @@ export class WodActorSheet extends ActorSheet {
             hasMultiplePages: totalPages > 1,
             hasPrevPage: validPage > 0,
             hasNextPage: validPage < totalPages - 1,
-            backgrounds: allBackgrounds.slice(startIdx, endIdx).map((bg, idx) => ({
-                ...bg,
-                actualIndex: startIdx + idx // Store the actual index in the full array
-            }))
+            backgrounds: allBackgrounds.slice(startIdx, endIdx).map((bg, idx) => {
+                // Get max rating from reference data if available
+                const refService = game.wod?.referenceDataService;
+                let maxRating = 5; // Default to 5
+                
+                if (refService && refService.initialized && bg.name) {
+                    const bgData = refService.getBackgroundByName(bg.name);
+                    if (bgData && typeof bgData.maxRating === 'number') {
+                        maxRating = bgData.maxRating;
+                    }
+                }
+                
+                // Always ensure maxRating is a valid number
+                if (typeof maxRating !== 'number' || maxRating < 5) {
+                    maxRating = 5;
+                }
+                
+                return {
+                    ...bg,
+                    actualIndex: startIdx + idx, // Store the actual index in the full array
+                    maxRating: maxRating // Add maxRating for template
+                };
+            })
         };
         
         
@@ -284,6 +303,20 @@ export class WodActorSheet extends ActorSheet {
         html.find('.backgrounds-prev-page').click(this._onBackgroundsPrevPage.bind(this));
         html.find('.backgrounds-next-page').click(this._onBackgroundsNextPage.bind(this));
         
+        // Apply disabled state to dots beyond maxRating (in case template doesn't render it)
+        html.find('.background-item .dot-container').each((idx, container) => {
+            const $container = $(container);
+            const maxRating = parseInt($container.attr('data-max-rating')) || 5;
+            $container.find('.dot').each((dotIdx, dot) => {
+                const $dot = $(dot);
+                const index = parseInt($dot.attr('data-index'));
+                if (index >= maxRating) {
+                    $dot.addClass('disabled');
+                    $dot.attr('data-disabled', 'true');
+                }
+            });
+        });
+        
         // Equipment tab handlers
         html.find('.add-weapon').click(this._onAddWeapon.bind(this));
         html.find('.add-weapon-empty').click(this._onAddWeapon.bind(this));
@@ -406,6 +439,11 @@ export class WodActorSheet extends ActorSheet {
         
         // Skip if this is a sphere dot (handled by _onSphereClick)
         if (container.dataset.sphere) {
+            return;
+        }
+        
+        // Skip if this dot is disabled (beyond maxRating)
+        if (dot.dataset.disabled === "true" || dot.classList.contains('disabled')) {
             return;
         }
         
@@ -1155,8 +1193,50 @@ export class WodActorSheet extends ActorSheet {
             } else {
                 // Just update data without re-rendering (dropdown already shows correct value)
                 await this.actor.update({ "system.miscellaneous.backgrounds": backgrounds }, { render: false });
+                
+                // Update disabled state of dots for this background
+                this._updateBackgroundDotsDisabledState(select, value);
             }
         }
+    }
+    
+    /**
+     * Update the disabled state of dots when background name changes
+     */
+    _updateBackgroundDotsDisabledState(selectElement, backgroundName) {
+        const $select = $(selectElement);
+        const $backgroundItem = $select.closest('.background-item');
+        const $dotContainer = $backgroundItem.find('.dot-container');
+        
+        // Get maxRating for the new background
+        const refService = game.wod?.referenceDataService;
+        let maxRating = 5; // Default
+        
+        if (refService && refService.initialized && backgroundName && backgroundName !== "Custom") {
+            const bgData = refService.getBackgroundByName(backgroundName);
+            if (bgData && typeof bgData.maxRating === 'number') {
+                maxRating = bgData.maxRating;
+            }
+        }
+        
+        // Update data-max-rating attribute
+        $dotContainer.attr('data-max-rating', maxRating);
+        
+        // Update disabled state for each dot
+        $dotContainer.find('.dot').each((idx, dot) => {
+            const $dot = $(dot);
+            const dotIndex = parseInt($dot.attr('data-index'));
+            
+            if (dotIndex >= maxRating) {
+                // Should be disabled
+                $dot.addClass('disabled');
+                $dot.attr('data-disabled', 'true');
+            } else {
+                // Should be enabled
+                $dot.removeClass('disabled');
+                $dot.removeAttr('data-disabled');
+            }
+        });
     }
 
     /**
@@ -1229,8 +1309,12 @@ export class WodActorSheet extends ActorSheet {
         const service = game.wod?.referenceDataService;
         if (!service || !service.initialized) return;
         
-        const backgroundName = $(event.currentTarget).data('background-name');
-        if (!backgroundName) return;
+        // Read the current value from the adjacent dropdown, not the data attribute
+        const $button = $(event.currentTarget);
+        const $select = $button.siblings('.background-name-select');
+        const backgroundName = $select.val();
+        
+        if (!backgroundName || backgroundName === "Custom") return;
         
         const background = service.getBackgroundByName(backgroundName);
         if (!background) return;
@@ -1298,21 +1382,35 @@ export class WodActorSheet extends ActorSheet {
             position: 'fixed',
             top: top + 'px',
             left: left + 'px',
-            maxWidth: '400px',
-            maxHeight: (windowHeight - 20) + 'px',
+            maxWidth: '500px',
+            maxHeight: '400px',
             overflowY: 'auto',
             visibility: 'visible',
-            display: 'none'
+            display: 'none',
+            pointerEvents: 'auto'
         });
         
         // Fade in
         tooltip.fadeIn(200);
         
-        // Add click handler to post to chat
-        tooltip.find('.reference-tooltip-inner').click(() => {
+        // Add click handler to the chat button only
+        tooltip.find('.post-to-chat-btn').click((e) => {
+            e.stopPropagation();
             this._postBackgroundToChat(background);
             this._hideReferenceTooltip();
         });
+        
+        // Prevent tooltip from closing when clicking inside it
+        tooltip.on('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Close tooltip when clicking outside (use setTimeout to prevent immediate closure)
+        setTimeout(() => {
+            $(document).one('click', () => {
+                this._hideReferenceTooltip();
+            });
+        }, 100);
     }
 
     /**
