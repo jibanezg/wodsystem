@@ -26,11 +26,9 @@ yarn-error.log*
 *.temp
 
 # Copyrighted content and extraction tools (local use only)
-# - source-materials: Copyrighted source files (.md)
-# - datasource: Extracted JSON data (backgrounds, merits/flaws)
+# - datasource: Source .md files and extracted JSON data (will be moved to private repo)
 # - scripts/extraction: Python data extraction scripts
 # - docs: Documentation and extraction reports
-source-materials/
 datasource/
 scripts/extraction/
 docs/ 
