@@ -1080,7 +1080,13 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
-        await this._postReferenceToChat(reference);
+        // Show tooltip instead of posting to chat
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+            this._hideReferenceTooltip();
+        } else {
+            this._showReferenceTooltip(event, reference);
+        }
     }
     
     /**
@@ -1106,7 +1112,13 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
         
-        await this._postReferenceToChat(reference);
+        // Show tooltip instead of posting to chat
+        const existingTooltip = $('.wod-reference-tooltip');
+        if (existingTooltip.length) {
+            this._hideReferenceTooltip();
+        } else {
+            this._showReferenceTooltip(event, reference);
+        }
     }
 
     /**
@@ -1120,7 +1132,16 @@ export class WodActorSheet extends ActorSheet {
         const sheetBody = this.element.find('.sheet-body');
         const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
         
-        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous?.backgrounds || []);
+        const currentBackgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        
+        // CRITICAL: Validate that backgrounds is an array
+        if (!Array.isArray(currentBackgrounds)) {
+            console.error(`Actor ${this.actor.name}: Cannot add background - backgrounds is not an array! Type: ${typeof currentBackgrounds}`);
+            ui.notifications.error('Background data corruption detected. Please reload the actor sheet.');
+            return;
+        }
+        
+        const backgrounds = foundry.utils.duplicate(currentBackgrounds);
         backgrounds.push({ name: "Allies", value: 1 });
         
         // Navigate to the page containing the new background
@@ -1162,7 +1183,16 @@ export class WodActorSheet extends ActorSheet {
         if (!match) return;
         
         const index = parseInt(match[1]);
-        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
+        const currentBackgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        
+        // CRITICAL: Validate that backgrounds is an array
+        if (!Array.isArray(currentBackgrounds)) {
+            console.error(`Actor ${this.actor.name}: Cannot change background name - backgrounds is not an array! Type: ${typeof currentBackgrounds}`);
+            ui.notifications.error('Background data corruption detected. Please reload the actor sheet.');
+            return;
+        }
+        
+        const backgrounds = foundry.utils.duplicate(currentBackgrounds);
         
         if (backgrounds[index]) {
             // Update the name
@@ -1272,7 +1302,16 @@ export class WodActorSheet extends ActorSheet {
         const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
         
         const index = parseInt(event.currentTarget.dataset.index);
-        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds);
+        const currentBackgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        
+        // CRITICAL: Validate that backgrounds is an array
+        if (!Array.isArray(currentBackgrounds)) {
+            console.error(`Actor ${this.actor.name}: Cannot delete background - backgrounds is not an array! Type: ${typeof currentBackgrounds}`);
+            ui.notifications.error('Background data corruption detected. Please reload the actor sheet.');
+            return;
+        }
+        
+        const backgrounds = foundry.utils.duplicate(currentBackgrounds);
         backgrounds.splice(index, 1);
         
         // If we deleted the last item on the current page, go back to the previous page
@@ -2109,7 +2148,16 @@ export class WodActorSheet extends ActorSheet {
      */
     async _updateBackground(index, value) {
         // Get the full backgrounds array and update the specific entry
-        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous?.backgrounds || []);
+        const currentBackgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        
+        // CRITICAL: Validate that backgrounds is an array before proceeding
+        if (!Array.isArray(currentBackgrounds)) {
+            console.error(`Actor ${this.actor.name}: backgrounds is not an array! Type: ${typeof currentBackgrounds}`);
+            ui.notifications.error('Background data corruption detected. Please reload the actor sheet.');
+            return;
+        }
+        
+        const backgrounds = foundry.utils.duplicate(currentBackgrounds);
         
         if (backgrounds[index]) {
             const backgroundName = backgrounds[index].name;
@@ -3520,7 +3568,11 @@ export class WodActorSheet extends ActorSheet {
      */
     _createQuickRollsTrigger() {
         const windowApp = this.element.closest('.window-app')[0];
-        if (!windowApp) return;
+        if (!windowApp) {
+            console.warn('WoD | Could not create Quick Rolls trigger: window-app not found');
+            return;
+        }
+        console.log('WoD | Creating Quick Rolls trigger for app', this.appId);
         
         // Remove existing trigger if any
         const existingTrigger = document.querySelector(`.quick-rolls-trigger[data-app-id="${this.appId}"]`);
@@ -3561,11 +3613,11 @@ export class WodActorSheet extends ActorSheet {
         trigger.style.justifyContent = 'center';
         trigger.style.boxShadow = '1px 0 4px rgba(0,0,0,0.3)';
         trigger.style.transition = 'width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.3s ease';
-        trigger.style.zIndex = '100'; // Reduced from 9999 to avoid covering Foundry UI
+        trigger.style.zIndex = '1000'; // Increased to ensure visibility
         trigger.style.fontSize = '0.8em';
         trigger.style.pointerEvents = 'auto';
         trigger.style.borderLeft = 'none'; // No border on the window edge side
-        trigger.style.opacity = '0'; // Start invisible for fade-in effect
+        trigger.style.opacity = '1'; // Start fully visible for debugging
         
         // Add hover effect - expand width to extend outward without moving from edge
         trigger.addEventListener('mouseenter', () => {
@@ -3588,10 +3640,7 @@ export class WodActorSheet extends ActorSheet {
         // Store reference for cleanup
         this._quickRollsTrigger = trigger;
         
-        // Fade in smoothly after a brief delay
-        requestAnimationFrame(() => {
-            trigger.style.opacity = '1';
-        });
+        // Button is now immediately visible (no fade-in needed)
         
         // Update position when window is dragged/resized
         this._updateTriggerPosition = () => {
@@ -4127,16 +4176,7 @@ export class WodActorSheet extends ActorSheet {
                 // Show button and store reference data
                 $button.addClass('has-reference');
                 $button.data('reference', reference);
-                
-                // Add tooltip to input on hover
                 $input.addClass('has-reference');
-                $input.hover(
-                    (e) => this._showReferenceTooltip(e, reference),
-                    () => this._hideReferenceTooltip()
-                );
-                
-                // Hide tooltip on click to allow editing
-                $input.on('click', () => this._hideReferenceTooltip());
             } else {
                 $button.removeClass('has-reference');
                 $input.removeClass('has-reference');
@@ -4160,16 +4200,7 @@ export class WodActorSheet extends ActorSheet {
                 // Show button and store reference data
                 $button.addClass('has-reference');
                 $button.data('reference', reference);
-                
-                // Add tooltip to input on hover
                 $input.addClass('has-reference');
-                $input.hover(
-                    (e) => this._showReferenceTooltip(e, reference),
-                    () => this._hideReferenceTooltip()
-                );
-                
-                // Hide tooltip on click to allow editing
-                $input.on('click', () => this._hideReferenceTooltip());
             } else {
                 $button.removeClass('has-reference');
                 $input.removeClass('has-reference');
@@ -4193,13 +4224,33 @@ export class WodActorSheet extends ActorSheet {
         const tooltip = $('<div class="wod-reference-tooltip"></div>');
         tooltip.html(service.generateTooltipHTML(reference));
         
+        // Store reference data on the tooltip for the chat button
+        tooltip.data('reference', reference);
+        
         // Add to body with visibility hidden to measure
         tooltip.css({ 
             visibility: 'hidden', 
             display: 'block',
-            position: 'fixed'  // Use fixed positioning relative to viewport
+            position: 'fixed',  // Use fixed positioning relative to viewport
+            pointerEvents: 'auto'  // Enable click events
         });
         $('body').append(tooltip);
+        
+        // Add click handler for post-to-chat button
+        tooltip.find('.post-to-chat-btn').on('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const ref = tooltip.data('reference');
+            if (ref) {
+                await this._postReferenceToChat(ref);
+                this._hideReferenceTooltip();
+            }
+        });
+        
+        // Prevent tooltip from closing when clicking inside it
+        tooltip.on('click', (e) => {
+            e.stopPropagation();
+        });
         
         // Get dimensions
         const rect = event.currentTarget.getBoundingClientRect();
@@ -4238,11 +4289,19 @@ export class WodActorSheet extends ActorSheet {
             maxHeight: (windowHeight - 20) + 'px',  // Limit height to viewport
             overflowY: 'auto',  // Allow scrolling if content is too long
             visibility: 'visible',
-            display: 'none'
+            display: 'none',
+            pointerEvents: 'auto'  // Enable click events
         });
         
         // Fade in
         tooltip.fadeIn(200);
+        
+        // Close tooltip when clicking outside (use setTimeout to prevent immediate closure)
+        setTimeout(() => {
+            $(document).one('click', () => {
+                this._hideReferenceTooltip();
+            });
+        }, 100);
     }
     
     /**

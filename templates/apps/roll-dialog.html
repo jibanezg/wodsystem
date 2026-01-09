@@ -1,94 +1,85 @@
 <form class="wod-roll-dialog">
-    <!-- Pool Summary Section -->
-    <div class="pool-summary">
-        <h3><i class="fas fa-dice-d10"></i> {{poolName}}</h3>
-        <div class="pool-breakdown">
-            {{#each traits}}
-            <span class="trait-chip">{{this.name}}: {{this.value}}</span>
-            {{/each}}
+    <!-- ROW 1: Pool Summary + Roll Configuration (two columns) -->
+    <div class="first-row-container">
+        <!-- Pool Summary Section (left column) -->
+        <div class="pool-summary">
+            <h3><i class="fas fa-dice-d10"></i> {{poolName}}</h3>
+            <div class="pool-breakdown">
+                {{#each traits}}
+                <span class="trait-chip">{{this.name}}: {{this.value}}</span>
+                {{/each}}
+            </div>
+            <div class="total-pool">Total Pool: <strong id="total-pool-display">{{totalPool}}</strong> dice</div>
         </div>
-        <div class="total-pool">Total Pool: <strong id="total-pool-display">{{totalPool}}</strong> dice</div>
+        
+        <!-- Roll Configuration Section (right column) -->
+        <div class="roll-config">
+            <h3><i class="fas fa-cog"></i> Roll Configuration</h3>
+            
+            <div class="form-group">
+                <label>Difficulty</label>
+                <input type="number" name="difficulty" value="6" min="2" max="10" />
+            </div>
+            
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" name="specialty" />
+                    Using Specialty (10s = 2 successes)
+                </label>
+            </div>
+        </div>
     </div>
     
-    <!-- Roll Configuration Section -->
-    <div class="roll-config">
-        <h3><i class="fas fa-cog"></i> Roll Configuration</h3>
+    <!-- ROW 2: Active Status Effects (full width) -->
+    {{#if (or mandatoryEffects optionalEffects)}}
+    <div class="active-effects-section">
+        <h4>Active Status Effects</h4>
         
-        <div class="form-group">
-            <label>Difficulty</label>
-            <input type="number" name="difficulty" value="6" min="2" max="10" />
-        </div>
-        
-        <div class="form-group checkbox-group">
-            <label>
-                <input type="checkbox" name="specialty" />
-                Using Specialty (10s = 2 successes)
+        {{#if mandatoryEffects}}
+        <div class="mandatory-effects">
+            <label class="effects-category">
+                <i class="fas fa-shield-alt"></i> ST Effects (Auto-Applied)
             </label>
-        </div>
-        
-        {{#if (or mandatoryEffects optionalEffects)}}
-        <div class="active-effects-section">
-            <h4>Active Status Effects</h4>
-            
-            {{#if mandatoryEffects}}
-            <div class="mandatory-effects">
-                <label class="effects-category">
-                    <i class="fas fa-shield-alt"></i> ST Effects (Auto-Applied)
-                </label>
-                {{#each mandatoryEffects}}
-                <div class="effect-item mandatory">
-                    <i class="fas fa-lock"></i>
-                    <span class="effect-name">{{this.name}}</span>
-                    <span class="effect-modifier {{this.modifierClass}}">{{this.displayValue}}</span>
-                </div>
-                {{/each}}
+            {{#each mandatoryEffects}}
+            <div class="effect-item mandatory">
+                <i class="fas fa-lock"></i>
+                <span class="effect-name">{{this.name}}</span>
+                <span class="effect-modifier {{this.modifierClass}}">{{this.displayValue}}</span>
             </div>
-            {{/if}}
-            
-            {{#if optionalEffects}}
-            <div class="optional-effects">
-                <label class="effects-category">
-                    <i class="fas fa-user"></i> Player Effects (Requires ST Approval)
-                </label>
-                {{#each optionalEffects}}
-                <div class="effect-item optional">
-                    <input type="checkbox" class="effect-toggle" data-effect-id="{{this.id}}" {{#if this.enabled}}checked{{/if}} />
-                    <span class="effect-name">{{this.name}}</span>
-                    <span class="effect-modifier {{this.modifierClass}}">{{this.displayValue}}</span>
-                </div>
-                {{/each}}
-                <p class="approval-note">
-                    <i class="fas fa-info-circle"></i> Checked effects will require Storyteller approval before rolling
-                </p>
-            </div>
-            {{/if}}
+            {{/each}}
         </div>
         {{/if}}
         
-        <!-- Manual Modifiers Section -->
-        <div class="modifiers-section">
-            <h4><i class="fas fa-plus-minus"></i> Manual Modifiers</h4>
-            <div class="modifier-list" id="modifier-list">
-                {{#each modifiers}}
-                <div class="modifier-item">
-                    <span>{{this.name}}: {{#if (gt this.value 0)}}+{{/if}}{{this.value}}</span>
-                    <button type="button" class="remove-modifier" data-index="{{@index}}"><i class="fas fa-times"></i></button>
-                </div>
-                {{/each}}
-            </div>
-            <button type="button" class="add-modifier" title="Add Modifier"><i class="fas fa-plus"></i></button>
-        </div>
-        
-        <div class="saved-rolls">
-            <label>
-                <input type="checkbox" name="saveTemplate" id="save-template-check" />
-                Save as quick roll template
+        {{#if optionalEffects}}
+        <div class="optional-effects">
+            <label class="effects-category">
+                <i class="fas fa-user"></i> Player Effects (Requires ST Approval)
             </label>
-            <input type="text" name="templateName" id="template-name" placeholder="Template name" style="display:none;" />
+            {{#each optionalEffects}}
+            <div class="effect-item optional">
+                <input type="checkbox" class="effect-toggle" data-effect-id="{{this.id}}" {{#if this.enabled}}checked{{/if}} />
+                <span class="effect-name">{{this.name}}</span>
+                <span class="effect-modifier {{this.modifierClass}}">{{this.displayValue}}</span>
+            </div>
+            {{/each}}
+            <p class="approval-note">
+                <i class="fas fa-info-circle"></i> Checked effects will require Storyteller approval before rolling
+            </p>
         </div>
+        {{/if}}
+    </div>
+    {{/if}}
+    
+    <!-- ROW 3: Save as Template (full width) -->
+    <div class="saved-rolls">
+        <label>
+            <input type="checkbox" name="saveTemplate" id="save-template-check" />
+            Save as quick roll template
+        </label>
+        <input type="text" name="templateName" id="template-name" placeholder="Template name" style="display:none;" />
     </div>
     
-    <!-- Action Buttons -->
+    <!-- ROW 4: Action Buttons -->
     <div class="dialog-buttons">
         <button type="button" class="roll-button">
             <i class="fas fa-dice-d10"></i> Roll

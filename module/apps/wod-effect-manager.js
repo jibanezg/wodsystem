@@ -251,6 +251,15 @@ export class WodEffectManager extends FormApplication {
         
         // Dynamic condition target dropdown
         html.find('.condition-scope-select').change(this._onConditionScopeChange.bind(this));
+        
+        // Set initial visibility state based on current scope selection
+        const initialScope = html.find('.condition-scope-select').val();
+        const targetGroup = html.find('.condition-target-group');
+        if (initialScope === 'always') {
+            targetGroup.hide();
+        } else {
+            targetGroup.show();
+        }
     }
     
     /**

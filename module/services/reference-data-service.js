@@ -229,9 +229,8 @@ export class ReferenceDataService {
         if (!item) return '';
         
         const categoryClass = item.category.toLowerCase();
-        const description = item.description.length > 200 
-            ? item.description.substring(0, 200) + '...' 
-            : item.description;
+        // Show full description in tooltip
+        const description = item.description;
         
         return `
             <div class="reference-tooltip-inner">
@@ -239,7 +238,11 @@ export class ReferenceDataService {
                 <span class="type-badge ${categoryClass}">${item.type} ${item.category}</span>
                 <p class="description">${description}</p>
                 ${item.gameEffects ? `<p class="game-effects"><strong>Effects:</strong> ${item.gameEffects}</p>` : ''}
-                <p class="tooltip-hint"><em>Click to post full details to chat</em></p>
+                <div class="tooltip-footer">
+                    <button class="post-to-chat-btn" data-action="post-to-chat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                </div>
             </div>
         `;
     }

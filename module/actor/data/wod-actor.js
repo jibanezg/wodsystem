@@ -33,6 +33,22 @@ export class WodActor extends Actor {
                 ui.notifications.warn("Temporary Willpower cannot exceed Permanent Willpower.");
             }
         }
+        
+        // CRITICAL: Protect backgrounds from being accidentally deleted or set to invalid values
+        if (changed.system?.miscellaneous?.backgrounds !== undefined) {
+            const newBackgrounds = changed.system.miscellaneous.backgrounds;
+            const currentBackgrounds = this.system.miscellaneous?.backgrounds || [];
+            
+            // If the update is trying to set backgrounds to null, undefined, or non-array, preserve current
+            if (!Array.isArray(newBackgrounds)) {
+                console.warn(`Actor ${this.name} (${this.id}): Attempted to update backgrounds to invalid type (${typeof newBackgrounds}), preserving current backgrounds`);
+                changed.system.miscellaneous.backgrounds = currentBackgrounds;
+            }
+            // If the update is trying to clear all backgrounds without explicit intent, log it
+            else if (newBackgrounds.length === 0 && currentBackgrounds.length > 0) {
+                console.warn(`Actor ${this.name} (${this.id}): Backgrounds being cleared (had ${currentBackgrounds.length} entries). If this was unintentional, check for pagination or form submission issues.`);
+            }
+        }
     }
 
     _prepareCharacterData(actorData) {
@@ -135,7 +151,9 @@ export class WodActor extends Actor {
         }
         
         // Ensure it's an array (for brand new actors)
-        if (!this.system.miscellaneous.backgrounds) {
+        // CRITICAL: Never allow backgrounds to be null or undefined - always default to empty array
+        if (!Array.isArray(this.system.miscellaneous.backgrounds)) {
+            console.warn(`Actor ${this.name} (${this.id}): backgrounds was not an array (was ${typeof this.system.miscellaneous.backgrounds}), resetting to empty array`);
             this.system.miscellaneous.backgrounds = [];
         }
     }

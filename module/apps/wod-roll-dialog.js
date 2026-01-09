@@ -28,7 +28,6 @@ export class WodRollDialog extends Application {
         super(options);
         this.actor = actor;
         this.poolData = poolData;
-        this.modifiers = [];
         
         // Get effect modifiers from actor's active effects
         this.effectModifiers = EffectModifierConverter.getModifiersFromEffects(
@@ -79,7 +78,6 @@ export class WodRollDialog extends Application {
         return {
             ...this.poolData,
             difficulty: 6,
-            modifiers: this.modifiers,
             mandatoryEffects,
             optionalEffects
         };
@@ -90,9 +88,7 @@ export class WodRollDialog extends Application {
         
         html.find('.roll-button').click(this._onRoll.bind(this));
         html.find('.cancel-button').click(() => this.close());
-        html.find('.add-modifier').click(this._onAddModifier.bind(this));
         html.find('#save-template-check').change(this._onToggleSaveTemplate.bind(this));
-        html.find('.remove-modifier').click(this._onRemoveModifier.bind(this));
         html.find('.effect-toggle').change(this._onToggleEffect.bind(this));
     }
     
@@ -129,11 +125,8 @@ export class WodRollDialog extends Application {
             }
         }
         
-        // Collect all active modifiers (manual + enabled effect modifiers)
-        const allModifiers = [
-            ...this.modifiers,
-            ...this._getActiveEffectModifiers()
-        ];
+        // Collect all active modifiers (enabled effect modifiers only)
+        const allModifiers = this._getActiveEffectModifiers();
         
         // Execute roll
         await this.actor.rollPool(
@@ -153,32 +146,12 @@ export class WodRollDialog extends Application {
                 name: templateName,
                 traits: this.poolData.traits,
                 difficulty,
-                specialty,
-                modifiers: this.modifiers
+                specialty
             });
             ui.notifications.info(`Roll template "${templateName}" saved! Access it via the Quick Rolls panel.`);
         }
         
         this.close();
-    }
-    
-    _onAddModifier(event) {
-        event.preventDefault();
-        
-        const name = prompt("Modifier name:");
-        if (!name) return;
-        
-        const value = parseInt(prompt("Modifier value (+ or -):", "0"));
-        if (isNaN(value)) return;
-        
-        this.modifiers.push({ name, value });
-        this.render();
-    }
-    
-    _onRemoveModifier(event) {
-        const index = parseInt(event.currentTarget.dataset.index);
-        this.modifiers.splice(index, 1);
-        this.render();
     }
     
     _onToggleSaveTemplate(event) {

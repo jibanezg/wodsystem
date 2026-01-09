@@ -1,305 +1,709 @@
 /**
  * ==============================================
- * FOUNDRY DIALOG OVERRIDE - NUCLEAR OPTION
- * Forces all Foundry confirmation dialogs to use our styling
- * Excludes document creation dialogs to prevent breaking form elements on iOS
+ * FOUNDRY DIALOG OVERRIDE - SIMPLIFIED
+ * Simple, working dialog styling
  * ==============================================
  */
 
-/* CRITICAL iOS FIX: Don't override form layouts in document creation dialogs */
-.window-app:has(form.simple-document-sheet),
-.window-app:has(form[autocomplete="off"]) {
-    /* Let Foundry handle these dialogs natively */
-}
+/* ====================================
+   DIALOG WINDOW
+   ==================================== */
 
-.window-app:has(form.simple-document-sheet) *,
-.window-app:has(form[autocomplete="off"]) * {
-    /* Prevent our overrides from breaking create dialogs */
-    max-width: none !important;
-}
-
-/* Target ALL dialog windows EXCEPT create-actor */
 .app.dialog:not(.create-actor),
-.window-app.dialog:not(.create-actor),
-div.dialog.window-app:not(.create-actor),
-.app.window-app.dialog:not(.create-actor) {
-    background: transparent !important;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+.window-app.dialog:not(.create-actor) {
+    background: white !important;
     border: 2px solid #4682B4 !important;
     border-radius: 8px !important;
+    max-width: 540px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* HEADER - Force blue gradient */
+/* ====================================
+   HEADER
+   ==================================== */
+
 .app.dialog .window-header,
-.window-app.dialog .window-header,
-.app.dialog header,
-.window-app.dialog header,
-div.dialog header.window-header,
-.dialog header.window-header {
+.window-app.dialog .window-header {
     background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
-    background-color: #4682B4 !important;
     color: white !important;
+    padding: 10px 12px !important;
+    border-radius: 6px 6px 0 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.app.dialog .window-title,
+.window-app.dialog .window-title {
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 1em !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    font-weight: 700 !important;
-    border-radius: 6px 6px 0 0 !important;
-    padding: 12px 16px !important;
-    border-bottom: none !important;
-    border: none !important;
-}
-
-.app.dialog .window-header h4,
-.window-app.dialog .window-header h4,
-.dialog header h4,
-.dialog .window-header .window-title,
-.app.dialog .window-title {
-    color: white !important;
-    text-transform: uppercase !important;
     margin: 0 !important;
-}
-
-/* CONTENT - Force white background */
-.app.dialog .window-content,
-.window-app.dialog .window-content,
-.app.dialog section.window-content,
-.window-app.dialog section.window-content,
-div.dialog .window-content,
-.dialog section.window-content {
-    background: white !important;
-    background-color: white !important;
-    padding: 20px !important;
-    font-size: 0.95em !important;
-    line-height: 1.6 !important;
-    color: #333 !important;
-    border: none !important;
-    overflow: visible !important;
-    min-height: auto !important;
-    height: auto !important;
-}
-
-/* Text in content */
-.app.dialog .window-content p,
-.window-app.dialog .window-content p,
-.dialog .window-content p {
-    color: #333 !important;
-    margin: 0 0 10px 0 !important;
-}
-
-.app.dialog .window-content strong,
-.window-app.dialog .window-content strong,
-.dialog .window-content strong {
-    color: #4682B4 !important;
-    font-weight: 700 !important;
-}
-
-/* BUTTONS CONTAINER */
-.app.dialog .dialog-buttons,
-.window-app.dialog .dialog-buttons,
-div.dialog .dialog-buttons,
-.dialog .window-content .dialog-buttons,
-.app.dialog .window-content footer,
-.dialog footer {
-    padding: 12px 20px 20px 20px !important;
-    display: flex !important;
-    gap: 12px !important;
-    justify-content: center !important;
-    background: white !important;
-    background-color: white !important;
-    border-top: none !important;
-    margin: 0 !important;
-}
-
-/* ALL BUTTONS - Base styling (only in dialog-buttons container) */
-.app.dialog .dialog-buttons button,
-.window-app.dialog .dialog-buttons button,
-div.dialog .dialog-buttons button {
     flex: 1 !important;
-    max-width: 200px !important;
-    min-width: 150px !important;
-    padding: 12px 24px !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* Header controls */
+.app.dialog .window-header .close,
+.window-app.dialog .window-header .close {
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+    color: white !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+}
+
+/* Show only the icon, hide text */
+.app.dialog .window-header .close i,
+.window-app.dialog .window-header .close i {
+    font-size: 16px !important;
+    line-height: 1 !important;
+}
+
+/* ====================================
+   CONTENT
+   ==================================== */
+
+.app.dialog .window-content,
+.window-app.dialog .window-content {
+    background: white !important;
+    padding: 16px !important;
+    padding-right: 8px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    max-height: 70vh !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* ====================================
+   FORM ELEMENTS
+   ==================================== */
+
+.app.dialog form,
+.window-app.dialog form,
+form.wod-roll-dialog {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+    padding: 0 8px 0 0 !important;
+}
+
+.app.dialog form > *,
+.window-app.dialog form > *,
+form.wod-roll-dialog > * {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Add spacing between rows */
+form.wod-roll-dialog > .active-effects-section,
+form.wod-roll-dialog > .saved-rolls {
+    margin-top: 20px !important;
+}
+
+form.wod-roll-dialog > .dialog-buttons {
+    margin-top: 20px !important;
+}
+
+/* Ensure ALL sections inside roll-config are visible */
+.roll-config > * {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* ROLL CONFIG: Two-column layout - compact and efficient */
+.roll-config > .form-group,
+.roll-config > .checkbox-group {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    margin-right: 20px !important;
+    margin-bottom: 12px !important;
+    vertical-align: middle !important;
+}
+
+/* Regular form groups - compact */
+.app.dialog .form-group,
+.window-app.dialog .form-group {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    margin-bottom: 12px !important;
+}
+
+.app.dialog .form-group label,
+.window-app.dialog .form-group label {
+    font-weight: 600 !important;
+    color: #333 !important;
+    font-size: 0.9em !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+}
+
+/* Number inputs - ONLY as wide as needed */
+.app.dialog input[type="number"],
+.window-app.dialog input[type="number"],
+form.wod-roll-dialog input[type="number"] {
+    width: 70px !important;
+    max-width: 70px !important;
+    padding: 6px 10px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    font-size: 0.95em !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+}
+
+/* Text inputs and selects - compact when in form-group */
+.app.dialog .form-group input[type="text"],
+.app.dialog .form-group select,
+.window-app.dialog .form-group input[type="text"],
+.window-app.dialog .form-group select {
+    width: auto !important;
+    padding: 6px 10px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    font-size: 0.9em !important;
+    box-sizing: border-box !important;
+}
+
+/* Full width text inputs when NOT in form-group */
+.app.dialog input[type="text"],
+.app.dialog select,
+.window-app.dialog input[type="text"],
+.window-app.dialog select {
+    width: 100% !important;
+    padding: 8px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    font-size: 0.95em !important;
+    box-sizing: border-box !important;
+}
+
+/* Checkbox groups - compact, inline */
+.app.dialog .checkbox-group,
+.window-app.dialog .checkbox-group,
+form.wod-roll-dialog .checkbox-group {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    margin-bottom: 12px !important;
+}
+
+.app.dialog .checkbox-group label,
+.window-app.dialog .checkbox-group label,
+form.wod-roll-dialog .checkbox-group label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+    font-size: 0.9em !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+}
+
+.app.dialog input[type="checkbox"],
+.window-app.dialog input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+}
+
+/* ====================================
+   BUTTONS
+   ==================================== */
+
+.app.dialog .dialog-buttons,
+.window-app.dialog .dialog-buttons {
+    display: flex !important;
+    gap: 10px !important;
+    justify-content: flex-end !important;
+    padding: 12px 0 0 0 !important;
+    margin-top: 8px !important;
+    border-top: 1px solid #e0e0e0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    flex-wrap: nowrap !important;
+}
+
+.app.dialog .dialog-buttons button,
+.window-app.dialog .dialog-buttons button {
+    padding: 8px 16px !important;
+    border: none !important;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* Roll button - green */
+.app.dialog button.roll-button,
+.window-app.dialog button.roll-button,
+.app.dialog .dialog-buttons button:first-child,
+.window-app.dialog .dialog-buttons button:first-child {
+    background: #28a745 !important;
+    color: white !important;
+}
+
+.app.dialog button.roll-button:hover,
+.window-app.dialog button.roll-button:hover {
+    background: #218838 !important;
+}
+
+/* Cancel button - gray */
+.app.dialog button.cancel-button,
+.window-app.dialog button.cancel-button,
+.app.dialog .dialog-buttons button:last-child,
+.window-app.dialog .dialog-buttons button:last-child {
+    background: #6c757d !important;
+    color: white !important;
+}
+
+.app.dialog button.cancel-button:hover,
+.window-app.dialog button.cancel-button:hover {
+    background: #5a6268 !important;
+}
+
+/* ====================================
+   ROLL DIALOG SPECIFIC
+   ==================================== */
+
+/* Section headers inside content */
+.app.dialog .window-content h3,
+.window-app.dialog .window-content h3 {
+    background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 0 12px 0 !important;
+    border-radius: 4px !important;
+    font-size: 0.95em !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.app.dialog .window-content h4,
+.window-app.dialog .window-content h4 {
+    background: #5a9fd4 !important;
+    color: white !important;
+    padding: 6px 10px !important;
+    margin: 8px 0 8px 0 !important;
+    border-radius: 4px !important;
     font-size: 0.9em !important;
     font-weight: 600 !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+/* ROW 1: Pool Summary + Roll Configuration (two column layout) */
+.app.dialog .first-row-container,
+.window-app.dialog .first-row-container,
+form.wod-roll-dialog .first-row-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 0 !important;
+}
+
+/* Pool summary section - left column (constrained width) */
+.app.dialog .pool-summary,
+.window-app.dialog .pool-summary,
+form.wod-roll-dialog .pool-summary {
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    flex: 0 1 auto !important;
+    max-width: 400px !important;
+    padding: 16px !important;
+    background: white !important;
     border-radius: 6px !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid #e0e0e0 !important;
+    box-sizing: border-box !important;
+    height: 100% !important;
 }
 
-/* Exclude header buttons (close, minimize, etc) - Don't override header buttons */
-.window-app.dialog .window-header button,
-.dialog .window-header button,
-.window-app.dialog .window-header a {
-    flex: 0 !important;
-    max-width: none !important;
-    min-width: 0 !important;
-    padding: 0 !important;
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    text-transform: none !important;
-    letter-spacing: normal !important;
-    font-size: inherit !important;
-    font-weight: inherit !important;
-    border-radius: 0 !important;
-    transition: none !important;
-}
-
-.window-app.dialog .window-header button i,
-.dialog .window-header button i,
-.window-app.dialog .window-header a i {
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: inherit !important;
-}
-
-/* YES BUTTON - GREEN */
-.app.dialog button.yes,
-.window-app.dialog button.yes,
-.dialog button.yes,
-.app.dialog .dialog-buttons button.yes,
-.window-app.dialog .dialog-buttons button.yes,
-.dialog .dialog-buttons button:first-child,
-.app.dialog button[data-button="yes"],
-.dialog button[data-button="yes"] {
-    background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
-    background-color: #28a745 !important;
-    color: white !important;
-}
-
-.app.dialog button.yes:hover,
-.window-app.dialog button.yes:hover,
-.dialog button.yes:hover,
-.dialog .dialog-buttons button:first-child:hover {
-    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%) !important;
-    background-color: #218838 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
-}
-
-/* NO BUTTON - RED */
-.app.dialog button.no,
-.window-app.dialog button.no,
-.dialog button.no,
-.app.dialog .dialog-buttons button.no,
-.window-app.dialog .dialog-buttons button.no,
-.dialog .dialog-buttons button:last-child,
-.app.dialog button[data-button="no"],
-.dialog button[data-button="no"] {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
-    background-color: #dc3545 !important;
-    color: white !important;
-}
-
-.app.dialog button.no:hover,
-.window-app.dialog button.no:hover,
-.dialog button.no:hover,
-.dialog .dialog-buttons button:last-child:hover {
-    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%) !important;
-    background-color: #c82333 !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4) !important;
-}
-
-/* Icons in buttons (exclude header buttons) */
-.app.dialog .dialog-buttons button i,
-.window-app.dialog .dialog-buttons button i,
-.dialog .dialog-buttons button i,
-.app.dialog .window-content button i,
-.window-app.dialog .window-content button i,
-.dialog .window-content button i {
-    margin-right: 6px !important;
-    color: inherit !important;
-}
-
-/* FORM ELEMENTS - iOS/Safari compatibility fixes */
-.app.dialog form,
-.window-app.dialog form,
-.dialog form {
+.app.dialog .pool-breakdown,
+.window-app.dialog .pool-breakdown,
+form.wod-roll-dialog .pool-breakdown {
     display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
+    visibility: visible !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 8px 0 !important;
     width: 100% !important;
     max-width: 100% !important;
-    overflow: visible !important;
+    box-sizing: border-box !important;
 }
 
-.app.dialog .form-group,
-.window-app.dialog .form-group,
-.dialog .form-group {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 4px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    position: relative !important;
-    z-index: 1 !important;
+.app.dialog .trait-chip,
+.window-app.dialog .trait-chip,
+form.wod-roll-dialog .trait-chip {
+    display: inline-block !important;
+    visibility: visible !important;
+    background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%) !important;
+    color: white !important;
+    padding: 6px 14px !important;
+    border-radius: 16px !important;
+    font-size: 0.85em !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
-.app.dialog select,
-.window-app.dialog select,
-.dialog select,
-.app.dialog input[type="text"],
-.window-app.dialog input[type="text"],
-.dialog input[type="text"] {
+/* Total pool */
+.app.dialog .total-pool,
+.window-app.dialog .total-pool,
+form.wod-roll-dialog .total-pool {
     display: block !important;
+    visibility: visible !important;
+    padding: 10px 0 0 0 !important;
+    margin-top: 8px !important;
+    border-top: 1px solid #e0e0e0 !important;
+    font-size: 0.95em !important;
+    color: #333 !important;
+}
+
+.app.dialog .total-pool strong,
+.window-app.dialog .total-pool strong,
+form.wod-roll-dialog .total-pool strong {
+    color: #4682B4 !important;
+    font-size: 1.3em !important;
+    font-weight: 700 !important;
+}
+
+/* Roll configuration section - right column (compact, matches height) */
+.app.dialog .roll-config,
+.window-app.dialog .roll-config,
+form.wod-roll-dialog .roll-config {
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    flex: 0 0 auto !important;
+    min-width: 240px !important;
+    max-width: 280px !important;
+    padding: 16px !important;
+    background: white !important;
+    border-radius: 6px !important;
+    border: 1px solid #e0e0e0 !important;
+    box-sizing: border-box !important;
+    gap: 12px !important;
+    height: 100% !important;
+}
+
+/* Roll config form groups - stack vertically (two rows) */
+.app.dialog .roll-config .form-group,
+.window-app.dialog .roll-config .form-group,
+form.wod-roll-dialog .roll-config .form-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
     width: 100% !important;
-    max-width: 100% !important;
-    padding: 10px !important;
+    margin: 0 !important;
+}
+
+.app.dialog .roll-config .checkbox-group,
+.window-app.dialog .roll-config .checkbox-group,
+form.wod-roll-dialog .roll-config .checkbox-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* ROW 2: Active effects section - match first-row-container width */
+.app.dialog .active-effects-section,
+.window-app.dialog .active-effects-section,
+form.wod-roll-dialog .active-effects-section {
+    display: block !important;
+    visibility: visible !important;
+    background: white !important;
+    padding: 16px !important;
+    border-radius: 6px !important;
+    border: 1px solid #e0e0e0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+.app.dialog .mandatory-effects,
+.app.dialog .optional-effects,
+.window-app.dialog .mandatory-effects,
+.window-app.dialog .optional-effects,
+form.wod-roll-dialog .mandatory-effects,
+form.wod-roll-dialog .optional-effects {
+    display: block !important;
+    visibility: visible !important;
+    margin-bottom: 12px !important;
+}
+
+.app.dialog .effects-category,
+.window-app.dialog .effects-category,
+form.wod-roll-dialog .effects-category {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-weight: 600 !important;
+    color: #4682B4 !important;
+    margin-bottom: 10px !important;
+    font-size: 0.9em !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+}
+
+.app.dialog .effect-item,
+.window-app.dialog .effect-item,
+form.wod-roll-dialog .effect-item {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 8px 12px !important;
+    background: white !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    margin-bottom: 6px !important;
+    font-size: 0.9em !important;
+}
+
+.app.dialog .effect-item.mandatory,
+.window-app.dialog .effect-item.mandatory,
+form.wod-roll-dialog .effect-item.mandatory {
+    background: #fff9e6 !important;
+    border-left: 3px solid #ffc107 !important;
+}
+
+.app.dialog .effect-item.optional,
+.window-app.dialog .effect-item.optional,
+form.wod-roll-dialog .effect-item.optional {
+    background: #f0f8ff !important;
+    border-left: 3px solid #4682B4 !important;
+}
+
+.app.dialog .effect-item i,
+.window-app.dialog .effect-item i,
+form.wod-roll-dialog .effect-item i {
+    color: #666 !important;
+    font-size: 0.9em !important;
+}
+
+.app.dialog .effect-name,
+.window-app.dialog .effect-name,
+form.wod-roll-dialog .effect-name {
+    flex: 1 !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+}
+
+.app.dialog .effect-modifier,
+.window-app.dialog .effect-modifier,
+form.wod-roll-dialog .effect-modifier {
+    font-weight: 700 !important;
+    padding: 3px 10px !important;
+    border-radius: 4px !important;
+    font-size: 0.85em !important;
+}
+
+.app.dialog .effect-modifier.positive,
+.window-app.dialog .effect-modifier.positive,
+form.wod-roll-dialog .effect-modifier.positive {
+    color: #155724 !important;
+    background: #d4edda !important;
+}
+
+.app.dialog .effect-modifier.negative,
+.window-app.dialog .effect-modifier.negative,
+form.wod-roll-dialog .effect-modifier.negative {
+    color: #721c24 !important;
+    background: #f8d7da !important;
+}
+
+.app.dialog .approval-note,
+.window-app.dialog .approval-note,
+form.wod-roll-dialog .approval-note {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 10px 0 0 0 !important;
+    padding: 8px 10px !important;
+    background: #e7f3ff !important;
+    border-left: 3px solid #4682B4 !important;
+    border-radius: 3px !important;
+    font-size: 0.8em !important;
+    color: #666 !important;
+    font-style: italic !important;
+}
+
+.app.dialog .effect-toggle,
+.window-app.dialog .effect-toggle,
+form.wod-roll-dialog .effect-toggle {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+}
+
+/* ROW 3: Saved rolls section - match first-row-container width */
+.app.dialog .saved-rolls,
+.window-app.dialog .saved-rolls,
+form.wod-roll-dialog .saved-rolls {
+    display: flex !important;
+    visibility: visible !important;
+    flex-direction: column !important;
+    background: white !important;
+    padding: 16px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 6px !important;
+    gap: 12px !important;
+}
+
+.app.dialog .saved-rolls label,
+.window-app.dialog .saved-rolls label,
+form.wod-roll-dialog .saved-rolls label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    font-size: 0.85em !important;
+    font-weight: 500 !important;
+    color: #666 !important;
+}
+
+.app.dialog .saved-rolls input[type="checkbox"],
+.window-app.dialog .saved-rolls input[type="checkbox"],
+form.wod-roll-dialog .saved-rolls input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+}
+
+.app.dialog .saved-rolls input[type="text"],
+.window-app.dialog .saved-rolls input[type="text"],
+form.wod-roll-dialog .saved-rolls input[type="text"],
+#template-name {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+    padding: 6px 8px !important;
     border: 1px solid #ccc !important;
     border-radius: 4px !important;
-    font-size: 16px !important;
-    background: white !important;
-    color: #333 !important;
+    font-size: 0.85em !important;
     box-sizing: border-box !important;
-    margin: 0 !important;
-    position: relative !important;
-    z-index: 2 !important;
-    
-    /* iOS-specific fixes */
-    -webkit-appearance: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-    touch-action: manipulation !important;
+    background: white !important;
 }
 
-.app.dialog select,
-.window-app.dialog select,
-.dialog select {
-    /* Restore native select appearance for iOS */
-    -webkit-appearance: menulist !important;
-    appearance: menulist !important;
-    min-height: 44px !important;
-    height: auto !important;
-    line-height: normal !important;
-    cursor: pointer !important;
-    
-    /* Ensure select is visible and clickable on iOS */
-    opacity: 1 !important;
-    visibility: visible !important;
-    pointer-events: auto !important;
+/* ====================================
+   EFFECT MANAGER SPECIFIC
+   ==================================== */
+
+.app.dialog.effect-manager .modifiers-list,
+.window-app.dialog.effect-manager .modifiers-list {
+    max-height: 200px !important;
+    overflow-y: auto !important;
 }
 
-.app.dialog label,
-.window-app.dialog label,
-.dialog label {
-    display: block !important;
-    font-weight: 600 !important;
-    color: #333 !important;
-    margin-bottom: 4px !important;
-    font-size: 14px !important;
-    line-height: 1.4 !important;
+.app.dialog.effect-manager .modifier-row,
+.window-app.dialog.effect-manager .modifier-row {
+    display: flex !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+    align-items: stretch !important;
 }
 
-/* iOS viewport meta fix - prevent zoom on focus */
-@supports (-webkit-touch-callout: none) {
-    .app.dialog input,
-    .app.dialog select,
-    .app.dialog textarea {
-        font-size: 16px !important;
-    }
+.app.dialog.effect-manager .modifier-row select,
+.app.dialog.effect-manager .modifier-row input,
+.window-app.dialog.effect-manager .modifier-row select,
+.window-app.dialog.effect-manager .modifier-row input {
+    height: 32px !important;
+    padding: 6px 8px !important;
+    box-sizing: border-box !important;
 }
 
+.app.dialog.effect-manager .modifier-row button,
+.window-app.dialog.effect-manager .modifier-row button {
+    height: 32px !important;
+    min-width: 32px !important;
+    padding: 6px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.app.dialog.effect-manager .condition-targets-checkboxes,
+.window-app.dialog.effect-manager .condition-targets-checkboxes {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 8px !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+}
+
+/* Ensure condition target group respects inline display:none */
+.app.dialog.effect-manager .condition-target-group[style*="display: none"],
+.window-app.dialog.effect-manager .condition-target-group[style*="display: none"] {
+    display: none !important;
+}

@@ -1704,13 +1704,33 @@ export class WodCharacterWizard extends FormApplication {
     const tooltip = $('<div class="wod-reference-tooltip"></div>');
     tooltip.html(service.generateTooltipHTML(reference));
     
+    // Store reference data on the tooltip for the chat button
+    tooltip.data('reference', reference);
+    
     // Add to body with visibility hidden to measure
     tooltip.css({ 
       visibility: 'hidden', 
       display: 'block',
-      position: 'fixed'  // Use fixed positioning relative to viewport
+      position: 'fixed',  // Use fixed positioning relative to viewport
+      pointerEvents: 'auto'  // Enable click events
     });
     $('body').append(tooltip);
+    
+    // Add click handler for post-to-chat button
+    tooltip.find('.post-to-chat-btn').on('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const ref = tooltip.data('reference');
+      if (ref) {
+        await this._postReferenceToChat(ref);
+        this._hideReferenceTooltip();
+      }
+    });
+    
+    // Prevent tooltip from closing when clicking inside it
+    tooltip.on('click', (e) => {
+      e.stopPropagation();
+    });
     
     // Get dimensions
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1749,11 +1769,19 @@ export class WodCharacterWizard extends FormApplication {
       maxHeight: (windowHeight - 20) + 'px',  // Limit height to viewport
       overflowY: 'auto',  // Allow scrolling if content is too long
       visibility: 'visible',
-      display: 'none'
+      display: 'none',
+      pointerEvents: 'auto'  // Enable click events
     });
     
     // Fade in
     tooltip.fadeIn(200);
+    
+    // Close tooltip when clicking outside (use setTimeout to prevent immediate closure)
+    setTimeout(() => {
+      $(document).one('click', () => {
+        this._hideReferenceTooltip();
+      });
+    }, 100);
   }
   
   /**
