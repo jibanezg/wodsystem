@@ -796,20 +796,26 @@ export class WodCharacterWizard extends FormApplication {
     });
 
     // Background reference buttons
-    html.find('.background-reference-btn').click((event) => {
+    html.find('.step-advantages .background-reference-btn').click((event) => {
       event.preventDefault();
       event.stopPropagation();
       
       const $button = $(event.currentTarget);
-      const background = $button.data('background');
+      const backgroundName = $button.attr('data-background-name');
       
-      if (background) {
-        // Toggle tooltip on click
-        const existingTooltip = $('.wod-reference-tooltip');
-        if (existingTooltip.length) {
-          this._hideReferenceTooltip();
-        } else {
-          this._showBackgroundTooltip(event, background);
+      console.log('Background reference button clicked in advantages step:', backgroundName);
+      
+      if (backgroundName && service && service.initialized) {
+        const background = service.getBackgroundByName(backgroundName);
+        console.log('Found background data:', background);
+        if (background) {
+          // Toggle tooltip on click
+          const existingTooltip = $('.wod-reference-tooltip');
+          if (existingTooltip.length) {
+            this._hideReferenceTooltip();
+          } else {
+            this._showBackgroundTooltip(event, background);
+          }
         }
       }
     });
@@ -1922,12 +1928,15 @@ export class WodCharacterWizard extends FormApplication {
       event.preventDefault();
       event.stopPropagation();
       
-      // Read from the adjacent text input, not the data attribute
+      // Read background name from button's data-background-name attribute
       const $button = $(event.currentTarget);
-      const backgroundName = $button.siblings('.background-name').val();
+      const backgroundName = $button.attr('data-background-name');
+      
+      console.log('Background reference button clicked in freebies step:', backgroundName);
       
       if (backgroundName && service && service.initialized) {
         const background = service.getBackgroundByName(backgroundName);
+        console.log('Found background data:', background);
         if (background) {
           // Toggle tooltip on click
           const existingTooltip = $('.wod-reference-tooltip');

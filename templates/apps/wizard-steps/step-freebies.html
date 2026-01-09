@@ -90,7 +90,7 @@
           {{#each this}}
           <div class="freebie-item">
             <span class="item-name">{{@key}}</span>
-            <span class="item-current">{{default this 0}}</span>
+            <span class="item-current">Current: {{default this 0}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
@@ -132,7 +132,7 @@
             <button type="button" class="background-reference-btn" data-background-name="{{../../this}}" title="View {{../../this}} details">
               <i class="fas fa-book"></i>
             </button>
-            <span class="item-current">{{default bgValue 0}}</span>
+            <span class="item-current">Current: {{default bgValue 0}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
@@ -168,7 +168,7 @@
           {{#each config.advantages.spheres.available}}
           <div class="freebie-item">
             <span class="item-name">{{this}}</span>
-            <span class="item-current">{{default (lookup @root.wizardData.advantages.spheres @key) 0}}</span>
+            <span class="item-current">Current: {{default (lookup @root.wizardData.advantages.spheres @key) 0}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
