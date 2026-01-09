@@ -176,7 +176,8 @@ ul.bullet-section li strong {
     padding: 9px 12px !important;
     border-bottom: 1px solid #e9ecef !important;
     border-right: 1px solid #e9ecef !important;
-    color: #212529 !important;
+    color: #1a1a1a !important;
+    background: #ffffff !important;
 }
 
 .wod-reference-tooltip .description table tbody td:first-child,
@@ -199,6 +200,11 @@ ul.bullet-section li strong {
 
 .wod-reference-tooltip .description table tbody tr:hover,
 .wod-reference-tooltip table tbody tr:hover {
+    background: transparent !important;
+}
+
+.wod-reference-tooltip .description table tbody tr:hover td,
+.wod-reference-tooltip table tbody tr:hover td {
     background: #f1f8ff !important;
 }
 
@@ -509,7 +515,8 @@ ul.bullet-section li strong {
     padding: 9px 12px !important;
     border-bottom: 1px solid #e9ecef !important;
     border-right: 1px solid #e9ecef !important;
-    color: #212529 !important;
+    color: #1a1a1a !important;
+    background: #ffffff !important;
 }
 
 .wod-reference-card .reference-description table tbody td:first-child {
@@ -528,6 +535,10 @@ ul.bullet-section li strong {
 }
 
 .wod-reference-card .reference-description table tbody tr:hover {
+    background: transparent !important;
+}
+
+.wod-reference-card .reference-description table tbody tr:hover td {
     background: #f1f8ff !important;
 }
 
