@@ -104,65 +104,107 @@
 }
 
 /* Bullet sections within descriptions */
-.wod-reference-tooltip .description ul.bullet-section {
-    margin: 12px 0;
-    padding: 12px 16px;
-    background: rgba(156, 39, 176, 0.12);
-    border-left: 4px solid #9C27B0;
-    border-radius: 4px;
-    list-style: disc;
-    list-style-position: inside;
+.wod-reference-tooltip .description ul.bullet-section,
+.wod-reference-tooltip ul.bullet-section,
+ul.bullet-section {
+    margin: 12px 0 !important;
+    padding: 14px 18px 14px 36px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    border-left: 4px solid #4682B4 !important;
+    border-radius: 6px !important;
+    list-style: disc !important;
+    list-style-position: outside !important;
 }
 
-.wod-reference-tooltip .description ul.bullet-section li {
-    margin: 8px 0;
-    padding-left: 8px;
-    line-height: 1.7;
-    color: #1a1a1a !important;
-    font-size: 0.95em;
+.wod-reference-tooltip .description ul.bullet-section li,
+.wod-reference-tooltip ul.bullet-section li,
+ul.bullet-section li {
+    margin: 6px 0 !important;
+    padding-left: 4px !important;
+    line-height: 1.6 !important;
+    color: #212529 !important;
+    font-size: 0.9em !important;
 }
 
-.wod-reference-tooltip .description ul.bullet-section li::marker {
-    color: #7B1FA2;
-    font-size: 1.2em;
+.wod-reference-tooltip .description ul.bullet-section li::marker,
+.wod-reference-tooltip ul.bullet-section li::marker,
+ul.bullet-section li::marker {
+    color: #4682B4 !important;
 }
 
-.wod-reference-tooltip .description ul.bullet-section li strong {
-    color: #6A1B9A !important;
-    font-weight: 700;
+.wod-reference-tooltip .description ul.bullet-section li strong,
+.wod-reference-tooltip ul.bullet-section li strong,
+ul.bullet-section li strong {
+    color: #2F4F6F !important;
+    font-weight: 600 !important;
 }
 
-/* Table sections within descriptions */
-.wod-reference-tooltip .description table {
-    margin: 12px 0;
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 0.9em;
+/* Table sections within descriptions - Clean, professional style */
+.wod-reference-tooltip .description table,
+.wod-reference-tooltip table {
+    margin: 16px 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+    font-size: 0.88em !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
 }
 
-.wod-reference-tooltip .description table thead {
-    background: #9C27B0;
-    color: white;
+.wod-reference-tooltip .description table thead,
+.wod-reference-tooltip table thead {
+    background: linear-gradient(135deg, #4682B4 0%, #5a9fd4 100%) !important;
 }
 
-.wod-reference-tooltip .description table th {
-    padding: 8px;
-    text-align: left;
-    font-weight: 600;
+.wod-reference-tooltip .description table thead th,
+.wod-reference-tooltip table thead th {
+    padding: 10px 12px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    font-size: 0.85em !important;
+    letter-spacing: 0.5px !important;
 }
 
-.wod-reference-tooltip .description table td {
-    padding: 6px 8px;
-    border: 1px solid #ddd;
-    color: #222;
+.wod-reference-tooltip .description table tbody td,
+.wod-reference-tooltip table tbody td {
+    padding: 9px 12px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    border-right: 1px solid #e9ecef !important;
+    color: #212529 !important;
 }
 
-.wod-reference-tooltip .description table tr:nth-child(even) {
-    background: rgba(123, 31, 162, 0.05);
+.wod-reference-tooltip .description table tbody td:first-child,
+.wod-reference-tooltip table tbody td:first-child {
+    font-weight: 600 !important;
+    color: #2F4F6F !important;
+    background: #f8f9fa !important;
+    width: 40% !important;
 }
 
-.wod-reference-tooltip .description table tr:hover {
-    background: rgba(123, 31, 162, 0.12);
+.wod-reference-tooltip .description table tbody td:last-child,
+.wod-reference-tooltip table tbody td:last-child {
+    border-right: none !important;
+}
+
+.wod-reference-tooltip .description table tbody tr:last-child td,
+.wod-reference-tooltip table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.wod-reference-tooltip .description table tbody tr:hover,
+.wod-reference-tooltip table tbody tr:hover {
+    background: #f1f8ff !important;
+}
+
+.wod-reference-tooltip .description table tbody tr:hover td:first-child,
+.wod-reference-tooltip table tbody tr:hover td:first-child {
+    background: #e7f3ff !important;
 }
 
 .wod-reference-tooltip .game-effects {
@@ -408,64 +450,89 @@
 
 /* Bullet sections within chat card descriptions */
 .wod-reference-card .reference-description ul.bullet-section {
-    margin: 12px 0;
-    padding: 12px 16px;
-    background: rgba(156, 39, 176, 0.12);
-    border-left: 4px solid #9C27B0;
-    border-radius: 4px;
-    list-style: disc;
-    list-style-position: inside;
+    margin: 12px 0 !important;
+    padding: 14px 18px 14px 36px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    border-left: 4px solid #4682B4 !important;
+    border-radius: 6px !important;
+    list-style: disc !important;
+    list-style-position: outside !important;
 }
 
 .wod-reference-card .reference-description ul.bullet-section li {
-    margin: 8px 0;
-    padding-left: 8px;
-    line-height: 1.7;
-    color: #1a1a1a !important;
-    font-size: 0.95em;
+    margin: 6px 0 !important;
+    padding-left: 4px !important;
+    line-height: 1.6 !important;
+    color: #212529 !important;
+    font-size: 0.9em !important;
 }
 
 .wod-reference-card .reference-description ul.bullet-section li::marker {
-    color: #7B1FA2;
-    font-size: 1.2em;
+    color: #4682B4 !important;
 }
 
 .wod-reference-card .reference-description ul.bullet-section li strong {
-    color: #6A1B9A !important;
-    font-weight: 700;
+    color: #2F4F6F !important;
+    font-weight: 600 !important;
 }
 
 /* Table sections within chat card descriptions */
 .wod-reference-card .reference-description table {
-    margin: 12px 0;
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 0.9em;
+    margin: 16px 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+    font-size: 0.88em !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
 }
 
 .wod-reference-card .reference-description table thead {
-    background: #9C27B0;
-    color: white;
+    background: linear-gradient(135deg, #4682B4 0%, #5a9fd4 100%) !important;
 }
 
-.wod-reference-card .reference-description table th {
-    padding: 8px;
-    text-align: left;
-    font-weight: 600;
+.wod-reference-card .reference-description table thead th {
+    padding: 10px 12px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    font-size: 0.85em !important;
+    letter-spacing: 0.5px !important;
 }
 
-.wod-reference-card .reference-description table td {
-    padding: 6px 8px;
-    border: 1px solid #ddd;
-    color: #222;
+.wod-reference-card .reference-description table tbody td {
+    padding: 9px 12px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    border-right: 1px solid #e9ecef !important;
+    color: #212529 !important;
 }
 
-.wod-reference-card .reference-description table tr:nth-child(even) {
-    background: rgba(123, 31, 162, 0.05);
+.wod-reference-card .reference-description table tbody td:first-child {
+    font-weight: 600 !important;
+    color: #2F4F6F !important;
+    background: #f8f9fa !important;
+    width: 40% !important;
 }
 
-.wod-reference-card .reference-description table tr:hover {
-    background: rgba(123, 31, 162, 0.12);
+.wod-reference-card .reference-description table tbody td:last-child {
+    border-right: none !important;
+}
+
+.wod-reference-card .reference-description table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.wod-reference-card .reference-description table tbody tr:hover {
+    background: #f1f8ff !important;
+}
+
+.wod-reference-card .reference-description table tbody tr:hover td:first-child {
+    background: #e7f3ff !important;
 }
 
 /* Effects section */
