@@ -72,27 +72,28 @@
 }
 
 /* Position each box around the circle */
-/* Starting at upper-left and going clockwise, shifted ~18° for better alignment, larger radius */
-.wheel-box[data-index="0"] { transform: translate(-92px, -31px); }
-.wheel-box[data-index="1"] { transform: translate(-81px, -59px); }
-.wheel-box[data-index="2"] { transform: translate(-62px, -80px); }
-.wheel-box[data-index="3"] { transform: translate(-37px, -93px); }
-.wheel-box[data-index="4"] { transform: translate(-7px, -100px); }
-.wheel-box[data-index="5"] { transform: translate(24px, -98px); }
-.wheel-box[data-index="6"] { transform: translate(53px, -87px); }
-.wheel-box[data-index="7"] { transform: translate(76px, -69px); }
-.wheel-box[data-index="8"] { transform: translate(90px, -46px); }
-.wheel-box[data-index="9"] { transform: translate(99px, -19px); }
-.wheel-box[data-index="10"] { transform: translate(100px, 11px); }
-.wheel-box[data-index="11"] { transform: translate(91px, 41px); }
-.wheel-box[data-index="12"] { transform: translate(73px, 68px); }
-.wheel-box[data-index="13"] { transform: translate(50px, 88px); }
-.wheel-box[data-index="14"] { transform: translate(21px, 99px); }
-.wheel-box[data-index="15"] { transform: translate(-10px, 100px); }
-.wheel-box[data-index="16"] { transform: translate(-40px, 92px); }
-.wheel-box[data-index="17"] { transform: translate(-67px, 77px); }
-.wheel-box[data-index="18"] { transform: translate(-87px, 53px); }
-.wheel-box[data-index="19"] { transform: translate(-98px, 24px); }
+/* Perfect circle: 20 boxes evenly spaced (18° apart), starting from upper-left, going clockwise */
+/* Starting angle: -162° (upper-left), radius: 100px */
+.wheel-box[data-index="0"] { transform: translate(-95.11px, -30.90px); }
+.wheel-box[data-index="1"] { transform: translate(-80.90px, -58.78px); }
+.wheel-box[data-index="2"] { transform: translate(-58.78px, -80.90px); }
+.wheel-box[data-index="3"] { transform: translate(-30.90px, -95.11px); }
+.wheel-box[data-index="4"] { transform: translate(0px, -100px); }
+.wheel-box[data-index="5"] { transform: translate(30.90px, -95.11px); }
+.wheel-box[data-index="6"] { transform: translate(58.78px, -80.90px); }
+.wheel-box[data-index="7"] { transform: translate(80.90px, -58.78px); }
+.wheel-box[data-index="8"] { transform: translate(95.11px, -30.90px); }
+.wheel-box[data-index="9"] { transform: translate(100px, 0px); }
+.wheel-box[data-index="10"] { transform: translate(95.11px, 30.90px); }
+.wheel-box[data-index="11"] { transform: translate(80.90px, 58.78px); }
+.wheel-box[data-index="12"] { transform: translate(58.78px, 80.90px); }
+.wheel-box[data-index="13"] { transform: translate(30.90px, 95.11px); }
+.wheel-box[data-index="14"] { transform: translate(0px, 100px); }
+.wheel-box[data-index="15"] { transform: translate(-30.90px, 95.11px); }
+.wheel-box[data-index="16"] { transform: translate(-58.78px, 80.90px); }
+.wheel-box[data-index="17"] { transform: translate(-80.90px, 58.78px); }
+.wheel-box[data-index="18"] { transform: translate(-95.11px, 30.90px); }
+.wheel-box[data-index="19"] { transform: translate(-100px, 0px); }
 
 /* Permanent (solid black fill with white text) */
 .wheel-box.permanent {

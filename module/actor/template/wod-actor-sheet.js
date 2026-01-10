@@ -2778,9 +2778,10 @@ export class WodActorSheet extends ActorSheet {
         const index = parseInt(box.dataset.index);
         
         // DEQUE APPROACH: Use arrays of filled indices
-        const quintessenceCount = this.actor.system.advantages.primalEnergy.current || 0;
+        // Ensure values are numbers, not strings
+        const quintessenceCount = Number(this.actor.system.advantages.primalEnergy.current) || 0;
         const permanentParadox = this._getEnhancementParadox();
-        const currentParadox = this.actor.system.advantages.paradox.current || 0;
+        const currentParadox = Number(this.actor.system.advantages.paradox.current) || 0;
         const totalParadox = permanentParadox + currentParadox;
         
         // Build deque arrays
@@ -2892,7 +2893,12 @@ export class WodActorSheet extends ActorSheet {
                 if (!typeToAdd) return; // User closed dialog
             } else {
                 // Normal type determination
-                const positionType = index <= 9 ? 'quintessence' : 'paradox';
+                // Determine type based on sequential fill pattern, not visual position
+                // Quintessence fills from left (0, 1, 2...), Paradox fills from right (19, 18, 17...)
+                const quintessenceStart = 0;
+                const paradoxStart = 19;
+                const distanceToQuintessence = Math.abs(index - quintessenceCount);
+                const distanceToParadox = Math.abs(index - (19 - totalParadox));
                 
                 // If clicking the expected next box for that type, use that type
                 const isNextQuintessence = index === quintessenceCount;
@@ -2903,11 +2909,20 @@ export class WodActorSheet extends ActorSheet {
                 } else if (isNextParadox && !isNextQuintessence) {
                     typeToAdd = 'paradox';
                 } else if (isNextQuintessence && isNextParadox) {
-                    // Both are valid next - use last type or position
-                    typeToAdd = lastAddedType || positionType;
+                    // Both are valid next - use last type, or default to quintessence
+                    typeToAdd = lastAddedType || 'quintessence';
                 } else {
-                    // Not a valid next box for either - use last type
-                    typeToAdd = lastAddedType || positionType;
+                    // Not a valid next box for either - determine by which sequential position is closer
+                    // If closer to quintessence fill position, prefer quintessence
+                    // If closer to paradox fill position, prefer paradox
+                    if (distanceToQuintessence < distanceToParadox) {
+                        typeToAdd = 'quintessence';
+                    } else if (distanceToParadox < distanceToQuintessence) {
+                        typeToAdd = 'paradox';
+                    } else {
+                        // Equal distance - use last type or default to quintessence
+                        typeToAdd = lastAddedType || 'quintessence';
+                    }
                 }
             }
             
