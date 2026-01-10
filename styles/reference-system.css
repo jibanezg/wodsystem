@@ -968,12 +968,12 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 
 .wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(2),
 .wod-sphere-table-tooltip .sphere-special-table:has(tbody td:nth-child(4)) tbody td:nth-child(2) {
-    width: 8% !important;
+    width: 6% !important;
 }
 
 .wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(3),
 .wod-sphere-table-tooltip .sphere-special-table:has(tbody td:nth-child(4)) tbody td:nth-child(3) {
-    width: 18% !important;
+    width: 20% !important;
 }
 
 .wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(4),

@@ -70,6 +70,7 @@ async function handleSocketData(data) {
         await WodStApprovalDialog.showApprovalDialog(actor, data.effectIds, data.playerId);
     }
     
+    
     // Players listen for approval responses
     if (data.type === 'effectApprovalResponse') {
         console.log("WoD Approval - Player received response:", data);
@@ -264,12 +265,15 @@ export class WodStApprovalDialog extends Application {
 
         // Wait for response via hook (will be triggered by socket OR chat message)
         return new Promise((resolve) => {
+            let timeoutId;
+            
             const hookId = Hooks.on('wodEffectApprovalResponse', (data) => {
                 console.log("WoD Approval - Player received response:", data);
                 
                 if (data.requestId === requestId) {
                     console.log("WoD Approval - RequestId matches! Approved:", data.approved);
                     Hooks.off('wodEffectApprovalResponse', hookId);
+                    clearTimeout(timeoutId); // Clear the timeout
                     
                     if (data.approved) {
                         ui.notifications.success("Storyteller approved your effect! Proceeding with roll...");
@@ -282,7 +286,7 @@ export class WodStApprovalDialog extends Application {
             });
 
             // Timeout after 60 seconds
-            setTimeout(() => {
+            timeoutId = setTimeout(() => {
                 Hooks.off('wodEffectApprovalResponse', hookId);
                 console.error("WoD Approval - Request timed out after 60 seconds");
                 console.error("WoD Approval - No response received for requestId:", requestId);
@@ -370,6 +374,16 @@ export function initializeApprovalSocket() {
             
             // Trigger the hook so the waiting promise resolves
             Hooks.callAll('wodEffectApprovalResponse', {
+                requestId: flags.requestId,
+                approved: flags.approved
+            });
+        }
+        
+        if (flags?.paradoxRemovalResponse) {
+            console.log("WoD Approval - Received Paradox removal response via chat:", flags);
+            
+            // Trigger the hook so the waiting promise resolves
+            Hooks.callAll('wodParadoxRemovalResponse', {
                 requestId: flags.requestId,
                 approved: flags.approved
             });
@@ -464,6 +478,117 @@ function registerChatButtonHandlers() {
         }
         
         ui.notifications.success("Effect approved!");
+    });
+    
+    // Handle Paradox removal approval
+    $(document).on('click', '.approve-paradox-btn', async function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const requestId = $(this).data('request-id');
+        
+        if (!game.user.isGM) {
+            ui.notifications.warn("Only the Storyteller can approve Paradox removal.");
+            return;
+        }
+        
+        // Disable buttons immediately
+        $(this).closest('.approval-buttons').find('button').prop('disabled', true).css('opacity', '0.5');
+        
+        // Extract actor ID from requestId (format: paradox-removal-{actorId}-{timestamp})
+        const parts = requestId.split('-');
+        const actorId = parts[2]; // Skip "paradox" and "removal"
+        const actor = game.actors.get(actorId);
+        
+        if (actor) {
+            // Find the player who owns this actor
+            const playerUser = game.users.find(u => {
+                return actor.testUserPermission(u, "OWNER") && !u.isGM;
+            });
+            
+            if (playerUser) {
+                // Send whispered response to player with flags
+                await ChatMessage.create({
+                    content: `<div style="background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold;">
+                        <i class="fas fa-check-circle"></i> Your Paradox removal request for <strong>${actor.name}</strong> has been APPROVED!
+                    </div>`,
+                    whisper: [playerUser.id],
+                    speaker: { alias: "WoD System" },
+                    style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
+                    flags: {
+                        wodsystem: {
+                            paradoxRemovalResponse: true,
+                            requestId: requestId,
+                            approved: true
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Update chat message
+        $(this).closest('.wod-approval-request').html(`
+            <p style="color: #2ECC71; font-weight: bold;">
+                <i class="fas fa-check-circle"></i> Permanent Paradox removal approved
+            </p>
+        `);
+        
+        ui.notifications.success("Paradox removal approved!");
+    });
+    
+    $(document).on('click', '.deny-paradox-btn', async function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const requestId = $(this).data('request-id');
+        
+        if (!game.user.isGM) {
+            ui.notifications.warn("Only the Storyteller can deny Paradox removal.");
+            return;
+        }
+        
+        // Disable buttons immediately
+        $(this).closest('.approval-buttons').find('button').prop('disabled', true).css('opacity', '0.5');
+        
+        // Extract actor ID from requestId (format: paradox-removal-{actorId}-{timestamp})
+        const parts = requestId.split('-');
+        const actorId = parts[2]; // Skip "paradox" and "removal"
+        const actor = game.actors.get(actorId);
+        
+        if (actor) {
+            // Find the player who owns this actor
+            const playerUser = game.users.find(u => {
+                return actor.testUserPermission(u, "OWNER") && !u.isGM;
+            });
+            
+            if (playerUser) {
+                // Send whispered response to player with flags
+                await ChatMessage.create({
+                    content: `<div style="background: linear-gradient(135deg, #E74C3C, #C0392B); color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold;">
+                        <i class="fas fa-times-circle"></i> Your Paradox removal request for <strong>${actor.name}</strong> has been DENIED
+                    </div>`,
+                    whisper: [playerUser.id],
+                    speaker: { alias: "WoD System" },
+                    style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
+                    flags: {
+                        wodsystem: {
+                            paradoxRemovalResponse: true,
+                            requestId: requestId,
+                            approved: false
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Update chat message
+        $(this).closest('.wod-approval-request').html(`
+            <p style="color: #E74C3C; font-weight: bold;">
+                <i class="fas fa-times-circle"></i> Permanent Paradox removal denied
+            </p>
+        `);
+        
+        ui.notifications.info("Paradox removal denied");
     });
     
     $(document).on('click', '.deny-effect-btn', async function(event) {

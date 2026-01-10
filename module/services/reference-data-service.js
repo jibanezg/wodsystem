@@ -525,13 +525,6 @@ export class ReferenceDataService {
                     ${tableHTML}
                 </div>
                 ${footnotesHTML}
-                <div class="tooltip-footer">
-                    <button class="post-table-btn" type="button" 
-                            data-action="post-table" 
-                            title="Post table to chat">
-                        <i class="fas fa-comment-dots"></i> Post Table
-                    </button>
-                </div>
             </div>
         `;
     }

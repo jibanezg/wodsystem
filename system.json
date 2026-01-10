@@ -2,7 +2,7 @@
   "id": "wodsystem",
   "title": "World of Darkness System",
   "description": "A system for playing World of Darkness games in Foundry VTT",
-  "version": "1.2.4",
+  "version": "1.0.0",
   "compatibility": {
     "minimum": "13",
     "verified": "13",
@@ -27,6 +27,7 @@
     "styles/themes/equipment-overrides.css",
     "styles/themes/visual-polish.css",
     "styles/themes/foundry-dialog-override.css",
+    "styles/themes/quintessence-paradox-wheel.css",
     "styles/character-wizard.css",
     "styles/reference-system.css"
   ],

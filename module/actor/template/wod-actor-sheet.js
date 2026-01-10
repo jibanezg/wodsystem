@@ -118,6 +118,13 @@ export class WodActorSheet extends ActorSheet {
             })
         };
         
+        // Calculate Avatar rating (for permanent Quintessence)
+        const avatarBg = allBackgrounds.find(bg => bg.name === 'Avatar' || bg.name === 'Avatar/ Genius' || bg.name === 'Genius');
+        context.avatarRating = avatarBg ? (avatarBg.value || 0) : 0;
+        
+        // Calculate Enhancement Paradox (permanent Paradox from Enhancement background)
+        const enhancementBg = allBackgrounds.find(bg => bg.name === 'Enhancement');
+        context.enhancementParadox = enhancementBg ? (enhancementBg.value || 0) : 0;
         
         // Procedures pagination (4 per page)
         if (this.actor.system.procedures) {
@@ -234,7 +241,47 @@ export class WodActorSheet extends ActorSheet {
         };
     }
 
-    /** @override */
+    /** 
+     * @override 
+     * 
+     * ⚠️ CRITICAL: SCROLL POSITION HANDLING ⚠️
+     * 
+     * When adding new click handlers that call `this.actor.update()`:
+     * YOU MUST store and restore scroll position to prevent autoscroll!
+     * 
+     * Template to copy for ALL new handlers that update actor data:
+     * 
+     * ```javascript
+     * async _onYourNewHandler(event) {
+     *     event.preventDefault();
+     *     event.stopPropagation();
+     *     
+     *     // STEP 1: Store scroll position BEFORE update
+     *     const sheetBody = this.element.find('.sheet-body');
+     *     const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+     *     
+     *     // ... your logic here ...
+     *     
+     *     // STEP 2: Update with { render: false } to prevent re-render
+     *     await this.actor.update({
+     *         'system.your.path': value
+     *     }, { render: false });
+     *     
+     *     // STEP 3: Restore scroll position AFTER update
+     *     setTimeout(() => {
+     *         const newSheetBody = this.element.find('.sheet-body');
+     *         if (newSheetBody.length) {
+     *             newSheetBody.scrollTop(scrollPos);
+     *         }
+     *     }, 0);
+     * }
+     * ```
+     * 
+     * WHY: Foundry re-renders the sheet after updates, which resets scroll to top.
+     * This creates a jarring UX where the page jumps when clicking controls.
+     * 
+     * Examples: _onQuintessenceBoxClick, _onParadoxBoxClick, _onAddBackground, etc.
+     */
     activateListeners(html) {
         super.activateListeners(html);
 
@@ -414,6 +461,10 @@ export class WodActorSheet extends ActorSheet {
         // Technocrat-specific handlers
         if (this.actor.type === "Technocrat") {
             html.find('.primal-box').click(this._onPrimalEnergyClick.bind(this));
+            
+            // Quintessence/Paradox Wheel
+            html.find('.wheel-box').click(this._onWheelBoxClick.bind(this));
+            html.find('.wheel-box').contextmenu(this._onWheelBoxRightClick.bind(this));
             
             // Spheres - use event delegation to avoid conflicts
             html.find('[data-sphere] .dot').click(this._onSphereClick.bind(this));
@@ -1655,13 +1706,6 @@ export class WodActorSheet extends ActorSheet {
         
         tooltip.css({ top: `${top}px`, left: `${left}px` });
         
-        // Add click handler for post table button
-        tooltip.find('.post-table-btn').click((e) => {
-            e.stopPropagation();
-            this._postSphereToChat(sphere, 'table');
-            this._hideSphereTableTooltip();
-        });
-        
         // Prevent tooltip from closing when clicking inside it
         tooltip.on('click', (e) => {
             e.stopPropagation();
@@ -2578,6 +2622,492 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Handle clicking on wheel boxes (unified Quintessence/Paradox handler)
+     * NEW SIMPLIFIED LOGIC:
+     * - First click determines type based on position (left=Q, right=P)
+     * - Subsequent clicks add the same type as last time
+     * - Paradox can invade Quintessence area
+     * - Quintessence cannot invade Paradox area
+     * @param {Event} event
+     * @private
+     */
+    async _onWheelBoxClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Store scroll position before update
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const box = event.currentTarget;
+        const index = parseInt(box.dataset.index);
+        
+        // DEQUE APPROACH: Use arrays of filled indices
+        const quintessenceCount = this.actor.system.advantages.primalEnergy.current || 0;
+        const permanentParadox = this._getEnhancementParadox();
+        const currentParadox = this.actor.system.advantages.paradox.current || 0;
+        const totalParadox = permanentParadox + currentParadox;
+        
+        // Build deque arrays
+        // Quintessence fills from LEFT: [0, 1, 2, 3...]
+        const quintessenceIndices = Array.from({length: quintessenceCount}, (_, i) => i);
+        // Paradox fills from RIGHT: [19, 18, 17, 16...]
+        const paradoxIndices = Array.from({length: totalParadox}, (_, i) => 19 - i);
+        
+        // Get last added type
+        const lastAddedType = this.actor.getFlag('wodsystem', 'lastWheelAddType') || null;
+        
+        // Check what's at this index
+        const hasQuintessence = quintessenceIndices.includes(index);
+        const hasParadox = paradoxIndices.includes(index);
+        const hasOverlap = hasQuintessence && hasParadox;
+        
+        console.log(`Click box ${index}:`, { quintessenceCount, totalParadox, hasQuintessence, hasParadox, hasOverlap, lastAddedType });
+        
+        // Check if wheel is completely full
+        const wheelIsFull = (quintessenceCount + totalParadox) === 20;
+        
+        // CLICKING EXISTING: Remove from deque OR convert (if full)
+        if (hasOverlap) {
+            // Overlap zone - remove Quintessence (burn it away)
+            await this.actor.update({
+                'system.advantages.primalEnergy.current': index
+            }, { render: false });
+        }
+        else if (hasQuintessence) {
+            // SPECIAL: If wheel is full, ask if they want to add Paradox
+            if (wheelIsFull) {
+                const addParadox = await Dialog.confirm({
+                    title: "Add Paradox?",
+                    content: "<p>The wheel is full. Do you want to <strong>add Paradox</strong> (which will cancel this Quintessence)?</p><p>Click <strong>No</strong> to spend/remove this Quintessence instead.</p>",
+                    yes: () => true,
+                    no: () => false,
+                    defaultYes: false
+                });
+                
+                if (addParadox) {
+                    // Add Paradox - which will cancel Quintessence
+                    const newTotalParadox = totalParadox + 1;
+                    const overlap = (quintessenceCount + newTotalParadox) - 20;
+                    const newQuintessence = Math.max(0, quintessenceCount - overlap);
+                    
+                    await this.actor.update({
+                        'system.advantages.paradox.current': newTotalParadox - permanentParadox,
+                        'system.advantages.primalEnergy.current': newQuintessence
+                    }, { render: false });
+                    await this.actor.setFlag('wodsystem', 'lastWheelAddType', 'paradox');
+                    
+                    if (overlap > 0) {
+                        ui.notifications.info(`Paradox cancelled ${overlap} point(s) of Quintessence`);
+                    }
+                } else {
+                    // Remove Quintessence (spending it)
+                    await this.actor.update({
+                        'system.advantages.primalEnergy.current': index
+                    }, { render: false });
+                }
+            } else {
+                // Normal removal - not full
+                await this.actor.update({
+                    'system.advantages.primalEnergy.current': index
+                }, { render: false });
+            }
+        }
+        else if (hasParadox) {
+            // Calculate how many Paradox points from the right
+            const paradoxIndex = 19 - index;
+            
+            // Can't remove permanent Paradox
+            if (paradoxIndex < permanentParadox) {
+                ui.notifications.warn("Cannot remove permanent Paradox (right-click to modify)");
+                return;
+            }
+            
+            // Always remove Paradox (no dialog, even when full)
+            await this.actor.update({
+                'system.advantages.paradox.current': Math.max(0, paradoxIndex - permanentParadox)
+            }, { render: false });
+        }
+        // CLICKING EMPTY: Add to deque
+        else {
+            // SPECIAL: If only 1 empty box remains, ask which type to add
+            const onlyOneEmpty = (quintessenceCount + totalParadox) === 19;
+            let typeToAdd;
+            
+            if (onlyOneEmpty) {
+                // Show dialog to choose type
+                typeToAdd = await Dialog.wait({
+                    title: "Last Box",
+                    content: "<p>Only one box remains empty. What would you like to add?</p>",
+                    buttons: {
+                        quintessence: {
+                            icon: '<i class="fas fa-check"></i>',
+                            label: "Quintessence",
+                            callback: () => 'quintessence'
+                        },
+                        paradox: {
+                            icon: '<i class="fas fa-times"></i>',
+                            label: "Paradox",
+                            callback: () => 'paradox'
+                        }
+                    },
+                    default: "quintessence"
+                });
+                
+                if (!typeToAdd) return; // User closed dialog
+            } else {
+                // Normal type determination
+                const positionType = index <= 9 ? 'quintessence' : 'paradox';
+                
+                // If clicking the expected next box for that type, use that type
+                const isNextQuintessence = index === quintessenceCount;
+                const isNextParadox = index === (19 - totalParadox);
+                
+                if (isNextQuintessence && !isNextParadox) {
+                    typeToAdd = 'quintessence';
+                } else if (isNextParadox && !isNextQuintessence) {
+                    typeToAdd = 'paradox';
+                } else if (isNextQuintessence && isNextParadox) {
+                    // Both are valid next - use last type or position
+                    typeToAdd = lastAddedType || positionType;
+                } else {
+                    // Not a valid next box for either - use last type
+                    typeToAdd = lastAddedType || positionType;
+                }
+            }
+            
+            if (typeToAdd === 'quintessence') {
+                // Must add sequentially from left
+                if (index !== quintessenceCount) {
+                    ui.notifications.warn("Must add Quintessence sequentially from box 0");
+                    return;
+                }
+                
+                // STRICT: Quintessence CANNOT invade Paradox territory
+                // Check if this box OR any box we'd fill would overlap with Paradox
+                const newQuintessenceCount = quintessenceCount + 1;
+                const paradoxStartIndex = 20 - totalParadox;
+                
+                if (newQuintessenceCount > paradoxStartIndex) {
+                    ui.notifications.warn("Cannot add Quintessence - blocked by Paradox");
+                    return;
+                }
+                
+                await this.actor.update({
+                    'system.advantages.primalEnergy.current': newQuintessenceCount
+                }, { render: false });
+                await this.actor.setFlag('wodsystem', 'lastWheelAddType', 'quintessence');
+            }
+            else { // paradox
+                // Must add sequentially from right
+                const expectedIndex = 19 - totalParadox;
+                if (index !== expectedIndex) {
+                    ui.notifications.warn("Must add Paradox sequentially from box 19");
+                    return;
+                }
+                
+                // Add Paradox - can cancel Quintessence
+                const newTotalParadox = totalParadox + 1;
+                let newQuintessence = quintessenceCount;
+                
+                // Check overlap
+                if ((newQuintessence + newTotalParadox) > 20) {
+                    const overlap = (newQuintessence + newTotalParadox) - 20;
+                    newQuintessence = Math.max(0, newQuintessence - overlap);
+                    
+                    if (overlap > 0) {
+                        ui.notifications.info(`Paradox cancelled ${overlap} point(s) of Quintessence`);
+                    }
+                }
+                
+                await this.actor.update({
+                    'system.advantages.paradox.current': newTotalParadox - permanentParadox,
+                    'system.advantages.primalEnergy.current': newQuintessence
+                }, { render: false });
+                await this.actor.setFlag('wodsystem', 'lastWheelAddType', 'paradox');
+            }
+        }
+        
+        // Update visuals
+        this._updateQuintessenceParadoxVisuals();
+        
+        // Restore scroll position after update
+        setTimeout(() => {
+            const newSheetBody = this.element.find('.sheet-body');
+            if (newSheetBody.length) {
+                newSheetBody.scrollTop(scrollPos);
+            }
+        }, 0);
+    }
+    
+    /**
+     * Request ST approval for removing permanent Paradox
+     * @returns {Promise<boolean>} True if approved, false if denied
+     * @private
+     */
+    async _requestSTApprovalForParadoxRemoval() {
+        // If current user is GM, auto-approve
+        if (game.user.isGM) {
+            return true;
+        }
+
+        // Find the first connected GM
+        const gm = game.users.find(u => u.isGM && u.active);
+        
+        if (!gm) {
+            ui.notifications.warn("No Storyteller online to approve permanent Paradox removal!");
+            return false;
+        }
+
+        // Create a unique request ID
+        const requestId = `paradox-removal-${this.actor.id}-${Date.now()}`;
+
+        // Create chat message with approval buttons
+        const messageContent = `
+            <div class="wod-approval-request" data-request-id="${requestId}">
+                <h3 style="margin: 0 0 10px 0; color: #9C27B0; border-bottom: 2px solid #9C27B0; padding-bottom: 5px;">
+                    <i class="fas fa-exclamation-triangle"></i> Paradox Removal Request
+                </h3>
+                <p style="margin: 8px 0;">
+                    <strong>${game.user.name}</strong> wants to remove a permanent Paradox point from <strong>${this.actor.name}</strong>.
+                </p>
+                <div style="display: flex; gap: 10px; margin-top: 12px;" class="approval-buttons">
+                    <button class="approve-paradox-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button class="deny-paradox-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #E74C3C, #C0392B); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                        <i class="fas fa-times"></i> Deny
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Send whisper to GM ONLY
+        await ChatMessage.create({
+            content: messageContent,
+            whisper: [gm.id],
+            speaker: { alias: "WoD System" },
+            style: CONST.CHAT_MESSAGE_STYLES.WHISPER
+        });
+
+        ui.notifications.info("Approval request sent to Storyteller. Waiting for response...");
+
+        // Wait for response via hook
+        return new Promise((resolve) => {
+            let timeoutId;
+            
+            const hookId = Hooks.on('wodParadoxRemovalResponse', (data) => {
+                if (data.requestId === requestId) {
+                    Hooks.off('wodParadoxRemovalResponse', hookId);
+                    clearTimeout(timeoutId); // Clear the timeout
+                    
+                    if (data.approved) {
+                        ui.notifications.success("Storyteller approved permanent Paradox removal");
+                    } else {
+                        ui.notifications.info("Storyteller denied permanent Paradox removal");
+                    }
+                    
+                    resolve(data.approved);
+                }
+            });
+
+            // Timeout after 60 seconds
+            timeoutId = setTimeout(() => {
+                Hooks.off('wodParadoxRemovalResponse', hookId);
+                ui.notifications.error("ST approval request timed out");
+                resolve(false);
+            }, 60000);
+        });
+    }
+    
+    /**
+     * Handle right-clicking on wheel boxes (add/remove permanent Paradox)
+     * SEQUENTIAL: Must add from box 19 going counter-clockwise
+     * @param {Event} event
+     * @private
+     */
+    async _onWheelBoxRightClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        // Store scroll position before update
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const box = event.currentTarget;
+        const index = parseInt(box.dataset.index);
+        
+        // Get current permanent Paradox (from Enhancement background)
+        const permanentParadox = this._getEnhancementParadox();
+        
+        // Build array of permanent Paradox indices: [19, 18, 17, ...]
+        const permanentParadoxIndices = Array.from({length: permanentParadox}, (_, i) => 19 - i);
+        
+        // Check if this box has permanent Paradox
+        const hasPermanentParadox = permanentParadoxIndices.includes(index);
+        
+        // Expected next permanent Paradox box (must be sequential)
+        const expectedNextIndex = 19 - permanentParadox;
+        
+        let newPermanentParadox;
+        
+        if (hasPermanentParadox) {
+            // REMOVE: Can only remove the last added permanent Paradox
+            const lastPermanentIndex = 19 - (permanentParadox - 1);
+            
+            if (index !== lastPermanentIndex) {
+                ui.notifications.warn("Can only remove the last permanent Paradox point");
+                return;
+            }
+            
+            // Permanent Paradox removal REQUIRES ST APPROVAL
+            const approved = await this._requestSTApprovalForParadoxRemoval();
+            
+            if (!approved) {
+                return;
+            }
+            
+            newPermanentParadox = permanentParadox - 1;
+        } else {
+            // ADD: Must be the next sequential box
+            if (index !== expectedNextIndex) {
+                ui.notifications.warn(`Must add permanent Paradox sequentially from box 19 (next: box ${expectedNextIndex})`);
+                return;
+            }
+            
+            newPermanentParadox = permanentParadox + 1;
+        }
+        
+        // Update Enhancement background value
+        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds || []);
+        const enhancementIndex = backgrounds.findIndex(bg => bg.name === 'Enhancement');
+        
+        if (enhancementIndex >= 0) {
+            backgrounds[enhancementIndex].value = newPermanentParadox;
+        } else if (newPermanentParadox > 0) {
+            // Create Enhancement background if it doesn't exist
+            backgrounds.push({
+                name: 'Enhancement',
+                value: newPermanentParadox,
+                locked: false
+            });
+        }
+        
+        await this.actor.update({
+            'system.miscellaneous.backgrounds': backgrounds
+        }, { render: false });
+        
+        // Update visuals
+        this._updateQuintessenceParadoxVisuals();
+        
+        // Restore scroll position
+        setTimeout(() => {
+            const newSheetBody = this.element.find('.sheet-body');
+            if (newSheetBody.length) {
+                newSheetBody.scrollTop(scrollPos);
+            }
+        }, 0);
+    }
+
+    /**
+     * Get Avatar rating from backgrounds
+     * @returns {number}
+     * @private
+     */
+    _getAvatarRating() {
+        const backgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        const avatarBg = backgrounds.find(bg => 
+            bg.name === 'Avatar' || bg.name === 'Avatar/ Genius' || bg.name === 'Genius'
+        );
+        return avatarBg ? (avatarBg.value || 0) : 0;
+    }
+
+    /**
+     * Get Enhancement Paradox from backgrounds
+     * @returns {number}
+     * @private
+     */
+    _getEnhancementParadox() {
+        const backgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+        const enhancementBg = backgrounds.find(bg => bg.name === 'Enhancement');
+        return enhancementBg ? (enhancementBg.value || 0) : 0;
+    }
+
+    /**
+     * Manually update Quintessence/Paradox wheel visuals without full re-render
+     * @private
+     */
+    _updateQuintessenceParadoxVisuals() {
+        const permanentQuintessence = 0; // No permanent Quintessence
+        const currentQuintessence = this.actor.system.advantages.primalEnergy.current || 0;
+        const totalQuintessence = currentQuintessence;
+        
+        const permanentParadox = this._getEnhancementParadox();
+        const currentParadox = this.actor.system.advantages.paradox.current || 0;
+        const totalParadox = permanentParadox + currentParadox;
+        
+        const paradoxStartIndex = 20 - totalParadox;
+        
+        // Update all wheel boxes
+        this.element.find('.wheel-box').each((i, box) => {
+            const $box = $(box);
+            const index = parseInt($box.data('index'));
+            
+            // Clear all classes first
+            $box.removeClass('quintessence paradox permanent current cancelled disabled');
+            $box.html('');
+            
+            // Check if this box is in the overlap zone (Paradox cancels Quintessence)
+            const isInQuintessenceZone = index < totalQuintessence;
+            const isInParadoxZone = index >= paradoxStartIndex;
+            const isOverlap = isInQuintessenceZone && isInParadoxZone;
+            
+            // PARADOX ALWAYS WINS IN OVERLAP
+            if (isOverlap) {
+                // This box has Paradox that cancelled Quintessence
+                const paradoxIndex = 19 - index;
+                $box.addClass('paradox cancelled');
+                
+                // Permanent Paradox
+                if (paradoxIndex < permanentParadox) {
+                    $box.addClass('permanent');
+                    $box.html('✗');
+                }
+                // Current Paradox (cancelling Quintessence)
+                else {
+                    $box.addClass('current');
+                    $box.html('✗');
+                }
+            }
+            // Paradox zone ONLY (not overlapping)
+            else if (isInParadoxZone) {
+                const paradoxIndex = 19 - index;
+                $box.addClass('paradox');
+                
+                // Permanent Paradox
+                if (paradoxIndex < permanentParadox) {
+                    $box.addClass('permanent');
+                    $box.html('✗');
+                }
+                // Current Paradox
+                else {
+                    $box.addClass('current');
+                    $box.html('✗');
+                }
+            }
+            // Quintessence zone ONLY (not overlapped by Paradox)
+            else if (isInQuintessenceZone) {
+                $box.addClass('quintessence current');
+                $box.html('✓');
+            }
+            // Empty zone (between Quintessence and Paradox)
+            else {
+                // Just leave it empty - it's clickable for adding either
+            }
+        });
+    }
+
+    /**
      * Update a secondary ability value (uses arrays like merits)
      */
     async _updateSecondaryAbility(category, index, value) {
@@ -2776,6 +3306,11 @@ export class WodActorSheet extends ActorSheet {
      */
     _syncVisualStateWithData() {
         if (!this.element) return;
+        
+        // Sync Quintessence/Paradox wheel if it exists
+        if (this.element.find('.wheel-box').length > 0) {
+            this._updateQuintessenceParadoxVisuals();
+        }
         
         // Sync all dot containers (visual dots only, labels are updated separately)
         const containers = this.element.find('.dot-container');

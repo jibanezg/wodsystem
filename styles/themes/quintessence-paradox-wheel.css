@@ -1,0 +1,183 @@
+/**
+ * ============================================================
+ * QUINTESSENCE/PARADOX WHEEL
+ * Visual representation of the opposed energy system
+ * ============================================================
+ */
+
+.quintessence-paradox-wheel {
+    /* Inherits card styling from visual-polish.css */
+}
+
+.quintessence-paradox-wheel h4 {
+    /* Inherits header styling from visual-polish.css */
+    margin-bottom: 5px !important;
+    margin-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Wheel info labels - HIDDEN */
+.wheel-info {
+    display: none;
+}
+
+.wheel-row {
+    position: relative;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Circular wheel container */
+.wheel-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 5px auto 10px auto !important;
+    padding: 0 !important;
+}
+
+/* Starting marker - HIDDEN */
+.wheel-start-marker {
+    display: none;
+}
+
+/* Individual wheel box - positioned in circle */
+.wheel-box {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #999;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    left: 50%;
+    top: 50%;
+    margin-left: -11px;
+    margin-top: -11px;
+    outline: none;
+    user-select: none;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 1;
+}
+
+.wheel-box:hover:not(.disabled) {
+    border-color: #333;
+    border-width: 3px;
+    z-index: 20;
+}
+
+/* Position each box around the circle */
+/* Starting at upper-left and going clockwise, shifted ~18° for better alignment, larger radius */
+.wheel-box[data-index="0"] { transform: translate(-92px, -31px); }
+.wheel-box[data-index="1"] { transform: translate(-81px, -59px); }
+.wheel-box[data-index="2"] { transform: translate(-62px, -80px); }
+.wheel-box[data-index="3"] { transform: translate(-37px, -93px); }
+.wheel-box[data-index="4"] { transform: translate(-7px, -100px); }
+.wheel-box[data-index="5"] { transform: translate(24px, -98px); }
+.wheel-box[data-index="6"] { transform: translate(53px, -87px); }
+.wheel-box[data-index="7"] { transform: translate(76px, -69px); }
+.wheel-box[data-index="8"] { transform: translate(90px, -46px); }
+.wheel-box[data-index="9"] { transform: translate(99px, -19px); }
+.wheel-box[data-index="10"] { transform: translate(100px, 11px); }
+.wheel-box[data-index="11"] { transform: translate(91px, 41px); }
+.wheel-box[data-index="12"] { transform: translate(73px, 68px); }
+.wheel-box[data-index="13"] { transform: translate(50px, 88px); }
+.wheel-box[data-index="14"] { transform: translate(21px, 99px); }
+.wheel-box[data-index="15"] { transform: translate(-10px, 100px); }
+.wheel-box[data-index="16"] { transform: translate(-40px, 92px); }
+.wheel-box[data-index="17"] { transform: translate(-67px, 77px); }
+.wheel-box[data-index="18"] { transform: translate(-87px, 53px); }
+.wheel-box[data-index="19"] { transform: translate(-98px, 24px); }
+
+/* Permanent (solid black fill with white text) */
+.wheel-box.permanent {
+    background: #333;
+    border-color: #000;
+    color: white;
+}
+
+/* Current Quintessence (blue border, check mark) */
+.wheel-box.quintessence.current:not(.permanent) {
+    border-color: #4682B4;
+    color: #4682B4;
+}
+
+/* Permanent Quintessence */
+.wheel-box.quintessence.permanent {
+    background: #4682B4;
+    border-color: #2c5f8d;
+}
+
+/* Current Paradox (red border, X mark) */
+.wheel-box.paradox.current:not(.permanent) {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+/* Permanent Paradox */
+.wheel-box.paradox.permanent {
+    background: #e74c3c;
+    border-color: #c0392b;
+}
+
+/* Cancelled zone (Paradox has cancelled Quintessence) */
+/* Show Paradox normally, not washed out */
+.wheel-box.cancelled {
+    /* Paradox is shown, styling comes from .paradox classes */
+}
+
+/* Disabled boxes (can't click) */
+.wheel-box.disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
+/* Legend */
+.wheel-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.7em;
+    color: #666;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-permanent,
+.legend-check,
+.legend-x {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #999;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.legend-permanent {
+    background: #333;
+    border-color: #000;
+}
+
+.legend-check::before {
+    content: "✓";
+    color: #4682B4;
+}
+
+.legend-x::before {
+    content: "✗";
+    color: #e74c3c;
+}

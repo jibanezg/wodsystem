@@ -212,6 +212,7 @@
 .wod.sheet.actor.technocrat .willpower-section,
 .wod.sheet.actor.technocrat .enlightenment-section,
 .wod.sheet.actor.technocrat .primal-energy-section,
+.wod.sheet.actor.technocrat .quintessence-paradox-wheel,
 .wod.sheet.actor.technocrat .backgrounds-section {
     border: 1px solid var(--wod-border-main);
     border-radius: 2px;
