@@ -1445,19 +1445,20 @@
   visibility: hidden;
   transition: all 0.2s;
   cursor: pointer;
-  color: var(--wod-primary, #4682B4);
+  color: #9C27B0;
   font-size: 13px;
 }
 
 .step-merits-flaws .wizard-merit-reference-btn.has-reference,
 .step-merits-flaws .wizard-flaw-reference-btn.has-reference {
-  opacity: 0.6;
+  opacity: 0.7;
   visibility: visible;
 }
 
 .step-merits-flaws .wizard-merit-reference-btn.has-reference:hover,
 .step-merits-flaws .wizard-flaw-reference-btn.has-reference:hover {
   opacity: 1;
+  color: #7B1FA2;
 }
 
 /* Background reference buttons */

@@ -29,6 +29,7 @@ export class ReferenceDataService {
         try {
             await this.loadMeritsFlaws();
             await this.loadBackgrounds();
+            await this.loadSpheres();
             this.buildTrieIndices();
             this.initialized = true;
             console.log("WoD System | Reference Data Service initialized successfully");
@@ -76,6 +77,26 @@ export class ReferenceDataService {
         } catch (error) {
             console.error("WoD System | Error loading backgrounds:", error);
             this.data.backgrounds = [];
+        }
+    }
+
+    /**
+     * Load spheres from JSON
+     */
+    async loadSpheres() {
+        try {
+            const response = await fetch('systems/wodsystem/datasource/spheres.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load spheres.json: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            this.data.spheres = data.spheres || [];
+            
+            console.log(`WoD System | Loaded ${this.data.spheres.length} spheres`);
+        } catch (error) {
+            console.error("WoD System | Error loading spheres:", error);
+            this.data.spheres = [];
         }
     }
 
@@ -368,6 +389,245 @@ export class ReferenceDataService {
                 </div>
             </div>
         `;
+    }
+
+    /**
+     * Get sphere by name (case-insensitive)
+     * @param {string} name - Sphere name
+     * @returns {object|null} Sphere data or null
+     */
+    getSphereByName(name) {
+        if (!this.initialized || !name) return null;
+        
+        const normalized = name.trim().toLowerCase();
+        return this.data.spheres.find(sphere => sphere.name.toLowerCase() === normalized) || null;
+    }
+
+    /**
+     * Get sphere by ID
+     * @param {string} id - Sphere ID
+     * @returns {object|null} Sphere data or null
+     */
+    getSphereById(id) {
+        if (!this.initialized || !id) return null;
+        
+        const normalized = id.trim().toLowerCase();
+        return this.data.spheres.find(sphere => sphere.id === normalized) || null;
+    }
+
+    /**
+     * Get all spheres
+     * @returns {Array} All spheres
+     */
+    getAllSpheres() {
+        return [...this.data.spheres];
+    }
+
+    /**
+     * Generate HTML for sphere tooltip display (shows all 5 levels)
+     * @param {object} sphere - Sphere data
+     * @returns {string} HTML string
+     */
+    generateSphereTooltipHTML(sphere) {
+        if (!sphere) return '';
+        
+        const subtitle = sphere.subtitle ? `<p class="sphere-subtitle">${sphere.subtitle}</p>` : '';
+        
+        // Generate levels HTML with individual post buttons
+        const levelsHTML = sphere.levels.map(level => `
+            <div class="sphere-level-entry">
+                <div class="level-header">
+                    <strong class="level-dots">${level.label}</strong>
+                    <strong class="level-title">${level.title}</strong>
+                    <button class="post-level-btn" type="button" 
+                            data-action="post-level" 
+                            data-level="${level.dots}" 
+                            title="Post this level to chat">
+                        <i class="fas fa-comment"></i>
+                    </button>
+                </div>
+                <div class="level-description">${level.description}</div>
+            </div>
+        `).join('');
+        
+        return `
+            <div class="reference-tooltip-inner wod-sphere-tooltip">
+                <h4>${sphere.name}</h4>
+                ${subtitle}
+                <div class="sphere-description">${sphere.description}</div>
+                <div class="sphere-levels">
+                    <h5>Sphere Levels</h5>
+                    ${levelsHTML}
+                </div>
+                <div class="tooltip-footer">
+                    <button class="post-description-btn" type="button" 
+                            data-action="post-description" 
+                            title="Post full description to chat">
+                        <i class="fas fa-comment-dots"></i> Post Description
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Generate HTML for sphere special table tooltip
+     * @param {object} sphere - Sphere data
+     * @returns {string} HTML string
+     */
+    generateSphereTableTooltipHTML(sphere) {
+        if (!sphere || !sphere.specialTable) return '';
+        
+        const table = sphere.specialTable;
+        
+        // Generate table HTML
+        let tableHTML = `<table class="sphere-special-table">`;
+        
+        // Add header if available
+        if (table.headers && table.headers.length > 0) {
+            tableHTML += '<thead><tr>';
+            table.headers.forEach(header => {
+                tableHTML += `<th>${header}</th>`;
+            });
+            tableHTML += '</tr></thead>';
+        }
+        
+        // Add rows
+        tableHTML += '<tbody>';
+        if (table.rows && table.rows.length > 0) {
+            table.rows.forEach(row => {
+                tableHTML += '<tr>';
+                // Handle rows that might be objects with column keys
+                if (typeof row === 'object') {
+                    Object.values(row).forEach(cell => {
+                        tableHTML += `<td>${cell}</td>`;
+                    });
+                } else {
+                    tableHTML += `<td>${row}</td>`;
+                }
+                tableHTML += '</tr>';
+            });
+        }
+        tableHTML += '</tbody></table>';
+        
+        // Add footnotes if available
+        let footnotesHTML = '';
+        if (table.footnotes && table.footnotes.length > 0) {
+            footnotesHTML = `<div class="table-footnotes">
+                ${table.footnotes.map(note => `<p class="footnote">${note}</p>`).join('')}
+            </div>`;
+        }
+        
+        return `
+            <div class="reference-tooltip-inner wod-sphere-table-tooltip">
+                <h4>${table.title || sphere.name + ' Table'}</h4>
+                <div class="table-container">
+                    ${tableHTML}
+                </div>
+                ${footnotesHTML}
+                <div class="tooltip-footer">
+                    <button class="post-table-btn" type="button" 
+                            data-action="post-table" 
+                            title="Post table to chat">
+                        <i class="fas fa-comment-dots"></i> Post Table
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Generate HTML for sphere chat card
+     * @param {object} sphere - Sphere data
+     * @param {object} options - Options { type: 'description'|'level'|'table', levelNumber: number }
+     * @returns {string} HTML string
+     */
+    generateSphereChatHTML(sphere, options = {}) {
+        if (!sphere) return '';
+        
+        const { type = 'description', levelNumber = null } = options;
+        
+        if (type === 'level' && levelNumber) {
+            // Post specific level
+            const level = sphere.levels.find(l => l.dots === levelNumber);
+            if (!level) return '';
+            
+            return `
+                <div class="wod-sphere-reference-card sphere-level-card">
+                    <div class="sphere-header">
+                        <h3>${sphere.name}</h3>
+                        ${sphere.subtitle ? `<p class="sphere-subtitle">${sphere.subtitle}</p>` : ''}
+                    </div>
+                    <div class="sphere-level-detail">
+                        <div class="level-rank">Rank ${level.dots}</div>
+                        <h4>${level.title}</h4>
+                        <p>${level.description}</p>
+                    </div>
+                </div>
+            `;
+        } else if (type === 'table' && sphere.specialTable) {
+            // Post special table
+            const table = sphere.specialTable;
+            
+            let tableHTML = `<table class="sphere-special-table">`;
+            
+            if (table.headers && table.headers.length > 0) {
+                tableHTML += '<thead><tr>';
+                table.headers.forEach(header => {
+                    tableHTML += `<th>${header}</th>`;
+                });
+                tableHTML += '</tr></thead>';
+            }
+            
+            tableHTML += '<tbody>';
+            if (table.rows && table.rows.length > 0) {
+                table.rows.forEach(row => {
+                    tableHTML += '<tr>';
+                    if (typeof row === 'object') {
+                        Object.values(row).forEach(cell => {
+                            tableHTML += `<td>${cell}</td>`;
+                        });
+                    } else {
+                        tableHTML += `<td>${row}</td>`;
+                    }
+                    tableHTML += '</tr>';
+                });
+            }
+            tableHTML += '</tbody></table>';
+            
+            let footnotesHTML = '';
+            if (table.footnotes && table.footnotes.length > 0) {
+                footnotesHTML = `<div class="table-footnotes">
+                    ${table.footnotes.map(note => `<p class="footnote">${note}</p>`).join('')}
+                </div>`;
+            }
+            
+            return `
+                <div class="wod-sphere-reference-card sphere-table-card">
+                    <div class="sphere-header">
+                        <h3>${sphere.name}</h3>
+                        <h4>${table.title || sphere.name + ' Table'}</h4>
+                    </div>
+                    <div class="table-container">
+                        ${tableHTML}
+                    </div>
+                    ${footnotesHTML}
+                </div>
+            `;
+        } else {
+            // Post only the main description (no levels)
+            return `
+                <div class="wod-sphere-reference-card sphere-description-card">
+                    <div class="sphere-header">
+                        <h3>${sphere.name}</h3>
+                        ${sphere.subtitle ? `<p class="sphere-subtitle">${sphere.subtitle}</p>` : ''}
+                    </div>
+                    <div class="sphere-description">
+                        ${sphere.description}
+                    </div>
+                </div>
+            `;
+        }
     }
 }
 

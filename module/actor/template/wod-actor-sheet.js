@@ -300,6 +300,10 @@ export class WodActorSheet extends ActorSheet {
         // Background reference buttons (tooltips and click-to-chat)
         html.find('.background-reference-btn').click(this._onBackgroundReferenceClick.bind(this));
         
+        // Sphere reference buttons (tooltips and click-to-chat)
+        html.find('.sphere-reference-btn').click(this._onSphereReferenceClick.bind(this));
+        html.find('.sphere-table-btn').click(this._onSphereTableClick.bind(this));
+        
         // Prevent locked backgrounds from being changed via dropdown
         html.find('.background-name-select.locked').on('mousedown', (e) => {
             e.preventDefault();
@@ -1466,7 +1470,245 @@ export class WodActorSheet extends ActorSheet {
         await ChatMessage.create({ 
             speaker: ChatMessage.getSpeaker({ actor: this.actor }), 
             content: html, 
-            type: CONST.CHAT_MESSAGE_TYPES.OTHER 
+            style: CONST.CHAT_MESSAGE_STYLES.OTHER 
+        });
+    }
+
+    /**
+     * Handle sphere reference button click (main tooltip)
+     */
+    _onSphereReferenceClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const sphereId = $(event.currentTarget).data('sphere-id');
+        const service = game.wod?.referenceDataService;
+        
+        if (!service) {
+            ui.notifications.warn("Reference data service not available");
+            return;
+        }
+        
+        const sphere = service.getSphereById(sphereId);
+        
+        if (sphere) {
+            this._showSphereTooltip(event, sphere);
+        }
+    }
+
+    /**
+     * Handle sphere table button click (table tooltip)
+     */
+    _onSphereTableClick(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const sphereId = $(event.currentTarget).data('sphere-id');
+        const service = game.wod?.referenceDataService;
+        
+        if (!service) {
+            ui.notifications.warn("Reference data service not available");
+            return;
+        }
+        
+        const sphere = service.getSphereById(sphereId);
+        
+        if (sphere && sphere.specialTable) {
+            this._showSphereTableTooltip(event, sphere);
+        }
+    }
+
+    /**
+     * Show sphere tooltip with all levels
+     */
+    _showSphereTooltip(event, sphere) {
+        this._hideSphereTooltip(); // Remove any existing sphere tooltip
+        
+        const service = game.wod?.referenceDataService;
+        if (!service) return;
+        
+        const tooltipHTML = service.generateSphereTooltipHTML(sphere);
+        
+        const tooltip = $(`
+            <div class="wod-reference-tooltip wod-sphere-tooltip" 
+                 style="position: fixed; 
+                        z-index: 100000; 
+                        background-color: white; 
+                        border: 2px solid var(--wod-primary, #7B1FA2); 
+                        border-radius: 8px; 
+                        padding: 16px; 
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        max-width: 500px;
+                        max-height: 400px;
+                        overflow-y: auto;
+                        pointer-events: auto;
+                        display: block;">
+                ${tooltipHTML}
+            </div>
+        `);
+        
+        $(document.body).append(tooltip);
+        
+        // Position tooltip to the side of the button
+        const buttonRect = event.currentTarget.getBoundingClientRect();
+        const tooltipEl = tooltip[0];
+        const tooltipRect = tooltipEl.getBoundingClientRect();
+        
+        // Try to position to the right of the button first
+        let left = buttonRect.right + window.scrollX + 10;
+        let top = buttonRect.top + window.scrollY;
+        
+        // If tooltip would go off the right edge, position to the left instead
+        if (left + tooltipRect.width > window.innerWidth) {
+            left = buttonRect.left + window.scrollX - tooltipRect.width - 10;
+        }
+        
+        // Adjust vertical position if tooltip goes off-screen
+        if (top + tooltipRect.height > window.innerHeight + window.scrollY) {
+            top = window.innerHeight + window.scrollY - tooltipRect.height - 10;
+        }
+        if (top < window.scrollY) {
+            top = window.scrollY + 10;
+        }
+        
+        tooltip.css({ top: `${top}px`, left: `${left}px` });
+        
+        // Add click handlers for post buttons
+        tooltip.find('.post-description-btn').click((e) => {
+            e.stopPropagation();
+            this._postSphereToChat(sphere, 'description');
+            this._hideSphereTooltip();
+        });
+        
+        tooltip.find('.post-level-btn').click((e) => {
+            e.stopPropagation();
+            const levelNumber = parseInt($(e.currentTarget).data('level'));
+            this._postSphereToChat(sphere, 'level', levelNumber);
+            this._hideSphereTooltip();
+        });
+        
+        // Prevent tooltip from closing when clicking inside it
+        tooltip.on('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Close tooltip when clicking outside
+        setTimeout(() => {
+            $(document).one('click', () => {
+                this._hideSphereTooltip();
+            });
+        }, 100);
+    }
+
+    /**
+     * Show sphere table tooltip
+     */
+    _showSphereTableTooltip(event, sphere) {
+        this._hideSphereTableTooltip(); // Remove any existing table tooltip
+        
+        const service = game.wod?.referenceDataService;
+        if (!service) return;
+        
+        const tooltipHTML = service.generateSphereTableTooltipHTML(sphere);
+        
+        const tooltip = $(`
+            <div class="wod-reference-tooltip wod-sphere-table-tooltip" 
+                 style="position: fixed; 
+                        z-index: 100000; 
+                        background-color: white; 
+                        border: 2px solid var(--wod-primary, #7B1FA2); 
+                        border-radius: 8px; 
+                        padding: 16px; 
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        max-width: 600px;
+                        max-height: 450px;
+                        overflow-y: auto;
+                        pointer-events: auto;
+                        display: block;">
+                ${tooltipHTML}
+            </div>
+        `);
+        
+        $(document.body).append(tooltip);
+        
+        // Position tooltip to the side of the button
+        const buttonRect = event.currentTarget.getBoundingClientRect();
+        const tooltipEl = tooltip[0];
+        const tooltipRect = tooltipEl.getBoundingClientRect();
+        
+        // Try to position to the right of the button first
+        let left = buttonRect.right + window.scrollX + 10;
+        let top = buttonRect.top + window.scrollY;
+        
+        // If tooltip would go off the right edge, position to the left instead
+        if (left + tooltipRect.width > window.innerWidth) {
+            left = buttonRect.left + window.scrollX - tooltipRect.width - 10;
+        }
+        
+        // Adjust vertical position if tooltip goes off-screen
+        if (top + tooltipRect.height > window.innerHeight + window.scrollY) {
+            top = window.innerHeight + window.scrollY - tooltipRect.height - 10;
+        }
+        if (top < window.scrollY) {
+            top = window.scrollY + 10;
+        }
+        
+        tooltip.css({ top: `${top}px`, left: `${left}px` });
+        
+        // Add click handler for post table button
+        tooltip.find('.post-table-btn').click((e) => {
+            e.stopPropagation();
+            this._postSphereToChat(sphere, 'table');
+            this._hideSphereTableTooltip();
+        });
+        
+        // Prevent tooltip from closing when clicking inside it
+        tooltip.on('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Close tooltip when clicking outside
+        setTimeout(() => {
+            $(document).one('click', () => {
+                this._hideSphereTableTooltip();
+            });
+        }, 100);
+    }
+
+    /**
+     * Hide sphere main tooltip
+     */
+    _hideSphereTooltip() {
+        $('.wod-sphere-tooltip').fadeOut(200, function() {
+            $(this).remove();
+        });
+    }
+
+    /**
+     * Hide sphere table tooltip
+     */
+    _hideSphereTableTooltip() {
+        $('.wod-sphere-table-tooltip').fadeOut(200, function() {
+            $(this).remove();
+        });
+    }
+
+    /**
+     * Post sphere reference to chat
+     * @param {object} sphere - Sphere data
+     * @param {string} type - 'description', 'level', or 'table'
+     * @param {number} levelNumber - Level number (if type is 'level')
+     */
+    async _postSphereToChat(sphere, type = 'description', levelNumber = null) {
+        const service = game.wod?.referenceDataService;
+        if (!service) return;
+        
+        const html = service.generateSphereChatHTML(sphere, { type, levelNumber });
+        
+        await ChatMessage.create({ 
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }), 
+            content: html, 
+            style: CONST.CHAT_MESSAGE_STYLES.OTHER 
         });
     }
 
@@ -4372,7 +4614,7 @@ export class WodActorSheet extends ActorSheet {
         const messageData = {
             content: content,
             speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+            style: CONST.CHAT_MESSAGE_STYLES.OTHER,
             flags: {
                 wodsystem: {
                     referenceType: reference.category,

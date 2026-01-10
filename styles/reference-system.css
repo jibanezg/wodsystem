@@ -677,3 +677,549 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 .background-item .background-reference-btn i {
     pointer-events: none;
 }
+
+/* -------------------------------------------- */
+/*  Sphere Reference Buttons                     */
+/* -------------------------------------------- */
+
+/* Make sphere attributes use flexbox for proper alignment */
+.wod.sheet.actor .spheres-section .attribute {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+}
+
+.wod.sheet.actor .spheres-section .attribute label {
+    flex: 0 1 auto !important;
+    white-space: nowrap !important;
+}
+
+.wod.sheet.actor .spheres-section .attribute .sphere-buttons {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+    margin-right: 8px !important;
+}
+
+.wod.sheet.actor .spheres-section .attribute .dot-container {
+    flex: 0 0 auto !important;
+}
+
+.sphere-reference-btn,
+.sphere-table-btn {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    color: #9C27B0 !important;
+    font-size: 11px !important;
+    transition: all 0.2s !important;
+    opacity: 0.7 !important;
+    display: inline-block !important;
+    vertical-align: baseline !important;
+    line-height: 1 !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+}
+
+.sphere-reference-btn:hover,
+.sphere-table-btn:hover {
+    opacity: 1 !important;
+    color: #7B1FA2 !important;
+    transform: scale(1.15) !important;
+    background: none !important;
+}
+
+.sphere-reference-btn i,
+.sphere-table-btn i {
+    pointer-events: none !important;
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* -------------------------------------------- */
+/*  Sphere Tooltip Styles                        */
+/* -------------------------------------------- */
+
+.wod-sphere-tooltip {
+    /* Size and overflow controlled by inline styles */
+}
+
+.wod-sphere-tooltip .sphere-subtitle {
+    font-size: 0.9em;
+    color: #666;
+    margin: 4px 0 8px 0;
+    font-style: italic;
+}
+
+.wod-sphere-tooltip .sphere-description {
+    margin: 12px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 3px solid var(--wod-primary, #7B1FA2);
+    border-radius: 4px;
+    font-size: 0.9em;
+    line-height: 1.5;
+    color: #1a1a1a !important;
+}
+
+.wod-sphere-tooltip .sphere-description p,
+.wod-sphere-tooltip .level-description p,
+.wod-sphere-tooltip .sphere-level-entry .level-description p,
+.wod-sphere-reference-card .sphere-description p,
+.wod-sphere-reference-card .level-description p {
+    margin: 0 0 10px 0 !important;
+    line-height: 1.6 !important;
+    color: #1a1a1a !important;
+    font-weight: normal !important;
+}
+
+.wod-sphere-tooltip .sphere-description p:last-child,
+.wod-sphere-tooltip .level-description p:last-child,
+.wod-sphere-reference-card .sphere-description p:last-child,
+.wod-sphere-reference-card .level-description p:last-child {
+    margin-bottom: 0;
+}
+
+.wod-sphere-tooltip .sphere-levels {
+    margin-top: 16px;
+}
+
+.wod-sphere-tooltip .sphere-levels h5 {
+    margin: 0 0 12px 0;
+    font-size: 1em;
+    color: var(--wod-primary, #7B1FA2);
+    font-weight: bold;
+    border-bottom: 2px solid var(--wod-primary, #7B1FA2);
+    padding-bottom: 4px;
+}
+
+.wod-sphere-tooltip .sphere-level-entry {
+    margin: 12px 0;
+    padding: 12px;
+    background: #f8f9fa;
+    border-left: 4px solid var(--wod-primary, #7B1FA2);
+    border-radius: 4px;
+}
+
+.wod-sphere-tooltip .sphere-level-entry .level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.wod-sphere-tooltip .sphere-level-entry .level-dots {
+    color: var(--wod-primary, #7B1FA2);
+    font-size: 1.2em;
+    margin-right: 8px;
+}
+
+.wod-sphere-tooltip .sphere-level-entry .level-title {
+    flex: 1;
+    color: #2F4F6F;
+    font-size: 0.95em;
+}
+
+.wod-sphere-tooltip .post-level-btn {
+    background: var(--wod-primary, #7B1FA2);
+    border: none;
+    border-radius: 3px;
+    padding: 3px 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+}
+
+.wod-sphere-tooltip .post-level-btn:hover {
+    background: var(--wod-accent, #5E1B7A);
+    transform: scale(1.05);
+}
+
+.wod-sphere-tooltip .level-description {
+    font-size: 0.9em !important;
+    line-height: 1.5 !important;
+    color: #1a1a1a !important;
+    margin: 0 !important;
+}
+
+.wod-sphere-tooltip .sphere-level-entry .level-description,
+.wod-sphere-tooltip .sphere-level-entry p.level-description,
+.wod-sphere-tooltip p.level-description,
+.wod-sphere-tooltip .level-description * {
+    color: #1a1a1a !important;
+}
+
+.wod-sphere-tooltip .post-description-btn {
+    background: var(--wod-primary, #7B1FA2);
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.wod-sphere-tooltip .post-description-btn:hover {
+    background: var(--wod-accent, #5E1B7A);
+    transform: scale(1.05);
+}
+
+/* -------------------------------------------- */
+/*  Sphere Table Tooltip Styles                  */
+/* -------------------------------------------- */
+
+.wod-sphere-table-tooltip {
+    /* Size and overflow controlled by inline styles */
+}
+
+.wod-sphere-table-tooltip .table-container {
+    margin: 12px 0;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table {
+    margin: 12px 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+    font-size: 0.88em !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table thead {
+    background: linear-gradient(135deg, var(--wod-primary, #7B1FA2) 0%, #9C27B0 100%) !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table thead th {
+    padding: 10px 12px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    font-size: 0.85em !important;
+    letter-spacing: 0.5px !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table tbody td {
+    padding: 9px 12px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    border-right: 1px solid #e9ecef !important;
+    color: #1a1a1a !important;
+    background: #ffffff !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table tbody td:first-child {
+    font-weight: 600 !important;
+    color: #2F4F6F !important;
+    background: #f8f9fa !important;
+}
+
+/* Sphere special table column widths */
+/* Default widths for 3-column tables (Primal Ventures) */
+.wod-sphere-table-tooltip .sphere-special-table thead th:nth-child(1),
+.wod-sphere-table-tooltip .sphere-special-table tbody td:nth-child(1) {
+    width: 45% !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table thead th:nth-child(2),
+.wod-sphere-table-tooltip .sphere-special-table tbody td:nth-child(2) {
+    width: 12% !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table thead th:nth-child(3),
+.wod-sphere-table-tooltip .sphere-special-table tbody td:nth-child(3) {
+    width: 43% !important;
+}
+
+/* Data Connections table (4 columns) - override for 4-column tables */
+.wod-sphere-table-tooltip .sphere-special-table thead th:nth-child(4),
+.wod-sphere-table-tooltip .sphere-special-table tbody td:nth-child(4) {
+    width: auto !important;
+}
+
+/* When table has 4 columns, adjust all columns */
+.wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(1),
+.wod-sphere-table-tooltip .sphere-special-table:has(tbody td:nth-child(4)) tbody td:nth-child(1) {
+    width: 15% !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(2),
+.wod-sphere-table-tooltip .sphere-special-table:has(tbody td:nth-child(4)) tbody td:nth-child(2) {
+    width: 8% !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(3),
+.wod-sphere-table-tooltip .sphere-special-table:has(tbody td:nth-child(4)) tbody td:nth-child(3) {
+    width: 18% !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table:has(thead th:nth-child(4)) thead th:nth-child(4),
+.wod-sphere-table-tooltip .sphere-special-table:has(tbody td:nth-child(4)) tbody td:nth-child(4) {
+    width: 59% !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table tbody td:last-child {
+    border-right: none !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table tbody tr:hover td {
+    background: #f1f8ff !important;
+}
+
+.wod-sphere-table-tooltip .sphere-special-table tbody tr:hover td:first-child {
+    background: #e7f3ff !important;
+}
+
+.wod-sphere-table-tooltip .table-footnotes {
+    margin-top: 12px;
+    padding: 8px;
+    background: #fffef0;
+    border-left: 3px solid #FFC107;
+    border-radius: 4px;
+}
+
+.wod-sphere-table-tooltip .table-footnotes .footnote {
+    font-size: 0.85em;
+    color: #666;
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
+.wod-sphere-table-tooltip .post-table-btn {
+    background: var(--wod-primary, #7B1FA2);
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.wod-sphere-table-tooltip .post-table-btn:hover {
+    background: var(--wod-accent, #5E1B7A);
+    transform: scale(1.05);
+}
+
+/* -------------------------------------------- */
+/*  Sphere Chat Cards                            */
+/* -------------------------------------------- */
+
+.wod-sphere-reference-card {
+    background: white;
+    border: 2px solid var(--wod-primary, #7B1FA2);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+    font-family: var(--wod-font-family, "Palatino Linotype", "Book Antiqua", Palatino, serif);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.wod-sphere-reference-card .sphere-header {
+    border-bottom: 2px solid var(--wod-primary, #7B1FA2);
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.wod-sphere-reference-card .sphere-header h3 {
+    margin: 0 0 4px 0;
+    color: var(--wod-primary, #7B1FA2);
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.wod-sphere-reference-card .sphere-header h4 {
+    margin: 8px 0 0 0;
+    color: #666;
+    font-size: 1.1em;
+    font-weight: normal;
+}
+
+.wod-sphere-reference-card .sphere-subtitle {
+    font-size: 0.95em;
+    color: #666;
+    margin: 4px 0 0 0;
+    font-style: italic;
+}
+
+.wod-sphere-reference-card .sphere-description {
+    margin: 12px 0;
+    padding: 12px;
+    background: #f8f9fa;
+    border-left: 4px solid var(--wod-primary, #7B1FA2);
+    border-radius: 4px;
+    line-height: 1.6;
+    color: #1a1a1a !important;
+}
+
+.wod-sphere-reference-card .sphere-levels-text {
+    margin-top: 16px;
+}
+
+.wod-sphere-reference-card .sphere-levels-text h4 {
+    margin: 0 0 12px 0;
+    color: var(--wod-primary, #7B1FA2);
+    font-size: 1.1em;
+    font-weight: bold;
+    border-bottom: 2px solid var(--wod-primary, #7B1FA2);
+    padding-bottom: 4px;
+}
+
+.wod-sphere-reference-card .level-entry {
+    margin: 12px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-left: 3px solid var(--wod-primary, #7B1FA2);
+    border-radius: 4px;
+}
+
+.wod-sphere-reference-card .level-entry strong {
+    display: block;
+    color: var(--wod-primary, #7B1FA2);
+    margin-bottom: 6px;
+    font-size: 1em;
+}
+
+.wod-sphere-reference-card .level-entry p {
+    margin: 0;
+    line-height: 1.5;
+    color: #1a1a1a !important;
+}
+
+.wod-sphere-reference-card.sphere-level-card .sphere-level-detail {
+    margin: 12px 0;
+}
+
+.wod-sphere-reference-card.sphere-level-card .level-indicator,
+.wod-sphere-reference-card.sphere-level-card .level-rank {
+    display: inline-block;
+    padding: 4px 12px;
+    background: var(--wod-primary, #7B1FA2);
+    color: #ffffff !important;
+    font-size: 0.95em;
+    font-weight: bold;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wod-sphere-reference-card.sphere-level-card h4 {
+    margin: 8px 0;
+    color: #2F4F6F;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.wod-sphere-reference-card.sphere-level-card p {
+    line-height: 1.6;
+    color: #1a1a1a !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .table-container {
+    margin: 12px 0;
+    overflow-x: auto;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table {
+    margin: 12px 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+    font-size: 0.88em !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table thead {
+    background: linear-gradient(135deg, var(--wod-primary, #7B1FA2) 0%, #9C27B0 100%) !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table thead th {
+    padding: 10px 12px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    font-size: 0.85em !important;
+    letter-spacing: 0.5px !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody td {
+    padding: 9px 12px !important;
+    border-bottom: 1px solid #e9ecef !important;
+    border-right: 1px solid #e9ecef !important;
+    color: #1a1a1a !important;
+    background: #ffffff !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody td:first-child {
+    font-weight: 600 !important;
+    color: #2F4F6F !important;
+    background: #f8f9fa !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody td:last-child {
+    border-right: none !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody tr:hover td {
+    background: #f1f8ff !important;
+}
+
+.wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody tr:hover td:first-child {
+    background: #e7f3ff !important;
+}
+
+.wod-sphere-reference-card .table-footnotes {
+    margin-top: 12px;
+    padding: 10px;
+    background: #fffef0;
+    border-left: 3px solid #FFC107;
+    border-radius: 4px;
+}
+
+.wod-sphere-reference-card .table-footnotes .footnote {
+    font-size: 0.85em;
+    color: #666;
+    margin: 4px 0;
+    line-height: 1.5;
+}

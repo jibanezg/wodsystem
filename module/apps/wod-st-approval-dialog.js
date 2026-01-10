@@ -256,7 +256,7 @@ export class WodStApprovalDialog extends Application {
             content: messageContent,
             whisper: [gm.id],
             speaker: { alias: "WoD System" },
-            type: CONST.CHAT_MESSAGE_TYPES.WHISPER
+            style: CONST.CHAT_MESSAGE_STYLES.WHISPER
         });
 
         ui.notifications.info("Approval request sent to Storyteller. Waiting for response...");
@@ -451,7 +451,7 @@ function registerChatButtonHandlers() {
                     </div>`,
                     whisper: [playerUser.id],
                     speaker: { alias: "WoD System" },
-                    type: CONST.CHAT_MESSAGE_TYPES.WHISPER,
+                    style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
                     flags: {
                         wodsystem: {
                             approvalResponse: true,
@@ -530,7 +530,7 @@ function registerChatButtonHandlers() {
                     </div>`,
                     whisper: [playerUser.id],
                     speaker: { alias: "WoD System" },
-                    type: CONST.CHAT_MESSAGE_TYPES.WHISPER,
+                    style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
                     flags: {
                         wodsystem: {
                             approvalResponse: true,

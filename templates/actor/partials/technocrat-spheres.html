@@ -8,6 +8,10 @@
                 <!-- Correspondence (Data) -->
                 <div class="attribute">
                     <label>Correspondence <span class="technocrat-name">(Data)</span></label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="data" title="View Data sphere details"><i class="fas fa-book"></i></button>
+                        <button type="button" class="sphere-table-btn" data-sphere-id="data" title="View Data Connections table"><i class="fas fa-table"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="correspondence">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.correspondence.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -19,6 +23,9 @@
                 <!-- Entropy -->
                 <div class="attribute">
                     <label>Entropy</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="entropy" title="View Entropy sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="entropy">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.entropy.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -30,6 +37,9 @@
                 <!-- Forces -->
                 <div class="attribute">
                     <label>Forces</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="forces" title="View Forces sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="forces">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.forces.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -46,6 +56,9 @@
                 <!-- Life -->
                 <div class="attribute">
                     <label>Life</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="life" title="View Life sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="life">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.life.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -57,6 +70,9 @@
                 <!-- Matter -->
                 <div class="attribute">
                     <label>Matter</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="matter" title="View Matter sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="matter">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.matter.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -68,6 +84,9 @@
                 <!-- Mind -->
                 <div class="attribute">
                     <label>Mind</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="mind" title="View Mind sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="mind">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.mind.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -84,6 +103,10 @@
                 <!-- Prime (Primal Utility) -->
                 <div class="attribute">
                     <label>Prime <span class="technocrat-name">(Primal Utility)</span></label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="primal_utility" title="View Primal Utility sphere details"><i class="fas fa-book"></i></button>
+                        <button type="button" class="sphere-table-btn" data-sphere-id="primal_utility" title="View Primal Ventures table"><i class="fas fa-table"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="prime">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.prime.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -95,6 +118,9 @@
                 <!-- Spirit (Dimensional Science) -->
                 <div class="attribute">
                     <label>Spirit <span class="technocrat-name">(Dimensional Science)</span></label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="dimensional_science" title="View Dimensional Science sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="spirit">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.spirit.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -106,6 +132,9 @@
                 <!-- Time -->
                 <div class="attribute">
                     <label>Time</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="time" title="View Time sphere details"><i class="fas fa-book"></i></button>
+                    </div>
                     <div class="dot-container" data-sphere="time">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../actor.system.spheres.time.rating)}}filled{{/if}}" data-index="{{@index}}"></div>

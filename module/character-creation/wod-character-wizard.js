@@ -1691,7 +1691,7 @@ export class WodCharacterWizard extends FormApplication {
     const service = game.wod?.referenceDataService;
     if (!service) return;
     const html = await renderTemplate('systems/wodsystem/templates/chat/reference-card.html', { reference });
-    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), content: html, type: CONST.CHAT_MESSAGE_TYPES.OTHER });
+    await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this.actor }), content: html, style: CONST.CHAT_MESSAGE_STYLES.OTHER });
   }
 
   /**
@@ -1898,7 +1898,7 @@ export class WodCharacterWizard extends FormApplication {
     await ChatMessage.create({ 
       speaker: ChatMessage.getSpeaker({ actor: this.actor }), 
       content: html, 
-      type: CONST.CHAT_MESSAGE_TYPES.OTHER 
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER 
     });
   }
 

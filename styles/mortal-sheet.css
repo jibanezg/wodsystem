@@ -1270,7 +1270,7 @@ textarea {
 .wod.sheet.actor .merit-reference-btn,
 .wod.sheet.actor .flaw-reference-btn {
     cursor: pointer;
-    color: var(--wod-primary, #4682B4);
+    color: #9C27B0;
     font-size: 12px;
     padding: 2px 4px;
     border-radius: 2px;
@@ -1281,15 +1281,15 @@ textarea {
 
 .wod.sheet.actor .merit-reference-btn.has-reference,
 .wod.sheet.actor .flaw-reference-btn.has-reference {
-    opacity: 0.6;
+    opacity: 0.7;
     visibility: visible;
 }
 
 .wod.sheet.actor .merit-reference-btn.has-reference:hover,
 .wod.sheet.actor .flaw-reference-btn.has-reference:hover {
     opacity: 1;
-    color: var(--wod-accent, #2F4F6F);
-    background: rgba(70, 130, 180, 0.1);
+    color: #7B1FA2;
+    background: rgba(156, 39, 176, 0.1);
 }
 
 .wod.sheet.actor .delete-merit, .delete-flaw, .delete-background {
