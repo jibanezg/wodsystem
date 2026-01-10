@@ -7,6 +7,8 @@
 
 .quintessence-paradox-wheel {
     /* Inherits card styling from visual-polish.css */
+    display: flex;
+    flex-direction: column;
 }
 
 .quintessence-paradox-wheel h4 {
@@ -14,6 +16,7 @@
     margin-bottom: 5px !important;
     margin-top: 0 !important;
     padding-bottom: 0 !important;
+    order: 0; /* Stay at top */
 }
 
 /* Wheel info labels - HIDDEN */
@@ -25,6 +28,7 @@
     position: relative;
     margin: 0 !important;
     padding: 0 !important;
+    order: 2; /* Appear after legend */
 }
 
 /* Circular wheel container */
@@ -32,8 +36,9 @@
     position: relative;
     width: 200px;
     height: 200px;
-    margin: 5px auto 10px auto !important;
+    margin: 0 auto 10px auto !important;
     padding: 0 !important;
+    transform: rotate(-9deg); /* Rotate to make positions 0 and 19 mirror across horizontal axis */
 }
 
 /* Starting marker - HIDDEN */
@@ -143,9 +148,11 @@
     display: flex;
     justify-content: center;
     gap: 16px;
-    margin-top: 12px;
+    margin-top: 0;
+    margin-bottom: 5px;
     font-size: 0.7em;
     color: #666;
+    order: 1; /* Appear before wheel */
 }
 
 .legend-item {
@@ -169,8 +176,13 @@
 }
 
 .legend-permanent {
-    background: #333;
-    border-color: #000;
+    background: #e74c3c;
+    border-color: #c0392b;
+}
+
+.legend-permanent::before {
+    content: "✗";
+    color: white;
 }
 
 .legend-check::before {
