@@ -1,15 +1,15 @@
 <!-- Enhancement Background Template -->
 <div class="bg-template enhancement-template">
-    <div class="template-field-row-split">
-        <div class="template-field">
-            <label>Enhancement Name</label>
-            <input type="text" 
-                   name="system.backgroundsExpanded.{{index}}.templateData.name" 
-                   value="{{data.name}}" 
-                   placeholder="Name of the enhancement/modification" 
-                   class="template-input" />
-        </div>
-        
+    <div class="template-field">
+        <label>Enhancement Name</label>
+        <input type="text" 
+               name="system.backgroundsExpanded.{{index}}.templateData.name" 
+               value="{{data.name}}" 
+               placeholder="Name of the enhancement/modification" 
+               class="template-input" />
+    </div>
+    
+    <div class="template-field-row">
         <div class="template-field">
             <label>Body Location</label>
             <input type="text" 
@@ -18,12 +18,39 @@
                    placeholder="e.g., Eyes, Arms, Neural" 
                    class="template-input" />
         </div>
+        
+        <div class="template-field">
+            <label>Enhancement Type</label>
+            <select name="system.backgroundsExpanded.{{index}}.templateData.enhancementType" 
+                    class="template-select">
+                <option value="cybernetic" {{#eq data.enhancementType "cybernetic"}}selected{{/eq}}>Cybernetic</option>
+                <option value="biomod" {{#eq data.enhancementType "biomod"}}selected{{/eq}}>Biomod</option>
+                <option value="genengineered" {{#eq data.enhancementType "genengineered"}}selected{{/eq}}>Genengineered</option>
+            </select>
+        </div>
+        
+        <div class="template-field permanent-paradox-field">
+            <label>Permanent Paradox</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.permanentParadox" 
+                   value="{{data.permanentParadox}}" 
+                   min="0" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+    </div>
+    
+    <div class="template-field genetic-flaws-field">
+        <label>Genetic Flaws</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.geneticFlaws" 
+                  placeholder="Genetic defects, instabilities, or inherited complications"
+                  class="template-textarea">{{data.geneticFlaws}}</textarea>
     </div>
     
     <div class="template-field">
-        <label>Description</label>
+        <label>Physical Description</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.description" 
-                  placeholder="Physical description"
+                  placeholder="Physical appearance and visible modifications"
                   class="template-textarea">{{data.description}}</textarea>
     </div>
     
@@ -31,16 +58,22 @@
         <div class="template-field">
             <label>Effects & Capabilities</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.effects" 
-                      placeholder="Benefits gained"
+                      placeholder="Benefits and special abilities gained"
                       class="template-textarea">{{data.effects}}</textarea>
         </div>
         
         <div class="template-field">
-            <label>Side Effects</label>
+            <label>Side Effects / Drawbacks</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.sideEffects" 
-                      placeholder="Drawbacks, complications"
+                      placeholder="Complications, maintenance, social issues"
                       class="template-textarea">{{data.sideEffects}}</textarea>
         </div>
     </div>
+    
+    <div class="template-field">
+        <label>Game Mechanics</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.gameMechanics" 
+                  placeholder="Specific game mechanics, dice pools, difficulties, durations, activation requirements, etc."
+                  class="template-textarea-large">{{data.gameMechanics}}</textarea>
+    </div>
 </div>
-

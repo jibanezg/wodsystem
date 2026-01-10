@@ -2895,8 +2895,18 @@ export class WodCharacterWizard extends FormApplication {
       // Apply to actor
       await this._applyToActor();
       
-      // Mark as created
-      await this.actor.update({ "system.isCreated": true });
+      // Set initial Quintessence based on Avatar/Genius background
+      const backgrounds = this.actor.system.miscellaneous?.backgrounds || [];
+      const avatarOrGenius = backgrounds.find(bg => 
+        bg.name === 'Avatar' || bg.name === 'Genius'
+      );
+      const startingQuintessence = avatarOrGenius ? (avatarOrGenius.value || 0) : 0;
+      
+      // Mark as created and set starting Quintessence
+      await this.actor.update({ 
+        "system.isCreated": true,
+        "system.advantages.primalEnergy.current": startingQuintessence
+      });
       
       // Clear wizard progress
       await this.actor.unsetFlag('wodsystem', 'wizardProgress');

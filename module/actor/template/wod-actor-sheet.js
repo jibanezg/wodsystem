@@ -51,6 +51,12 @@ export class WodActorSheet extends ActorSheet {
         // The data is in context.data.system, but templates expect context.system
         context.system = context.data.system;
         
+        // SAFEGUARD: Ensure biography.image is always a string (prevents [object Object] error)
+        if (context.actor?.system?.biography?.image && typeof context.actor.system.biography.image !== 'string') {
+            console.warn(`Biography image was not a string (was ${typeof context.actor.system.biography.image}), clearing it`);
+            context.actor.system.biography.image = "";
+        }
+        
         // Load reference data (archetypes, backgrounds, etc.) via service
         const service = game.wod?.referenceDataService;
         if (service && service.initialized) {
@@ -412,11 +418,10 @@ export class WodActorSheet extends ActorSheet {
         // Biography field handlers
         html.find('input[name^="system.biography"]').change(this._onBiographyChange.bind(this));
         html.find('textarea[name^="system.biography"]').change(this._onBiographyChange.bind(this));
+        html.find('.wod-file-picker').click(this._onFilePicker.bind(this));
         html.find('.clear-image').click(this._onClearImage.bind(this));
         html.find('.add-instrument').click(this._onAddInstrument.bind(this));
         html.find('.remove-instrument').click(this._onRemoveInstrument.bind(this));
-        
-        // File picker uses Foundry's built-in handler (no custom binding needed)
         
         // Secondary ability handlers
         html.find('.add-secondary-talent').click((ev) => this._onAddSecondaryAbility(ev, 'talents'));
@@ -457,6 +462,9 @@ export class WodActorSheet extends ActorSheet {
         html.on('click', '.delete-asset', this._onDeleteAsset.bind(this));
         html.on('click', '.add-custom-field', this._onAddCustomField.bind(this));
         html.on('click', '.delete-custom-field', this._onDeleteCustomField.bind(this));
+        
+        // Enhancement type change handler (show/hide genetic flaws field)
+        html.on('change', 'select[name*="enhancementType"]', this._onEnhancementTypeChange.bind(this));
         
         // Technocrat-specific handlers
         if (this.actor.type === "Technocrat") {
@@ -805,6 +813,133 @@ export class WodActorSheet extends ActorSheet {
     /**
      * Clear character portrait image
      */
+
+    /**
+     * Handle file picker button click
+     * Opens a custom modal for selecting/entering image path
+     */
+    async _onFilePicker(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        
+        const button = event.currentTarget;
+        const target = button.dataset.target;
+        const currentValue = foundry.utils.getProperty(this.actor, target) || "";
+        
+        // Create and show custom file picker modal
+        this._showImagePickerModal(target, currentValue);
+    }
+    
+    /**
+     * Show a simple image picker modal (scoped to WoD system only)
+     */
+    _showImagePickerModal(target, currentValue) {
+        // Remove any existing modal
+        const existingModal = document.querySelector('.wod-image-picker-modal');
+        if (existingModal) existingModal.remove();
+        
+        // Simple modal HTML - just preview, upload, and URL input
+        const modalHtml = `
+            <div class="wod-image-picker-modal">
+                <div class="wod-image-picker-content">
+                    <div class="wod-image-picker-header">
+                        <h3><i class="fas fa-image"></i> Character Portrait</h3>
+                        <button type="button" class="wod-image-picker-close"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="wod-image-picker-body">
+                        <div class="wod-image-picker-preview">
+                            ${currentValue ? `<img src="${currentValue}" alt="Preview"/>` : '<div class="no-preview"><i class="fas fa-user"></i><span>No image</span></div>'}
+                        </div>
+                        
+                        <div class="wod-image-picker-input-group">
+                            <label>Image Path or URL</label>
+                            <input type="text" class="wod-image-picker-url" value="${currentValue || ''}" placeholder="Enter path or URL..."/>
+                        </div>
+                        
+                        <div class="wod-image-picker-upload">
+                            <input type="file" class="wod-upload-input" accept="image/*" style="display:none"/>
+                            <button type="button" class="wod-upload-btn"><i class="fas fa-folder-open"></i> Browse PC...</button>
+                        </div>
+                    </div>
+                    <div class="wod-image-picker-footer">
+                        <button type="button" class="wod-image-picker-cancel">Cancel</button>
+                        <button type="button" class="wod-image-picker-save">Save</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        const modal = document.querySelector('.wod-image-picker-modal');
+        const urlInput = modal.querySelector('.wod-image-picker-url');
+        const preview = modal.querySelector('.wod-image-picker-preview');
+        const uploadInput = modal.querySelector('.wod-upload-input');
+        const uploadBtn = modal.querySelector('.wod-upload-btn');
+        
+        // Update preview
+        const updatePreview = (url) => {
+            if (url) {
+                preview.innerHTML = `<img src="${url}" alt="Preview" onerror="this.parentElement.innerHTML='<div class=\\'no-preview\\'><i class=\\'fas fa-exclamation-triangle\\'></i><span>Invalid</span></div>'"/>`;
+            } else {
+                preview.innerHTML = '<div class="no-preview"><i class="fas fa-user"></i><span>No image</span></div>';
+            }
+        };
+        
+        // Preview on input change
+        urlInput.addEventListener('input', () => updatePreview(urlInput.value.trim()));
+        
+        // Upload button opens file picker, then uploads to Foundry
+        uploadBtn.addEventListener('click', () => uploadInput.click());
+        
+        uploadInput.addEventListener('change', async () => {
+            if (uploadInput.files.length === 0) return;
+            const file = uploadInput.files[0];
+            
+            try {
+                const FilePickerClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
+                
+                // Upload directly to the Data folder root (always exists)
+                const response = await FilePickerClass.upload("data", "", file, {});
+                
+                if (response?.path) {
+                    urlInput.value = response.path;
+                    updatePreview(response.path);
+                    ui.notifications.info(`Uploaded: ${file.name}`);
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                if (error.message?.includes('permission') || error.message?.includes('Permission')) {
+                    ui.notifications.error('No permission to upload. Ask your GM to enable file uploads.');
+                } else {
+                    ui.notifications.error(`Upload failed: ${error.message || 'Unknown error'}`);
+                }
+            }
+        });
+        
+        // Close handlers
+        const closeModal = () => modal.remove();
+        modal.querySelector('.wod-image-picker-close').addEventListener('click', closeModal);
+        modal.querySelector('.wod-image-picker-cancel').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        
+        // Save handler
+        modal.querySelector('.wod-image-picker-save').addEventListener('click', async () => {
+            await this.actor.update({ [target]: urlInput.value.trim() });
+            closeModal();
+        });
+        
+        // Keyboard shortcuts
+        urlInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                await this.actor.update({ [target]: urlInput.value.trim() });
+                closeModal();
+            } else if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    }
+
     async _onClearImage(event) {
         event.preventDefault();
         const button = event.currentTarget;
@@ -3389,7 +3524,10 @@ export class WodActorSheet extends ActorSheet {
             "Familiar": "familiar",
             "Companion": "familiar",
             "Device": "device",
-            "Enhancements": "enhancement"
+            "Enhancement": "enhancement",
+            "Enhancements": "enhancement",
+            "Wonder": "wonder",
+            "Wonder (Device/ Fetish/ Talisman, etc.)": "wonder"
         };
         return templates[backgroundName] || "custom";
     }
@@ -3416,7 +3554,9 @@ export class WodActorSheet extends ActorSheet {
             case "device":
                 return { name: "", description: "", spheres: "", effects: "", arete: 0, paradoxRisk: 0, quintessence: 0 };
             case "enhancement":
-                return { name: "", description: "", location: "", effects: "", sideEffects: "" };
+                return { name: "", description: "", location: "", enhancementType: "cybernetic", permanentParadox: 0, geneticFlaws: "", effects: "", sideEffects: "", gameMechanics: "" };
+            case "wonder":
+                return { name: "", description: "", spheres: "", powers: "", gameMechanics: "", arete: 0, paradoxType: "none", paradoxValue: 0, quintessenceStorage: 0, quintessenceBurnedPerUse: 0 };
             case "custom":
                 return { description: "", mechanics: "", notes: "" };
             default:
@@ -3593,6 +3733,9 @@ export class WodActorSheet extends ActorSheet {
         formContainer.html(formHTML);
         formContainer.show();
         modal.find('.save-bg-modal').show();
+        
+        // Initialize genetic flaws field visibility
+        this._initializeGeneticFlawsVisibility();
     }
 
     /**
@@ -3672,12 +3815,50 @@ export class WodActorSheet extends ActorSheet {
             modal.removeData('editIndex');
             modal.fadeOut(200);
         } else {
-            // Add mode - create new entry
+            // Add mode - create new entry, extract form data
+            const newTemplateData = {};
+            const formElements = modal.find('.bg-modal-form input, .bg-modal-form textarea, .bg-modal-form select');
+            
+            console.log("WoD | Found", formElements.length, "form elements");
+            
+            formElements.each((i, element) => {
+                const name = element.name;
+                if (!name || !name.includes('templateData.')) return;
+                
+                const value = element.type === 'checkbox' ? element.checked : element.value;
+                const fieldPath = name.substring(name.indexOf('templateData.') + 'templateData.'.length);
+                
+                console.log(`WoD | Extracting field: ${fieldPath} = "${value}"`);
+                
+                // Handle nested paths (e.g., npcs.0.name)
+                const pathParts = fieldPath.split('.');
+                let current = newTemplateData;
+                
+                for (let i = 0; i < pathParts.length - 1; i++) {
+                    const part = pathParts[i];
+                    const nextPart = pathParts[i + 1];
+                    
+                    if (!isNaN(nextPart)) {
+                        // Next part is an array index
+                        if (!current[part]) current[part] = [];
+                    } else {
+                        // Next part is an object key
+                        if (!current[part]) current[part] = {};
+                    }
+                    current = current[part];
+                }
+                
+                const lastPart = pathParts[pathParts.length - 1];
+                current[lastPart] = value;
+            });
+            
+            console.log("WoD | New Wonder data being saved:", JSON.stringify(newTemplateData, null, 2));
+            
             const newExpanded = {
                 backgroundName: selectedBg.name,
                 backgroundRating: selectedBg.rating,
                 template: selectedBg.template,
-                templateData: selectedBg.templateData,
+                templateData: newTemplateData,
                 customFields: []
             };
             
@@ -3720,6 +3901,9 @@ export class WodActorSheet extends ActorSheet {
         formContainer.show();
         modal.find('.save-bg-modal').show();
         
+        // Initialize genetic flaws field visibility
+        this._initializeGeneticFlawsVisibility();
+        
         // Show modal
         modal.fadeIn(200);
     }
@@ -3741,13 +3925,94 @@ export class WodActorSheet extends ActorSheet {
         let summary = `<strong>${bg.backgroundName}</strong> (${bg.backgroundRating} dots)<br/>`;
         summary += `<em>Type: ${bg.template}</em><br/>`;
         
-        // Add first non-empty template field
-        if (bg.templateData) {
-            for (const [key, value] of Object.entries(bg.templateData)) {
-                if (value && typeof value === 'string' && value.trim().length > 0) {
-                    const truncated = value.length > 50 ? value.substring(0, 47) + '...' : value;
-                    summary += truncated;
-                    break;
+        // Special handling for Wonder template
+        if (bg.template === "wonder" && bg.templateData) {
+            console.log("WoD | Wonder tooltip data:", JSON.stringify(bg.templateData, null, 2));
+            console.log("WoD | Has spheres?", !!bg.templateData.spheres, bg.templateData.spheres);
+            console.log("WoD | Has powers?", !!bg.templateData.powers, bg.templateData.powers);
+            console.log("WoD | Has gameMechanics?", !!bg.templateData.gameMechanics, bg.templateData.gameMechanics);
+            summary += `<br/>`; // Add spacing
+            
+            if (bg.templateData.name && bg.templateData.name.trim()) {
+                summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+            }
+            if (bg.templateData.arete !== null && bg.templateData.arete !== undefined && bg.templateData.arete !== "") {
+                summary += `<strong>Arete:</strong> ${bg.templateData.arete}<br/>`;
+            }
+            if (bg.templateData.paradoxType && bg.templateData.paradoxType !== "none") {
+                const paradoxLabel = bg.templateData.paradoxType === "permanent" ? "Permanent Paradox" : "Paradox Per Use";
+                const paradoxValue = bg.templateData.paradoxValue !== null && bg.templateData.paradoxValue !== undefined ? bg.templateData.paradoxValue : 0;
+                summary += `<strong>${paradoxLabel}:</strong> ${paradoxValue}<br/>`;
+            }
+            if (bg.templateData.quintessenceStorage !== null && bg.templateData.quintessenceStorage !== undefined && bg.templateData.quintessenceStorage !== "") {
+                summary += `<strong>Quintessence Storage:</strong> ${bg.templateData.quintessenceStorage}<br/>`;
+            }
+            if (bg.templateData.quintessenceBurnedPerUse !== null && bg.templateData.quintessenceBurnedPerUse !== undefined && bg.templateData.quintessenceBurnedPerUse !== "") {
+                summary += `<strong>Quintessence Per Use:</strong> ${bg.templateData.quintessenceBurnedPerUse}<br/>`;
+            }
+            if (bg.templateData.spheres && bg.templateData.spheres.trim()) {
+                const truncatedSpheres = bg.templateData.spheres.length > 50 ? bg.templateData.spheres.substring(0, 47) + '...' : bg.templateData.spheres;
+                summary += `<strong>Spheres:</strong> ${truncatedSpheres}<br/>`;
+            }
+            if (bg.templateData.description && bg.templateData.description.trim()) {
+                const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+                summary += `<br/><em>${truncatedDesc}</em><br/>`;
+            }
+            if (bg.templateData.powers && bg.templateData.powers.trim()) {
+                const truncatedPowers = bg.templateData.powers.length > 80 ? bg.templateData.powers.substring(0, 77) + '...' : bg.templateData.powers;
+                summary += `<br/><strong>Powers:</strong> ${truncatedPowers}<br/>`;
+            }
+            if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
+                const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
+                summary += `<br/><strong>Game Mechanics:</strong><br/>${truncatedMechanics}`;
+            }
+        } else if (bg.template === "enhancement" && bg.templateData) {
+            // Special handling for Enhancement template
+            summary += `<br/>`; // Add spacing
+            
+            if (bg.templateData.name && bg.templateData.name.trim()) {
+                summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+            }
+            if (bg.templateData.location && bg.templateData.location.trim()) {
+                summary += `<strong>Location:</strong> ${bg.templateData.location}<br/>`;
+            }
+            if (bg.templateData.enhancementType) {
+                const typeLabel = bg.templateData.enhancementType === "cybernetic" ? "Cybernetic" : 
+                                 bg.templateData.enhancementType === "biomod" ? "Biomod" : "Genengineered";
+                summary += `<strong>Type:</strong> ${typeLabel}<br/>`;
+            }
+            if (bg.templateData.permanentParadox !== null && bg.templateData.permanentParadox !== undefined && bg.templateData.permanentParadox !== "" && bg.templateData.permanentParadox != 0) {
+                summary += `<strong>Permanent Paradox:</strong> ${bg.templateData.permanentParadox}<br/>`;
+            }
+            if (bg.templateData.geneticFlaws && bg.templateData.geneticFlaws.trim()) {
+                const truncatedFlaws = bg.templateData.geneticFlaws.length > 60 ? bg.templateData.geneticFlaws.substring(0, 57) + '...' : bg.templateData.geneticFlaws;
+                summary += `<strong>Genetic Flaws:</strong> ${truncatedFlaws}<br/>`;
+            }
+            if (bg.templateData.description && bg.templateData.description.trim()) {
+                const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+                summary += `<br/><em>${truncatedDesc}</em><br/>`;
+            }
+            if (bg.templateData.effects && bg.templateData.effects.trim()) {
+                const truncatedEffects = bg.templateData.effects.length > 80 ? bg.templateData.effects.substring(0, 77) + '...' : bg.templateData.effects;
+                summary += `<br/><strong>Effects:</strong> ${truncatedEffects}<br/>`;
+            }
+            if (bg.templateData.sideEffects && bg.templateData.sideEffects.trim()) {
+                const truncatedSide = bg.templateData.sideEffects.length > 60 ? bg.templateData.sideEffects.substring(0, 57) + '...' : bg.templateData.sideEffects;
+                summary += `<strong>Side Effects:</strong> ${truncatedSide}<br/>`;
+            }
+            if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
+                const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
+                summary += `<br/><strong>Game Mechanics:</strong><br/>${truncatedMechanics}`;
+            }
+        } else {
+            // Add first non-empty template field for other templates
+            if (bg.templateData) {
+                for (const [key, value] of Object.entries(bg.templateData)) {
+                    if (value && typeof value === 'string' && value.trim().length > 0) {
+                        const truncated = value.length > 50 ? value.substring(0, 47) + '...' : value;
+                        summary += truncated;
+                        break;
+                    }
                 }
             }
         }
@@ -3859,6 +4124,56 @@ export class WodActorSheet extends ActorSheet {
         
         backgroundsExpanded[bgIndex].customFields.splice(fieldIndex, 1);
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded });
+    }
+
+    /**
+     * Handle enhancement type change (show/hide paradox and genetic flaws fields)
+     * - Cybernetic: Only Permanent Paradox
+     * - Biomod: Both Permanent Paradox AND Genetic Flaws
+     * - Genengineered: Only Genetic Flaws
+     */
+    _onEnhancementTypeChange(event) {
+        const select = event.currentTarget;
+        const selectedType = select.value;
+        const modal = this.element.find('.bg-modal-overlay');
+        const permanentParadoxField = modal.find('.permanent-paradox-field');
+        const geneticFlawsField = modal.find('.genetic-flaws-field');
+        
+        if (selectedType === 'cybernetic') {
+            permanentParadoxField.show();
+            geneticFlawsField.hide();
+        } else if (selectedType === 'biomod') {
+            permanentParadoxField.show();
+            geneticFlawsField.show();
+        } else if (selectedType === 'genengineered') {
+            permanentParadoxField.hide();
+            geneticFlawsField.show();
+        }
+    }
+
+    /**
+     * Initialize paradox and genetic flaws field visibility based on current enhancement type
+     */
+    _initializeGeneticFlawsVisibility() {
+        const modal = this.element.find('.bg-modal-overlay');
+        const enhancementTypeSelect = modal.find('select[name*="enhancementType"]');
+        const permanentParadoxField = modal.find('.permanent-paradox-field');
+        const geneticFlawsField = modal.find('.genetic-flaws-field');
+        
+        if (enhancementTypeSelect.length > 0) {
+            const selectedType = enhancementTypeSelect.val();
+            
+            if (selectedType === 'cybernetic') {
+                permanentParadoxField.show();
+                geneticFlawsField.hide();
+            } else if (selectedType === 'biomod') {
+                permanentParadoxField.show();
+                geneticFlawsField.show();
+            } else if (selectedType === 'genengineered') {
+                permanentParadoxField.hide();
+                geneticFlawsField.show();
+            }
+        }
     }
 
     /**

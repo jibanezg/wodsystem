@@ -1202,7 +1202,7 @@
 }
 
 /* Backstory and Notes */
-textarea {
+.wod.sheet.actor textarea {
     width: 100%;
     padding: 5px;
     border: 1px solid #ccc;
@@ -1630,4 +1630,188 @@ button.add-secondary-knowledge:hover {
     color: #666;
     font-size: 0.875rem;
     font-style: italic;
+}
+
+/* ========================================
+   WOD IMAGE PICKER MODAL
+   Simple, consistent with other WoD dialogs
+   ======================================== */
+
+.wod-image-picker-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.wod-image-picker-content {
+    background: white;
+    border: 2px solid #4682B4;
+    border-radius: 8px;
+    width: 340px;
+    max-width: 90vw;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.wod-image-picker-header {
+    background: linear-gradient(135deg, #4682B4 0%, #2F4F6F 100%);
+    color: white;
+    padding: 10px 12px;
+    border-radius: 6px 6px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod-image-picker-header h3 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod-image-picker-close {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    opacity: 0.8;
+}
+
+.wod-image-picker-close:hover {
+    opacity: 1;
+}
+
+.wod-image-picker-body {
+    padding: 16px;
+}
+
+.wod-image-picker-preview {
+    width: 100%;
+    height: 120px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.wod-image-picker-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.wod-image-picker-preview .no-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #999;
+}
+
+.wod-image-picker-preview .no-preview i {
+    font-size: 2em;
+    opacity: 0.5;
+}
+
+.wod-image-picker-preview .no-preview span {
+    font-size: 0.8em;
+}
+
+.wod-image-picker-input-group {
+    margin-bottom: 12px;
+}
+
+.wod-image-picker-input-group label {
+    display: block;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.wod-image-picker-input-group input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9em;
+    box-sizing: border-box;
+}
+
+.wod-image-picker-input-group input:focus {
+    outline: none;
+    border-color: #4682B4;
+}
+
+.wod-image-picker-upload {
+    margin-bottom: 8px;
+}
+
+.wod-upload-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod-upload-btn:hover {
+    background: #5a6268;
+}
+
+.wod-image-picker-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.wod-image-picker-cancel,
+.wod-image-picker-save {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.wod-image-picker-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.wod-image-picker-cancel:hover {
+    background: #5a6268;
+}
+
+.wod-image-picker-save {
+    background: #28a745;
+    color: white;
+}
+
+.wod-image-picker-save:hover {
+    background: #218838;
 }

@@ -73,6 +73,9 @@ export class WodActor extends Actor {
         // Ensure merits and flaws are arrays (fix Foundry form corruption)
         this._ensureMeritsFlawsAreArrays();
         
+        // Ensure biography data is properly structured (fix corrupted data)
+        this._ensureBiographyData();
+        
         // Ensure combat data exists
         if (!this.system.combat) {
             this.system.combat = { initiativeBonus: 0 };
@@ -271,6 +274,56 @@ export class WodActor extends Actor {
                 }
             }
         });
+    }
+    
+    /**
+     * Ensure biography data is properly structured (fix corrupted or missing data)
+     * Prevents [object Object] errors when rendering biography image
+     */
+    _ensureBiographyData() {
+        if (!this.system.biography) {
+            this.system.biography = {
+                age: "",
+                sex: "",
+                height: "",
+                weight: "",
+                eyes: "",
+                hair: "",
+                nationality: "",
+                backstory: "",
+                notes: "",
+                image: ""
+            };
+        }
+        
+        // Ensure image is always a string (prevents [object Object] error in templates)
+        if (this.system.biography.image && typeof this.system.biography.image !== 'string') {
+            console.warn(`Biography image was not a string (was ${typeof this.system.biography.image}), clearing it`);
+            this.system.biography.image = "";
+        }
+        
+        // Ensure all biography fields exist (for actors upgraded from older versions)
+        const bioFields = ['age', 'sex', 'height', 'weight', 'eyes', 'hair', 'nationality', 'backstory', 'notes', 'image'];
+        for (const field of bioFields) {
+            if (this.system.biography[field] === undefined) {
+                this.system.biography[field] = "";
+            }
+        }
+        
+        // For Technocrats, ensure focus structure exists
+        if (this.type === "Technocrat") {
+            if (!this.system.biography.focus) {
+                this.system.biography.focus = {
+                    paradigm: "",
+                    instruments: ["", "", "", "", "", "", ""],
+                    practices: ""
+                };
+            }
+            // Ensure instruments is an array
+            if (!Array.isArray(this.system.biography.focus.instruments)) {
+                this.system.biography.focus.instruments = ["", "", "", "", "", "", ""];
+            }
+        }
     }
     
     /**

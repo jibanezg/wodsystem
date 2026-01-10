@@ -14,9 +14,9 @@
                 </div>
                 {{/if}}
                 <div class="portrait-input-wrapper">
+                    <input type="text" name="system.biography.image" value="{{actor.system.biography.image}}" style="display: none;" data-dtype="String"/>
                     <div class="image-controls">
-                        <input class="portrait-image-path" type="text" name="system.biography.image" value="{{actor.system.biography.image}}" placeholder="Path to image..." />
-                        <button type="button" class="file-picker" data-type="imagevideo" data-target="system.biography.image" title="Browse Files" tabindex="-1">
+                        <button type="button" class="wod-file-picker" data-type="imagevideo" data-target="system.biography.image" title="Browse Files" tabindex="-1">
                             <i class="fas fa-file-import fa-fw"></i>
                         </button>
                         {{#if actor.system.biography.image}}
@@ -72,13 +72,17 @@
                 <!-- Paradigm -->
                 <div class="focus-field">
                     <label>Paradigm</label>
-                    <input type="text" name="system.biography.focus.paradigm" value="{{actor.system.biography.focus.paradigm}}" placeholder="Enter your character's paradigm..." />
+                    <textarea name="system.biography.focus.paradigm" 
+                              rows="3" 
+                              placeholder="Enter your character's paradigm...">{{actor.system.biography.focus.paradigm}}</textarea>
                 </div>
 
                 <!-- Practices -->
                 <div class="focus-field">
                     <label>Practices</label>
-                    <input type="text" name="system.biography.focus.practices" value="{{actor.system.biography.focus.practices}}" placeholder="Enter your character's practices..." />
+                    <textarea name="system.biography.focus.practices" 
+                              rows="2" 
+                              placeholder="Enter your character's practices...">{{actor.system.biography.focus.practices}}</textarea>
                 </div>
             </div>
 

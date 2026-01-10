@@ -65,7 +65,7 @@
             <div class="item-stats">
                 <span class="stat-mini" title="Rating"><strong>RAT:</strong> <input type="number" name="system.equipment.armor.{{@index}}.rating" value="{{this.rating}}" min="0" max="10" /></span>
                 <span class="stat-mini" title="Penalty"><strong>PEN:</strong> <input type="number" name="system.equipment.armor.{{@index}}.penalty" value="{{this.penalty}}" min="-5" max="0" /></span>
-                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" name="system.equipment.armor.{{@index}}.description" value="{{this.description}}" placeholder="Description..." /></span>
+                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" name="system.equipment.armor.{{@index}}.description" value="{{this.description}}" placeholder="Description..." style="max-width: 200px;" /></span>
             </div>
             <div class="item-actions">
                 <button type="button" class="delete-armor mini-btn danger" data-armor-id="{{this.id}}" title="Delete">
