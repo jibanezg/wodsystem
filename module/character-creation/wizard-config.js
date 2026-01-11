@@ -1,50 +1,51 @@
 /**
  * Configuration for Character Creation Wizard
  * Defines creation rules for each actor type
+ * Note: Labels are now stored in i18n files and translated dynamically
  */
 
 export const WIZARD_CONFIG = {
   // Technocrat Configuration
   Technocrat: {
     name: "Technocrat",
-    label: "Technocrat Character",
+    labelKey: "Wizard.TechnocratCharacter", // i18n key instead of hardcoded string
     steps: [
-      { id: "concept", label: "Concept & Identity", icon: "fa-user" },
-      { id: "attributes", label: "Attributes", icon: "fa-dumbbell" },
-      { id: "abilities", label: "Abilities", icon: "fa-brain" },
-      { id: "advantages", label: "Advantages", icon: "fa-star" },
-      { id: "merits-flaws", label: "Merits & Flaws", icon: "fa-balance-scale" },
-      { id: "freebies", label: "Freebie Points", icon: "fa-coins" },
-      { id: "review", label: "Review", icon: "fa-check-circle" }
+      { id: "concept", labelKey: "Wizard.StepConceptIdentity", icon: "fa-user" },
+      { id: "attributes", labelKey: "Wizard.StepAttributes", icon: "fa-dumbbell" },
+      { id: "abilities", labelKey: "Wizard.StepAbilities", icon: "fa-brain" },
+      { id: "advantages", labelKey: "Wizard.StepAdvantages", icon: "fa-star" },
+      { id: "merits-flaws", labelKey: "Wizard.StepMeritsFlaws", icon: "fa-balance-scale" },
+      { id: "freebies", labelKey: "Wizard.StepFreebies", icon: "fa-coins" },
+      { id: "review", labelKey: "Wizard.StepReview", icon: "fa-check-circle" }
     ],
     
     // Step 1: Concept
     concept: {
       fields: [
-        { name: "name", label: "Name", type: "text", required: true },
-        { name: "concept", label: "Concept", type: "text", required: true, placeholder: "e.g., Cybernetics Specialist, Reality Engineer" },
-        { name: "nature", label: "Nature", type: "select", required: true, options: [
+        { name: "name", labelKey: "Wizard.FieldName", type: "text", required: true },
+        { name: "concept", labelKey: "Wizard.FieldConcept", type: "text", required: true, placeholderKey: "Wizard.PlaceholderConcept" },
+        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: [
           "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
           "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
           "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist",
           "Monster", "Pedagogue", "Penitent", "Perfectionist", "Rebel", "Rogue",
           "Scientist", "Survivor", "Traditionalist", "Trickster", "Visionary"
         ]},
-        { name: "demeanor", label: "Demeanor", type: "select", required: true, options: [
+        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: [
           "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
           "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
           "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist",
           "Monster", "Pedagogue", "Penitent", "Perfectionist", "Rebel", "Rogue",
           "Scientist", "Survivor", "Traditionalist", "Trickster", "Visionary"
         ]},
-        { name: "convention", label: "Convention", type: "select", required: true, options: [
+        { name: "convention", labelKey: "Wizard.FieldConvention", type: "select", required: true, options: [
           "Iteration X",
           "New World Order",
           "Progenitors",
           "Syndicate",
           "Void Engineers"
         ]},
-        { name: "amalgam", label: "Amalgam", type: "text", placeholder: "e.g., BioMechanics, MECHA" }
+        { name: "amalgam", labelKey: "Wizard.FieldAmalgam", type: "text", placeholderKey: "Wizard.PlaceholderAmalgam" }
       ],
       // Convention affinity spheres (at least 1 point must be in an affinity sphere)
       affinitySpheres: {
@@ -142,26 +143,26 @@ export const WIZARD_CONFIG = {
   // Mortal Configuration (simpler)
   Mortal: {
     name: "Mortal",
-    label: "Mortal Character",
+    labelKey: "Wizard.MortalCharacter", // i18n key instead of hardcoded string
     steps: [
-      { id: "concept", label: "Concept", icon: "fa-user" },
-      { id: "attributes", label: "Attributes", icon: "fa-dumbbell" },
-      { id: "abilities", label: "Abilities", icon: "fa-brain" },
-      { id: "advantages", label: "Advantages", icon: "fa-star" },
-      { id: "freebies", label: "Freebie Points", icon: "fa-coins" },
-      { id: "review", label: "Review", icon: "fa-check-circle" }
+      { id: "concept", labelKey: "Wizard.StepConcept", icon: "fa-user" },
+      { id: "attributes", labelKey: "Wizard.StepAttributes", icon: "fa-dumbbell" },
+      { id: "abilities", labelKey: "Wizard.StepAbilities", icon: "fa-brain" },
+      { id: "advantages", labelKey: "Wizard.StepAdvantages", icon: "fa-star" },
+      { id: "freebies", labelKey: "Wizard.StepFreebies", icon: "fa-coins" },
+      { id: "review", labelKey: "Wizard.StepReview", icon: "fa-check-circle" }
     ],
 
     concept: {
       fields: [
-        { name: "name", label: "Name", type: "text", required: true },
-        { name: "concept", label: "Concept", type: "text", required: true },
-        { name: "nature", label: "Nature", type: "select", required: true, options: [
+        { name: "name", labelKey: "Wizard.FieldName", type: "text", required: true },
+        { name: "concept", labelKey: "Wizard.FieldConcept", type: "text", required: true },
+        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: [
           "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
           "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
           "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist"
         ]},
-        { name: "demeanor", label: "Demeanor", type: "select", required: true, options: [
+        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: [
           "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
           "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
           "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist"

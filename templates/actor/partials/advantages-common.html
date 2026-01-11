@@ -3,10 +3,10 @@
 <!-- Column 1: Willpower & Virtues/Humanity -->
 <div class="advantage-column">
     <div class="willpower-section">
-        <h4>Willpower</h4>
+        <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Willpower'}}</h4>
         <div class="willpower-tracks">
             <div class="willpower-permanent">
-                <label class="trait-label" data-trait="Willpower" data-value="{{actor.system.miscellaneous.willpower.permanent}}" data-category="willpower">Permanent</label>
+                <label class="trait-label" data-trait="Willpower" data-value="{{actor.system.miscellaneous.willpower.permanent}}" data-category="willpower">{{i18n 'WODSYSTEM.CharacterSheet.Willpower.Permanent'}}</label>
                 <div class="dot-container" data-willpower="permanent">
                     {{#times 10}}
                     <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -15,7 +15,7 @@
                 </div>
             </div>
             <div class="willpower-temporary">
-                <label>Temporary</label>
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Willpower.Temporary'}}</label>
                 <div class="dot-container" data-willpower="temporary">
                     {{#times 10}}
                     <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.temporary)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -32,13 +32,13 @@
 <!-- Column 2: Backgrounds -->
 <div class="advantage-column">
     <div class="backgrounds-section">
-        <h4>Backgrounds</h4>
+        <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Backgrounds'}}</h4>
         <div class="background-list">
             {{#each backgroundsPagination.backgrounds as |background|}}
             <div class="background-item" data-background-name="{{#if (eq background.name 'Custom')}}{{background.customName}}{{else}}{{background.name}}{{/if}}">
                 {{#if (eq background.name "Custom")}}
                 <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
-                       value="{{background.customName}}" placeholder="Custom Background" 
+                       value="{{background.customName}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.CustomBackground'}}" 
                        class="background-custom-name {{#if background.locked}}trait-label locked{{/if}}"
                        {{#if background.locked}}
                        data-trait="{{background.customName}}" 
@@ -57,12 +57,12 @@
                         data-background-index="{{background.actualIndex}}"
                         {{/if}}>
                     {{#each ../backgroundsList as |bg|}}
-                    <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{bg}}</option>
+                    <option value="{{bg}}" {{#if (eq ../background.name bg)}}selected{{/if}}>{{translateRef 'background' bg}}</option>
                     {{/each}}
                 </select>
                 {{/if}}
                 {{#if (and (ne background.name "Custom") background.name)}}
-                <button type="button" class="background-reference-btn" data-background-name="{{background.name}}" title="View {{background.name}} details">
+                <button type="button" class="background-reference-btn" data-background-name="{{background.name}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.ViewDetails'}}">
                     <i class="fas fa-book"></i>
                 </button>
                 {{/if}}
@@ -74,7 +74,7 @@
                     {{/times}}
                     <input type="hidden" class="dot-input" value="{{background.value}}"/>
                 </div>
-                <a class="lock-background" data-index="{{background.actualIndex}}" title="{{#if background.locked}}Unlock{{else}}Lock{{/if}} background selection">
+                <a class="lock-background" data-index="{{background.actualIndex}}" title="{{#if background.locked}}{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.UnlockBackground'}}{{else}}{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.LockBackground'}}{{/if}}">
                     <i class="fas {{#if background.locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
                 </a>
                 <a class="delete-background" data-index="{{background.actualIndex}}">
@@ -83,18 +83,18 @@
             </div>
             {{/each}}
             <div class="background-controls">
-                <button class="add-background" type="button" title="Add Background">+</button>
+                <button class="add-background" type="button" title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.AddBackground'}}">+</button>
                 {{#if backgroundsPagination.hasMultiplePages}}
                 <div class="background-pagination">
                     <button class="backgrounds-prev-page pagination-btn" type="button"
                             {{#unless backgroundsPagination.hasPrevPage}}disabled{{/unless}}
-                            title="Previous Page">
+                            title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.PreviousPage'}}">
                         <i class="fas fa-chevron-left"></i>
                     </button>
                     <span class="pagination-info">{{add backgroundsPagination.currentPage 1}} / {{backgroundsPagination.totalPages}}</span>
                     <button class="backgrounds-next-page pagination-btn" type="button"
                             {{#unless backgroundsPagination.hasNextPage}}disabled{{/unless}}
-                            title="Next Page">
+                            title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.NextPage'}}">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>

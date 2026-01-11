@@ -1,12 +1,12 @@
 <div class="character-wizard">
   <!-- Header -->
   <div class="wizard-header">
-    <h2>{{config.label}} Creation</h2>
+    <h2>{{config.label}} {{i18n 'Wizard.Creation'}}</h2>
     <div class="wizard-progress">
       <div class="progress-bar">
         <div class="progress-fill" style="width: {{progressPercent}}%"></div>
       </div>
-      <div class="progress-text">Step {{add currentStep 1}} of {{totalSteps}}: {{step.label}}</div>
+      <div class="progress-text">{{i18n 'Wizard.Step'}} {{add currentStep 1}} {{i18n 'Wizard.Of'}} {{totalSteps}}: {{step.label}}</div>
     </div>
   </div>
 
@@ -44,7 +44,7 @@
   <div class="wizard-footer">
     <div class="wizard-validation">
       {{#if validation.valid}}
-        <i class="fas fa-check-circle"></i> Ready to continue
+        <i class="fas fa-check-circle"></i> {{i18n 'Wizard.ReadyToContinue'}}
       {{else}}
         <i class="fas fa-exclamation-triangle"></i> {{validation.message}}
       {{/if}}
@@ -52,22 +52,22 @@
     
     <div class="wizard-buttons">
       <button type="button" class="wizard-cancel">
-        <i class="fas fa-times"></i> Cancel
+        <i class="fas fa-times"></i> {{i18n 'Common.Cancel'}}
       </button>
       
       {{#unless isFirstStep}}
       <button type="button" class="wizard-prev">
-        <i class="fas fa-arrow-left"></i> Previous
+        <i class="fas fa-arrow-left"></i> {{i18n 'Wizard.Previous'}}
       </button>
       {{/unless}}
       
       {{#if isLastStep}}
       <button type="button" class="wizard-finish {{#unless validation.valid}}disabled{{/unless}}" {{#unless validation.valid}}disabled{{/unless}}>
-        <i class="fas fa-check"></i> Finish Character
+        <i class="fas fa-check"></i> {{i18n 'Wizard.FinishCharacter'}}
       </button>
       {{else}}
       <button type="button" class="wizard-next {{#unless validation.valid}}disabled{{/unless}}" {{#unless validation.valid}}disabled{{/unless}}>
-        Next <i class="fas fa-arrow-right"></i>
+        {{i18n 'Wizard.Next'}} <i class="fas fa-arrow-right"></i>
       </button>
       {{/if}}
     </div>

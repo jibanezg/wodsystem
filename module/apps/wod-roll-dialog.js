@@ -1,5 +1,6 @@
 import { EffectModifierConverter } from '../effects/effect-modifier-converter.js';
 import { WodStApprovalDialog } from './wod-st-approval-dialog.js';
+import { i18n } from '../helpers/i18n.js';
 
 /**
  * Roll Dialog for World of Darkness System
@@ -23,6 +24,11 @@ export class WodRollDialog extends Application {
         }
         if (!options.classes.includes(creatureType)) {
             options.classes.push(creatureType);
+        }
+        
+        // Set title in options if not provided, using i18n if available
+        if (!options.title && game?.i18n) {
+            options.title = game.i18n.localize("WODSYSTEM.RollDialog.ConfigureRoll");
         }
         
         super(options);
@@ -50,7 +56,7 @@ export class WodRollDialog extends Application {
             width: 450,
             height: "auto",
             resizable: false,
-            title: "Configure Roll"
+            title: "Configure Roll" // Static title, will be overridden in constructor if i18n is available
         });
     }
     
@@ -103,7 +109,7 @@ export class WodRollDialog extends Application {
         
         // Validate template name if saving
         if (saveTemplate && !templateName) {
-            ui.notifications.error("Please enter a name for the roll template.");
+            ui.notifications.error(i18n('WODSYSTEM.RollDialog.PleaseEnterTemplateName'));
             return;
         }
         
@@ -115,11 +121,11 @@ export class WodRollDialog extends Application {
         
         // Request ST approval if needed (only if player is not the GM)
         if (playerEffectIds.length > 0 && !game.user.isGM) {
-            ui.notifications.info("Requesting Storyteller approval for effects...");
+            ui.notifications.info(i18n('WODSYSTEM.RollDialog.RequestingSTApproval'));
             const approved = await WodStApprovalDialog.requestApproval(this.actor, playerEffectIds);
             
             if (!approved) {
-                ui.notifications.warn("Roll cancelled - Storyteller denied effect application");
+                ui.notifications.warn(i18n('WODSYSTEM.RollDialog.RollCancelled'));
                 this.close();
                 return;
             }
@@ -148,7 +154,7 @@ export class WodRollDialog extends Application {
                 difficulty,
                 specialty
             });
-            ui.notifications.info(`Roll template "${templateName}" saved! Access it via the Quick Rolls panel.`);
+            ui.notifications.info(i18n('WODSYSTEM.RollDialog.TemplateSaved', {name: templateName}));
         }
         
         this.close();

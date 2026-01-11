@@ -3,11 +3,11 @@
     <div class="secondary-abilities-grid">
         <!-- Secondary Talents -->
         <div class="secondary-ability-category">
-            <h4>Secondary Talents</h4>
+            <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.SecondaryTalents'}}</h4>
             <div class="secondary-ability-list">
                 {{#each actor.system.secondaryAbilities.talents as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" 
+                    <input type="text" value="{{ability.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.SecondaryAbilities.AbilityName'}}" 
                            class="ability-name-input {{#if ability.name}}trait-label{{/if}}"
                            data-secondary-category="talents" data-index="{{abilityIndex}}"
                            {{#if ability.name}}data-trait="{{ability.name}}" data-value="{{ability.value}}" data-category="talents" readonly{{/if}}/>
@@ -22,17 +22,17 @@
                     </a>
                 </div>
                 {{/each}}
-                <button class="add-secondary-talent" title="Add Secondary Talent">+</button>
+                <button class="add-secondary-talent" title="{{i18n 'WODSYSTEM.CharacterSheet.SecondaryAbilities.AddSecondaryTalent'}}">+</button>
             </div>
         </div>
 
         <!-- Secondary Skills -->
         <div class="secondary-ability-category">
-            <h4>Secondary Skills</h4>
+            <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.SecondarySkills'}}</h4>
             <div class="secondary-ability-list">
                 {{#each actor.system.secondaryAbilities.skills as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" 
+                    <input type="text" value="{{ability.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.SecondaryAbilities.AbilityName'}}" 
                            class="ability-name-input {{#if ability.name}}trait-label{{/if}}"
                            data-secondary-category="skills" data-index="{{abilityIndex}}"
                            {{#if ability.name}}data-trait="{{ability.name}}" data-value="{{ability.value}}" data-category="skills" readonly{{/if}}/>
@@ -47,17 +47,17 @@
                     </a>
                 </div>
                 {{/each}}
-                <button class="add-secondary-skill" title="Add Secondary Skill">+</button>
+                <button class="add-secondary-skill" title="{{i18n 'WODSYSTEM.CharacterSheet.SecondaryAbilities.AddSecondarySkill'}}">+</button>
             </div>
         </div>
 
         <!-- Secondary Knowledges -->
         <div class="secondary-ability-category">
-            <h4>Secondary Knowledges</h4>
+            <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.SecondaryKnowledges'}}</h4>
             <div class="secondary-ability-list">
                 {{#each actor.system.secondaryAbilities.knowledges as |ability abilityIndex|}}
                 <div class="secondary-ability">
-                    <input type="text" value="{{ability.name}}" placeholder="Ability Name" 
+                    <input type="text" value="{{ability.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.SecondaryAbilities.AbilityName'}}" 
                            class="ability-name-input {{#if ability.name}}trait-label{{/if}}"
                            data-secondary-category="knowledges" data-index="{{abilityIndex}}"
                            {{#if ability.name}}data-trait="{{ability.name}}" data-value="{{ability.value}}" data-category="knowledges" readonly{{/if}}/>
@@ -72,7 +72,7 @@
                     </a>
                 </div>
                 {{/each}}
-                <button class="add-secondary-knowledge" title="Add Secondary Knowledge">+</button>
+                <button class="add-secondary-knowledge" title="{{i18n 'WODSYSTEM.CharacterSheet.SecondaryAbilities.AddSecondaryKnowledge'}}">+</button>
             </div>
         </div>
     </div>

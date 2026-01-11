@@ -1,17 +1,17 @@
-<!-- Device Background Template -->
+<!-- Device/Wonder Background Template (Unified) -->
 <div class="bg-template device-template">
     <div class="template-field">
-        <label>Device Name</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.DeviceName'}}</label>
         <input type="text" 
                name="system.backgroundsExpanded.{{index}}.templateData.name" 
                value="{{data.name}}" 
-               placeholder="Name of the device/wonder" 
+               placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.DeviceNamePlaceholder'}}" 
                class="template-input" />
     </div>
     
     <div class="template-field-row-thirds">
         <div class="template-field">
-            <label>Arete</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Arete'}}</label>
             <input type="number" 
                    name="system.backgroundsExpanded.{{index}}.templateData.arete" 
                    value="{{data.arete}}" 
@@ -21,8 +21,30 @@
                    class="template-input-number-tiny" />
         </div>
         
+        {{#if data.paradoxType}}
+        <!-- Wonder mode: Paradox Type + Value -->
         <div class="template-field">
-            <label>Paradox Risk</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ParadoxType'}}</label>
+            <select name="system.backgroundsExpanded.{{index}}.templateData.paradoxType" 
+                    class="template-select">
+                <option value="none" {{#eq data.paradoxType "none"}}selected{{/eq}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ParadoxTypeNone'}}</option>
+                <option value="permanent" {{#eq data.paradoxType "permanent"}}selected{{/eq}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ParadoxTypePermanent'}}</option>
+                <option value="perUse" {{#eq data.paradoxType "perUse"}}selected{{/eq}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ParadoxTypePerUse'}}</option>
+            </select>
+        </div>
+        <div class="template-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ParadoxValue'}}</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.paradoxValue" 
+                   value="{{data.paradoxValue}}" 
+                   min="0" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+        {{else}}
+        <!-- Device mode: Paradox Risk + Quintessence -->
+        <div class="template-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ParadoxRisk'}}</label>
             <input type="number" 
                    name="system.backgroundsExpanded.{{index}}.templateData.paradoxRisk" 
                    value="{{data.paradoxRisk}}" 
@@ -30,9 +52,8 @@
                    placeholder="0" 
                    class="template-input-number-tiny" />
         </div>
-        
         <div class="template-field">
-            <label>Quintessence</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Quintessence'}}</label>
             <input type="number" 
                    name="system.backgroundsExpanded.{{index}}.templateData.quintessence" 
                    value="{{data.quintessence}}" 
@@ -40,29 +61,73 @@
                    placeholder="0" 
                    class="template-input-number-tiny" />
         </div>
+        {{/if}}
     </div>
     
+    {{#if data.paradoxType}}
+    <!-- Wonder mode: Quintessence Storage + Per Use -->
+    <div class="template-field-row">
+        <div class="template-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.QuintessenceStorage'}}</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.quintessenceStorage" 
+                   value="{{data.quintessenceStorage}}" 
+                   min="0" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+        
+        <div class="template-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.QuintessencePerUse'}}</label>
+            <input type="number" 
+                   name="system.backgroundsExpanded.{{index}}.templateData.quintessenceBurnedPerUse" 
+                   value="{{data.quintessenceBurnedPerUse}}" 
+                   min="0" 
+                   placeholder="0" 
+                   class="template-input-number-tiny" />
+        </div>
+    </div>
+    {{/if}}
+    
     <div class="template-field">
-        <label>Description</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PhysicalDescription'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.description" 
-                  placeholder="Physical description and appearance"
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PhysicalDescriptionPlaceholder'}}"
                   class="template-textarea">{{data.description}}</textarea>
     </div>
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Spheres Required</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SpheresRequired'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.spheres" 
-                      placeholder="e.g., Forces 3, Prime 2, Matter 1"
+                      placeholder="{{#if data.paradoxType}}{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SpheresRequiredPlaceholderWonder'}}{{else}}{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SpheresRequiredPlaceholder'}}{{/if}}"
                       class="template-textarea">{{data.spheres}}</textarea>
         </div>
         
         <div class="template-field">
-            <label>Effects & Capabilities</label>
+            {{#if data.paradoxType}}
+            <!-- Wonder mode: Powers & Capabilities -->
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PowersCapabilities'}}</label>
+            <textarea name="system.backgroundsExpanded.{{index}}.templateData.powers" 
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PowersCapabilitiesPlaceholder'}}"
+                      class="template-textarea">{{data.powers}}</textarea>
+            {{else}}
+            <!-- Device mode: Effects & Capabilities -->
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EffectsCapabilities'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.effects" 
-                      placeholder="Functions and capabilities"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EffectsCapabilitiesPlaceholder'}}"
                       class="template-textarea">{{data.effects}}</textarea>
+            {{/if}}
         </div>
     </div>
+    
+    {{#if data.paradoxType}}
+    <!-- Wonder mode: Game Mechanics -->
+    <div class="template-field">
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GameMechanics'}}</label>
+        <textarea name="system.backgroundsExpanded.{{index}}.templateData.gameMechanics" 
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GameMechanicsPlaceholderWonder'}}"
+                  class="template-textarea-large">{{data.gameMechanics}}</textarea>
+    </div>
+    {{/if}}
 </div>
-

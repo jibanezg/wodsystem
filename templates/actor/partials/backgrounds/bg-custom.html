@@ -1,23 +1,23 @@
 <!-- Custom/Generic Background Template -->
 <div class="bg-template custom-template">
     <div class="template-field">
-        <label>Description</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Description'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.description" 
-                  placeholder="Describe this background and its benefits..."
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.DescriptionPlaceholder'}}"
                   class="template-textarea">{{data.description}}</textarea>
     </div>
     
     <div class="template-field">
-        <label>Game Mechanics</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GameMechanics'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.mechanics" 
-                  placeholder="What mechanical benefits does this provide?"
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GameMechanicsPlaceholder'}}"
                   class="template-textarea">{{data.mechanics}}</textarea>
     </div>
     
     <div class="template-field">
-        <label>Notes</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Notes'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.notes" 
-                  placeholder="Additional notes, story elements, etc."
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.NotesPlaceholder'}}"
                   class="template-textarea">{{data.notes}}</textarea>
     </div>
 </div>

@@ -1,4 +1,5 @@
 import { WodActiveEffect } from '../effects/wod-active-effect.js';
+import { i18n } from '../helpers/i18n.js';
 
 /**
  * Effect Manager Dialog for World of Darkness System
@@ -6,6 +7,11 @@ import { WodActiveEffect } from '../effects/wod-active-effect.js';
  */
 export class WodEffectManager extends FormApplication {
     constructor(actor, effectId = null, options = {}) {
+        // Set title in options if not provided, using i18n if available
+        if (!options.title && game?.i18n) {
+            options.title = game.i18n.localize("WODSYSTEM.EffectManager.ManageStatusEffect");
+        }
+        
         super({}, options);
         this.actor = actor;
         this.effectId = effectId;
@@ -15,7 +21,8 @@ export class WodEffectManager extends FormApplication {
         if (this.effect && !game.user.isGM) {
             const createdBy = this.effect.getFlag('wodsystem', 'createdBy');
             if (createdBy === 'storyteller') {
-                ui.notifications.warn("You cannot edit effects created by the Storyteller.");
+                const message = game?.i18n?.localize("WODSYSTEM.EffectManager.CannotEditSTEffects") || "You cannot edit effects created by the Storyteller.";
+                ui.notifications.warn(message);
                 this.effect = null; // Nullify so it won't render
                 setTimeout(() => this.close(), 100);
                 return;
@@ -30,7 +37,7 @@ export class WodEffectManager extends FormApplication {
             width: 600,
             height: "auto",
             resizable: true,
-            title: "Manage Status Effect",
+            title: "Manage Status Effect", // Static title, will be overridden in constructor if i18n is available
             closeOnSubmit: false,
             submitOnChange: false
         });
@@ -70,7 +77,7 @@ export class WodEffectManager extends FormApplication {
         } else {
             // New effect defaults
             data.effect = {
-                name: "New Status",
+                name: i18n('WODSYSTEM.EffectManager.NewStatus'),
                 icon: "icons/svg/aura.svg",
                 createdBy: createdBy,
                 mandatory: createdBy === 'storyteller', // Default to true for ST effects
@@ -87,10 +94,10 @@ export class WodEffectManager extends FormApplication {
         
         // Condition scope options (EXTENSIBLE - add new scopes here in the future)
         data.conditionScopes = [
-            { value: 'always', label: 'Always Active' },
-            { value: 'attribute', label: 'Specific Attribute' },
-            { value: 'ability', label: 'Specific Ability' },
-            { value: 'advantage', label: 'Specific Advantage' }
+            { value: 'always', label: i18n('WODSYSTEM.EffectManager.AlwaysActive') },
+            { value: 'attribute', label: i18n('WODSYSTEM.EffectManager.SpecificAttribute') },
+            { value: 'ability', label: i18n('WODSYSTEM.EffectManager.SpecificAbility') },
+            { value: 'advantage', label: i18n('WODSYSTEM.EffectManager.SpecificAdvantage') }
             // FUTURE: Add { value: 'soak', label: 'Soak Rolls' },
             // FUTURE: Add { value: 'damage', label: 'Damage Rolls' },
         ];
@@ -123,53 +130,56 @@ export class WodEffectManager extends FormApplication {
         switch(scope) {
             case 'attribute':
                 return [
-                    { value: 'Strength', label: 'Strength' },
-                    { value: 'Dexterity', label: 'Dexterity' },
-                    { value: 'Stamina', label: 'Stamina' },
-                    { value: 'Charisma', label: 'Charisma' },
-                    { value: 'Manipulation', label: 'Manipulation' },
-                    { value: 'Appearance', label: 'Appearance' },
-                    { value: 'Perception', label: 'Perception' },
-                    { value: 'Intelligence', label: 'Intelligence' },
-                    { value: 'Wits', label: 'Wits' }
+                    { value: 'Strength', label: game.i18n.localize('WODSYSTEM.Attributes.Strength') },
+                    { value: 'Dexterity', label: game.i18n.localize('WODSYSTEM.Attributes.Dexterity') },
+                    { value: 'Stamina', label: game.i18n.localize('WODSYSTEM.Attributes.Stamina') },
+                    { value: 'Charisma', label: game.i18n.localize('WODSYSTEM.Attributes.Charisma') },
+                    { value: 'Manipulation', label: game.i18n.localize('WODSYSTEM.Attributes.Manipulation') },
+                    { value: 'Appearance', label: game.i18n.localize('WODSYSTEM.Attributes.Appearance') },
+                    { value: 'Perception', label: game.i18n.localize('WODSYSTEM.Attributes.Perception') },
+                    { value: 'Intelligence', label: game.i18n.localize('WODSYSTEM.Attributes.Intelligence') },
+                    { value: 'Wits', label: game.i18n.localize('WODSYSTEM.Attributes.Wits') }
                 ];
             
             case 'ability':
                 // Start with primary abilities
+                const talentSuffix = game.i18n.localize('WODSYSTEM.Abilities.TalentSuffix');
+                const skillSuffix = game.i18n.localize('WODSYSTEM.Abilities.SkillSuffix');
+                const knowledgeSuffix = game.i18n.localize('WODSYSTEM.Abilities.KnowledgeSuffix');
                 const abilities = [
                     // Talents
-                    { value: 'Alertness', label: 'Alertness (Talent)' },
-                    { value: 'Athletics', label: 'Athletics (Talent)' },
-                    { value: 'Awareness', label: 'Awareness (Talent)' },
-                    { value: 'Brawl', label: 'Brawl (Talent)' },
-                    { value: 'Empathy', label: 'Empathy (Talent)' },
-                    { value: 'Expression', label: 'Expression (Talent)' },
-                    { value: 'Intimidation', label: 'Intimidation (Talent)' },
-                    { value: 'Leadership', label: 'Leadership (Talent)' },
-                    { value: 'Streetwise', label: 'Streetwise (Talent)' },
-                    { value: 'Subterfuge', label: 'Subterfuge (Talent)' },
+                    { value: 'Alertness', label: `${game.i18n.localize('WODSYSTEM.Abilities.Alertness')} ${talentSuffix}` },
+                    { value: 'Athletics', label: `${game.i18n.localize('WODSYSTEM.Abilities.Athletics')} ${talentSuffix}` },
+                    { value: 'Awareness', label: `${game.i18n.localize('WODSYSTEM.Abilities.Awareness')} ${talentSuffix}` },
+                    { value: 'Brawl', label: `${game.i18n.localize('WODSYSTEM.Abilities.Brawl')} ${talentSuffix}` },
+                    { value: 'Empathy', label: `${game.i18n.localize('WODSYSTEM.Abilities.Empathy')} ${talentSuffix}` },
+                    { value: 'Expression', label: `${game.i18n.localize('WODSYSTEM.Abilities.Expression')} ${talentSuffix}` },
+                    { value: 'Intimidation', label: `${game.i18n.localize('WODSYSTEM.Abilities.Intimidation')} ${talentSuffix}` },
+                    { value: 'Leadership', label: `${game.i18n.localize('WODSYSTEM.Abilities.Leadership')} ${talentSuffix}` },
+                    { value: 'Streetwise', label: `${game.i18n.localize('WODSYSTEM.Abilities.Streetwise')} ${talentSuffix}` },
+                    { value: 'Subterfuge', label: `${game.i18n.localize('WODSYSTEM.Abilities.Subterfuge')} ${talentSuffix}` },
                     // Skills
-                    { value: 'Animal Ken', label: 'Animal Ken (Skill)' },
-                    { value: 'Crafts', label: 'Crafts (Skill)' },
-                    { value: 'Drive', label: 'Drive (Skill)' },
-                    { value: 'Etiquette', label: 'Etiquette (Skill)' },
-                    { value: 'Firearms', label: 'Firearms (Skill)' },
-                    { value: 'Larceny', label: 'Larceny (Skill)' },
-                    { value: 'Melee', label: 'Melee (Skill)' },
-                    { value: 'Performance', label: 'Performance (Skill)' },
-                    { value: 'Stealth', label: 'Stealth (Skill)' },
-                    { value: 'Survival', label: 'Survival (Skill)' },
+                    { value: 'Animal Ken', label: `${game.i18n.localize('WODSYSTEM.Abilities.AnimalKen')} ${skillSuffix}` },
+                    { value: 'Crafts', label: `${game.i18n.localize('WODSYSTEM.Abilities.Crafts')} ${skillSuffix}` },
+                    { value: 'Drive', label: `${game.i18n.localize('WODSYSTEM.Abilities.Drive')} ${skillSuffix}` },
+                    { value: 'Etiquette', label: `${game.i18n.localize('WODSYSTEM.Abilities.Etiquette')} ${skillSuffix}` },
+                    { value: 'Firearms', label: `${game.i18n.localize('WODSYSTEM.Abilities.Firearms')} ${skillSuffix}` },
+                    { value: 'Larceny', label: `${game.i18n.localize('WODSYSTEM.Abilities.Larceny')} ${skillSuffix}` },
+                    { value: 'Melee', label: `${game.i18n.localize('WODSYSTEM.Abilities.Melee')} ${skillSuffix}` },
+                    { value: 'Performance', label: `${game.i18n.localize('WODSYSTEM.Abilities.Performance')} ${skillSuffix}` },
+                    { value: 'Stealth', label: `${game.i18n.localize('WODSYSTEM.Abilities.Stealth')} ${skillSuffix}` },
+                    { value: 'Survival', label: `${game.i18n.localize('WODSYSTEM.Abilities.Survival')} ${skillSuffix}` },
                     // Knowledges
-                    { value: 'Academics', label: 'Academics (Knowledge)' },
-                    { value: 'Computer', label: 'Computer (Knowledge)' },
-                    { value: 'Finance', label: 'Finance (Knowledge)' },
-                    { value: 'Investigation', label: 'Investigation (Knowledge)' },
-                    { value: 'Law', label: 'Law (Knowledge)' },
-                    { value: 'Medicine', label: 'Medicine (Knowledge)' },
-                    { value: 'Occult', label: 'Occult (Knowledge)' },
-                    { value: 'Politics', label: 'Politics (Knowledge)' },
-                    { value: 'Science', label: 'Science (Knowledge)' },
-                    { value: 'Technology', label: 'Technology (Knowledge)' }
+                    { value: 'Academics', label: `${game.i18n.localize('WODSYSTEM.Abilities.Academics')} ${knowledgeSuffix}` },
+                    { value: 'Computer', label: `${game.i18n.localize('WODSYSTEM.Abilities.Computer')} ${knowledgeSuffix}` },
+                    { value: 'Finance', label: `${game.i18n.localize('WODSYSTEM.Abilities.Finance')} ${knowledgeSuffix}` },
+                    { value: 'Investigation', label: `${game.i18n.localize('WODSYSTEM.Abilities.Investigation')} ${knowledgeSuffix}` },
+                    { value: 'Law', label: `${game.i18n.localize('WODSYSTEM.Abilities.Law')} ${knowledgeSuffix}` },
+                    { value: 'Medicine', label: `${game.i18n.localize('WODSYSTEM.Abilities.Medicine')} ${knowledgeSuffix}` },
+                    { value: 'Occult', label: `${game.i18n.localize('WODSYSTEM.Abilities.Occult')} ${knowledgeSuffix}` },
+                    { value: 'Politics', label: `${game.i18n.localize('WODSYSTEM.Abilities.Politics')} ${knowledgeSuffix}` },
+                    { value: 'Science', label: `${game.i18n.localize('WODSYSTEM.Abilities.Science')} ${knowledgeSuffix}` },
+                    { value: 'Technology', label: `${game.i18n.localize('WODSYSTEM.Abilities.Technology')} ${knowledgeSuffix}` }
                 ];
                 
                 // Add secondary abilities if actor is available
@@ -186,7 +196,7 @@ export class WodEffectManager extends FormApplication {
                             if (talent.name) {
                                 abilities.push({
                                     value: talent.name,
-                                    label: `${talent.name} (Secondary Talent)`
+                                    label: `${talent.name} (${i18n('WODSYSTEM.EffectManager.SecondaryTalent')})`
                                 });
                             }
                         });
@@ -202,7 +212,7 @@ export class WodEffectManager extends FormApplication {
                             if (skill.name) {
                                 abilities.push({
                                     value: skill.name,
-                                    label: `${skill.name} (Secondary Skill)`
+                                    label: `${skill.name} (${i18n('WODSYSTEM.EffectManager.SecondarySkill')})`
                                 });
                             }
                         });
@@ -218,7 +228,7 @@ export class WodEffectManager extends FormApplication {
                             if (knowledge.name) {
                                 abilities.push({
                                     value: knowledge.name,
-                                    label: `${knowledge.name} (Secondary Knowledge)`
+                                    label: `${knowledge.name} (${i18n('WODSYSTEM.EffectManager.SecondaryKnowledge')})`
                                 });
                             }
                         });
@@ -229,9 +239,9 @@ export class WodEffectManager extends FormApplication {
             
             case 'advantage':
                 return [
-                    { value: 'Willpower', label: 'Willpower' },
-                    { value: 'Enlightenment', label: 'Enlightenment (Arete)' },
-                    { value: 'Background', label: 'Background (Any)' }
+                    { value: 'Willpower', label: game.i18n.localize('WODSYSTEM.Advantages.Willpower') },
+                    { value: 'Enlightenment', label: `${game.i18n.localize('WODSYSTEM.Advantages.Enlightenment')} (Arete)` },
+                    { value: 'Background', label: `${game.i18n.localize('WODSYSTEM.Advantages.Backgrounds')} (Any)` }
                 ];
             
             // FUTURE: Add cases for 'soak', 'damage', etc.
@@ -304,10 +314,10 @@ export class WodEffectManager extends FormApplication {
         const newRow = $(`
             <div class="modifier-row">
                 <select class="modifier-type" name="modifiers.${index}.key">
-                    <option value="pool">Pool Dice</option>
-                    <option value="difficulty">Difficulty</option>
-                    <option value="autoSuccess">Auto Success</option>
-                    <option value="autoFail">Auto Fail</option>
+                    <option value="pool">${i18n('WODSYSTEM.EffectManager.PoolDice')}</option>
+                    <option value="difficulty">${i18n('WODSYSTEM.RollDialog.Difficulty')}</option>
+                    <option value="autoSuccess">${i18n('WODSYSTEM.EffectManager.AutoSuccess')}</option>
+                    <option value="autoFail">${i18n('WODSYSTEM.EffectManager.AutoFail')}</option>
                 </select>
                 <input type="number" class="modifier-value" name="modifiers.${index}.value" value="0" placeholder="+2 or -2" />
                 <button type="button" class="remove-modifier-row"><i class="fas fa-times"></i></button>
@@ -412,11 +422,11 @@ export class WodEffectManager extends FormApplication {
         if (this.effect) {
             console.log('WodEffectManager - Updating existing effect:', this.effect.id);
             await this.effect.update(effectData);
-            ui.notifications.info(`Effect "${effectData.name}" updated!`);
+            ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectUpdated', {name: effectData.name}));
         } else {
             console.log('WodEffectManager - Creating new effect');
             await this.actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
-            ui.notifications.info(`Effect "${effectData.name}" created!`);
+            ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectCreated', {name: effectData.name}));
         }
         
         // Force actor sheet to re-render

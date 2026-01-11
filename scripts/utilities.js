@@ -260,6 +260,104 @@ export function registerHandlebarsHelpers() {
         return str.toUpperCase();
     });
 
+    /**
+     * Internationalization helper - translates WODSYSTEM keys
+     * Usage: {{i18n 'Common.Save'}} or {{i18n 'CharacterSheet.PersonalInformation'}}
+     * With parameters: {{i18n 'Wizard.AssignPriority' primary=5 secondary=4 tertiary=3}}
+     * Automatically prefixes with 'WODSYSTEM.'
+     */
+    Handlebars.registerHelper('i18n', function(key, options) {
+        // Check if game.i18n is available
+        if (!game || !game.i18n) {
+            console.warn('WoD System: game.i18n not available');
+            // Return a cleaned version of the key for better UX
+            const keyParts = key.split('.');
+            return keyParts[keyParts.length - 1];
+        }
+        
+        // Build the full key
+        const fullKey = key.startsWith('WODSYSTEM.') ? key : `WODSYSTEM.${key}`;
+        
+        // Try to localize
+        let translation = game.i18n.localize(fullKey);
+        
+        // If translation equals the key, it wasn't found
+        if (translation === fullKey) {
+            // Last resort: return a cleaned version (just the last part of the key)
+            const keyParts = fullKey.split('.');
+            // Return the last meaningful part (skip empty strings)
+            const meaningfulParts = keyParts.filter(part => part.length > 0);
+            return meaningfulParts[meaningfulParts.length - 1] || key;
+        }
+        
+        // Replace placeholders if options.hash exists (e.g., {primary: 5, secondary: 4})
+        if (options && options.hash && Object.keys(options.hash).length > 0) {
+            for (const [placeholder, value] of Object.entries(options.hash)) {
+                const regex = new RegExp(`\\{${placeholder}\\}`, 'g');
+                translation = translation.replace(regex, String(value));
+            }
+        }
+        
+        return translation;
+    });
+
+    /**
+     * Alias for i18n - uses Foundry's built-in localize
+     * Usage: {{localize 'WODSYSTEM.Common.Save'}}
+     */
+    Handlebars.registerHelper('localize', function(key) {
+        return game.i18n.localize(key);
+    });
+
+    /**
+     * Translate reference data names (attributes, abilities, backgrounds, spheres, etc.)
+     * Usage: {{translateRef 'attribute' 'strength'}} or {{translateRef 'background' 'Allies'}}
+     * Falls back to the original name if translation not found
+     * Note: backgrounds, spheres, merits, and flaws are NOT translated (copyright protection)
+     */
+    Handlebars.registerHelper('translateRef', function(type, name) {
+        if (!name) return '';
+        
+        // Backgrounds, merits, and flaws are NOT translated (copyright)
+        // Return original name for these types
+        if (type === 'background' || type === 'merit' || type === 'flaw') {
+            return name;
+        }
+        
+        // For attributes, abilities, and spheres, try public lang files (these are not copyrighted)
+        const key = `WODSYSTEM.ReferenceData.${type}.${name}`;
+        const translation = game.i18n.localize(key);
+        
+        // If translation equals key, it wasn't found - try with capitalized first letter
+        if (translation === key) {
+            const capitalized = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+            const key2 = `WODSYSTEM.ReferenceData.${type}.${capitalized}`;
+            const translation2 = game.i18n.localize(key2);
+            if (translation2 !== key2) return translation2;
+            
+            // Try with all lowercase
+            const key3 = `WODSYSTEM.ReferenceData.${type}.${name.toLowerCase()}`;
+            const translation3 = game.i18n.localize(key3);
+            if (translation3 !== key3) return translation3;
+            
+            // Fallback to original name
+            return name;
+        }
+        
+        return translation;
+    });
+    
+    /**
+     * Translate health level names
+     * Usage: {{translateHealthLevel 'Bruised'}}
+     */
+    Handlebars.registerHelper('translateHealthLevel', function(name) {
+        if (!name) return '';
+        const key = `WODSYSTEM.CharacterSheet.Health.Levels.${name}`;
+        const translation = game.i18n.localize(key);
+        return translation === key ? name : translation;
+    });
+
     console.log("WoD | Handlebars helpers registered");
 }
 

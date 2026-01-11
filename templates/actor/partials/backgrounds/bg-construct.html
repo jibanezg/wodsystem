@@ -1,17 +1,17 @@
 <!-- Construct Background Template -->
 <div class="bg-template construct-template">
     <div class="template-field">
-        <label>Location</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Location'}}</label>
         <input type="text" 
                name="system.backgroundsExpanded.{{index}}.templateData.location" 
                value="{{data.location}}" 
-               placeholder="Where is your construct/headquarters located?" 
+               placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.LocationPlaceholder'}}" 
                class="template-input" />
     </div>
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Size (sq ft)</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Size'}}</label>
             <input type="number" 
                    name="system.backgroundsExpanded.{{index}}.templateData.size" 
                    value="{{data.size}}" 
@@ -20,7 +20,7 @@
         </div>
         
         <div class="template-field">
-            <label>Security Level (1-10)</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SecurityLevel'}}</label>
             <input type="number" 
                    name="system.backgroundsExpanded.{{index}}.templateData.securityLevel" 
                    value="{{data.securityLevel}}" 
@@ -33,25 +33,24 @@
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Security Systems</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SecuritySystems'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.securitySystems" 
-                      placeholder="Surveillance, biometric access, AI monitoring"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SecuritySystemsPlaceholder'}}"
                       class="template-textarea">{{data.securitySystems}}</textarea>
         </div>
         
         <div class="template-field">
-            <label>Equipment Available</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EquipmentAvailable'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.equipmentAvailable" 
-                      placeholder="Lab equipment, computing, fabrication tools"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EquipmentAvailablePlaceholder'}}"
                       class="template-textarea">{{data.equipmentAvailable}}</textarea>
         </div>
     </div>
     
     <div class="template-field">
-        <label>Facilities</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Facilities'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.facilities" 
-                  placeholder="Research labs, training rooms, secure storage, operations center"
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.FacilitiesPlaceholder'}}"
                   class="template-textarea">{{data.facilities}}</textarea>
     </div>
 </div>
-

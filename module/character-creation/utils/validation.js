@@ -79,8 +79,24 @@ export class WizardValidator {
       
       // Check if field is required and either missing or empty string
       if (field.required && (!value || value.trim() === "")) {
-        console.log(`VALIDATION FAILED: ${field.label} is required`);
-        return { valid: false, message: `${field.label} is required` };
+        // Get translated label (either from label or labelKey)
+        let fieldLabel = field.label || field.name;
+        if (!fieldLabel && field.labelKey && game?.i18n) {
+          const fullKey = field.labelKey.startsWith('WODSYSTEM.') ? field.labelKey : `WODSYSTEM.${field.labelKey}`;
+          fieldLabel = game.i18n.localize(fullKey);
+        }
+        
+        let message = `${fieldLabel || field.name} is required`;
+        if (game?.i18n) {
+          try {
+            message = game.i18n.format("WODSYSTEM.Wizard.FieldIsRequired", { field: fieldLabel || field.name });
+          } catch (e) {
+            // Fallback to simple message if format fails
+            message = `${fieldLabel || field.name} is required`;
+          }
+        }
+        console.log(`VALIDATION FAILED: ${fieldLabel || field.name} is required`);
+        return { valid: false, message: message };
       }
     }
     

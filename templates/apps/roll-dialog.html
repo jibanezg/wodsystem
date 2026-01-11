@@ -9,22 +9,22 @@
                 <span class="trait-chip">{{this.name}}: {{this.value}}</span>
                 {{/each}}
             </div>
-            <div class="total-pool">Total Pool: <strong id="total-pool-display">{{totalPool}}</strong> dice</div>
+            <div class="total-pool">{{i18n 'RollDialog.TotalPool'}}: <strong id="total-pool-display">{{totalPool}}</strong> {{i18n 'RollDialog.Dice'}}</div>
         </div>
         
         <!-- Roll Configuration Section (right column) -->
         <div class="roll-config">
-            <h3><i class="fas fa-cog"></i> Roll Configuration</h3>
+            <h3><i class="fas fa-cog"></i> {{i18n 'RollDialog.RollConfiguration'}}</h3>
             
             <div class="form-group">
-                <label>Difficulty</label>
+                <label>{{i18n 'RollDialog.Difficulty'}}</label>
                 <input type="number" name="difficulty" value="6" min="2" max="10" />
             </div>
             
             <div class="form-group checkbox-group">
                 <label>
                     <input type="checkbox" name="specialty" />
-                    Using Specialty (10s = 2 successes)
+                    {{i18n 'RollDialog.UsingSpecialty'}}
                 </label>
             </div>
         </div>
@@ -33,12 +33,12 @@
     <!-- ROW 2: Active Status Effects (full width) -->
     {{#if (or mandatoryEffects optionalEffects)}}
     <div class="active-effects-section">
-        <h4>Active Status Effects</h4>
+        <h4>{{i18n 'RollDialog.ActiveStatusEffects'}}</h4>
         
         {{#if mandatoryEffects}}
         <div class="mandatory-effects">
             <label class="effects-category">
-                <i class="fas fa-shield-alt"></i> ST Effects (Auto-Applied)
+                <i class="fas fa-shield-alt"></i> {{i18n 'RollDialog.STEffects'}}
             </label>
             {{#each mandatoryEffects}}
             <div class="effect-item mandatory">
@@ -53,7 +53,7 @@
         {{#if optionalEffects}}
         <div class="optional-effects">
             <label class="effects-category">
-                <i class="fas fa-user"></i> Player Effects (Requires ST Approval)
+                <i class="fas fa-user"></i> {{i18n 'RollDialog.PlayerEffects'}}
             </label>
             {{#each optionalEffects}}
             <div class="effect-item optional">
@@ -63,7 +63,7 @@
             </div>
             {{/each}}
             <p class="approval-note">
-                <i class="fas fa-info-circle"></i> Checked effects will require Storyteller approval before rolling
+                <i class="fas fa-info-circle"></i> {{i18n 'RollDialog.CheckedEffectsRequireApproval'}}
             </p>
         </div>
         {{/if}}
@@ -74,18 +74,18 @@
     <div class="saved-rolls">
         <label>
             <input type="checkbox" name="saveTemplate" id="save-template-check" />
-            Save as quick roll template
+            {{i18n 'RollDialog.SaveAsQuickRollTemplate'}}
         </label>
-        <input type="text" name="templateName" id="template-name" placeholder="Template name" style="display:none;" />
+        <input type="text" name="templateName" id="template-name" placeholder="{{i18n 'RollDialog.TemplateName'}}" style="display:none;" />
     </div>
     
     <!-- ROW 4: Action Buttons -->
     <div class="dialog-buttons">
         <button type="button" class="roll-button">
-            <i class="fas fa-dice-d10"></i> Roll
+            <i class="fas fa-dice-d10"></i> {{i18n 'Common.Roll'}}
         </button>
         <button type="button" class="cancel-button">
-            <i class="fas fa-times"></i> Cancel
+            <i class="fas fa-times"></i> {{i18n 'Common.Cancel'}}
         </button>
     </div>
 </form>

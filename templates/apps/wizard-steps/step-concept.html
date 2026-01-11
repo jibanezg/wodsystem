@@ -1,7 +1,7 @@
 <div class="wizard-step step-concept">
   <div class="step-header">
-    <h3><i class="fas fa-user"></i> Character Concept</h3>
-    <p class="step-description">Define your character's identity and background.</p>
+    <h3><i class="fas fa-user"></i> {{i18n 'Wizard.CharacterConcept'}}</h3>
+    <p class="step-description">{{i18n 'Wizard.DefineIdentity'}}</p>
   </div>
 
   <div class="step-body">
@@ -22,7 +22,7 @@
           <select id="concept-{{name}}" 
                   name="concept.{{name}}"
                   {{#if required}}required{{/if}}>
-            <option value="">-- Select {{label}} --</option>
+            <option value="">{{i18n 'Wizard.SelectLabel'}} {{label}} --</option>
             {{#each options}}
             <option value="{{this}}" {{#if (eq this (lookup ../../../wizardData.concept ../name))}}selected{{/if}}>
               {{this}}
@@ -44,14 +44,14 @@
 
   <div class="step-help">
     <div class="help-box">
-      <h4><i class="fas fa-lightbulb"></i> Tips</h4>
+      <h4><i class="fas fa-lightbulb"></i> {{i18n 'Wizard.Tips'}}</h4>
       <ul>
-        <li><strong>Concept:</strong> A brief phrase describing your character (e.g., "Cybernetics Specialist", "Reality Engineer")</li>
-        <li><strong>Nature:</strong> Your character's true personality</li>
-        <li><strong>Demeanor:</strong> The personality your character presents to others</li>
+        <li><strong>{{i18n 'Wizard.Concept'}}:</strong> {{i18n 'Wizard.ConceptTip'}}</li>
+        <li><strong>{{i18n 'Wizard.Nature'}}:</strong> {{i18n 'Wizard.NatureTip'}}</li>
+        <li><strong>{{i18n 'Wizard.Demeanor'}}:</strong> {{i18n 'Wizard.DemeanorTip'}}</li>
         {{#if (eq ../../actorType "Technocrat")}}
-        <li><strong>Convention:</strong> Your character's Technocratic organization</li>
-        <li><strong>Amalgam:</strong> Your specific subdivision or specialty group (optional)</li>
+        <li><strong>{{i18n 'Wizard.Convention'}}:</strong> {{i18n 'Wizard.ConventionTip'}}</li>
+        <li><strong>{{i18n 'Wizard.Amalgam'}}:</strong> {{i18n 'Wizard.AmalgamTip'}}</li>
         {{/if}}
       </ul>
     </div>

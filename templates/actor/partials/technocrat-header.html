@@ -2,45 +2,45 @@
 <section class="sheet-header">
     <div class="identity-section technocrat-identity">
         <div class="identity-field">
-            <label>Name</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Name'}}</label>
             <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" />
         </div>
         <div class="identity-field">
-            <label>Concept</label>
-            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="e.g., Cyber-Weapons Specialist" />
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Concept'}}</label>
+            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.ConceptPlaceholderTechnocrat'}}" />
         </div>
         <div class="identity-field">
-            <label>Convention</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Convention'}}</label>
             <select name="system.identity.convention" class="archetype-select">
-                <option value="">-- Select --</option>
-                <option value="Iteration X" {{#if (eq actor.system.identity.convention "Iteration X")}}selected{{/if}}>Iteration X</option>
-                <option value="NWO" {{#if (eq actor.system.identity.convention "NWO")}}selected{{/if}}>New World Order</option>
-                <option value="Progenitors" {{#if (eq actor.system.identity.convention "Progenitors")}}selected{{/if}}>Progenitors</option>
-                <option value="Syndicate" {{#if (eq actor.system.identity.convention "Syndicate")}}selected{{/if}}>Syndicate</option>
-                <option value="Void Engineers" {{#if (eq actor.system.identity.convention "Void Engineers")}}selected{{/if}}>Void Engineers</option>
+                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
+                <option value="Iteration X" {{#if (eq actor.system.identity.convention "Iteration X")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.IterationX'}}</option>
+                <option value="NWO" {{#if (eq actor.system.identity.convention "NWO")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.NewWorldOrder'}}</option>
+                <option value="Progenitors" {{#if (eq actor.system.identity.convention "Progenitors")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.Progenitors'}}</option>
+                <option value="Syndicate" {{#if (eq actor.system.identity.convention "Syndicate")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.Syndicate'}}</option>
+                <option value="Void Engineers" {{#if (eq actor.system.identity.convention "Void Engineers")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.VoidEngineers'}}</option>
             </select>
         </div>
         <div class="identity-field">
-            <label>Amalgam</label>
-            <input type="text" name="system.identity.amalgam" value="{{actor.system.identity.amalgam}}" placeholder="Cross-convention affiliation" />
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Amalgam'}}</label>
+            <input type="text" name="system.identity.amalgam" value="{{actor.system.identity.amalgam}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.AmalgamPlaceholder'}}" />
         </div>
         <div class="identity-field">
-            <label>Eidolon</label>
-            <input type="text" name="system.identity.eidolon" value="{{actor.system.identity.eidolon}}" placeholder="Digital assistant name" />
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Eidolon'}}</label>
+            <input type="text" name="system.identity.eidolon" value="{{actor.system.identity.eidolon}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.EidolonPlaceholder'}}" />
         </div>
         <div class="identity-field">
-            <label>Nature</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Nature'}}</label>
             <select name="system.identity.nature" class="archetype-select">
-                <option value="">-- Select --</option>
+                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
                 {{#each archetypes as |archetype|}}
                 <option value="{{archetype}}" {{#if (eq ../actor.system.identity.nature archetype)}}selected{{/if}}>{{archetype}}</option>
                 {{/each}}
             </select>
         </div>
         <div class="identity-field">
-            <label>Demeanor</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Demeanor'}}</label>
             <select name="system.identity.demeanor" class="archetype-select">
-                <option value="">-- Select --</option>
+                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
                 {{#each archetypes as |archetype|}}
                 <option value="{{archetype}}" {{#if (eq ../actor.system.identity.demeanor archetype)}}selected{{/if}}>{{archetype}}</option>
                 {{/each}}

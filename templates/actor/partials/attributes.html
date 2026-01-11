@@ -1,14 +1,14 @@
 <!-- Attributes Section -->
 <div class="attributes-section">
-    <h2>Attributes</h2>
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Attributes'}}</h2>
     <div class="attributes-grid">
         <!-- Physical Attributes -->
         <div class="attribute-category">
-            <h3>Physical</h3>
+            <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Physical'}}</h3>
             <div class="attribute-list">
                 {{#each actor.system.attributes.physical as |value key|}}
                 <div class="attribute">
-                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="physical">{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="physical">{{translateRef 'attribute' key}}</label>
                     <div class="dot-container" data-attribute="physical" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -22,11 +22,11 @@
 
         <!-- Social Attributes -->
         <div class="attribute-category">
-            <h3>Social</h3>
+            <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Social'}}</h3>
             <div class="attribute-list">
                 {{#each actor.system.attributes.social as |value key|}}
                 <div class="attribute">
-                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="social">{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="social">{{translateRef 'attribute' key}}</label>
                     <div class="dot-container" data-attribute="social" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -40,11 +40,11 @@
 
         <!-- Mental Attributes -->
         <div class="attribute-category">
-            <h3>Mental</h3>
+            <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Mental'}}</h3>
             <div class="attribute-list">
                 {{#each actor.system.attributes.mental as |value key|}}
                 <div class="attribute">
-                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="mental">{{key}}</label>
+                    <label class="trait-label" data-trait="{{key}}" data-value="{{value}}" data-category="attribute" data-attribute-type="mental">{{translateRef 'attribute' key}}</label>
                     <div class="dot-container" data-attribute="mental" data-key="{{key}}">
                         {{#times 5}}
                         <div class="dot {{#if (lt @index ../value)}}filled{{/if}}" data-index="{{@index}}"></div>

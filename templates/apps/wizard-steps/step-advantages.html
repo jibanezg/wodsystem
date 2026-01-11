@@ -1,7 +1,7 @@
 <div class="wizard-step step-advantages">
   <div class="step-header">
-    <h3><i class="fas fa-star"></i> Advantages</h3>
-    <p class="step-description">Select backgrounds{{#if (eq actorType "Technocrat")}}, spheres,{{/if}} and other advantages.</p>
+    <h3><i class="fas fa-star"></i> {{i18n 'Wizard.Advantages'}}</h3>
+    <p class="step-description">{{i18n 'Wizard.SelectAdvantages'}}{{#if (eq actorType "Technocrat")}} {{i18n 'Wizard.IncludingSpheres'}}{{/if}}.</p>
   </div>
 
   <div class="step-body">
@@ -9,20 +9,20 @@
       
       <!-- Backgrounds -->
       <div class="advantage-section">
-        <h4>Backgrounds ({{config.advantages.backgrounds.points}} points)</h4>
+        <h4>{{i18n 'Advantages.Backgrounds'}} ({{config.advantages.backgrounds.points}} {{i18n 'Wizard.Points'}})</h4>
         {{#if config.advantages.backgrounds.doubleCost}}
         <p class="note double-cost-note">
           <i class="fas fa-exclamation-triangle"></i>
-          <strong>{{#each config.advantages.backgrounds.doubleCost}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong> cost 2 points per dot
+          <strong>{{#each config.advantages.backgrounds.doubleCost}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong> {{i18n 'Wizard.Cost2PointsPerDot'}}
         </p>
         {{/if}}
         
         {{#if validation.backgrounds}}
         <div class="points-tracker">
           <span class="spent">{{validation.backgrounds.spent}}</span> / 
-          <span class="allowed">{{validation.backgrounds.allowed}}</span> points spent
+          <span class="allowed">{{validation.backgrounds.allowed}}</span> {{i18n 'Wizard.PointsSpent'}}
           {{#if (gt validation.backgrounds.remaining 0)}}
-          <span class="remaining">({{validation.backgrounds.remaining}} remaining)</span>
+          <span class="remaining">({{validation.backgrounds.remaining}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
         </div>
         {{/if}}
@@ -31,13 +31,13 @@
           {{#each wizardData.advantages.backgrounds}}
           <div class="background-item" data-background-name="{{name}}">
             <select class="background-select" data-index="{{@index}}">
-              <option value="">-- Select Background --</option>
+              <option value="">{{i18n 'Wizard.SelectLabel'}} {{i18n 'Advantages.Backgrounds'}} --</option>
               {{#each @root.backgroundsList}}
               <option value="{{this}}" {{#if (eq this ../name)}}selected{{/if}}>{{this}}</option>
               {{/each}}
             </select>
             {{#if name}}
-            <button type="button" class="background-reference-btn" data-background-name="{{name}}" title="View {{name}} details">
+            <button type="button" class="background-reference-btn" data-background-name="{{name}}" title="{{i18n 'Wizard.ViewBackgroundDetails' name=name}}">
               <i class="fas fa-book"></i>
             </button>
             {{/if}}
@@ -61,23 +61,23 @@
         </div>
         
         <button type="button" class="add-background">
-          <i class="fas fa-plus"></i> Add Background
+          <i class="fas fa-plus"></i> {{i18n 'Backgrounds.AddBackground'}}
         </button>
       </div>
 
       <!-- Enlightenment (Technocrat only) -->
       {{#if (eq actorType "Technocrat")}}
       <div class="advantage-section enlightenment-section">
-        <h4>Enlightenment (Arete)</h4>
+        <h4>{{i18n 'Advantages.Enlightenment'}} (Arete)</h4>
         <div class="enlightenment-info">
-          <p>Starting Enlightenment: <strong>{{config.advantages.enlightenment.starting}}</strong></p>
-          <p class="note">Your total sphere points cannot exceed your Enlightenment rating.</p>
-          <p class="note">You can spend Freebie Points now to increase Enlightenment ({{config.freebies.costs.enlightenment}} points each).</p>
+          <p>{{i18n 'Wizard.StartingEnlightenment'}}: <strong>{{config.advantages.enlightenment.starting}}</strong></p>
+          <p class="note">{{i18n 'Wizard.SpherePointsCannotExceedEnlightenment'}}</p>
+          <p class="note">{{i18n 'Wizard.CanSpendFreebiesOnEnlightenment' cost=config.freebies.costs.enlightenment}}</p>
         </div>
         
         <div class="enlightenment-purchase">
           <div class="enlightenment-display">
-            <span class="enlightenment-label">Current Enlightenment:</span>
+            <span class="enlightenment-label">{{i18n 'Wizard.CurrentEnlightenment'}}:</span>
             <div class="enlightenment-controls">
               <button type="button" class="enlightenment-decrease" {{#if (eq wizardData.advantages.enlightenment config.advantages.enlightenment.starting)}}disabled{{/if}}>
                 <i class="fas fa-minus"></i>
@@ -89,7 +89,7 @@
             </div>
           </div>
           <div class="freebies-spent">
-            <span class="freebies-label">Freebie Points Spent on Enlightenment:</span>
+            <span class="freebies-label">{{i18n 'Wizard.FreebiePointsSpentOnEnlightenment'}}:</span>
             <span class="freebies-value">{{default wizardData.advantages.freebiesSpent 0}}</span> / {{config.freebies.total}}
           </div>
         </div>
@@ -99,18 +99,18 @@
       <!-- Spheres (Technocrat only) -->
       {{#if (eq actorType "Technocrat")}}
       <div class="advantage-section">
-        <h4>Spheres ({{config.advantages.spheres.points}} points)</h4>
-        <p class="note sphere-limit-note">You have <strong>{{config.advantages.spheres.points}}</strong> sphere points to spend. No individual sphere can exceed your Enlightenment (<strong>{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</strong>).</p>
+        <h4>{{i18n 'Spheres.Spheres'}} ({{config.advantages.spheres.points}} {{i18n 'Wizard.Points'}})</h4>
+        <p class="note sphere-limit-note">{{i18n 'Wizard.YouHaveSpherePoints' points=config.advantages.spheres.points}} {{i18n 'Wizard.NoSphereCanExceedEnlightenment' enlightenment=(default wizardData.advantages.enlightenment config.advantages.enlightenment.starting)}}.</p>
         
         <div class="points-tracker">
           <span class="spent">{{#if validation.spheres}}{{validation.spheres.spent}}{{else}}0{{/if}}</span> / 
-          <span class="allowed">{{config.advantages.spheres.points}}</span> points spent
+          <span class="allowed">{{config.advantages.spheres.points}}</span> {{i18n 'Wizard.PointsSpent'}}
           {{#if validation.spheres}}
           {{#if (gt validation.spheres.remaining 0)}}
-          <span class="remaining">({{validation.spheres.remaining}} remaining)</span>
+          <span class="remaining">({{validation.spheres.remaining}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
           {{else}}
-          <span class="remaining">({{config.advantages.spheres.points}} remaining)</span>
+          <span class="remaining">({{config.advantages.spheres.points}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
         </div>
         
@@ -144,10 +144,10 @@
 
       <!-- Willpower -->
       <div class="advantage-section">
-        <h4>Willpower</h4>
+        <h4>{{i18n 'Advantages.Willpower'}}</h4>
         <div class="willpower-info">
-          <p>Starting Willpower: <strong>{{config.advantages.willpower.starting}}</strong></p>
-          <p class="note">You can increase Willpower with Freebie Points in the next step.</p>
+          <p>{{i18n 'Wizard.StartingWillpower'}}: <strong>{{config.advantages.willpower.starting}}</strong></p>
+          <p class="note">{{i18n 'Wizard.CanIncreaseWillpowerWithFreebies'}}</p>
         </div>
       </div>
 
@@ -156,15 +156,15 @@
 
   <div class="step-help">
     <div class="help-box">
-      <h4><i class="fas fa-lightbulb"></i> Advantages Guide</h4>
+      <h4><i class="fas fa-lightbulb"></i> {{i18n 'Wizard.AdvantagesGuide'}}</h4>
       <ul>
-        <li><strong>Backgrounds:</strong> Resources, contacts, and external advantages your character has</li>
+        <li><strong>{{i18n 'Advantages.Backgrounds'}}:</strong> {{i18n 'Wizard.BackgroundsDescription'}}</li>
         {{#if (eq actorType "Technocrat")}}
-        <li><strong>Spheres:</strong> Your character's understanding of reality's fundamental forces</li>
-        <li>Maximum {{config.advantages.spheres.maxAtCreation}} dots in any sphere at creation</li>
+        <li><strong>{{i18n 'Spheres.Spheres'}}:</strong> {{i18n 'Wizard.SpheresDescription'}}</li>
+        <li>{{i18n 'Wizard.MaxSpheresAtCreation' max=config.advantages.spheres.maxAtCreation}}</li>
         {{/if}}
-        <li>Choose backgrounds that fit your character concept and backstory</li>
-        <li>You must spend ALL points before continuing</li>
+        <li>{{i18n 'Wizard.BackgroundsFitConcept'}}</li>
+        <li>{{i18n 'Wizard.MustSpendAll'}}</li>
       </ul>
     </div>
   </div>

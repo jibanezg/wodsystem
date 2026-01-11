@@ -1,9 +1,9 @@
 <div class="wizard-step step-merits-flaws">
   <div class="step-header">
-    <h3><i class="fas fa-balance-scale"></i> Merits & Flaws</h3>
+    <h3><i class="fas fa-balance-scale"></i> {{i18n 'Wizard.StepMeritsFlaws'}}</h3>
     <p class="step-description">
-      You may take up to 7 points of Merits, but must balance them with equal Flaws.<br>
-      Flaws without Merits convert to Freebie Points.
+      {{i18n 'Wizard.MeritsFlawsDescription'}}<br>
+      {{i18n 'Wizard.FlawsWithoutMeritsConvert'}}
     </p>
   </div>
 
@@ -13,9 +13,9 @@
       <!-- Merits Section -->
       <div class="merit-flaw-section">
         <h4>
-          Merits
+          {{i18n 'MeritsFlaws.Merits'}}
           <span class="points-display">
-            {{wizardData.meritsFlaws.meritPoints}} points
+            {{wizardData.meritsFlaws.meritPoints}} {{i18n 'Wizard.Points'}}
           </span>
         </h4>
         
@@ -27,8 +27,8 @@
                      class="wizard-merit-name" 
                      data-index="{{@index}}" 
                      value="{{this.name}}" 
-                     placeholder="Merit Name" />
-              <a class="wizard-merit-reference-btn" data-index="{{@index}}" title="View Merit Details">
+                     placeholder="{{i18n 'Wizard.MeritName'}}" />
+              <a class="wizard-merit-reference-btn" data-index="{{@index}}" title="{{i18n 'Wizard.ViewMeritDetails'}}">
                 <i class="fas fa-book-open"></i>
               </a>
             </div>
@@ -51,7 +51,7 @@
           {{/each}}
           
           <button type="button" class="add-item" data-type="merit">
-            <i class="fas fa-plus"></i> Add Merit
+            <i class="fas fa-plus"></i> {{i18n 'MeritsFlaws.AddMerit'}}
           </button>
         </div>
       </div>
@@ -59,9 +59,9 @@
       <!-- Flaws Section -->
       <div class="merit-flaw-section">
         <h4>
-          Flaws
+          {{i18n 'MeritsFlaws.Flaws'}}
           <span class="points-display">
-            {{wizardData.meritsFlaws.flawPoints}} points
+            {{wizardData.meritsFlaws.flawPoints}} {{i18n 'Wizard.Points'}}
           </span>
         </h4>
         
@@ -73,8 +73,8 @@
                      class="wizard-flaw-name" 
                      data-index="{{@index}}" 
                      value="{{this.name}}" 
-                     placeholder="Flaw Name" />
-              <a class="wizard-flaw-reference-btn" data-index="{{@index}}" title="View Flaw Details">
+                     placeholder="{{i18n 'Wizard.FlawName'}}" />
+              <a class="wizard-flaw-reference-btn" data-index="{{@index}}" title="{{i18n 'Wizard.ViewFlawDetails'}}">
                 <i class="fas fa-book-open"></i>
               </a>
             </div>
@@ -97,7 +97,7 @@
           {{/each}}
           
           <button type="button" class="add-item" data-type="flaw">
-            <i class="fas fa-plus"></i> Add Flaw
+            <i class="fas fa-plus"></i> {{i18n 'MeritsFlaws.AddFlaw'}}
           </button>
         </div>
       </div>
@@ -106,22 +106,22 @@
     <!-- Balance Summary -->
     <div class="balance-summary">
       <div class="balance-row">
-        <span class="label">Merit Points:</span>
+        <span class="label">{{i18n 'Wizard.MeritPoints'}}:</span>
         <span class="value merits-total">{{wizardData.meritsFlaws.meritPoints}}</span>
       </div>
       <div class="balance-row">
-        <span class="label">Flaw Points:</span>
+        <span class="label">{{i18n 'Wizard.FlawPoints'}}:</span>
         <span class="value flaws-total">{{wizardData.meritsFlaws.flawPoints}}</span>
       </div>
       <div class="balance-row balance-status {{#if validation.meritsFlaws.balanced}}balanced{{else}}unbalanced{{/if}}">
-        <span class="label">Status:</span>
+        <span class="label">{{i18n 'Wizard.Status'}}:</span>
         <span class="value">
           {{#if validation.meritsFlaws.balanced}}
-            <i class="fas fa-check-circle"></i> Balanced
+            <i class="fas fa-check-circle"></i> {{i18n 'Wizard.Balanced'}}
           {{else if (eq wizardData.meritsFlaws.meritPoints 0)}}
-            <i class="fas fa-info-circle"></i> {{wizardData.meritsFlaws.freebieBonus}} Freebie Points Gained
+            <i class="fas fa-info-circle"></i> {{wizardData.meritsFlaws.freebieBonus}} {{i18n 'Wizard.FreebiePointsGained'}}
           {{else}}
-            <i class="fas fa-exclamation-triangle"></i> Needs {{validation.meritsFlaws.needed}} more Flaw points
+            <i class="fas fa-exclamation-triangle"></i> {{i18n 'Wizard.NeedsMoreFlawPoints' needed=validation.meritsFlaws.needed}}
           {{/if}}
         </span>
       </div>

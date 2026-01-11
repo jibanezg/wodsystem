@@ -2,46 +2,46 @@
 <div class="bg-template familiar-template">
     <div class="template-field-row">
         <div class="template-field">
-            <label>Name</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.FamiliarName'}}</label>
             <input type="text" 
                    name="system.backgroundsExpanded.{{index}}.templateData.name" 
                    value="{{data.name}}" 
-                   placeholder="Familiar's name" 
+                   placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.FamiliarNamePlaceholder'}}" 
                    class="template-input" />
         </div>
         
         <div class="template-field">
-            <label>Type / Species</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.TypeSpecies'}}</label>
             <input type="text" 
                    name="system.backgroundsExpanded.{{index}}.templateData.species" 
                    value="{{data.species}}" 
-                   placeholder="e.g., Cat, Raven, AI Assistant" 
+                   placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.TypeSpeciesPlaceholder'}}" 
                    class="template-input" />
         </div>
     </div>
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Physical Description</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PhysicalDescription'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.physicalDescription" 
-                      placeholder="Appearance, size, features"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PhysicalDescriptionPlaceholderFamiliar'}}"
                       class="template-textarea">{{data.physicalDescription}}</textarea>
         </div>
         
         <div class="template-field">
-            <label>Special Abilities</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SpecialAbilities'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.abilities" 
-                      placeholder="Powers, skills, capabilities"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SpecialAbilitiesPlaceholder'}}"
                       class="template-textarea">{{data.abilities}}</textarea>
         </div>
     </div>
     
     <div class="template-field-row">
         <div class="template-field-group">
-            <label style="font-size: 0.7em; font-weight: bold;">Attributes</label>
+            <label style="font-size: 0.7em; font-weight: bold;">{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Attributes'}}</label>
             <div class="familiar-attributes">
                 <div class="familiar-attr">
-                    <label>Phys</label>
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Phys'}}</label>
                     <input type="number" 
                            name="system.backgroundsExpanded.{{index}}.templateData.physical" 
                            value="{{data.physical}}" 
@@ -49,7 +49,7 @@
                            class="template-input-tiny" />
                 </div>
                 <div class="familiar-attr">
-                    <label>Soc</label>
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Soc'}}</label>
                     <input type="number" 
                            name="system.backgroundsExpanded.{{index}}.templateData.social" 
                            value="{{data.social}}" 
@@ -57,7 +57,7 @@
                            class="template-input-tiny" />
                 </div>
                 <div class="familiar-attr">
-                    <label>Ment</label>
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Ment'}}</label>
                     <input type="number" 
                            name="system.backgroundsExpanded.{{index}}.templateData.mental" 
                            value="{{data.mental}}" 
@@ -68,7 +68,7 @@
         </div>
         
         <div class="template-field">
-            <label>Bond Strength</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.BondStrength'}}</label>
             <div class="dot-container" data-bg-familiar-bond="{{index}}">
                 {{#times 5}}
                 <div class="dot {{#if (lt @index ../data.bondStrength)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -79,10 +79,9 @@
     </div>
     
     <div class="template-field">
-        <label>Personality & Notes</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PersonalityNotes'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.personality" 
-                  placeholder="Behavior, quirks, history, relationship"
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PersonalityNotesPlaceholder'}}"
                   class="template-textarea">{{data.personality}}</textarea>
     </div>
 </div>
-

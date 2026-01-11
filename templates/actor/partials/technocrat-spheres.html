@@ -1,13 +1,13 @@
 <!-- Spheres Section (styled like Attributes) -->
 <div class="attributes-section spheres-section">
-    <h2>Spheres (Enlightened Science)</h2>
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Spheres'}} ({{i18n 'WODSYSTEM.CharacterSheet.Sections.EnlightenedScience'}})</h2>
     <div class="attributes-grid">
         <!-- Column 1: Correspondence, Entropy, Forces -->
         <div class="attribute-category">
             <div class="attribute-list">
                 <!-- Correspondence (Data) -->
                 <div class="attribute">
-                    <label>Correspondence <span class="technocrat-name">(Data)</span></label>
+                    <label>{{translateRef 'sphere' 'Correspondence'}} <span class="technocrat-name">({{translateRef 'sphere' 'Data'}})</span></label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="data" title="View Data sphere details"><i class="fas fa-book"></i></button>
                         <button type="button" class="sphere-table-btn" data-sphere-id="data" title="View Data Connections table"><i class="fas fa-table"></i></button>
@@ -22,7 +22,7 @@
                 
                 <!-- Entropy -->
                 <div class="attribute">
-                    <label>Entropy</label>
+                    <label>{{translateRef 'sphere' 'Entropy'}}</label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="entropy" title="View Entropy sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -36,7 +36,7 @@
                 
                 <!-- Forces -->
                 <div class="attribute">
-                    <label>Forces</label>
+                    <label>{{translateRef 'sphere' 'Forces'}}</label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="forces" title="View Forces sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -55,7 +55,7 @@
             <div class="attribute-list">
                 <!-- Life -->
                 <div class="attribute">
-                    <label>Life</label>
+                    <label>{{translateRef 'sphere' 'Life'}}</label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="life" title="View Life sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -69,7 +69,7 @@
                 
                 <!-- Matter -->
                 <div class="attribute">
-                    <label>Matter</label>
+                    <label>{{translateRef 'sphere' 'Matter'}}</label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="matter" title="View Matter sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -83,7 +83,7 @@
                 
                 <!-- Mind -->
                 <div class="attribute">
-                    <label>Mind</label>
+                    <label>{{translateRef 'sphere' 'Mind'}}</label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="mind" title="View Mind sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -102,7 +102,7 @@
             <div class="attribute-list">
                 <!-- Prime (Primal Utility) -->
                 <div class="attribute">
-                    <label>Prime <span class="technocrat-name">(Primal Utility)</span></label>
+                    <label>{{translateRef 'sphere' 'Prime'}} <span class="technocrat-name">(Primal Utility)</span></label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="primal_utility" title="View Primal Utility sphere details"><i class="fas fa-book"></i></button>
                         <button type="button" class="sphere-table-btn" data-sphere-id="primal_utility" title="View Primal Ventures table"><i class="fas fa-table"></i></button>
@@ -117,7 +117,7 @@
                 
                 <!-- Spirit (Dimensional Science) -->
                 <div class="attribute">
-                    <label>Spirit <span class="technocrat-name">(Dimensional Science)</span></label>
+                    <label>{{translateRef 'sphere' 'Spirit'}} <span class="technocrat-name">(Dimensional Science)</span></label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="dimensional_science" title="View Dimensional Science sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -131,7 +131,7 @@
                 
                 <!-- Time -->
                 <div class="attribute">
-                    <label>Time</label>
+                    <label>{{translateRef 'sphere' 'Time'}}</label>
                     <div class="sphere-buttons">
                         <button type="button" class="sphere-reference-btn" data-sphere-id="time" title="View Time sphere details"><i class="fas fa-book"></i></button>
                     </div>
@@ -149,7 +149,7 @@
 
 <!-- Procedures (Rotes) Section -->
 <div class="abilities-section procedures-section">
-    <h2>Procedures (Rotes)</h2>
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Procedures'}}</h2>
     <div class="procedures-list">
         {{#each proceduresPagination.procedures as |procedure|}}
         <div class="procedure-item">

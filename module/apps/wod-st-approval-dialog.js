@@ -66,7 +66,10 @@ async function handleSocketData(data) {
         }
         
         console.log("WoD Approval - Showing approval dialog for:", actor.name);
-        ui.notifications.info(`${data.playerName || 'Player'} is requesting effect approval for ${actor.name}`);
+        ui.notifications.info(game.i18n.format('WODSYSTEM.Dialogs.PlayerRequestingApproval', {
+            player: data.playerName || game.i18n.localize('WODSYSTEM.EffectManager.Player'),
+            actor: actor.name
+        }));
         await WodStApprovalDialog.showApprovalDialog(actor, data.effectIds, data.playerId);
     }
     
@@ -82,8 +85,16 @@ async function handleSocketData(data) {
  * ST Approval Dialog for Player-Created Effects
  * Shows when a player tries to use a custom effect in their roll
  */
+// Import i18n helper (using game.i18n directly since this file doesn't have module structure)
+// Note: This file uses game.i18n.localize directly for compatibility
+
 export class WodStApprovalDialog extends Application {
     constructor(actor, effectIds, options = {}) {
+        // Set title in options if not provided, using i18n if available
+        if (!options.title && game?.i18n) {
+            options.title = game.i18n.localize("WODSYSTEM.Dialogs.STApprovalRequired");
+        }
+        
         super(options);
         this.actor = actor;
         this.effectIds = effectIds;
@@ -96,7 +107,7 @@ export class WodStApprovalDialog extends Application {
             template: "systems/wodsystem/templates/apps/st-approval-dialog.html",
             width: 400,
             height: "auto",
-            title: "ST Approval Required",
+            title: "ST Approval Required", // Static title, will be overridden in constructor if i18n is available
             resizable: false
         });
     }
@@ -207,7 +218,7 @@ export class WodStApprovalDialog extends Application {
         
         if (!gm) {
             console.warn("WoD Approval - No GM online");
-            ui.notifications.warn("No Storyteller online to approve effect!");
+            ui.notifications.warn(game.i18n.localize('WODSYSTEM.STApproval.NoSTOnline'));
             return false;
         }
 
@@ -233,20 +244,20 @@ export class WodStApprovalDialog extends Application {
         const messageContent = `
             <div class="wod-approval-request" data-request-id="${requestId}">
                 <h3 style="margin: 0 0 10px 0; color: #3498DB; border-bottom: 2px solid #3498DB; padding-bottom: 5px;">
-                    <i class="fas fa-question-circle"></i> Effect Approval Request
+                    <i class="fas fa-question-circle"></i> ${game.i18n.localize('WODSYSTEM.STApproval.EffectApprovalRequest')}
                 </h3>
                 <p style="margin: 8px 0;">
-                    <strong>${game.user.name}</strong> wants to use the following effects for <strong>${actor.name}</strong>:
+                    <strong>${game.user.name}</strong> ${game.i18n.localize('WODSYSTEM.STApproval.WantsToUseEffectsFor')} <strong>${actor.name}</strong>:
                 </p>
                 <div style="margin: 10px 0;">
                     ${effectsHtml}
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 12px;" class="approval-buttons">
                     <button class="approve-effect-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        <i class="fas fa-check"></i> Approve
+                        <i class="fas fa-check"></i> ${game.i18n.localize('WODSYSTEM.Common.Approve')}
                     </button>
                     <button class="deny-effect-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #E74C3C, #C0392B); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        <i class="fas fa-times"></i> Deny
+                        <i class="fas fa-times"></i> ${game.i18n.localize('WODSYSTEM.Common.Deny')}
                     </button>
                 </div>
             </div>
@@ -256,11 +267,11 @@ export class WodStApprovalDialog extends Application {
         await ChatMessage.create({
             content: messageContent,
             whisper: [gm.id],
-            speaker: { alias: "WoD System" },
+            speaker: { alias: game.i18n.localize('WODSYSTEM.Common.SystemName') },
             style: CONST.CHAT_MESSAGE_STYLES.WHISPER
         });
 
-        ui.notifications.info("Approval request sent to Storyteller. Waiting for response...");
+        ui.notifications.info(game.i18n.localize('WODSYSTEM.STApproval.ApprovalRequestSent'));
         console.log("WoD Approval - Player waiting for response for requestId:", requestId);
 
         // Wait for response via hook (will be triggered by socket OR chat message)
@@ -276,9 +287,9 @@ export class WodStApprovalDialog extends Application {
                     clearTimeout(timeoutId); // Clear the timeout
                     
                     if (data.approved) {
-                        ui.notifications.success("Storyteller approved your effect! Proceeding with roll...");
+                        ui.notifications.success(game.i18n.localize('WODSYSTEM.STApproval.Approved'));
                     } else {
-                        ui.notifications.error("Storyteller denied your effect. Roll cancelled.");
+                        ui.notifications.error(game.i18n.localize('WODSYSTEM.STApproval.Denied'));
                     }
                     
                     resolve(data.approved);
@@ -419,10 +430,10 @@ function registerChatButtonHandlers() {
         // Update message to show approved
         $(this).closest('.wod-approval-request').html(`
             <h3 style="margin: 0 0 10px 0; color: #2ECC71; border-bottom: 2px solid #2ECC71; padding-bottom: 5px;">
-                <i class="fas fa-check-circle"></i> Request Approved
+                <i class="fas fa-check-circle"></i> ${game.i18n.localize('WODSYSTEM.STApproval.RequestApproved')}
             </h3>
             <p style="color: #27AE60; font-weight: bold;">
-                The Storyteller has approved the effect(s).
+                ${game.i18n.localize('WODSYSTEM.STApproval.STApprovedEffects')}
             </p>
         `);
         
@@ -460,11 +471,11 @@ function registerChatButtonHandlers() {
             if (playerUser) {
                 await ChatMessage.create({
                     content: `<div style="background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold;">
-                        <i class="fas fa-check-circle"></i> Your effect request for <strong>${actor.name}</strong> has been APPROVED!
-                        <div style="font-size: 0.85em; margin-top: 6px; opacity: 0.9;">You may now proceed with your roll.</div>
+                        <i class="fas fa-check-circle"></i> ${game.i18n.format('WODSYSTEM.STApproval.EffectRequestApproved', {name: actor.name})}
+                        <div style="font-size: 0.85em; margin-top: 6px; opacity: 0.9;">${game.i18n.localize('WODSYSTEM.STApproval.ProceedWithRoll')}</div>
                     </div>`,
                     whisper: [playerUser.id],
-                    speaker: { alias: "WoD System" },
+                    speaker: { alias: game.i18n.localize('WODSYSTEM.Common.SystemName') },
                     style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
                     flags: {
                         wodsystem: {
@@ -477,7 +488,7 @@ function registerChatButtonHandlers() {
             }
         }
         
-        ui.notifications.success("Effect approved!");
+        ui.notifications.success(game.i18n.localize('WODSYSTEM.STApproval.EffectApproved'));
     });
     
     // Handle Paradox removal approval
@@ -488,7 +499,7 @@ function registerChatButtonHandlers() {
         const requestId = $(this).data('request-id');
         
         if (!game.user.isGM) {
-            ui.notifications.warn("Only the Storyteller can approve Paradox removal.");
+            ui.notifications.warn(game.i18n.localize('WODSYSTEM.STApproval.OnlySTCanApproveParadox'));
             return;
         }
         
@@ -510,10 +521,10 @@ function registerChatButtonHandlers() {
                 // Send whispered response to player with flags
                 await ChatMessage.create({
                     content: `<div style="background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold;">
-                        <i class="fas fa-check-circle"></i> Your Paradox removal request for <strong>${actor.name}</strong> has been APPROVED!
+                        <i class="fas fa-check-circle"></i> ${game.i18n.format('WODSYSTEM.STApproval.ParadoxRemovalApprovedMessage', {name: actor.name})}
                     </div>`,
                     whisper: [playerUser.id],
-                    speaker: { alias: "WoD System" },
+                    speaker: { alias: game.i18n.localize('WODSYSTEM.Common.SystemName') },
                     style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
                     flags: {
                         wodsystem: {
@@ -529,11 +540,11 @@ function registerChatButtonHandlers() {
         // Update chat message
         $(this).closest('.wod-approval-request').html(`
             <p style="color: #2ECC71; font-weight: bold;">
-                <i class="fas fa-check-circle"></i> Permanent Paradox removal approved
+                <i class="fas fa-check-circle"></i> ${game.i18n.localize('WODSYSTEM.STApproval.PermanentParadoxRemovalApproved')}
             </p>
         `);
         
-        ui.notifications.success("Paradox removal approved!");
+        ui.notifications.success(game.i18n.localize('WODSYSTEM.STApproval.ParadoxRemovalApproved'));
     });
     
     $(document).on('click', '.deny-paradox-btn', async function(event) {
@@ -543,7 +554,7 @@ function registerChatButtonHandlers() {
         const requestId = $(this).data('request-id');
         
         if (!game.user.isGM) {
-            ui.notifications.warn("Only the Storyteller can deny Paradox removal.");
+            ui.notifications.warn(game.i18n.localize('WODSYSTEM.STApproval.OnlySTCanDenyParadox'));
             return;
         }
         
@@ -565,10 +576,10 @@ function registerChatButtonHandlers() {
                 // Send whispered response to player with flags
                 await ChatMessage.create({
                     content: `<div style="background: linear-gradient(135deg, #E74C3C, #C0392B); color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold;">
-                        <i class="fas fa-times-circle"></i> Your Paradox removal request for <strong>${actor.name}</strong> has been DENIED
+                        <i class="fas fa-times-circle"></i> ${game.i18n.format('WODSYSTEM.STApproval.ParadoxRemovalDeniedMessage', {name: actor.name})}
                     </div>`,
                     whisper: [playerUser.id],
-                    speaker: { alias: "WoD System" },
+                    speaker: { alias: game.i18n.localize('WODSYSTEM.Common.SystemName') },
                     style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
                     flags: {
                         wodsystem: {
@@ -584,11 +595,11 @@ function registerChatButtonHandlers() {
         // Update chat message
         $(this).closest('.wod-approval-request').html(`
             <p style="color: #E74C3C; font-weight: bold;">
-                <i class="fas fa-times-circle"></i> Permanent Paradox removal denied
+                <i class="fas fa-times-circle"></i> ${game.i18n.localize('WODSYSTEM.STApproval.PermanentParadoxRemovalDenied')}
             </p>
         `);
         
-        ui.notifications.info("Paradox removal denied");
+        ui.notifications.info(game.i18n.localize('WODSYSTEM.STApproval.ParadoxRemovalDenied'));
     });
     
     $(document).on('click', '.deny-effect-btn', async function(event) {
@@ -610,10 +621,10 @@ function registerChatButtonHandlers() {
         // Update message to show denied
         $(this).closest('.wod-approval-request').html(`
             <h3 style="margin: 0 0 10px 0; color: #E74C3C; border-bottom: 2px solid #E74C3C; padding-bottom: 5px;">
-                <i class="fas fa-times-circle"></i> Request Denied
+                <i class="fas fa-times-circle"></i> ${game.i18n.localize('WODSYSTEM.STApproval.RequestDenied')}
             </h3>
             <p style="color: #C0392B; font-weight: bold;">
-                The Storyteller has denied the effect(s).
+                ${game.i18n.localize('WODSYSTEM.STApproval.STDeniedEffects')}
             </p>
         `);
         
@@ -650,11 +661,11 @@ function registerChatButtonHandlers() {
             if (playerUser) {
                 await ChatMessage.create({
                     content: `<div style="background: linear-gradient(135deg, #E74C3C, #C0392B); color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: bold;">
-                        <i class="fas fa-times-circle"></i> Your effect request for <strong>${actor.name}</strong> has been DENIED!
-                        <div style="font-size: 0.85em; margin-top: 6px; opacity: 0.9;">Your roll has been cancelled.</div>
+                        <i class="fas fa-times-circle"></i> ${game.i18n.format('WODSYSTEM.STApproval.EffectRequestDenied', {name: actor.name})}
+                        <div style="font-size: 0.85em; margin-top: 6px; opacity: 0.9;">${game.i18n.localize('WODSYSTEM.STApproval.RollCancelled')}</div>
                     </div>`,
                     whisper: [playerUser.id],
-                    speaker: { alias: "WoD System" },
+                    speaker: { alias: game.i18n.localize('WODSYSTEM.Common.SystemName') },
                     style: CONST.CHAT_MESSAGE_STYLES.WHISPER,
                     flags: {
                         wodsystem: {
@@ -667,7 +678,7 @@ function registerChatButtonHandlers() {
             }
         }
         
-        ui.notifications.info("Effect denied.");
+        ui.notifications.info(game.i18n.localize('WODSYSTEM.STApproval.EffectDenied'));
     });
     
     console.log("WoD Approval - Chat button handlers registered");

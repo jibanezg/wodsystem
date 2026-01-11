@@ -7,26 +7,26 @@
                 <input type="text" 
                        name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.name" 
                        value="{{npc.name}}" 
-                       placeholder="Contact Name" 
+                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactName'}}" 
                        class="contact-name-input" />
-                <a class="delete-contact" data-bg-index="{{../index}}" data-npc-index="{{npcIndex}}" title="Remove Contact">
+                <a class="delete-contact" data-bg-index="{{../index}}" data-npc-index="{{npcIndex}}" title="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RemoveContact'}}">
                     <i class="fas fa-times"></i>
                 </a>
             </div>
             
             <div class="contact-details">
                 <div class="contact-field">
-                    <label>Role / Position</label>
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RolePosition'}}</label>
                     <input type="text" 
                            name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.role" 
                            value="{{npc.role}}" 
-                           placeholder="e.g., Police Detective, Corporate Executive" 
+                           placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RolePositionPlaceholder'}}" 
                            class="contact-input" />
                 </div>
                 
                 <div class="contact-field-row">
                     <div class="contact-field">
-                        <label>Influence Level (1-5)</label>
+                        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.InfluenceLevel'}}</label>
                         <input type="number" 
                                name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.influence" 
                                value="{{npc.influence}}" 
@@ -36,7 +36,7 @@
                     </div>
                     
                     <div class="contact-field">
-                        <label>Reliability (1-5)</label>
+                        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Reliability'}}</label>
                         <input type="number" 
                                name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.reliability" 
                                value="{{npc.reliability}}" 
@@ -47,9 +47,9 @@
                 </div>
                 
                 <div class="contact-field">
-                    <label>Notes</label>
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Notes'}}</label>
                     <textarea name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.notes" 
-                              placeholder="Brief description, expertise, what information they can provide"
+                              placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactsNotesPlaceholder'}}"
                               class="template-textarea">{{npc.notes}}</textarea>
                 </div>
             </div>
@@ -58,7 +58,7 @@
     </div>
     
     {{#if isEditMode}}
-    <button class="add-contact" data-bg-index="{{index}}" type="button">+ Add Contact</button>
+    <button class="add-contact" data-bg-index="{{index}}" type="button">+ {{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.AddContact'}}</button>
     {{/if}}
 </div>
 

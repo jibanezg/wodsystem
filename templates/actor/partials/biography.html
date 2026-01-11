@@ -2,7 +2,7 @@
 <div class="biography-content">
     <!-- Bio Fields with Portrait -->
     <div class="bio-fields-section">
-        <h3>Personal Information</h3>
+        <h3>{{i18n 'CharacterSheet.PersonalInformation'}}</h3>
         <div class="bio-profile-layout">
             <!-- Character Portrait (Left Side) -->
             <div class="character-portrait-container">
@@ -16,11 +16,11 @@
                 <div class="portrait-input-wrapper">
                     <input type="text" name="system.biography.image" value="{{actor.system.biography.image}}" style="display: none;" data-dtype="String"/>
                     <div class="image-controls">
-                        <button type="button" class="wod-file-picker" data-type="imagevideo" data-target="system.biography.image" title="Browse Files" tabindex="-1">
+                        <button type="button" class="wod-file-picker" data-type="imagevideo" data-target="system.biography.image" title="{{i18n 'CharacterSheet.BrowseFiles'}}" tabindex="-1">
                             <i class="fas fa-file-import fa-fw"></i>
                         </button>
                         {{#if actor.system.biography.image}}
-                        <button type="button" class="clear-image" data-target="system.biography.image" title="Clear Image">
+                        <button type="button" class="clear-image" data-target="system.biography.image" title="{{i18n 'CharacterSheet.ClearImage'}}">
                             <i class="fas fa-times fa-fw"></i>
                         </button>
                         {{/if}}
@@ -31,31 +31,31 @@
             <!-- Personal Info Fields (Right Side) -->
             <div class="bio-grid">
                 <div class="bio-field">
-                    <label>Age</label>
+                    <label>{{i18n 'CharacterSheet.Age'}}</label>
                     <input type="text" name="system.biography.age" value="{{actor.system.biography.age}}" />
                 </div>
                 <div class="bio-field">
-                    <label>Sex</label>
+                    <label>{{i18n 'CharacterSheet.Sex'}}</label>
                     <input type="text" name="system.biography.sex" value="{{actor.system.biography.sex}}" />
                 </div>
                 <div class="bio-field">
-                    <label>Height</label>
+                    <label>{{i18n 'CharacterSheet.Height'}}</label>
                     <input type="text" name="system.biography.height" value="{{actor.system.biography.height}}" />
                 </div>
                 <div class="bio-field">
-                    <label>Weight</label>
+                    <label>{{i18n 'CharacterSheet.Weight'}}</label>
                     <input type="text" name="system.biography.weight" value="{{actor.system.biography.weight}}" />
                 </div>
                 <div class="bio-field">
-                    <label>Eyes</label>
+                    <label>{{i18n 'CharacterSheet.Eyes'}}</label>
                     <input type="text" name="system.biography.eyes" value="{{actor.system.biography.eyes}}" />
                 </div>
                 <div class="bio-field">
-                    <label>Hair</label>
+                    <label>{{i18n 'CharacterSheet.Hair'}}</label>
                     <input type="text" name="system.biography.hair" value="{{actor.system.biography.hair}}" />
                 </div>
                 <div class="bio-field">
-                    <label>Nationality</label>
+                    <label>{{i18n 'CharacterSheet.Nationality'}}</label>
                     <input type="text" name="system.biography.nationality" value="{{actor.system.biography.nationality}}" />
                 </div>
             </div>
@@ -65,24 +65,24 @@
     <!-- Focus Section (Technocrats only) -->
     {{#if (eq actor.type "Technocrat")}}
     <div class="focus-section">
-        <h3>Focus</h3>
+        <h3>{{i18n 'WODSYSTEM.CharacterSheet.Biography.Focus'}}</h3>
         <div class="focus-layout">
             <!-- Left Side: Paradigm & Practices -->
             <div class="focus-left">
                 <!-- Paradigm -->
                 <div class="focus-field">
-                    <label>Paradigm</label>
+                    <label>{{i18n 'CharacterSheet.Paradigm'}}</label>
                     <textarea name="system.biography.focus.paradigm" 
                               rows="3" 
-                              placeholder="Enter your character's paradigm...">{{actor.system.biography.focus.paradigm}}</textarea>
+                              placeholder="{{i18n 'CharacterSheet.Paradigm'}}...">{{actor.system.biography.focus.paradigm}}</textarea>
                 </div>
 
                 <!-- Practices -->
                 <div class="focus-field">
-                    <label>Practices</label>
+                    <label>{{i18n 'CharacterSheet.Practices'}}</label>
                     <textarea name="system.biography.focus.practices" 
                               rows="2" 
-                              placeholder="Enter your character's practices...">{{actor.system.biography.focus.practices}}</textarea>
+                              placeholder="{{i18n 'CharacterSheet.Practices'}}...">{{actor.system.biography.focus.practices}}</textarea>
                 </div>
             </div>
 
@@ -90,7 +90,7 @@
             <div class="focus-right">
                 <div class="focus-instruments">
                     <div class="instruments-header">
-                        <label>Instruments</label>
+                        <label>{{i18n 'CharacterSheet.Instruments'}}</label>
                         <span class="instruments-count">(Minimum: 7, Current: {{actor.system.biography.focus.instruments.length}})</span>
                     </div>
                     <div class="instruments-list">
@@ -100,7 +100,7 @@
                                    name="system.biography.focus.instruments" 
                                    value="{{this}}" 
                                    data-index="{{@index}}"
-                                   placeholder="Instrument {{add @index 1}}" />
+                                   placeholder="{{i18n 'CharacterSheet.Instrument'}} {{add @index 1}}" />
                             <button type="button" class="remove-instrument" data-index="{{@index}}" {{#if (lt @root.actor.system.biography.focus.instruments.length 8)}}disabled{{/if}}>
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -108,7 +108,7 @@
                         {{/each}}
                     </div>
                     <button type="button" class="add-instrument">
-                        <i class="fas fa-plus"></i> Add Instrument
+                        <i class="fas fa-plus"></i> {{i18n 'CharacterSheet.AddInstrument'}}
                     </button>
                 </div>
             </div>
@@ -118,13 +118,13 @@
 
     <!-- Backstory -->
     <div class="backstory-section">
-        <h3>Backstory</h3>
+        <h3>{{i18n 'CharacterSheet.Backstory'}}</h3>
         <textarea name="system.biography.backstory" rows="5">{{actor.system.biography.backstory}}</textarea>
     </div>
 
     <!-- Notes -->
     <div class="notes-section">
-        <h3>Notes</h3>
+        <h3>{{i18n 'CharacterSheet.Notes'}}</h3>
         <textarea name="system.biography.notes" rows="5">{{actor.system.biography.notes}}</textarea>
     </div>
 </div>

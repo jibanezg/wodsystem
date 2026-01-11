@@ -1,27 +1,27 @@
 <form class="wod-effect-manager">
     <!-- Basic Information Section -->
     <div class="effect-header-section">
-        <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+        <h3><i class="fas fa-info-circle"></i> {{i18n 'EffectManager.BasicInformation'}}</h3>
         
         <div class="form-group">
-            <label>Effect Name</label>
-            <input type="text" name="name" value="{{effect.name}}" placeholder="Status name..." />
+            <label>{{i18n 'EffectManager.EffectName'}}</label>
+            <input type="text" name="name" value="{{effect.name}}" placeholder="{{i18n 'EffectManager.StatusName'}}" />
         </div>
         
         <div class="form-group">
-            <label>Icon Path <span class="help-text">(Optional)</span></label>
+            <label>{{i18n 'EffectManager.IconPath'}} <span class="help-text">({{i18n 'EffectManager.Optional'}})</span></label>
             <input type="text" name="icon" value="{{effect.icon}}" placeholder="icons/svg/aura.svg" />
-            <p class="help-text">Leave empty to use default icon (icons/svg/aura.svg)</p>
+            <p class="help-text">{{i18n 'EffectManager.LeaveEmptyForDefault'}}</p>
         </div>
     </div>
     
     <!-- Metadata Section -->
     <div class="effect-metadata-section">
-        <h3><i class="fas fa-user-tag"></i> Effect Type</h3>
+        <h3><i class="fas fa-user-tag"></i> {{i18n 'EffectManager.EffectType'}}</h3>
         
         <div class="form-group">
-            <label>Created By</label>
-            <input type="text" value="{{#if isGM}}Storyteller{{else}}Player{{/if}}" readonly disabled />
+            <label>{{i18n 'EffectManager.CreatedBy'}}</label>
+            <input type="text" value="{{#if isGM}}{{i18n 'EffectManager.Storyteller'}}{{else}}{{i18n 'EffectManager.Player'}}{{/if}}" readonly disabled />
             <input type="hidden" name="createdBy" value="{{effect.createdBy}}" />
         </div>
         
@@ -30,29 +30,29 @@
         <div class="form-group checkbox-group">
             <label>
                 <input type="checkbox" name="mandatory" {{#if effect.mandatory}}checked{{/if}} />
-                Mandatory (Auto-Applied)
+                {{i18n 'EffectManager.Mandatory'}}
             </label>
-            <small>ST effects are auto-applied when mandatory</small>
+            <small>{{i18n 'EffectManager.STEffectsAutoApplied'}}</small>
         </div>
         {{/if}}
     </div>
     
     <!-- Conditions Section -->
     <div class="effect-conditions-section">
-        <h3><i class="fas fa-filter"></i> When to Apply Effect</h3>
+        <h3><i class="fas fa-filter"></i> {{i18n 'EffectManager.WhenToApplyEffect'}}</h3>
         
         <div class="form-group">
-            <label>Condition Scope</label>
+            <label>{{i18n 'EffectManager.ConditionScope'}}</label>
             <select name="conditionScope" class="condition-scope-select">
                 {{#each conditionScopes}}
                 <option value="{{this.value}}" {{#eq this.value ../effect.conditionScope}}selected{{/eq}}>{{this.label}}</option>
                 {{/each}}
             </select>
-            <small>Choose when this effect should be applied to rolls</small>
+            <small>{{i18n 'EffectManager.ChooseWhenToApply'}}</small>
         </div>
         
         <div class="form-group condition-target-group" style="{{#if effect.hideConditionTarget}}display: none;{{/if}}">
-            <label class="condition-target-label">Specific Targets (select one or more)</label>
+            <label class="condition-target-label">{{i18n 'EffectManager.SpecificTargets'}}</label>
             <div class="condition-targets-checkboxes">
                 {{#each conditionTargets}}
                 <label class="condition-target-checkbox">
@@ -61,38 +61,38 @@
                 </label>
                 {{/each}}
             </div>
-            <small class="condition-target-help">Select which specific traits this effect applies to (you can select multiple)</small>
+            <small class="condition-target-help">{{i18n 'EffectManager.SelectSpecificTraits'}}</small>
         </div>
     </div>
     
     <!-- Modifiers Section -->
     <div class="effect-modifiers">
-        <h3><i class="fas fa-sliders-h"></i> Modifiers</h3>
-        <p class="modifiers-help"><small>Use positive values (+2, +3) for bonuses, negative values (-2, -3) for penalties</small></p>
+        <h3><i class="fas fa-sliders-h"></i> {{i18n 'EffectManager.Modifiers'}}</h3>
+        <p class="modifiers-help"><small>{{i18n 'EffectManager.UsePositiveForBonuses'}}</small></p>
         <div class="modifiers-list">
             {{#each effect.changes}}
             <div class="modifier-row">
                 <select class="modifier-type" name="modifiers.{{@index}}.key">
-                    <option value="pool" {{#eq this.key "pool"}}selected{{/eq}}>Pool Dice</option>
-                    <option value="difficulty" {{#eq this.key "difficulty"}}selected{{/eq}}>Difficulty</option>
-                    <option value="autoSuccess" {{#eq this.key "autoSuccess"}}selected{{/eq}}>Auto Success</option>
-                    <option value="autoFail" {{#eq this.key "autoFail"}}selected{{/eq}}>Auto Fail</option>
+                    <option value="pool" {{#eq this.key "pool"}}selected{{/eq}}>{{i18n 'EffectManager.PoolDice'}}</option>
+                    <option value="difficulty" {{#eq this.key "difficulty"}}selected{{/eq}}>{{i18n 'RollDialog.Difficulty'}}</option>
+                    <option value="autoSuccess" {{#eq this.key "autoSuccess"}}selected{{/eq}}>{{i18n 'EffectManager.AutoSuccess'}}</option>
+                    <option value="autoFail" {{#eq this.key "autoFail"}}selected{{/eq}}>{{i18n 'EffectManager.AutoFail'}}</option>
                 </select>
                 <input type="number" class="modifier-value" name="modifiers.{{@index}}.value" value="{{this.value}}" placeholder="+2 or -2" />
                 <button type="button" class="remove-modifier-row"><i class="fas fa-times"></i></button>
             </div>
             {{/each}}
         </div>
-        <button type="button" class="add-modifier-row" title="Add Modifier"><i class="fas fa-plus"></i></button>
+        <button type="button" class="add-modifier-row" title="{{i18n 'EffectManager.AddModifier'}}"><i class="fas fa-plus"></i></button>
     </div>
     
     <!-- Action Buttons -->
     <div class="dialog-buttons">
         <button type="button" class="save-effect">
-            <i class="fas fa-save"></i> Save Effect
+            <i class="fas fa-save"></i> {{i18n 'EffectManager.SaveEffect'}}
         </button>
         <button type="button" class="cancel-effect">
-            <i class="fas fa-times"></i> Cancel
+            <i class="fas fa-times"></i> {{i18n 'Common.Cancel'}}
         </button>
     </div>
 </form>

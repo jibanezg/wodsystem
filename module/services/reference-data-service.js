@@ -333,7 +333,9 @@ export class ReferenceDataService {
             });
         }
         
-        // Return sorted list of names
+        // Return sorted list of ORIGINAL names (not translated)
+        // Translation happens in templates using translateRef helper
+        // This ensures matching works correctly (value="original" but display="translated")
         return backgrounds
             .map(bg => bg.name)
             .sort((a, b) => a.localeCompare(b));

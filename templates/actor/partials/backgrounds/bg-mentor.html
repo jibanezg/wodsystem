@@ -1,25 +1,25 @@
 <!-- Mentor Background Template -->
 <div class="bg-template mentor-template">
     <div class="template-field">
-        <label>Mentor Name</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.MentorName'}}</label>
         <input type="text" 
                name="system.backgroundsExpanded.{{index}}.templateData.mentorName" 
                value="{{data.mentorName}}" 
-               placeholder="Name of your mentor" 
+               placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.MentorNamePlaceholder'}}" 
                class="template-input" />
     </div>
     
     <div class="template-field">
-        <label>Convention / Specialty</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ConventionSpecialty'}}</label>
         <input type="text" 
                name="system.backgroundsExpanded.{{index}}.templateData.convention" 
                value="{{data.convention}}" 
-               placeholder="e.g., Iteration X, Progenitors, Void Engineers" 
+               placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ConventionSpecialtyPlaceholder'}}" 
                class="template-input" />
     </div>
     
     <div class="template-field">
-        <label>Relationship Quality (1-5 dots)</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RelationshipQuality'}}</label>
         <div class="dot-container" data-bg-mentor-relationship="{{index}}">
             {{#times 5}}
             <div class="dot {{#if (lt @index ../data.relationshipLevel)}}filled{{/if}}" data-index="{{@index}}"></div>
@@ -29,30 +29,29 @@
     </div>
     
     <div class="template-field">
-        <label>Contact Frequency</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactFrequency'}}</label>
         <select name="system.backgroundsExpanded.{{index}}.templateData.contactFrequency" class="template-select">
-            <option value="daily" {{#if (eq data.contactFrequency "daily")}}selected{{/if}}>Daily</option>
-            <option value="weekly" {{#if (eq data.contactFrequency "weekly")}}selected{{/if}}>Weekly</option>
-            <option value="monthly" {{#if (eq data.contactFrequency "monthly")}}selected{{/if}}>Monthly</option>
-            <option value="rarely" {{#if (eq data.contactFrequency "rarely")}}selected{{/if}}>Rarely</option>
-            <option value="emergency" {{#if (eq data.contactFrequency "emergency")}}selected{{/if}}>Emergency Only</option>
+            <option value="daily" {{#if (eq data.contactFrequency "daily")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactFrequencyDaily'}}</option>
+            <option value="weekly" {{#if (eq data.contactFrequency "weekly")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactFrequencyWeekly'}}</option>
+            <option value="monthly" {{#if (eq data.contactFrequency "monthly")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactFrequencyMonthly'}}</option>
+            <option value="rarely" {{#if (eq data.contactFrequency "rarely")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactFrequencyRarely'}}</option>
+            <option value="emergency" {{#if (eq data.contactFrequency "emergency")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactFrequencyEmergency'}}</option>
         </select>
     </div>
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Teachings & Specialties</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.TeachingsSpecialties'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.teachings" 
-                      placeholder="Areas of expertise"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.TeachingsSpecialtiesPlaceholder'}}"
                       class="template-textarea">{{data.teachings}}</textarea>
         </div>
         
         <div class="template-field">
-            <label>Notes & Personality</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.NotesPersonality'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.notes" 
-                      placeholder="Personality, history"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.NotesPersonalityPlaceholder'}}"
                       class="template-textarea">{{data.notes}}</textarea>
         </div>
     </div>
 </div>
-

@@ -5,9 +5,15 @@
 
 import { getWizardConfig } from './wizard-config.js';
 import { WizardValidator } from './utils/validation.js';
+import { i18n } from '../../module/helpers/i18n.js';
 
 export class WodCharacterWizard extends FormApplication {
   constructor(actor, options = {}) {
+    // Set title in options if not provided, using i18n if available
+    if (!options.title && game?.i18n) {
+      options.title = game.i18n.localize("WODSYSTEM.Wizard.CharacterCreationWizard");
+    }
+    
     super(actor, options);
     
     this.actor = actor;
@@ -20,7 +26,8 @@ export class WodCharacterWizard extends FormApplication {
     
     // Check permissions
     if (!this.actor.isOwner) {
-      ui.notifications.warn("You don't have permission to edit this character. Wizard will be read-only.");
+      const message = game?.i18n?.localize("WODSYSTEM.Wizard.NoPermissionEditCharacter") || "You don't have permission to edit this character. Wizard will be read-only.";
+      ui.notifications.warn(message);
     }
     
     // Wizard state
@@ -42,7 +49,7 @@ export class WodCharacterWizard extends FormApplication {
       closeOnSubmit: false,
       submitOnClose: false,
       submitOnChange: false,
-      title: "Character Creation Wizard"
+      title: "Character Creation Wizard" // Static title, will be overridden in constructor if i18n is available
     });
   }
 
@@ -197,7 +204,7 @@ export class WodCharacterWizard extends FormApplication {
       });
     } catch (error) {
       console.error('WodCharacterWizard | Error saving progress:', error);
-      ui.notifications.warn("Unable to save wizard progress. You may not have permission to edit this character.");
+      ui.notifications.warn(i18n('WODSYSTEM.Wizard.UnableToSaveProgress'));
     }
   }
 
@@ -260,13 +267,16 @@ export class WodCharacterWizard extends FormApplication {
     const freebieBonus = this.wizardData.meritsFlaws?.freebieBonus || 0;
     const actualFreebieTotal = this.config.freebies.total + freebieBonus;
     
+    // Translate config labels for display
+    const translatedConfig = this._translateConfig(this.config);
+    
     return {
       actor: this.actor,
       actorType: this.actorType,
-      config: this.config,
+      config: translatedConfig,
       currentStep: this.currentStep,
       totalSteps: this.config.steps.length,
-      step: step,
+      step: this._translateStep(step),
       stepId: step.id,
       wizardData: this.wizardData,
       validation: validation,
@@ -277,6 +287,72 @@ export class WodCharacterWizard extends FormApplication {
       actualFreebieTotal: actualFreebieTotal, // Base + bonus from flaws
       freebieBonus: freebieBonus
     };
+  }
+
+  /**
+   * Translate step object (labelKey -> label)
+   */
+  _translateStep(step) {
+    if (!step) return step;
+    const translated = { ...step };
+    if (step.labelKey) {
+      // Add WODSYSTEM prefix if not present
+      const fullKey = step.labelKey.startsWith('WODSYSTEM.') ? step.labelKey : `WODSYSTEM.${step.labelKey}`;
+      translated.label = game?.i18n?.localize(fullKey) || step.labelKey;
+    }
+    return translated;
+  }
+
+  /**
+   * Translate config object recursively (labelKey -> label, placeholderKey -> placeholder)
+   * IMPORTANT: This creates a shallow copy and only translates labels, preserving all other properties
+   */
+  _translateConfig(config) {
+    if (!config) return config;
+    
+    // Create a shallow copy to avoid modifying the original
+    // We only need to copy the properties we're modifying (label, steps, concept)
+    const translated = { ...config };
+    
+    // Translate main label
+    if (config.labelKey) {
+      const fullKey = config.labelKey.startsWith('WODSYSTEM.') ? config.labelKey : `WODSYSTEM.${config.labelKey}`;
+      translated.label = game?.i18n?.localize(fullKey) || config.labelKey;
+    }
+    
+    // Translate steps (preserve all step properties)
+    if (config.steps && Array.isArray(config.steps)) {
+      translated.steps = config.steps.map(step => {
+        const translatedStep = { ...step };
+        if (step.labelKey) {
+          const fullKey = step.labelKey.startsWith('WODSYSTEM.') ? step.labelKey : `WODSYSTEM.${step.labelKey}`;
+          translatedStep.label = game?.i18n?.localize(fullKey) || step.labelKey;
+        }
+        return translatedStep;
+      });
+    }
+    
+    // Translate concept fields (preserve all field properties)
+    if (config.concept && config.concept.fields && Array.isArray(config.concept.fields)) {
+      translated.concept = {
+        ...config.concept,
+        fields: config.concept.fields.map(field => {
+          const translatedField = { ...field };
+          if (field.labelKey) {
+            const fullKey = field.labelKey.startsWith('WODSYSTEM.') ? field.labelKey : `WODSYSTEM.${field.labelKey}`;
+            translatedField.label = game?.i18n?.localize(fullKey) || field.labelKey;
+          }
+          if (field.placeholderKey) {
+            const fullKey = field.placeholderKey.startsWith('WODSYSTEM.') ? field.placeholderKey : `WODSYSTEM.${field.placeholderKey}`;
+            translatedField.placeholder = game?.i18n?.localize(fullKey) || field.placeholderKey;
+          }
+          return translatedField;
+        })
+      };
+    }
+    
+    // All other properties (attributes, abilities, advantages, freebies, etc.) are preserved as-is
+    return translated;
   }
 
   /**
@@ -870,13 +946,13 @@ export class WodCharacterWizard extends FormApplication {
         if (delta > 0) {
             // Check total limit (6 points max)
             if (totalSpherePoints >= this.config.advantages.spheres.points) {
-                ui.notifications.warn(`Cannot add more sphere points. Maximum ${this.config.advantages.spheres.points} total sphere points allowed.`);
+                ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotAddMoreSpherePoints', {max: this.config.advantages.spheres.points}));
                 return;
             }
             
             // Check individual sphere limit (can't exceed enlightenment)
             if (current >= enlightenment) {
-                ui.notifications.warn(`${sphere} cannot exceed your Enlightenment (${enlightenment}). Increase Enlightenment to add more dots.`);
+                ui.notifications.warn(i18n('WODSYSTEM.Wizard.SphereCannotExceedEnlightenment', {sphere: sphere, enlightenment: enlightenment}));
                 return;
             }
         }
@@ -951,19 +1027,19 @@ export class WodCharacterWizard extends FormApplication {
     // If increasing, check if we have freebies available and aren't at max
     if (delta > 0) {
       if (current >= max) {
-        ui.notifications.warn(`Enlightenment is already at maximum (${max}).`);
+        ui.notifications.warn(i18n('WODSYSTEM.Wizard.EnlightenmentAtMaximum', {max: max}));
         return;
       }
       const freebiesAvailable = freebiesTotal - freebiesSpent;
       if (freebiesAvailable < cost) {
-        ui.notifications.warn(`Not enough Freebie Points. Need ${cost}, have ${freebiesAvailable}.`);
+        ui.notifications.warn(i18n('WODSYSTEM.Wizard.NotEnoughFreebiePoints', {cost: cost, available: freebiesAvailable}));
         return;
       }
     }
     
     // If decreasing, check if we're at starting value
     if (delta < 0 && current <= starting) {
-      ui.notifications.warn(`Enlightenment cannot go below starting value (${starting}).`);
+      ui.notifications.warn(i18n('WODSYSTEM.Wizard.EnlightenmentCannotGoBelow', {starting: starting}));
       return;
     }
     
@@ -981,7 +1057,7 @@ export class WodCharacterWizard extends FormApplication {
           .filter(([_, value]) => value > newValue)
           .map(([sphere, value]) => `${this.config.advantages.spheres.available[sphere]} (${value})`)
           .join(', ');
-        ui.notifications.warn(`Cannot reduce Enlightenment to ${newValue}. The following spheres exceed this limit: ${problemSpheres}`);
+        ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotReduceEnlightenment', {newValue: newValue, spheres: problemSpheres}));
         return;
       }
     }
@@ -1076,8 +1152,8 @@ export class WodCharacterWizard extends FormApplication {
       const newItem = $(`
         <div class="merit-flaw-item">
           <div class="name-input-container">
-            <input type="text" class="wizard-merit-name" data-index="${newIndex}" value="" placeholder="Merit Name" />
-            <a class="wizard-merit-reference-btn" data-index="${newIndex}" title="View Merit Details">
+            <input type="text" class="wizard-merit-name" data-index="${newIndex}" value="" placeholder="${i18n('WODSYSTEM.Wizard.MeritName')}" />
+            <a class="wizard-merit-reference-btn" data-index="${newIndex}" title="${i18n('WODSYSTEM.Wizard.ViewMeritDetails')}">
               <i class="fas fa-book-open"></i>
             </a>
           </div>
@@ -1115,8 +1191,8 @@ export class WodCharacterWizard extends FormApplication {
       const newItem = $(`
         <div class="merit-flaw-item">
           <div class="name-input-container">
-            <input type="text" class="wizard-flaw-name" data-index="${newIndex}" value="" placeholder="Flaw Name" />
-            <a class="wizard-flaw-reference-btn" data-index="${newIndex}" title="View Flaw Details">
+            <input type="text" class="wizard-flaw-name" data-index="${newIndex}" value="" placeholder="${i18n('WODSYSTEM.Wizard.FlawName')}" />
+            <a class="wizard-flaw-reference-btn" data-index="${newIndex}" title="${i18n('WODSYSTEM.Wizard.ViewFlawDetails')}">
               <i class="fas fa-book-open"></i>
             </a>
           </div>
@@ -1200,7 +1276,7 @@ export class WodCharacterWizard extends FormApplication {
         if (isIncrease) {
           const totalMerits = this.wizardData.meritsFlaws.merits.reduce((sum, m) => sum + (m.value || 0), 0);
           if (totalMerits >= 7) {
-            ui.notifications.warn("Cannot exceed 7 total merit points.");
+            ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotExceed7MeritPoints'));
             return;
           }
         }
@@ -1224,7 +1300,7 @@ export class WodCharacterWizard extends FormApplication {
         if (isIncrease) {
           const totalFlaws = this.wizardData.meritsFlaws.flaws.reduce((sum, f) => sum + (f.value || 0), 0);
           if (totalFlaws >= 7) {
-            ui.notifications.warn("Cannot exceed 7 total flaw points.");
+            ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotExceed7FlawPoints'));
             return;
           }
         }
@@ -1340,7 +1416,7 @@ export class WodCharacterWizard extends FormApplication {
       
       const totalPoints = (isMerit ? this.wizardData.meritsFlaws.merits : this.wizardData.meritsFlaws.flaws).reduce((sum, item) => sum + (item.value || 0), 0);
       if (totalPoints >= 7) {
-        ui.notifications.warn(`Cannot exceed 7 total ${type} points.`);
+        ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotExceed7Points', {type: type}));
         return;
       }
       
@@ -1614,7 +1690,7 @@ export class WodCharacterWizard extends FormApplication {
     // Update UI totals
     this._updateMeritsFlawsUI(this.element);
     
-    ui.notifications.info(`Selected: ${result.name} (${selectedValue} pt)`);
+    ui.notifications.info(i18n('WODSYSTEM.Notifications.SelectedWithPoints', {name: result.name, value: selectedValue}));
   }
   
   async _showCostSelectionDialog(name, costs, category) {
@@ -1629,7 +1705,7 @@ export class WodCharacterWizard extends FormApplication {
       };
       
       // Shorter title to avoid horizontal scroll
-      const shortTitle = `Select Cost`;
+      const shortTitle = i18n('WODSYSTEM.CostSelection.SelectCost');
       
       const content = `
         <div style="padding: 8px;">
@@ -1648,7 +1724,7 @@ export class WodCharacterWizard extends FormApplication {
         buttons: { 
           cancel: { 
             icon: '<i class="fas fa-times"></i>', 
-            label: "Cancel", 
+            label: i18n('WODSYSTEM.Common.Cancel'), 
             callback: () => safeResolve(null) 
           } 
         },
@@ -2024,7 +2100,7 @@ export class WodCharacterWizard extends FormApplication {
     // Check if we have points available
     const validation = this._validateCurrentStep();
     if (delta > 0 && validation.attributes?.[category]?.remaining <= 0) {
-      ui.notifications.warn(`No more points available for ${category} attributes.`);
+      ui.notifications.warn(i18n('WODSYSTEM.Wizard.NoMorePointsAvailableAttributes', {category: category}));
       return;
     }
     
@@ -2170,7 +2246,7 @@ export class WodCharacterWizard extends FormApplication {
         <input type="text" 
                class="ability-name-input" 
                value="${name}" 
-               placeholder="Ability name">
+               placeholder="${i18n('WODSYSTEM.Wizard.AbilityName')}">
         <div class="ability-controls">
           <button type="button" class="ability-decrease" data-index="${newIndex}" disabled>
             <i class="fas fa-minus"></i>
@@ -2294,7 +2370,7 @@ export class WodCharacterWizard extends FormApplication {
         <select class="background-select" data-index="${newIndex}">
           ${optionsHTML}
         </select>
-        <button type="button" class="background-reference-btn" data-background-name="" title="View details" style="display: none;">
+        <button type="button" class="background-reference-btn" data-background-name="" title="${i18n('WODSYSTEM.Wizard.ViewDetails')}" style="display: none;">
           <i class="fas fa-book"></i>
         </button>
         <div class="background-controls">
@@ -2338,7 +2414,7 @@ export class WodCharacterWizard extends FormApplication {
         if (value && service && service.initialized) {
           const background = service.getBackgroundByName(value);
           if (background) {
-            $refBtn.show().data('background', background).attr('data-background-name', value).attr('title', `View ${value} details`);
+            $refBtn.show().data('background', background).attr('data-background-name', value).attr('title', i18n('WODSYSTEM.Wizard.ViewBackgroundDetails', {name: value}));
             newItem.attr('data-background-name', value);
           } else {
             $refBtn.hide().removeData('background').attr('data-background-name', '');
@@ -2467,7 +2543,11 @@ export class WodCharacterWizard extends FormApplication {
     // Check if we have enough points available
     const validation = this._validateCurrentStep();
     if (delta > 0 && validation.backgrounds?.remaining < costPerDot) {
-      ui.notifications.warn(`Not enough background points. ${background.name} costs ${costPerDot} point${costPerDot > 1 ? 's' : ''} per dot.`);
+      ui.notifications.warn(i18n('WODSYSTEM.Wizard.NotEnoughBackgroundPoints', {
+        name: background.name,
+        cost: costPerDot,
+        plural: costPerDot > 1 ? 's' : ''
+      }));
       return;
     }
     
@@ -2529,6 +2609,77 @@ export class WodCharacterWizard extends FormApplication {
   }
 
   /**
+   * Recalculate freebie points remaining from scratch
+   * This ensures accuracy by calculating from current values rather than tracking incrementally
+   */
+  _recalculateFreebiesRemaining() {
+    const baselines = this.wizardData.freebies.baselines;
+    if (!baselines) return; // Can't recalculate without baselines
+    
+    const freebieBonus = this.wizardData.meritsFlaws?.freebieBonus || 0;
+    const enlightenmentSpent = this.wizardData.advantages.freebiesSpent || 0;
+    const baseTotal = this.config.freebies.total + freebieBonus;
+    
+    let totalSpent = enlightenmentSpent; // Start with enlightenment spending
+    
+    // Calculate spent on attributes
+    for (const [cat, attrs] of Object.entries(this.wizardData.attributes.values)) {
+      for (const [attrName, currentValue] of Object.entries(attrs)) {
+        const baselineValue = baselines.attributes[cat][attrName] || 1;
+        const spent = Math.max(0, currentValue - baselineValue);
+        if (spent > 0) {
+          totalSpent += spent * this.config.freebies.costs.attribute;
+        }
+      }
+    }
+    
+    // Calculate spent on abilities
+    for (const [cat, abilities] of Object.entries(this.wizardData.abilities.values)) {
+      for (const [abilityName, currentValue] of Object.entries(abilities)) {
+        const baselineValue = baselines.abilities[cat][abilityName] || 0;
+        const spent = Math.max(0, currentValue - baselineValue);
+        if (spent > 0) {
+          totalSpent += spent * this.config.freebies.costs.ability;
+        }
+      }
+    }
+    
+    // Calculate spent on backgrounds
+    const doubleCostBgs = this.config.advantages.backgrounds.doubleCost || [];
+    for (const bg of this.wizardData.advantages.backgrounds) {
+      const baselineBg = baselines.backgrounds.find(b => b.name === bg.name);
+      const baselineValue = baselineBg?.value || 0;
+      const currentValue = bg.value || 0;
+      const spent = Math.max(0, currentValue - baselineValue);
+      if (spent > 0) {
+        let cost = this.config.freebies.costs.background;
+        if (doubleCostBgs.includes(bg.name)) {
+          cost = cost * 2;
+        }
+        totalSpent += spent * cost;
+      }
+    }
+    
+    // Calculate spent on spheres
+    for (const [sphereName, currentValue] of Object.entries(this.wizardData.advantages.spheres)) {
+      const baselineValue = baselines.spheres[sphereName] || 0;
+      const spent = Math.max(0, currentValue - baselineValue);
+      if (spent > 0) {
+        totalSpent += spent * this.config.freebies.costs.sphere;
+      }
+    }
+    
+    // Calculate spent on willpower
+    const willpowerSpent = this.wizardData.freebies.spent.willpower || 0;
+    if (willpowerSpent > 0) {
+      totalSpent += willpowerSpent * this.config.freebies.costs.willpower;
+    }
+    
+    // Update remaining
+    this.wizardData.freebies.remaining = baseTotal - totalSpent;
+  }
+
+  /**
    * Spend freebie point
    */
   async _spendFreebie(type, target, delta, bgName = null) {
@@ -2554,7 +2705,7 @@ export class WodCharacterWizard extends FormApplication {
     const change = cost * delta;
     
     if (delta > 0 && this.wizardData.freebies.remaining < cost) {
-      ui.notifications.warn("Not enough freebie points.");
+      ui.notifications.warn(i18n('WODSYSTEM.Wizard.NotEnoughFreebiePointsGeneric'));
       return;
     }
     
@@ -2594,7 +2745,7 @@ export class WodCharacterWizard extends FormApplication {
       }
       
       if (atBaseline) {
-        ui.notifications.warn("Cannot decrease below the value set in previous steps.");
+        ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotDecreaseBelowPrevious'));
         return;
       }
     }
@@ -2611,7 +2762,6 @@ export class WodCharacterWizard extends FormApplication {
         const attrNew = Math.max(attrBaseline, Math.min(5, attrCurrent + delta));
         if (attrNew !== attrCurrent) {
           this.wizardData.attributes.values[attrCat][attrName] = attrNew;
-          this.wizardData.freebies.remaining -= change;
           valueChanged = true;
           newValue = attrNew;
         }
@@ -2624,7 +2774,6 @@ export class WodCharacterWizard extends FormApplication {
         const abNew = Math.max(abBaseline, Math.min(5, abCurrent + delta));
         if (abNew !== abCurrent) {
           this.wizardData.abilities.values[abCat][abName] = abNew;
-          this.wizardData.freebies.remaining -= change;
           valueChanged = true;
           newValue = abNew;
         }
@@ -2653,7 +2802,6 @@ export class WodCharacterWizard extends FormApplication {
           const bgNew = Math.max(bgBaseline, Math.min(5, bgCurrent + delta));
           if (bgNew !== bgCurrent) {
             this.wizardData.advantages.backgrounds[bgIndex].value = bgNew;
-            this.wizardData.freebies.remaining -= change;
             valueChanged = true;
             newValue = bgNew;
             
@@ -2675,11 +2823,10 @@ export class WodCharacterWizard extends FormApplication {
         const sphereNew = Math.max(sphereBaseline, Math.min(enlightenment, sphereCurrent + delta));
         if (sphereNew !== sphereCurrent) {
           this.wizardData.advantages.spheres[target] = sphereNew;
-          this.wizardData.freebies.remaining -= change;
           valueChanged = true;
           newValue = sphereNew;
         } else if (delta > 0 && sphereCurrent >= enlightenment) {
-          ui.notifications.warn(`Cannot increase sphere above your Enlightenment (${enlightenment}).`);
+          ui.notifications.warn(i18n('WODSYSTEM.Wizard.CannotIncreaseSphereAboveEnlightenment', {enlightenment: enlightenment}));
           return;
         }
         break;
@@ -2692,7 +2839,6 @@ export class WodCharacterWizard extends FormApplication {
         const wpNew = Math.max(0, this.wizardData.freebies.spent.willpower + delta);
         if (wpNew !== this.wizardData.freebies.spent.willpower) {
           this.wizardData.freebies.spent.willpower = wpNew;
-          this.wizardData.freebies.remaining -= change;
           valueChanged = true;
           newValue = this.config.advantages.willpower.starting + wpNew;
         }
@@ -2700,6 +2846,9 @@ export class WodCharacterWizard extends FormApplication {
     }
     
     if (!valueChanged) return;
+    
+    // Recalculate freebies remaining from scratch to ensure accuracy
+    this._recalculateFreebiesRemaining();
     
     // Save progress
     await this._saveProgress();
@@ -2806,7 +2955,7 @@ export class WodCharacterWizard extends FormApplication {
     // Validate current step
     const validation = this._validateCurrentStep();
     if (!validation.valid) {
-      ui.notifications.error(validation.message || "Please complete all required fields before continuing.");
+      ui.notifications.error(validation.message || i18n('WODSYSTEM.Wizard.PleaseCompleteRequiredFields'));
       return;
     }
     
@@ -2854,7 +3003,7 @@ export class WodCharacterWizard extends FormApplication {
     // Update validation message
     const validationContainer = html.find('.wizard-validation');
     if (validation.valid) {
-      validationContainer.html('<i class="fas fa-check-circle"></i> Ready to continue');
+      validationContainer.html(`<i class="fas fa-check-circle"></i> ${i18n('WODSYSTEM.Wizard.ReadyToContinue')}`);
     } else {
       validationContainer.html(`<i class="fas fa-exclamation-triangle"></i> ${validation.message}`);
     }
@@ -2868,7 +3017,7 @@ export class WodCharacterWizard extends FormApplication {
     
     // Check permissions
     if (!this.actor.isOwner) {
-      ui.notifications.error("You don't have permission to edit this character.");
+      ui.notifications.error(i18n('WODSYSTEM.Wizard.NoPermissionToEdit'));
       return;
     }
     
@@ -2876,15 +3025,15 @@ export class WodCharacterWizard extends FormApplication {
     const validation = this.validator.validateAll(this.wizardData);
     // console.log('🏁 FINISH - Final validation:', validation);
     if (!validation.valid) {
-      ui.notifications.error(`Character creation incomplete: ${validation.message}`);
+      ui.notifications.error(i18n('WODSYSTEM.Wizard.CharacterCreationIncomplete', {message: validation.message}));
       console.error('🏁 FINISH - Validation failed:', validation);
       return;
     }
     
     // Confirm
     const confirm = await Dialog.confirm({
-      title: "Finish Character Creation",
-      content: "<p>Are you sure you want to finalize this character? This will apply all changes and mark the character as created.</p>",
+      title: i18n('WODSYSTEM.Wizard.FinishCharacterCreation'),
+      content: `<p>${i18n('WODSYSTEM.Wizard.ConfirmFinishCreation')}</p>`,
       yes: () => true,
       no: () => false
     });
@@ -2914,11 +3063,11 @@ export class WodCharacterWizard extends FormApplication {
       // Force re-render the actor sheet to show all changes
       this.actor.sheet?.render(true);
       
-      ui.notifications.info("Character creation complete!");
+      ui.notifications.info(i18n('WODSYSTEM.Wizard.CharacterCreationComplete'));
       this.close();
     } catch (error) {
       console.error('WodCharacterWizard | Error finalizing character:', error);
-      ui.notifications.error("Failed to finalize character. You may not have permission to edit this character.");
+      ui.notifications.error(i18n('WODSYSTEM.Wizard.FailedToFinalize'));
     }
   }
 
@@ -2929,8 +3078,8 @@ export class WodCharacterWizard extends FormApplication {
     event.preventDefault();
     
     const confirm = await Dialog.confirm({
-      title: "Cancel Character Creation",
-      content: "<p>Are you sure you want to cancel? Your progress will be saved and you can continue later.</p>",
+      title: i18n('WODSYSTEM.Wizard.CancelCharacterCreation'),
+      content: `<p>${i18n('WODSYSTEM.Wizard.ConfirmCancelCreation')}</p>`,
       yes: () => true,
       no: () => false
     });

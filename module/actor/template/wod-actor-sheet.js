@@ -1,5 +1,6 @@
 import { WodRollDialog } from "../../apps/wod-roll-dialog.js";
 import { WodEffectManager } from "../../apps/wod-effect-manager.js";
+import { i18n } from "../../helpers/i18n.js";
 
 /**
  * Base Actor Sheet for World of Darkness System
@@ -843,27 +844,27 @@ export class WodActorSheet extends ActorSheet {
             <div class="wod-image-picker-modal">
                 <div class="wod-image-picker-content">
                     <div class="wod-image-picker-header">
-                        <h3><i class="fas fa-image"></i> Character Portrait</h3>
+                        <h3><i class="fas fa-image"></i> ${i18n('WODSYSTEM.CharacterSheet.CharacterPortrait')}</h3>
                         <button type="button" class="wod-image-picker-close"><i class="fas fa-times"></i></button>
                     </div>
                     <div class="wod-image-picker-body">
                         <div class="wod-image-picker-preview">
-                            ${currentValue ? `<img src="${currentValue}" alt="Preview"/>` : '<div class="no-preview"><i class="fas fa-user"></i><span>No image</span></div>'}
+                            ${currentValue ? `<img src="${currentValue}" alt="Preview"/>` : `<div class="no-preview"><i class="fas fa-user"></i><span>${i18n('WODSYSTEM.CharacterSheet.NoImage')}</span></div>`}
                         </div>
                         
                         <div class="wod-image-picker-input-group">
-                            <label>Image Path or URL</label>
-                            <input type="text" class="wod-image-picker-url" value="${currentValue || ''}" placeholder="Enter path or URL..."/>
+                            <label>${i18n('WODSYSTEM.CharacterSheet.ImagePathOrURL')}</label>
+                            <input type="text" class="wod-image-picker-url" value="${currentValue || ''}" placeholder="${i18n('WODSYSTEM.CharacterSheet.EnterPathOrURL')}"/>
                         </div>
                         
                         <div class="wod-image-picker-upload">
                             <input type="file" class="wod-upload-input" accept="image/*" style="display:none"/>
-                            <button type="button" class="wod-upload-btn"><i class="fas fa-folder-open"></i> Browse PC...</button>
+                            <button type="button" class="wod-upload-btn"><i class="fas fa-folder-open"></i> ${i18n('WODSYSTEM.CharacterSheet.BrowsePC')}</button>
                         </div>
                     </div>
                     <div class="wod-image-picker-footer">
-                        <button type="button" class="wod-image-picker-cancel">Cancel</button>
-                        <button type="button" class="wod-image-picker-save">Save</button>
+                        <button type="button" class="wod-image-picker-cancel">${i18n('WODSYSTEM.Common.Cancel')}</button>
+                        <button type="button" class="wod-image-picker-save">${i18n('WODSYSTEM.Common.Save')}</button>
                     </div>
                 </div>
             </div>
@@ -880,9 +881,9 @@ export class WodActorSheet extends ActorSheet {
         // Update preview
         const updatePreview = (url) => {
             if (url) {
-                preview.innerHTML = `<img src="${url}" alt="Preview" onerror="this.parentElement.innerHTML='<div class=\\'no-preview\\'><i class=\\'fas fa-exclamation-triangle\\'></i><span>Invalid</span></div>'"/>`;
+                preview.innerHTML = `<img src="${url}" alt="Preview" onerror="this.parentElement.innerHTML='<div class=\\'no-preview\\'><i class=\\'fas fa-exclamation-triangle\\'></i><span>${i18n('WODSYSTEM.CharacterSheet.Invalid')}</span></div>'"/>`;
             } else {
-                preview.innerHTML = '<div class="no-preview"><i class="fas fa-user"></i><span>No image</span></div>';
+                preview.innerHTML = `<div class="no-preview"><i class="fas fa-user"></i><span>${i18n('WODSYSTEM.CharacterSheet.NoImage')}</span></div>`;
             }
         };
         
@@ -905,14 +906,14 @@ export class WodActorSheet extends ActorSheet {
                 if (response?.path) {
                     urlInput.value = response.path;
                     updatePreview(response.path);
-                    ui.notifications.info(`Uploaded: ${file.name}`);
+                    ui.notifications.info(`${i18n('WODSYSTEM.CharacterSheet.Uploaded')}: ${file.name}`);
                 }
             } catch (error) {
                 console.error('Upload error:', error);
                 if (error.message?.includes('permission') || error.message?.includes('Permission')) {
-                    ui.notifications.error('No permission to upload. Ask your GM to enable file uploads.');
+                    ui.notifications.error(i18n('WODSYSTEM.CharacterSheet.NoPermissionToUpload'));
                 } else {
-                    ui.notifications.error(`Upload failed: ${error.message || 'Unknown error'}`);
+                    ui.notifications.error(`${i18n('WODSYSTEM.CharacterSheet.UploadFailed')}: ${error.message || 'Unknown error'}`);
                 }
             }
         });
@@ -2308,15 +2309,15 @@ export class WodActorSheet extends ActorSheet {
         
         // Confirm deletion
         const confirmed = await Dialog.confirm({
-            title: "Delete Status Effect",
-            content: `<p>Are you sure you want to delete <strong>${effect.name}</strong>?</p><p>This action cannot be undone.</p>`,
+            title: i18n('WODSYSTEM.Dialogs.DeleteStatusEffect'),
+            content: `<p>${i18n('WODSYSTEM.Dialogs.ConfirmDeleteEffect', {name: effect.name})}</p><p>${i18n('WODSYSTEM.Dialogs.CannotUndo')}</p>`,
             yes: () => true,
             no: () => false
         });
         
         if (confirmed) {
             await effect.delete();
-            ui.notifications.info(`Effect "${effect.name}" deleted.`);
+            ui.notifications.info(i18n('WODSYSTEM.Dialogs.EffectDeleted', {name: effect.name}));
         }
     }
 
@@ -2814,8 +2815,8 @@ export class WodActorSheet extends ActorSheet {
             // SPECIAL: If wheel is full, ask if they want to add Paradox
             if (wheelIsFull) {
                 const addParadox = await Dialog.confirm({
-                    title: "Add Paradox?",
-                    content: "<p>The wheel is full. Do you want to <strong>add Paradox</strong> (which will cancel this Quintessence)?</p><p>Click <strong>No</strong> to spend/remove this Quintessence instead.</p>",
+                    title: i18n('WODSYSTEM.Notifications.AddParadox'),
+                    content: `<p>${i18n('WODSYSTEM.Notifications.WheelIsFull')}</p><p>${i18n('WODSYSTEM.Notifications.ClickNoToSpend')}</p>`,
                     yes: () => true,
                     no: () => false,
                     defaultYes: false
@@ -2855,7 +2856,7 @@ export class WodActorSheet extends ActorSheet {
             
             // Can't remove permanent Paradox
             if (paradoxIndex < permanentParadox) {
-                ui.notifications.warn("Cannot remove permanent Paradox (right-click to modify)");
+                ui.notifications.warn(i18n('WODSYSTEM.Notifications.CannotRemovePermanentParadox'));
                 return;
             }
             
@@ -2873,17 +2874,17 @@ export class WodActorSheet extends ActorSheet {
             if (onlyOneEmpty) {
                 // Show dialog to choose type
                 typeToAdd = await Dialog.wait({
-                    title: "Last Box",
-                    content: "<p>Only one box remains empty. What would you like to add?</p>",
+                    title: i18n('WODSYSTEM.Notifications.LastBox'),
+                    content: `<p>${i18n('WODSYSTEM.Notifications.OnlyOneBoxRemains')}</p>`,
                     buttons: {
                         quintessence: {
                             icon: '<i class="fas fa-check"></i>',
-                            label: "Quintessence",
+                            label: i18n('WODSYSTEM.QuintessenceParadox.Quintessence'),
                             callback: () => 'quintessence'
                         },
                         paradox: {
                             icon: '<i class="fas fa-times"></i>',
-                            label: "Paradox",
+                            label: i18n('WODSYSTEM.QuintessenceParadox.Paradox'),
                             callback: () => 'paradox'
                         }
                     },
@@ -2929,7 +2930,7 @@ export class WodActorSheet extends ActorSheet {
             if (typeToAdd === 'quintessence') {
                 // Must add sequentially from left
                 if (index !== quintessenceCount) {
-                    ui.notifications.warn("Must add Quintessence sequentially from box 0");
+                    ui.notifications.warn(i18n('WODSYSTEM.Notifications.MustAddQuintessenceSequentially'));
                     return;
                 }
                 
@@ -2939,7 +2940,7 @@ export class WodActorSheet extends ActorSheet {
                 const paradoxStartIndex = 20 - totalParadox;
                 
                 if (newQuintessenceCount > paradoxStartIndex) {
-                    ui.notifications.warn("Cannot add Quintessence - blocked by Paradox");
+                    ui.notifications.warn(i18n('WODSYSTEM.Notifications.CannotAddQuintessenceBlocked'));
                     return;
                 }
                 
@@ -2952,7 +2953,7 @@ export class WodActorSheet extends ActorSheet {
                 // Must add sequentially from right
                 const expectedIndex = 19 - totalParadox;
                 if (index !== expectedIndex) {
-                    ui.notifications.warn("Must add Paradox sequentially from box 19");
+                    ui.notifications.warn(i18n('WODSYSTEM.Notifications.MustAddParadoxSequentially'));
                     return;
                 }
                 
@@ -2966,7 +2967,7 @@ export class WodActorSheet extends ActorSheet {
                     newQuintessence = Math.max(0, newQuintessence - overlap);
                     
                     if (overlap > 0) {
-                        ui.notifications.info(`Paradox cancelled ${overlap} point(s) of Quintessence`);
+                        ui.notifications.info(i18n('WODSYSTEM.Notifications.ParadoxCancelledQuintessence', {count: overlap}));
                     }
                 }
                 
@@ -3005,7 +3006,7 @@ export class WodActorSheet extends ActorSheet {
         const gm = game.users.find(u => u.isGM && u.active);
         
         if (!gm) {
-            ui.notifications.warn("No Storyteller online to approve permanent Paradox removal!");
+            ui.notifications.warn(i18n('WODSYSTEM.Notifications.NoSTOnlineForParadox'));
             return false;
         }
 
@@ -3016,17 +3017,17 @@ export class WodActorSheet extends ActorSheet {
         const messageContent = `
             <div class="wod-approval-request" data-request-id="${requestId}">
                 <h3 style="margin: 0 0 10px 0; color: #9C27B0; border-bottom: 2px solid #9C27B0; padding-bottom: 5px;">
-                    <i class="fas fa-exclamation-triangle"></i> Paradox Removal Request
+                    <i class="fas fa-exclamation-triangle"></i> ${i18n('WODSYSTEM.Notifications.ParadoxRemovalRequest')}
                 </h3>
                 <p style="margin: 8px 0;">
-                    <strong>${game.user.name}</strong> wants to remove a permanent Paradox point from <strong>${this.actor.name}</strong>.
+                    <strong>${game.user.name}</strong> ${i18n('WODSYSTEM.Notifications.WantsToRemovePermanentParadox')} <strong>${this.actor.name}</strong>.
                 </p>
                 <div style="display: flex; gap: 10px; margin-top: 12px;" class="approval-buttons">
                     <button class="approve-paradox-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        <i class="fas fa-check"></i> Approve
+                        <i class="fas fa-check"></i> ${i18n('WODSYSTEM.Common.Approve')}
                     </button>
                     <button class="deny-paradox-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #E74C3C, #C0392B); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        <i class="fas fa-times"></i> Deny
+                        <i class="fas fa-times"></i> ${i18n('WODSYSTEM.Common.Deny')}
                     </button>
                 </div>
             </div>
@@ -3036,11 +3037,11 @@ export class WodActorSheet extends ActorSheet {
         await ChatMessage.create({
             content: messageContent,
             whisper: [gm.id],
-            speaker: { alias: "WoD System" },
+            speaker: { alias: i18n('WODSYSTEM.Common.SystemName') },
             style: CONST.CHAT_MESSAGE_STYLES.WHISPER
         });
 
-        ui.notifications.info("Approval request sent to Storyteller. Waiting for response...");
+        ui.notifications.info(i18n('WODSYSTEM.STApproval.ApprovalRequestSent'));
 
         // Wait for response via hook
         return new Promise((resolve) => {
@@ -3052,9 +3053,9 @@ export class WodActorSheet extends ActorSheet {
                     clearTimeout(timeoutId); // Clear the timeout
                     
                     if (data.approved) {
-                        ui.notifications.success("Storyteller approved permanent Paradox removal");
+                        ui.notifications.success(i18n('WODSYSTEM.Notifications.STApprovedParadoxRemoval'));
                     } else {
-                        ui.notifications.info("Storyteller denied permanent Paradox removal");
+                        ui.notifications.info(i18n('WODSYSTEM.Notifications.STDeniedParadoxRemoval'));
                     }
                     
                     resolve(data.approved);
@@ -3064,7 +3065,7 @@ export class WodActorSheet extends ActorSheet {
             // Timeout after 60 seconds
             timeoutId = setTimeout(() => {
                 Hooks.off('wodParadoxRemovalResponse', hookId);
-                ui.notifications.error("ST approval request timed out");
+                ui.notifications.error(i18n('WODSYSTEM.Wizard.STApprovalTimeout'));
                 resolve(false);
             }, 60000);
         });
@@ -3121,7 +3122,7 @@ export class WodActorSheet extends ActorSheet {
         } else {
             // ADD: Must be the next sequential box
             if (index !== expectedNextIndex) {
-                ui.notifications.warn(`Must add permanent Paradox sequentially from box 19 (next: box ${expectedNextIndex})`);
+                ui.notifications.warn(i18n('WODSYSTEM.Notifications.MustAddPermanentParadoxSequentially', {index: expectedNextIndex}));
                 return;
             }
             
@@ -3541,8 +3542,8 @@ export class WodActorSheet extends ActorSheet {
             "Device": "device",
             "Enhancement": "enhancement",
             "Enhancements": "enhancement",
-            "Wonder": "wonder",
-            "Wonder (Device/ Fetish/ Talisman, etc.)": "wonder"
+            "Wonder": "device",
+            "Wonder (Device/ Fetish/ Talisman, etc.)": "device"
         };
         return templates[backgroundName] || "custom";
     }
@@ -3567,11 +3568,11 @@ export class WodActorSheet extends ActorSheet {
             case "familiar":
                 return { name: "", species: "", physicalDescription: "", physical: 1, social: 1, mental: 1, abilities: "", bondStrength: 3, personality: "" };
             case "device":
-                return { name: "", description: "", spheres: "", effects: "", arete: 0, paradoxRisk: 0, quintessence: 0 };
+                // Unified template: defaults depend on whether it's a wonder or device
+                // If backgroundName contains "Wonder", use wonder defaults, otherwise device defaults
+                return { name: "", description: "", spheres: "", effects: "", powers: "", gameMechanics: "", arete: 0, paradoxRisk: 0, paradoxType: "none", paradoxValue: 0, quintessence: 0, quintessenceStorage: 0, quintessenceBurnedPerUse: 0 };
             case "enhancement":
                 return { name: "", description: "", location: "", enhancementType: "cybernetic", permanentParadox: 0, geneticFlaws: "", effects: "", sideEffects: "", gameMechanics: "" };
-            case "wonder":
-                return { name: "", description: "", spheres: "", powers: "", gameMechanics: "", arete: 0, paradoxType: "none", paradoxValue: 0, quintessenceStorage: 0, quintessenceBurnedPerUse: 0 };
             case "custom":
                 return { description: "", mechanics: "", notes: "" };
             default:
@@ -3608,7 +3609,7 @@ export class WodActorSheet extends ActorSheet {
         modal.removeData('editIndex');
         
         // Reset modal state
-        modalTitle.text('Add Expanded Background');
+        modalTitle.text(i18n('WODSYSTEM.Dialogs.AddExpandedBackground'));
         modal.find('.bg-modal-step-category').show();
         modal.find('.bg-modal-step-background').hide();
         modal.find('.bg-modal-form').hide();
@@ -3650,7 +3651,7 @@ export class WodActorSheet extends ActorSheet {
                         .attr('value', bg.name)
                         .attr('data-rating', bg.value)
                         .attr('data-category', bg.name)
-                        .text(`${bg.name} (${bg.value} dots)`)
+                        .text(`${bg.name} (${bg.value} ${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Dots')})`)
                 );
             }
         });
@@ -3733,7 +3734,23 @@ export class WodActorSheet extends ActorSheet {
         
         // Get template type and generate form
         const template = this._getBackgroundTemplate(backgroundName);
-        const templateData = this._getDefaultTemplateData(template);
+        let templateData = this._getDefaultTemplateData(template);
+        
+        // Special handling: if Wonder, initialize with wonder-specific defaults
+        if (backgroundName === "Wonder" || backgroundName === "Wonder (Device/ Fetish/ Talisman, etc.)") {
+            templateData = { 
+                name: "", 
+                description: "", 
+                spheres: "", 
+                powers: "", 
+                gameMechanics: "", 
+                arete: 0, 
+                paradoxType: "none", 
+                paradoxValue: 0, 
+                quintessenceStorage: 0, 
+                quintessenceBurnedPerUse: 0 
+            };
+        }
         
         // Store data for save
         modal.data('selectedBackground', {
@@ -3867,7 +3884,8 @@ export class WodActorSheet extends ActorSheet {
                 current[lastPart] = value;
             });
             
-            console.log("WoD | New Wonder data being saved:", JSON.stringify(newTemplateData, null, 2));
+            const isWonder = selectedBg.name === "Wonder" || selectedBg.name === "Wonder (Device/ Fetish/ Talisman, etc.)";
+            console.log(`WoD | New ${isWonder ? 'Wonder' : 'Device'} data being saved:`, JSON.stringify(newTemplateData, null, 2));
             
             const newExpanded = {
                 backgroundName: selectedBg.name,
@@ -3904,7 +3922,7 @@ export class WodActorSheet extends ActorSheet {
         modal.data('editIndex', index);
         
         // Update modal title
-        modalTitle.text(`Edit ${bg.backgroundName}`);
+        modalTitle.text(i18n('WODSYSTEM.Dialogs.EditBackground', {name: bg.backgroundName}));
         
         // Hide category selection steps
         modal.find('.bg-modal-step-category').hide();
@@ -3937,11 +3955,12 @@ export class WodActorSheet extends ActorSheet {
         const tooltip = this.element.find('.bg-preview-tooltip');
         
         // Generate summary
-        let summary = `<strong>${bg.backgroundName}</strong> (${bg.backgroundRating} dots)<br/>`;
-        summary += `<em>Type: ${bg.template}</em><br/>`;
+        let summary = `<strong>${bg.backgroundName}</strong> (${bg.backgroundRating} ${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Dots')})<br/>`;
+        summary += `<em>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Type')}: ${bg.template}</em><br/>`;
         
-        // Special handling for Wonder template
-        if (bg.template === "wonder" && bg.templateData) {
+        // Special handling for Wonder template (now uses "device" template but with wonder data)
+        const isWonder = bg.backgroundName === "Wonder" || bg.backgroundName === "Wonder (Device/ Fetish/ Talisman, etc.)" || (bg.templateData && bg.templateData.paradoxType !== undefined);
+        if (isWonder && bg.templateData) {
             console.log("WoD | Wonder tooltip data:", JSON.stringify(bg.templateData, null, 2));
             console.log("WoD | Has spheres?", !!bg.templateData.spheres, bg.templateData.spheres);
             console.log("WoD | Has powers?", !!bg.templateData.powers, bg.templateData.powers);
@@ -3949,25 +3968,25 @@ export class WodActorSheet extends ActorSheet {
             summary += `<br/>`; // Add spacing
             
             if (bg.templateData.name && bg.templateData.name.trim()) {
-                summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Name')}:</strong> ${bg.templateData.name}<br/>`;
             }
             if (bg.templateData.arete !== null && bg.templateData.arete !== undefined && bg.templateData.arete !== "") {
-                summary += `<strong>Arete:</strong> ${bg.templateData.arete}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Arete')}:</strong> ${bg.templateData.arete}<br/>`;
             }
             if (bg.templateData.paradoxType && bg.templateData.paradoxType !== "none") {
-                const paradoxLabel = bg.templateData.paradoxType === "permanent" ? "Permanent Paradox" : "Paradox Per Use";
+                const paradoxLabel = bg.templateData.paradoxType === "permanent" ? i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.PermanentParadox') : i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.ParadoxPerUse');
                 const paradoxValue = bg.templateData.paradoxValue !== null && bg.templateData.paradoxValue !== undefined ? bg.templateData.paradoxValue : 0;
                 summary += `<strong>${paradoxLabel}:</strong> ${paradoxValue}<br/>`;
             }
             if (bg.templateData.quintessenceStorage !== null && bg.templateData.quintessenceStorage !== undefined && bg.templateData.quintessenceStorage !== "") {
-                summary += `<strong>Quintessence Storage:</strong> ${bg.templateData.quintessenceStorage}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.QuintessenceStorage')}:</strong> ${bg.templateData.quintessenceStorage}<br/>`;
             }
             if (bg.templateData.quintessenceBurnedPerUse !== null && bg.templateData.quintessenceBurnedPerUse !== undefined && bg.templateData.quintessenceBurnedPerUse !== "") {
-                summary += `<strong>Quintessence Per Use:</strong> ${bg.templateData.quintessenceBurnedPerUse}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.QuintessencePerUse')}:</strong> ${bg.templateData.quintessenceBurnedPerUse}<br/>`;
             }
             if (bg.templateData.spheres && bg.templateData.spheres.trim()) {
                 const truncatedSpheres = bg.templateData.spheres.length > 50 ? bg.templateData.spheres.substring(0, 47) + '...' : bg.templateData.spheres;
-                summary += `<strong>Spheres:</strong> ${truncatedSpheres}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Spheres')}:</strong> ${truncatedSpheres}<br/>`;
             }
             if (bg.templateData.description && bg.templateData.description.trim()) {
                 const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
@@ -3975,33 +3994,33 @@ export class WodActorSheet extends ActorSheet {
             }
             if (bg.templateData.powers && bg.templateData.powers.trim()) {
                 const truncatedPowers = bg.templateData.powers.length > 80 ? bg.templateData.powers.substring(0, 77) + '...' : bg.templateData.powers;
-                summary += `<br/><strong>Powers:</strong> ${truncatedPowers}<br/>`;
+                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Powers')}:</strong> ${truncatedPowers}<br/>`;
             }
             if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
                 const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
-                summary += `<br/><strong>Game Mechanics:</strong><br/>${truncatedMechanics}`;
+                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.GameMechanics')}:</strong><br/>${truncatedMechanics}`;
             }
         } else if (bg.template === "enhancement" && bg.templateData) {
             // Special handling for Enhancement template
             summary += `<br/>`; // Add spacing
             
             if (bg.templateData.name && bg.templateData.name.trim()) {
-                summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Name')}:</strong> ${bg.templateData.name}<br/>`;
             }
             if (bg.templateData.location && bg.templateData.location.trim()) {
-                summary += `<strong>Location:</strong> ${bg.templateData.location}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Location')}:</strong> ${bg.templateData.location}<br/>`;
             }
             if (bg.templateData.enhancementType) {
-                const typeLabel = bg.templateData.enhancementType === "cybernetic" ? "Cybernetic" : 
-                                 bg.templateData.enhancementType === "biomod" ? "Biomod" : "Genengineered";
-                summary += `<strong>Type:</strong> ${typeLabel}<br/>`;
+                const typeLabel = bg.templateData.enhancementType === "cybernetic" ? i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Cybernetic') : 
+                                 bg.templateData.enhancementType === "biomod" ? i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Biomod') : i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Genengineered');
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Type')}:</strong> ${typeLabel}<br/>`;
             }
             if (bg.templateData.permanentParadox !== null && bg.templateData.permanentParadox !== undefined && bg.templateData.permanentParadox !== "" && bg.templateData.permanentParadox != 0) {
-                summary += `<strong>Permanent Paradox:</strong> ${bg.templateData.permanentParadox}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.PermanentParadox')}:</strong> ${bg.templateData.permanentParadox}<br/>`;
             }
             if (bg.templateData.geneticFlaws && bg.templateData.geneticFlaws.trim()) {
                 const truncatedFlaws = bg.templateData.geneticFlaws.length > 60 ? bg.templateData.geneticFlaws.substring(0, 57) + '...' : bg.templateData.geneticFlaws;
-                summary += `<strong>Genetic Flaws:</strong> ${truncatedFlaws}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.GeneticFlaws')}:</strong> ${truncatedFlaws}<br/>`;
             }
             if (bg.templateData.description && bg.templateData.description.trim()) {
                 const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
@@ -4009,15 +4028,15 @@ export class WodActorSheet extends ActorSheet {
             }
             if (bg.templateData.effects && bg.templateData.effects.trim()) {
                 const truncatedEffects = bg.templateData.effects.length > 80 ? bg.templateData.effects.substring(0, 77) + '...' : bg.templateData.effects;
-                summary += `<br/><strong>Effects:</strong> ${truncatedEffects}<br/>`;
+                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Effects')}:</strong> ${truncatedEffects}<br/>`;
             }
             if (bg.templateData.sideEffects && bg.templateData.sideEffects.trim()) {
                 const truncatedSide = bg.templateData.sideEffects.length > 60 ? bg.templateData.sideEffects.substring(0, 57) + '...' : bg.templateData.sideEffects;
-                summary += `<strong>Side Effects:</strong> ${truncatedSide}<br/>`;
+                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.SideEffects')}:</strong> ${truncatedSide}<br/>`;
             }
             if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
                 const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
-                summary += `<br/><strong>Game Mechanics:</strong><br/>${truncatedMechanics}`;
+                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.GameMechanics')}:</strong><br/>${truncatedMechanics}`;
             }
         } else {
             // Add first non-empty template field for other templates
@@ -4710,7 +4729,7 @@ export class WodActorSheet extends ActorSheet {
         const trigger = document.createElement('div');
         trigger.className = 'quick-rolls-trigger';
         trigger.dataset.appId = this.appId;
-        trigger.title = 'Quick Rolls';
+        trigger.title = i18n('WODSYSTEM.Dialogs.QuickRolls');
         trigger.innerHTML = '<i class="fas fa-dice-d10"></i>';
         
         // Set ALL styles inline BEFORE adding to DOM to prevent any layout impact
@@ -4908,7 +4927,7 @@ export class WodActorSheet extends ActorSheet {
                 button.type = 'button';
                 button.className = 'execute-template';
                 button.dataset.templateId = template.id;
-                button.title = `${template.name} (Difficulty ${template.difficulty})`;
+                button.title = i18n('WODSYSTEM.Dialogs.TemplateTooltip', {name: template.name, difficulty: template.difficulty});
                 button.innerHTML = `<i class="fas fa-dice-d10"></i> ${template.name}`;
                 button.style.cssText = `
                     flex: 1;
@@ -4925,7 +4944,7 @@ export class WodActorSheet extends ActorSheet {
                 const deleteBtn = document.createElement('a');
                 deleteBtn.className = 'delete-template';
                 deleteBtn.dataset.templateId = template.id;
-                deleteBtn.title = 'Delete template';
+                deleteBtn.title = i18n('WODSYSTEM.Dialogs.DeleteTemplate');
                 deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
                 deleteBtn.style.cssText = `
                     color: ${textAlt};
@@ -4978,8 +4997,8 @@ export class WodActorSheet extends ActorSheet {
                 const templateId = e.currentTarget.dataset.templateId;
                 
                 const confirmed = await Dialog.confirm({
-                    title: "Delete Roll Template",
-                    content: "<p>Are you sure you want to delete this roll template?</p>",
+                    title: i18n('WODSYSTEM.Dialogs.DeleteRollTemplate'),
+                    content: `<p>${i18n('WODSYSTEM.Dialogs.ConfirmDeleteTemplate')}</p>`,
                     yes: () => true,
                     no: () => false
                 });
@@ -5700,7 +5719,7 @@ export class WodActorSheet extends ActorSheet {
         $container.find('.dot-input').val(selectedValue);
         
         // Show success notification
-        ui.notifications.info(`Selected: ${result.name} (${selectedValue} pt)`);
+        ui.notifications.info(i18n('WODSYSTEM.Notifications.SelectedWithPoints', {name: result.name, value: selectedValue}));
     }
     
     /**
@@ -5724,13 +5743,13 @@ export class WodActorSheet extends ActorSheet {
             };
             
             // Shorter title to avoid horizontal scroll
-            const shortTitle = `Select Cost`;
+            const shortTitle = i18n('WODSYSTEM.CostSelection.SelectCost');
             
             const content = `
                 <div style="padding: 8px;">
                     <p style="margin: 0 0 10px 0; font-size: 0.9em; line-height: 1.3;">
                         <strong style="display: block; margin-bottom: 6px; font-size: 0.95em; word-wrap: break-word;">${name}</strong>
-                        <span style="font-size: 0.85em; color: #666;">Select point value:</span>
+                        <span style="font-size: 0.85em; color: #666;">${i18n('WODSYSTEM.CostSelection.SelectPointValue')}</span>
                     </p>
                     <div style="display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin: 0;">
                         ${costs.map(cost => `<button type="button" class="cost-option-btn" data-cost="${cost}" style="padding: 4px 10px; font-size: 0.85em; font-weight: 600; background: ${color}; color: white; border: none; border-radius: 2px; cursor: pointer; min-width: 35px; transition: opacity 0.2s;">${cost} pt</button>`).join('')}

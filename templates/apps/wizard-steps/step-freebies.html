@@ -1,17 +1,17 @@
 <div class="wizard-step step-freebies">
   <div class="step-header">
-    <h3><i class="fas fa-coins"></i> Freebie Points</h3>
-    <p class="step-description">Spend freebie points to customize your character.</p>
+    <h3><i class="fas fa-coins"></i> {{i18n 'Wizard.Freebies'}}</h3>
+    <p class="step-description">{{i18n 'Wizard.SpendFreebiePoints'}}</p>
     {{#if (gt wizardData.advantages.freebiesSpent 0)}}
     <p class="note enlightenment-spent-note">
       <i class="fas fa-info-circle"></i> 
-      You spent {{wizardData.advantages.freebiesSpent}} freebie points on Enlightenment in the previous step.
+      {{i18n 'Wizard.SpentFreebiesOnEnlightenment' spent=wizardData.advantages.freebiesSpent}}
     </p>
     {{/if}}
     {{#if (gt freebieBonus 0)}}
     <p class="note freebie-bonus-note">
       <i class="fas fa-star"></i> 
-      You gained {{freebieBonus}} extra freebie points from taking Flaws!
+      {{i18n 'Wizard.GainedExtraFreebiesFromFlaws' bonus=freebieBonus}}
     </p>
     {{/if}}
   </div>
@@ -20,31 +20,31 @@
     <div class="freebies-header">
       <div class="freebies-tracker">
         <div class="freebies-remaining">
-          <span class="label">Freebie Points:</span>
+          <span class="label">{{i18n 'Wizard.Freebies'}}:</span>
           <span class="value {{#if (lt wizardData.freebies.remaining 0)}}negative{{/if}}">
             {{wizardData.freebies.remaining}} / {{actualFreebieTotal}}
           </span>
-          <span class="sublabel">(Remaining / Total)</span>
+          <span class="sublabel">({{i18n 'Common.Remaining'}} / {{i18n 'Wizard.Total'}})</span>
         </div>
         {{#if (gt wizardData.advantages.freebiesSpent 0)}}
         <div class="enlightenment-spent-display">
-          <span class="label">Spent on Enlightenment:</span>
+          <span class="label">{{i18n 'Wizard.SpentOnEnlightenment'}}:</span>
           <span class="value">{{wizardData.advantages.freebiesSpent}}</span>
         </div>
         {{/if}}
       </div>
       
       <div class="freebies-costs">
-        <h5>Costs per Dot:</h5>
+        <h5>{{i18n 'Wizard.CostsPerDot'}}:</h5>
         <ul>
-          <li>Attributes: {{config.freebies.costs.attribute}} points</li>
-          <li>Abilities: {{config.freebies.costs.ability}} points</li>
-          <li>Backgrounds: {{config.freebies.costs.background}} point</li>
+          <li>{{i18n 'Wizard.Attributes'}}: {{config.freebies.costs.attribute}} {{i18n 'Wizard.Points'}}</li>
+          <li>{{i18n 'Wizard.Abilities'}}: {{config.freebies.costs.ability}} {{i18n 'Wizard.Points'}}</li>
+          <li>{{i18n 'Advantages.Backgrounds'}}: {{config.freebies.costs.background}} {{i18n 'Wizard.Point'}}</li>
           {{#if (eq actorType "Technocrat")}}
-          <li>Spheres: {{config.freebies.costs.sphere}} points</li>
-          <li>Enlightenment: {{config.freebies.costs.enlightenment}} points</li>
+          <li>{{i18n 'Spheres.Spheres'}}: {{config.freebies.costs.sphere}} {{i18n 'Wizard.Points'}}</li>
+          <li>{{i18n 'Advantages.Enlightenment'}}: {{config.freebies.costs.enlightenment}} {{i18n 'Wizard.Points'}}</li>
           {{/if}}
-          <li>Willpower: {{config.freebies.costs.willpower}} point</li>
+          <li>{{i18n 'Advantages.Willpower'}}: {{config.freebies.costs.willpower}} {{i18n 'Wizard.Point'}}</li>
         </ul>
       </div>
     </div>
@@ -53,13 +53,13 @@
       
       <!-- Attributes -->
       <div class="freebie-section">
-        <h4>Attributes ({{config.freebies.costs.attribute}} points per dot)</h4>
+        <h4>{{i18n 'Wizard.Attributes'}} ({{config.freebies.costs.attribute}} {{i18n 'Wizard.PointsPerDot'}})</h4>
         <div class="freebie-list">
           {{#each wizardData.attributes.values}}
           {{#each this}}
           <div class="freebie-item">
             <span class="item-name">{{capitalize @../key}} - {{@key}}</span>
-            <span class="item-current">Current: {{this}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{this}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
@@ -84,13 +84,13 @@
 
       <!-- Abilities -->
       <div class="freebie-section">
-        <h4>Abilities ({{config.freebies.costs.ability}} points per dot)</h4>
+        <h4>{{i18n 'Wizard.Abilities'}} ({{config.freebies.costs.ability}} {{i18n 'Wizard.PointsPerDot'}})</h4>
         <div class="freebie-list abilities-compact">
           {{#each wizardData.abilities.values}}
           {{#each this}}
           <div class="freebie-item">
             <span class="item-name">{{@key}}</span>
-            <span class="item-current">Current: {{default this 0}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{default this 0}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
@@ -115,11 +115,11 @@
 
       <!-- Backgrounds -->
       <div class="freebie-section">
-        <h4>Backgrounds ({{config.freebies.costs.background}} point per dot)</h4>
+        <h4>{{i18n 'Advantages.Backgrounds'}} ({{config.freebies.costs.background}} {{i18n 'Wizard.PointPerDot'}})</h4>
         {{#if config.advantages.backgrounds.doubleCost}}
         <p class="note double-cost-note">
           <i class="fas fa-exclamation-triangle"></i>
-          <strong>{{#each config.advantages.backgrounds.doubleCost}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong> cost 2 points per dot
+          <strong>{{#each config.advantages.backgrounds.doubleCost}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</strong> {{i18n 'Wizard.Cost2PointsPerDot'}}
         </p>
         {{/if}}
         <div class="freebie-list">
@@ -129,10 +129,10 @@
           {{#with (findBackgroundIndex @root.wizardData.advantages.backgrounds ../this) as |bgIndex|}}
           <div class="freebie-item" data-background-name="{{../../this}}">
             <span class="item-name">{{../../this}}</span>
-            <button type="button" class="background-reference-btn" data-background-name="{{../../this}}" title="View {{../../this}} details">
+            <button type="button" class="background-reference-btn" data-background-name="{{../../this}}" title="{{i18n 'Wizard.ViewBackgroundDetails' name=../../this}}">
               <i class="fas fa-book"></i>
             </button>
-            <span class="item-current">Current: {{default bgValue 0}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{default bgValue 0}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
@@ -162,13 +162,13 @@
       <!-- Spheres (Technocrat only) -->
       {{#if (eq actorType "Technocrat")}}
       <div class="freebie-section">
-        <h4>Spheres ({{config.freebies.costs.sphere}} points per dot)</h4>
-        <p class="note"><i class="fas fa-info-circle"></i> Individual spheres cannot exceed your Enlightenment ({{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}).</p>
+        <h4>{{i18n 'Spheres.Spheres'}} ({{config.freebies.costs.sphere}} {{i18n 'Wizard.PointsPerDot'}})</h4>
+        <p class="note"><i class="fas fa-info-circle"></i> {{i18n 'Wizard.IndividualSpheresCannotExceedEnlightenment' enlightenment=(default wizardData.advantages.enlightenment config.advantages.enlightenment.starting)}}.</p>
         <div class="freebie-list">
           {{#each config.advantages.spheres.available}}
           <div class="freebie-item">
             <span class="item-name">{{this}}</span>
-            <span class="item-current">Current: {{default (lookup @root.wizardData.advantages.spheres @key) 0}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{default (lookup @root.wizardData.advantages.spheres @key) 0}}</span>
             <div class="freebie-controls">
               <button type="button" 
                       class="freebie-decrease" 
@@ -192,19 +192,19 @@
 
       <!-- Enlightenment (Technocrat only) - Display only, managed in Advantages step -->
       <div class="freebie-section">
-        <h4>Enlightenment ({{config.freebies.costs.enlightenment}} points per dot)</h4>
+        <h4>{{i18n 'Advantages.Enlightenment'}} ({{config.freebies.costs.enlightenment}} {{i18n 'Wizard.PointsPerDot'}})</h4>
         <div class="enlightenment-freebie">
-          <p>Current: <strong>{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</strong></p>
-          <p class="note"><i class="fas fa-info-circle"></i> Enlightenment was purchased in the Advantages step.</p>
+          <p>{{i18n 'Wizard.Current'}}: <strong>{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</strong></p>
+          <p class="note"><i class="fas fa-info-circle"></i> {{i18n 'Wizard.EnlightenmentPurchasedInAdvantages'}}</p>
         </div>
       </div>
       {{/if}}
 
       <!-- Willpower -->
       <div class="freebie-section">
-        <h4>Willpower ({{config.freebies.costs.willpower}} point per dot)</h4>
+        <h4>{{i18n 'Advantages.Willpower'}} ({{config.freebies.costs.willpower}} {{i18n 'Wizard.PointPerDot'}})</h4>
         <div class="willpower-freebie">
-          <p>Current: <strong>{{add config.advantages.willpower.starting (or wizardData.freebies.spent.willpower 0)}}</strong></p>
+          <p>{{i18n 'Wizard.Current'}}: <strong>{{add config.advantages.willpower.starting (or wizardData.freebies.spent.willpower 0)}}</strong></p>
           <div class="freebie-controls">
             <button type="button" 
                     class="freebie-decrease" 
@@ -229,14 +229,14 @@
 
   <div class="step-help">
     <div class="help-box">
-      <h4><i class="fas fa-lightbulb"></i> Freebie Points Guide</h4>
+      <h4><i class="fas fa-lightbulb"></i> {{i18n 'Wizard.FreebiePointsGuide'}}</h4>
       <ul>
-        <li>You have {{actualFreebieTotal}} freebie points to customize your character{{#if (gt freebieBonus 0)}} ({{config.freebies.total}} base + {{freebieBonus}} from flaws){{/if}}</li>
-        <li>You don't have to spend all your freebie points</li>
-        <li>Consider increasing abilities or attributes that define your character concept</li>
-        <li>Willpower is often a good investment for starting characters</li>
+        <li>{{i18n 'Wizard.YouHaveFreebiePoints' total=actualFreebieTotal}}{{#if (gt freebieBonus 0)}} ({{config.freebies.total}} {{i18n 'Wizard.Base'}} + {{freebieBonus}} {{i18n 'Wizard.FromFlaws'}}){{/if}}</li>
+        <li>{{i18n 'Wizard.DontHaveToSpendAll'}}</li>
+        <li>{{i18n 'Wizard.ConsiderIncreasing'}}</li>
+        <li>{{i18n 'Wizard.WillpowerGoodInvestment'}}</li>
         {{#if (eq actorType "Technocrat")}}
-        <li>Spheres are expensive but powerful - invest wisely</li>
+        <li>{{i18n 'Wizard.SpheresExpensiveButPowerful'}}</li>
         {{/if}}
       </ul>
     </div>

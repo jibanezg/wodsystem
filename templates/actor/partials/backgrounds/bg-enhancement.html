@@ -1,36 +1,36 @@
 <!-- Enhancement Background Template -->
 <div class="bg-template enhancement-template">
     <div class="template-field">
-        <label>Enhancement Name</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EnhancementName'}}</label>
         <input type="text" 
                name="system.backgroundsExpanded.{{index}}.templateData.name" 
                value="{{data.name}}" 
-               placeholder="Name of the enhancement/modification" 
+               placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EnhancementNamePlaceholder'}}" 
                class="template-input" />
     </div>
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Body Location</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.BodyLocation'}}</label>
             <input type="text" 
                    name="system.backgroundsExpanded.{{index}}.templateData.location" 
                    value="{{data.location}}" 
-                   placeholder="e.g., Eyes, Arms, Neural" 
+                   placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.BodyLocationPlaceholder'}}" 
                    class="template-input" />
         </div>
         
         <div class="template-field">
-            <label>Enhancement Type</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EnhancementType'}}</label>
             <select name="system.backgroundsExpanded.{{index}}.templateData.enhancementType" 
                     class="template-select">
-                <option value="cybernetic" {{#eq data.enhancementType "cybernetic"}}selected{{/eq}}>Cybernetic</option>
-                <option value="biomod" {{#eq data.enhancementType "biomod"}}selected{{/eq}}>Biomod</option>
-                <option value="genengineered" {{#eq data.enhancementType "genengineered"}}selected{{/eq}}>Genengineered</option>
+                <option value="cybernetic" {{#eq data.enhancementType "cybernetic"}}selected{{/eq}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EnhancementTypeCybernetic'}}</option>
+                <option value="biomod" {{#eq data.enhancementType "biomod"}}selected{{/eq}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EnhancementTypeBiomod'}}</option>
+                <option value="genengineered" {{#eq data.enhancementType "genengineered"}}selected{{/eq}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EnhancementTypeGenengineered'}}</option>
             </select>
         </div>
         
         <div class="template-field permanent-paradox-field">
-            <label>Permanent Paradox</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PermanentParadox'}}</label>
             <input type="number" 
                    name="system.backgroundsExpanded.{{index}}.templateData.permanentParadox" 
                    value="{{data.permanentParadox}}" 
@@ -41,39 +41,39 @@
     </div>
     
     <div class="template-field genetic-flaws-field">
-        <label>Genetic Flaws</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GeneticFlaws'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.geneticFlaws" 
-                  placeholder="Genetic defects, instabilities, or inherited complications"
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GeneticFlawsPlaceholder'}}"
                   class="template-textarea">{{data.geneticFlaws}}</textarea>
     </div>
     
     <div class="template-field">
-        <label>Physical Description</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PhysicalDescription'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.description" 
-                  placeholder="Physical appearance and visible modifications"
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PhysicalDescriptionPlaceholder'}}"
                   class="template-textarea">{{data.description}}</textarea>
     </div>
     
     <div class="template-field-row">
         <div class="template-field">
-            <label>Effects & Capabilities</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EffectsCapabilities'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.effects" 
-                      placeholder="Benefits and special abilities gained"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EffectsCapabilitiesPlaceholder'}}"
                       class="template-textarea">{{data.effects}}</textarea>
         </div>
         
         <div class="template-field">
-            <label>Side Effects / Drawbacks</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SideEffectsDrawbacks'}}</label>
             <textarea name="system.backgroundsExpanded.{{index}}.templateData.sideEffects" 
-                      placeholder="Complications, maintenance, social issues"
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.SideEffectsDrawbacksPlaceholder'}}"
                       class="template-textarea">{{data.sideEffects}}</textarea>
         </div>
     </div>
     
     <div class="template-field">
-        <label>Game Mechanics</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GameMechanics'}}</label>
         <textarea name="system.backgroundsExpanded.{{index}}.templateData.gameMechanics" 
-                  placeholder="Specific game mechanics, dice pools, difficulties, durations, activation requirements, etc."
+                  placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.GameMechanicsPlaceholderLong'}}"
                   class="template-textarea-large">{{data.gameMechanics}}</textarea>
     </div>
 </div>

@@ -2,14 +2,14 @@
 <div class="merits-flaws-content">
     <!-- Merits Section -->
     <div class="merits-section">
-        <h3>Merits</h3>
+        <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Merits'}}</h3>
         <div class="merit-list">
             {{#each actor.system.miscellaneous.merits as |merit meritIndex|}}
             <div class="merit-item">
                 <div class="merit-name-container">
-                    <input type="text" value="{{merit.name}}" placeholder="Merit Name" class="merit-name" 
+                    <input type="text" value="{{merit.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.MeritName'}}" class="merit-name" 
                            data-index="{{meritIndex}}"/>
-                    <a class="merit-reference-btn" data-index="{{meritIndex}}" title="View Merit Details">
+                    <a class="merit-reference-btn" data-index="{{meritIndex}}" title="{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.ViewMeritDetails'}}">
                         <i class="fas fa-book-open"></i>
                     </a>
                 </div>
@@ -24,20 +24,20 @@
                 </a>
             </div>
             {{/each}}
-            <button class="add-merit" title="Add Merit">+</button>
+            <button class="add-merit" title="{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.AddMerit'}}">+</button>
         </div>
     </div>
 
     <!-- Flaws Section -->
     <div class="flaws-section">
-        <h3>Flaws</h3>
+        <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Flaws'}}</h3>
         <div class="flaw-list">
             {{#each actor.system.miscellaneous.flaws as |flaw flawIndex|}}
             <div class="flaw-item">
                 <div class="flaw-name-container">
-                    <input type="text" value="{{flaw.name}}" placeholder="Flaw Name" class="flaw-name" 
+                    <input type="text" value="{{flaw.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.FlawName'}}" class="flaw-name" 
                            data-index="{{flawIndex}}"/>
-                    <a class="flaw-reference-btn" data-index="{{flawIndex}}" title="View Flaw Details">
+                    <a class="flaw-reference-btn" data-index="{{flawIndex}}" title="{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.ViewFlawDetails'}}">
                         <i class="fas fa-book-open"></i>
                     </a>
                 </div>
@@ -52,18 +52,18 @@
                 </a>
             </div>
             {{/each}}
-            <button class="add-flaw" title="Add Flaw">+</button>
+            <button class="add-flaw" title="{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.AddFlaw'}}">+</button>
         </div>
     </div>
 
     <!-- Merit/Flaw Points Summary -->
     <div class="merit-flaw-summary">
         <div class="summary-item">
-            <label>Total Merit Points:</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.TotalMeritPoints'}}</label>
             <span class="merit-total">{{actor.system.miscellaneous.merits.length}}</span>
         </div>
         <div class="summary-item">
-            <label>Total Flaw Points:</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.MeritsFlaws.TotalFlawPoints'}}</label>
             <span class="flaw-total">{{actor.system.miscellaneous.flaws.length}}</span>
         </div>
     </div>

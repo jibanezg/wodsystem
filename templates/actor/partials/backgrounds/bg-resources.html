@@ -2,29 +2,29 @@
 <div class="bg-template resources-template">
     <div class="template-field-row">
         <div class="template-field">
-            <label>Income Level</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevel'}}</label>
             <select name="system.backgroundsExpanded.{{index}}.templateData.incomeLevel" class="template-select">
-                <option value="poor" {{#if (eq data.incomeLevel "poor")}}selected{{/if}}>Poor ($500/month)</option>
-                <option value="middle" {{#if (eq data.incomeLevel "middle")}}selected{{/if}}>Middle Class ($2,000/month)</option>
-                <option value="comfortable" {{#if (eq data.incomeLevel "comfortable")}}selected{{/if}}>Comfortable ($5,000/month)</option>
-                <option value="wealthy" {{#if (eq data.incomeLevel "wealthy")}}selected{{/if}}>Wealthy ($20,000/month)</option>
-                <option value="rich" {{#if (eq data.incomeLevel "rich")}}selected{{/if}}>Rich ($100,000/month)</option>
-                <option value="ultra_rich" {{#if (eq data.incomeLevel "ultra_rich")}}selected{{/if}}>Ultra Rich ($500,000+/month)</option>
+                <option value="poor" {{#if (eq data.incomeLevel "poor")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevelPoor'}}</option>
+                <option value="middle" {{#if (eq data.incomeLevel "middle")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevelMiddle'}}</option>
+                <option value="comfortable" {{#if (eq data.incomeLevel "comfortable")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevelComfortable'}}</option>
+                <option value="wealthy" {{#if (eq data.incomeLevel "wealthy")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevelWealthy'}}</option>
+                <option value="rich" {{#if (eq data.incomeLevel "rich")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevelRich'}}</option>
+                <option value="ultra_rich" {{#if (eq data.incomeLevel "ultra_rich")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.IncomeLevelUltraRich'}}</option>
             </select>
         </div>
         
         <div class="template-field">
-            <label>Liquid Cash Available</label>
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.LiquidCashAvailable'}}</label>
             <input type="text" 
                    name="system.backgroundsExpanded.{{index}}.templateData.liquidCash" 
                    value="{{data.liquidCash}}" 
-                   placeholder="Cash on hand" 
+                   placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.LiquidCashAvailablePlaceholder'}}" 
                    class="template-input" />
         </div>
     </div>
     
     <div class="template-field">
-        <label>Properties Owned</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PropertiesOwned'}}</label>
         <div class="properties-list">
             {{#each data.properties as |property propIndex|}}
             <div class="property-entry">
@@ -32,32 +32,32 @@
                     <input type="text" 
                            name="system.backgroundsExpanded.{{../index}}.templateData.properties.{{propIndex}}.type" 
                            value="{{property.type}}" 
-                           placeholder="Property Type (e.g., House, Apartment, Office)" 
+                           placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PropertyType'}}" 
                            class="property-input" />
-                    <a class="delete-property" data-bg-index="{{../index}}" data-prop-index="{{propIndex}}" title="Remove Property">
+                    <a class="delete-property" data-bg-index="{{../index}}" data-prop-index="{{propIndex}}" title="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RemoveProperty'}}">
                         <i class="fas fa-times"></i>
                     </a>
                 </div>
                 <input type="text" 
                        name="system.backgroundsExpanded.{{../index}}.templateData.properties.{{propIndex}}.location" 
                        value="{{property.location}}" 
-                       placeholder="Location" 
+                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.PropertyLocation'}}" 
                        class="property-input" />
                 <input type="text" 
                        name="system.backgroundsExpanded.{{../index}}.templateData.properties.{{propIndex}}.value" 
                        value="{{property.value}}" 
-                       placeholder="Estimated Value" 
+                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EstimatedValue'}}" 
                        class="property-input" />
             </div>
             {{/each}}
         </div>
         {{#if isEditMode}}
-        <button class="add-property" data-bg-index="{{index}}" type="button">+ Add Property</button>
+        <button class="add-property" data-bg-index="{{index}}" type="button">+ {{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.AddProperty'}}</button>
         {{/if}}
     </div>
     
     <div class="template-field">
-        <label>Assets & Investments</label>
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.AssetsInvestments'}}</label>
         <div class="assets-list">
             {{#each data.assets as |asset assetIndex|}}
             <div class="asset-entry">
@@ -65,23 +65,22 @@
                     <input type="text" 
                            name="system.backgroundsExpanded.{{../index}}.templateData.assets.{{assetIndex}}.description" 
                            value="{{asset.description}}" 
-                           placeholder="Asset Description (e.g., Stock Portfolio, Business)" 
+                           placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.AssetDescription'}}" 
                            class="asset-input" />
-                    <a class="delete-asset" data-bg-index="{{../index}}" data-asset-index="{{assetIndex}}" title="Remove Asset">
+                    <a class="delete-asset" data-bg-index="{{../index}}" data-asset-index="{{assetIndex}}" title="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RemoveAsset'}}">
                         <i class="fas fa-times"></i>
                     </a>
                 </div>
                 <input type="text" 
                        name="system.backgroundsExpanded.{{../index}}.templateData.assets.{{assetIndex}}.value" 
                        value="{{asset.value}}" 
-                       placeholder="Estimated Value" 
+                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.EstimatedValue'}}" 
                        class="asset-input" />
             </div>
             {{/each}}
         </div>
         {{#if isEditMode}}
-        <button class="add-asset" data-bg-index="{{index}}" type="button">+ Add Asset</button>
+        <button class="add-asset" data-bg-index="{{index}}" type="button">+ {{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.AddAsset'}}</button>
         {{/if}}
     </div>
 </div>
-

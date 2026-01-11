@@ -1,7 +1,7 @@
 <!-- Active Effects Section -->
 <div class="active-effects-section">
     <h4>
-        <i class="fas fa-magic"></i> Status Effects
+        <i class="fas fa-magic"></i> {{i18n 'WODSYSTEM.CharacterSheet.Effects.StatusEffects'}}
         {{#if effects.length}}
         <span class="effects-count-badge">{{effects.length}}</span>
         {{/if}}
@@ -10,28 +10,28 @@
     {{#if effects.length}}
     <div class="effects-preview">
         {{#each effects}}
-        <div class="effect-preview-item {{#unless this.canDelete}}st-effect-locked{{/unless}}" data-effect-id="{{this.id}}" title="{{this.name}}{{#unless this.canDelete}} (ST Effect - Cannot Edit){{/unless}}">
+        <div class="effect-preview-item {{#unless this.canDelete}}st-effect-locked{{/unless}}" data-effect-id="{{this.id}}" title="{{this.name}}{{#unless this.canDelete}} ({{i18n 'WODSYSTEM.CharacterSheet.Effects.STEffectCannotEdit'}}){{/unless}}">
             <img src="{{this.icon}}" alt="{{this.name}}" class="effect-icon-small" onerror="this.src='icons/svg/aura.svg'" />
             <span class="effect-name-short">{{this.name}}</span>
             {{#if this.isPlayerCreated}}
-            <span class="effect-type-indicator player" title="Player Created">P</span>
+            <span class="effect-type-indicator player" title="{{i18n 'WODSYSTEM.CharacterSheet.Effects.PlayerCreated'}}">P</span>
             {{else}}
-            <span class="effect-type-indicator st" title="Storyteller Created">ST</span>
+            <span class="effect-type-indicator st" title="{{i18n 'WODSYSTEM.CharacterSheet.Effects.StorytellerCreated'}}">ST</span>
             {{/if}}
             {{#if this.canDelete}}
-            <button type="button" class="delete-effect-preview-item" data-effect-id="{{this.id}}" title="Delete Effect"><i class="fas fa-trash"></i></button>
+            <button type="button" class="delete-effect-preview-item" data-effect-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Effects.DeleteEffect'}}"><i class="fas fa-trash"></i></button>
             {{/if}}
         </div>
         {{/each}}
     </div>
     {{else}}
     <div class="effects-empty">
-        <p>No active effects</p>
+        <p>{{i18n 'WODSYSTEM.CharacterSheet.Effects.NoActiveEffects'}}</p>
     </div>
     {{/if}}
     
     <div class="effects-controls">
-        <button type="button" class="add-effect-btn" title="Add New Effect">+</button>
+        <button type="button" class="add-effect-btn" title="{{i18n 'WODSYSTEM.CharacterSheet.Effects.AddNewEffect'}}">+</button>
     </div>
 </div>
 

@@ -1,29 +1,29 @@
 <div class="wizard-step step-attributes">
   <div class="step-header">
-    <h3><i class="fas fa-dumbbell"></i> Attributes</h3>
-    <p class="step-description">Distribute points among Physical, Social, and Mental attributes.</p>
+    <h3><i class="fas fa-dumbbell"></i> {{i18n 'Wizard.Attributes'}}</h3>
+    <p class="step-description">{{i18n 'Wizard.DistributeAttributes'}}</p>
   </div>
 
   <div class="step-body">
     <!-- Priority Selection -->
     <div class="priority-selection">
-      <h4>Choose Priority</h4>
-      <p>Assign primary ({{config.attributes.priorities.primary}} points), secondary ({{config.attributes.priorities.secondary}} points), and tertiary ({{config.attributes.priorities.tertiary}} points).</p>
+      <h4>{{i18n 'Wizard.ChoosePriority'}}</h4>
+      <p>{{i18n 'Wizard.AssignPriority' primary=config.attributes.priorities.primary secondary=config.attributes.priorities.secondary tertiary=config.attributes.priorities.tertiary}}</p>
       
       <div class="priority-grid">
         {{#each config.attributes.categories}}
         <div class="priority-item">
           <label>{{capitalize this}}</label>
           <select class="priority-select" data-category="{{this}}">
-            <option value="">-- Select --</option>
+            <option value="">{{i18n 'Wizard.SelectLabel'}}</option>
             <option value="primary" {{#if (eq (lookup ../../wizardData.attributes.prioritySelection "primary") this)}}selected{{/if}}>
-              Primary ({{../config.attributes.priorities.primary}} points)
+              {{i18n 'Wizard.Primary'}} ({{../config.attributes.priorities.primary}} {{i18n 'Wizard.Points'}})
             </option>
             <option value="secondary" {{#if (eq (lookup ../../wizardData.attributes.prioritySelection "secondary") this)}}selected{{/if}}>
-              Secondary ({{../config.attributes.priorities.secondary}} points)
+              {{i18n 'Wizard.Secondary'}} ({{../config.attributes.priorities.secondary}} {{i18n 'Wizard.Points'}})
             </option>
             <option value="tertiary" {{#if (eq (lookup ../../wizardData.attributes.prioritySelection "tertiary") this)}}selected{{/if}}>
-              Tertiary ({{../config.attributes.priorities.tertiary}} points)
+              {{i18n 'Wizard.Tertiary'}} ({{../config.attributes.priorities.tertiary}} {{i18n 'Wizard.Points'}})
             </option>
           </select>
         </div>
@@ -35,14 +35,14 @@
     <div class="attributes-distribution">
       <!-- Physical Attributes -->
       <div class="attribute-category">
-        <h4>Physical Attributes</h4>
+        <h4>{{i18n 'Wizard.PhysicalAttributes'}}</h4>
         
         {{#if validation.attributes.physical}}
         <div class="points-tracker">
           <span class="spent">{{validation.attributes.physical.spent}}</span> / 
-          <span class="allowed">{{validation.attributes.physical.allowed}}</span> points spent
+          <span class="allowed">{{validation.attributes.physical.allowed}}</span> {{i18n 'Wizard.PointsSpent'}}
           {{#if (gt validation.attributes.physical.remaining 0)}}
-          <span class="remaining">({{validation.attributes.physical.remaining}} remaining)</span>
+          <span class="remaining">({{validation.attributes.physical.remaining}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
         </div>
         
@@ -78,14 +78,14 @@
 
       <!-- Social Attributes -->
       <div class="attribute-category">
-        <h4>Social Attributes</h4>
+        <h4>{{i18n 'Wizard.SocialAttributes'}}</h4>
         
         {{#if validation.attributes.social}}
         <div class="points-tracker">
           <span class="spent">{{validation.attributes.social.spent}}</span> / 
-          <span class="allowed">{{validation.attributes.social.allowed}}</span> points spent
+          <span class="allowed">{{validation.attributes.social.allowed}}</span> {{i18n 'Wizard.PointsSpent'}}
           {{#if (gt validation.attributes.social.remaining 0)}}
-          <span class="remaining">({{validation.attributes.social.remaining}} remaining)</span>
+          <span class="remaining">({{validation.attributes.social.remaining}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
         </div>
         
@@ -121,14 +121,14 @@
 
       <!-- Mental Attributes -->
       <div class="attribute-category">
-        <h4>Mental Attributes</h4>
+        <h4>{{i18n 'Wizard.MentalAttributes'}}</h4>
         
         {{#if validation.attributes.mental}}
         <div class="points-tracker">
           <span class="spent">{{validation.attributes.mental.spent}}</span> / 
-          <span class="allowed">{{validation.attributes.mental.allowed}}</span> points spent
+          <span class="allowed">{{validation.attributes.mental.allowed}}</span> {{i18n 'Wizard.PointsSpent'}}
           {{#if (gt validation.attributes.mental.remaining 0)}}
-          <span class="remaining">({{validation.attributes.mental.remaining}} remaining)</span>
+          <span class="remaining">({{validation.attributes.mental.remaining}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
         </div>
         
@@ -166,13 +166,13 @@
 
   <div class="step-help">
     <div class="help-box">
-      <h4><i class="fas fa-lightbulb"></i> Attribute Guide</h4>
+      <h4><i class="fas fa-lightbulb"></i> {{i18n 'Wizard.AttributeGuide'}}</h4>
       <ul>
-        <li><strong>Physical:</strong> Strength, Dexterity, Stamina - your body's capabilities</li>
-        <li><strong>Social:</strong> Charisma, Manipulation, Appearance - your social prowess</li>
-        <li><strong>Mental:</strong> Perception, Intelligence, Wits - your mind's abilities</li>
-        <li>All attributes start at 1. You cannot reduce them below 1.</li>
-        <li>You must spend ALL points in each category before continuing.</li>
+        <li><strong>{{i18n 'Attributes.Physical'}}:</strong> {{i18n 'Wizard.PhysicalDesc'}}</li>
+        <li><strong>{{i18n 'Attributes.Social'}}:</strong> {{i18n 'Wizard.SocialDesc'}}</li>
+        <li><strong>{{i18n 'Attributes.Mental'}}:</strong> {{i18n 'Wizard.MentalDesc'}}</li>
+        <li>{{i18n 'Wizard.AllStartAt1'}}</li>
+        <li>{{i18n 'Wizard.MustSpendAll'}}</li>
       </ul>
     </div>
   </div>

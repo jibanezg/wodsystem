@@ -1,6 +1,6 @@
 <!-- Health Section with Damage Types -->
 <div class="health-section">
-    <h2>Health</h2>
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Health'}}</h2>
     
     {{#if isHealthEditMode}}
         <!-- EDIT MODE: Show editable fields -->
@@ -11,25 +11,25 @@
                        class="health-name-edit" 
                        value="{{level.name}}" 
                        data-index="{{level.index}}"
-                       placeholder="Level Name">
+                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Health.LevelName'}}">
                 <input type="number" 
                        class="health-penalty-edit" 
                        value="{{level.penalty}}" 
                        data-index="{{level.index}}"
-                       placeholder="Penalty">
+                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Health.Penalty'}}">
                 <button class="delete-health-level" 
                         type="button" 
                         data-index="{{level.index}}"
-                        title="Delete this health level">
+                        title="{{i18n 'WODSYSTEM.CharacterSheet.Health.DeleteThisHealthLevel'}}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
             {{/each}}
             <div class="health-edit-controls">
-                <button class="add-health-level" type="button" title="Add new health level">
+                <button class="add-health-level" type="button" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.AddNewHealthLevel'}}">
                     <i class="fas fa-plus"></i>
                 </button>
-                <button class="toggle-health-edit" type="button" title="Save and exit edit mode">
+                <button class="toggle-health-edit" type="button" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.SaveAndExitEditMode'}}">
                     <i class="fas fa-check"></i>
                 </button>
             </div>
@@ -39,13 +39,13 @@
         
         <!-- Damage Type Buttons -->
         <div class="health-damage-buttons">
-            <button class="damage-btn bashing-btn" type="button" data-damage-type="bashing" title="Add Bashing Damage">
+            <button class="damage-btn bashing-btn" type="button" data-damage-type="bashing" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.AddBashingDamage'}}">
                 <i class="fas fa-fist-raised"></i> B
             </button>
-            <button class="damage-btn lethal-btn" type="button" data-damage-type="lethal" title="Add Lethal Damage">
+            <button class="damage-btn lethal-btn" type="button" data-damage-type="lethal" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.AddLethalDamage'}}">
                 <i class="fas fa-bolt"></i> L
             </button>
-            <button class="damage-btn aggravated-btn" type="button" data-damage-type="aggravated" title="Add Aggravated Damage">
+            <button class="damage-btn aggravated-btn" type="button" data-damage-type="aggravated" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.AddAggravatedDamage'}}">
                 <i class="fas fa-skull"></i> A
             </button>
         </div>
@@ -55,14 +55,14 @@
             <div class="health-level">
                 <div class="health-box {{#if level.marked}}marked damage-{{level.damageType}}{{/if}}" 
                      data-index="{{level.index}}"
-                     title="Right-click to heal">
+                     title="{{i18n 'WODSYSTEM.CharacterSheet.Health.RightClickToHeal'}}">
                 </div>
-                <span class="health-name">{{level.name}}</span>
+                <span class="health-name">{{translateHealthLevel level.name}}</span>
                 <span class="health-penalty">
                     {{#if (lt level.penalty 0)}}
                         {{level.penalty}}
                     {{else if (eq level.index 6)}}
-                        Incap
+                        {{i18n 'WODSYSTEM.CharacterSheet.Health.Incap'}}
                     {{/if}}
                 </span>
             </div>
@@ -72,28 +72,28 @@
         <!-- Health Summary -->
         <div class="health-summary">
             <div class="health-stat">
-                <label>Penalty:</label>
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Health.Penalty'}}:</label>
                 <span class="penalty-value">{{actor.system.miscellaneous.health.derived.currentPenalty}}</span>
             </div>
             <div class="health-stat">
-                <label>Bashing:</label>
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Health.Bashing'}}:</label>
                 <span>{{actor.system.miscellaneous.health.derived.bashingDamage}}</span>
             </div>
             <div class="health-stat">
-                <label>Lethal:</label>
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Health.Lethal'}}:</label>
                 <span>{{actor.system.miscellaneous.health.derived.lethalDamage}}</span>
             </div>
             <div class="health-stat">
-                <label>Aggravated:</label>
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Health.Aggravated'}}:</label>
                 <span>{{actor.system.miscellaneous.health.derived.aggravatedDamage}}</span>
             </div>
         </div>
         
         <div class="health-view-controls">
-            <button class="toggle-health-edit" type="button" title="Edit health levels">
+            <button class="toggle-health-edit" type="button" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.EditHealthLevels'}}">
                 <i class="fas fa-edit"></i>
             </button>
-            <button class="reset-health" type="button" title="Clear all damage">
+            <button class="reset-health" type="button" title="{{i18n 'WODSYSTEM.CharacterSheet.Health.ClearAllDamage'}}">
                 <i class="fas fa-redo"></i>
             </button>
         </div>

@@ -1,5 +1,6 @@
 import { TraitFactory } from "../scripts/trait-factory.js";
 import { WodDicePool } from "../../dice/wod-dice-pool.js";
+import { i18n } from "../../helpers/i18n.js";
 
 export class WodActor extends Actor {
     /** @override */
@@ -30,7 +31,7 @@ export class WodActor extends Actor {
             // Constrain temporary willpower to not exceed permanent
             if (newTemporary > newPermanent) {
                 changed.system.miscellaneous.willpower.temporary = newPermanent;
-                ui.notifications.warn("Temporary Willpower cannot exceed Permanent Willpower.");
+                ui.notifications.warn(i18n('WODSYSTEM.Actor.TemporaryWillpowerExceed'));
             }
         }
         
@@ -538,7 +539,7 @@ export class WodActor extends Actor {
         const health = foundry.utils.duplicate(this.system.miscellaneous.health);
         
         if (health.levels.length <= 1) {
-            ui.notifications.warn("Cannot remove the last health level");
+            ui.notifications.warn(i18n('WODSYSTEM.Actor.CannotRemoveLastHealthLevel'));
             return health;
         }
         
@@ -651,7 +652,7 @@ export class WodActor extends Actor {
                             if (evenLessIndex !== -1) {
                                 health.levels[evenLessIndex].damageType = this._upgradeDamageType(evenLessSeriousType);
                             } else {
-                                ui.notifications.warn("Cannot apply more damage - all health levels at maximum");
+                                ui.notifications.warn(i18n('WODSYSTEM.Actor.CannotApplyMoreDamage'));
                                 return;
                             }
                         } else {
@@ -660,7 +661,7 @@ export class WodActor extends Actor {
                         }
                     }
                 } else {
-                    ui.notifications.warn("Cannot apply more damage - all health levels at maximum aggravated damage");
+                    ui.notifications.warn(i18n('WODSYSTEM.Actor.CannotApplyMoreAggravated'));
                     return;
                 }
             }
@@ -1007,7 +1008,7 @@ export class WodActor extends Actor {
     async spendExperience(amount, reason = "") {
         const current = this.system.experience.current || 0;
         if (current < amount) {
-            ui.notifications.warn("Not enough experience points!");
+            ui.notifications.warn(i18n('WODSYSTEM.Actor.NotEnoughExperience'));
             return false;
         }
         
@@ -1167,7 +1168,7 @@ export class WodActor extends Actor {
             modifiers: template.modifiers
         });
         await this.update({ 'system.rollTemplates': templates });
-        ui.notifications.info(`Saved roll template: ${template.name}`);
+        ui.notifications.info(i18n('WODSYSTEM.Actor.SavedRollTemplate', {name: template.name}));
     }
 
     /**

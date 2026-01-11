@@ -1,29 +1,29 @@
 <div class="wizard-step step-abilities">
   <div class="step-header">
-    <h3><i class="fas fa-brain"></i> Abilities</h3>
-    <p class="step-description">Distribute points among Talents, Skills, and Knowledges.</p>
+    <h3><i class="fas fa-brain"></i> {{i18n 'Wizard.Abilities'}}</h3>
+    <p class="step-description">{{i18n 'Wizard.DistributeAbilities'}}</p>
   </div>
 
   <div class="step-body">
     <!-- Priority Selection -->
     <div class="priority-selection">
-      <h4>Choose Priority</h4>
-      <p>Assign primary ({{config.abilities.priorities.primary}} points), secondary ({{config.abilities.priorities.secondary}} points), and tertiary ({{config.abilities.priorities.tertiary}} points).</p>
+      <h4>{{i18n 'Wizard.ChoosePriority'}}</h4>
+      <p>{{i18n 'Wizard.AssignPriority' primary=config.abilities.priorities.primary secondary=config.abilities.priorities.secondary tertiary=config.abilities.priorities.tertiary}}</p>
       
       <div class="priority-grid">
         {{#each config.abilities.categories}}
         <div class="priority-item">
           <label>{{capitalize this}}</label>
           <select class="priority-select" data-category="{{this}}">
-            <option value="">-- Select --</option>
+            <option value="">{{i18n 'Wizard.SelectLabel'}}</option>
             <option value="primary" {{#if (eq (lookup ../wizardData.abilities.prioritySelection "primary") this)}}selected{{/if}}>
-              Primary ({{../config.abilities.priorities.primary}} points)
+              {{i18n 'Wizard.Primary'}} ({{../config.abilities.priorities.primary}} {{i18n 'Wizard.Points'}})
             </option>
             <option value="secondary" {{#if (eq (lookup ../wizardData.abilities.prioritySelection "secondary") this)}}selected{{/if}}>
-              Secondary ({{../config.abilities.priorities.secondary}} points)
+              {{i18n 'Wizard.Secondary'}} ({{../config.abilities.priorities.secondary}} {{i18n 'Wizard.Points'}})
             </option>
             <option value="tertiary" {{#if (eq (lookup ../wizardData.abilities.prioritySelection "tertiary") this)}}selected{{/if}}>
-              Tertiary ({{../config.abilities.priorities.tertiary}} points)
+              {{i18n 'Wizard.Tertiary'}} ({{../config.abilities.priorities.tertiary}} {{i18n 'Wizard.Points'}})
             </option>
           </select>
         </div>
@@ -41,9 +41,9 @@
         
         <div class="points-tracker">
           <span class="spent">{{categoryValidation.spent}}</span> / 
-          <span class="allowed">{{categoryValidation.allowed}}</span> points spent
+          <span class="allowed">{{categoryValidation.allowed}}</span> {{i18n 'Wizard.PointsSpent'}}
           {{#if (gt categoryValidation.remaining 0)}}
-          <span class="remaining">({{categoryValidation.remaining}} remaining)</span>
+          <span class="remaining">({{categoryValidation.remaining}} {{i18n 'Wizard.Remaining'}})</span>
           {{/if}}
         </div>
         
@@ -79,13 +79,13 @@
         <!-- Secondary Abilities -->
         {{#if ../../config.abilities.allowSecondary}}
         <div class="secondary-abilities" data-category="{{../this}}">
-          <h5>Custom {{capitalize ../this}}</h5>
+          <h5>{{i18n 'Wizard.Custom'}} {{capitalize ../this}}</h5>
           {{#each (lookup ../../wizardData.abilities.secondary ../this)}}
           <div class="ability-item secondary" data-index="{{@index}}">
             <input type="text" 
                    class="ability-name-input" 
                    value="{{name}}" 
-                   placeholder="Ability name">
+                   placeholder="{{i18n 'Wizard.AbilityName'}}">
             <div class="ability-controls">
               <button type="button" class="ability-decrease" data-index="{{@index}}" {{#if (eq value 0)}}disabled{{/if}}>
                 <i class="fas fa-minus"></i>
@@ -101,7 +101,7 @@
           </div>
           {{/each}}
           <button type="button" class="add-secondary" data-category="{{../this}}">
-            <i class="fas fa-plus"></i> Add Custom {{capitalize ../this}}
+            <i class="fas fa-plus"></i> {{i18n 'Wizard.AddCustom'}} {{capitalize ../this}}
           </button>
         </div>
         {{/if}}
@@ -115,14 +115,14 @@
 
   <div class="step-help">
     <div class="help-box">
-      <h4><i class="fas fa-lightbulb"></i> Ability Guide</h4>
+      <h4><i class="fas fa-lightbulb"></i> {{i18n 'Wizard.AbilityGuide'}}</h4>
       <ul>
-        <li><strong>Talents:</strong> Intuitive abilities - no training needed</li>
-        <li><strong>Skills:</strong> Practiced abilities - learned through practice</li>
-        <li><strong>Knowledges:</strong> Academic abilities - learned through study</li>
-        <li>Maximum {{config.abilities.maxAtCreation}} dots in any ability at creation</li>
-        <li>You must spend ALL points in each category before continuing</li>
-        <li>You can add custom secondary abilities specific to your character</li>
+        <li><strong>{{i18n 'Abilities.Talents'}}:</strong> {{i18n 'Wizard.TalentsDesc'}}</li>
+        <li><strong>{{i18n 'Abilities.Skills'}}:</strong> {{i18n 'Wizard.SkillsDesc'}}</li>
+        <li><strong>{{i18n 'Abilities.Knowledges'}}:</strong> {{i18n 'Wizard.KnowledgesDesc'}}</li>
+        <li>{{i18n 'Wizard.MaxAtCreation' max=config.abilities.maxAtCreation}}</li>
+        <li>{{i18n 'Wizard.MustSpendAll'}}</li>
+        <li>{{i18n 'Wizard.CanAddCustom'}}</li>
       </ul>
     </div>
   </div>
