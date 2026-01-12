@@ -47,6 +47,10 @@
 
 .wod-reference-tooltip .reference-tooltip-inner {
     padding: 12px;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 .wod-reference-tooltip h4 {
@@ -101,6 +105,10 @@
     font-size: 0.9em;
     line-height: 1.4;
     color: #333;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 /* Bullet sections within descriptions */
@@ -220,6 +228,10 @@ ul.bullet-section li strong {
     border-left: 3px solid #4CAF50;
     border-radius: 3px;
     font-size: 0.85em;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 .wod-reference-tooltip .game-effects strong {
@@ -769,6 +781,10 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
     font-size: 0.9em;
     line-height: 1.5;
     color: #1a1a1a !important;
+    user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
 }
 
 .wod-sphere-tooltip .sphere-description p,
@@ -855,6 +871,10 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
     line-height: 1.5 !important;
     color: #1a1a1a !important;
     margin: 0 !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
 }
 
 .wod-sphere-tooltip .sphere-level-entry .level-description,
@@ -1207,6 +1227,43 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 
 .wod-sphere-reference-card.sphere-table-card .sphere-special-table tbody tr:hover td:first-child {
     background: #e7f3ff !important;
+}
+
+/* ============================================== */
+/*  Text Selection in Tooltips                    */
+/* ============================================== */
+
+/* Allow text selection in all tooltip content */
+.wod-reference-tooltip,
+.wod-sphere-tooltip,
+.wod-sphere-table-tooltip {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
+
+.wod-reference-tooltip *,
+.wod-sphere-tooltip *,
+.wod-sphere-table-tooltip * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+}
+
+/* But keep buttons non-selectable for better UX */
+.wod-reference-tooltip button,
+.wod-sphere-tooltip button,
+.wod-sphere-table-tooltip button,
+.wod-reference-tooltip .post-to-chat-btn,
+.wod-sphere-tooltip .post-level-btn,
+.wod-sphere-tooltip .post-description-btn,
+.wod-sphere-table-tooltip .post-table-btn {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
 }
 
 .wod-sphere-reference-card .table-footnotes {

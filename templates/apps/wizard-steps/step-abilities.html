@@ -94,6 +94,9 @@
               <button type="button" class="ability-increase" data-index="{{@index}}" {{#if (eq value ../../../config.abilities.maxAtCreation)}}disabled{{/if}}>
                 <i class="fas fa-plus"></i>
               </button>
+              <button type="button" class="ability-remove" data-index="{{@index}}" title="{{i18n 'Wizard.RemoveAbility'}}" aria-label="{{i18n 'Wizard.RemoveAbility'}}">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
             <div class="ability-dots">
               {{{renderDots value ../../../config.abilities.maxAtCreation}}}

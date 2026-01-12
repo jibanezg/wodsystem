@@ -461,6 +461,7 @@
 .attr-increase,
 .ability-decrease,
 .ability-increase,
+.ability-remove,
 .sphere-decrease,
 .sphere-increase,
 .bg-decrease,
@@ -479,6 +480,7 @@
   color: #ecf0f1;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .attr-increase,
@@ -513,6 +515,17 @@
 .sphere-decrease:hover,
 .bg-decrease:hover,
 .freebie-decrease:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
+}
+
+.ability-remove {
+  background: rgba(231, 76, 60, 0.8);
+  border-color: #c0392b;
+  font-size: 0.875rem;
+}
+
+.ability-remove:hover {
   background: #e74c3c;
   transform: scale(1.1);
 }

@@ -1,4 +1,5 @@
 import { Trie } from './trie.js';
+import { ARCHETYPES } from '../character-creation/wizard-config.js';
 
 /**
  * ReferenceDataService - Central service for managing game reference data
@@ -623,6 +624,17 @@ export class ReferenceDataService {
                 </div>
             `;
         }
+    }
+
+    /**
+     * Get all available archetypes (Nature/Demeanor)
+     * Returns the complete list including Book of Secrets archetypes
+     * @returns {Array} Array of archetype names
+     */
+    getArchetypes() {
+        // Import the archetypes from wizard-config
+        // This ensures consistency between wizard and character sheets
+        return ARCHETYPES;
     }
 }
 

@@ -65,7 +65,8 @@ export class WodCharacterWizard extends FormApplication {
         nature: "",
         demeanor: "",
         convention: "",
-        amalgam: ""
+        amalgam: "",
+        eidolon: ""
       },
 
       // Step 2: Attributes
@@ -712,21 +713,25 @@ export class WodCharacterWizard extends FormApplication {
       this._updateNavigationButtons(this.element);
     });
 
-    // Ability increase/decrease (primary abilities)
-    html.find('.ability-item:not(.secondary) .ability-increase').click(async (event) => {
+    // Ability increase/decrease (primary abilities) - using event delegation to avoid duplicate handlers
+    html.on('click', '.ability-item:not(.secondary) .ability-increase', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const category = event.currentTarget.dataset.category;
       const ability = event.currentTarget.dataset.ability;
       await this._modifyAbility(category, ability, 1);
     });
 
-    html.find('.ability-item:not(.secondary) .ability-decrease').click(async (event) => {
+    html.on('click', '.ability-item:not(.secondary) .ability-decrease', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       const category = event.currentTarget.dataset.category;
       const ability = event.currentTarget.dataset.ability;
       await this._modifyAbility(category, ability, -1);
     });
 
-    // Secondary ability name input - use 'input' event to avoid clearing while typing
-    html.find('.ability-name-input').on('input', (event) => {
+    // Secondary ability name input - use event delegation to handle dynamically added inputs
+    html.on('input', '.ability-name-input', (event) => {
       const $item = $(event.currentTarget).closest('.ability-item.secondary');
       const index = parseInt($item.data('index'));
       const $section = $(event.currentTarget).closest('.secondary-abilities');
@@ -739,7 +744,7 @@ export class WodCharacterWizard extends FormApplication {
     });
     
     // Save progress when secondary ability name loses focus
-    html.find('.ability-name-input').on('blur', async (event) => {
+    html.on('blur', '.ability-name-input', async (event) => {
       await this._saveProgress();
     });
 
@@ -747,24 +752,22 @@ export class WodCharacterWizard extends FormApplication {
     html.on('click', '.ability-item.secondary .ability-increase', async (event) => {
       event.preventDefault();
       event.stopPropagation();
-      // console.log('🔘 SECONDARY ABILITY CLICK - Increase button clicked');
+      // Get index directly from the button's dataset to avoid any caching issues
+      const index = parseInt(event.currentTarget.dataset.index);
       const $item = $(event.currentTarget).closest('.ability-item.secondary');
-      const index = parseInt($item.data('index'));
       const $section = $item.closest('.secondary-abilities');
       const category = $section.data('category');
-      // console.log(`🔘 SECONDARY ABILITY CLICK - category: ${category}, index: ${index}`);
       await this._modifySecondaryAbility(category, index, 1);
     });
 
     html.on('click', '.ability-item.secondary .ability-decrease', async (event) => {
       event.preventDefault();
       event.stopPropagation();
-      // console.log('🔘 SECONDARY ABILITY CLICK - Decrease button clicked');
+      // Get index directly from the button's dataset to avoid any caching issues
+      const index = parseInt(event.currentTarget.dataset.index);
       const $item = $(event.currentTarget).closest('.ability-item.secondary');
-      const index = parseInt($item.data('index'));
       const $section = $item.closest('.secondary-abilities');
       const category = $section.data('category');
-      // console.log(`🔘 SECONDARY ABILITY CLICK - category: ${category}, index: ${index}`);
       await this._modifySecondaryAbility(category, index, -1);
     });
 
@@ -772,6 +775,18 @@ export class WodCharacterWizard extends FormApplication {
     html.find('.add-secondary').click(async (event) => {
       const category = event.currentTarget.dataset.category;
       await this._addSecondaryAbility(category);
+    });
+
+    // Remove secondary ability - using event delegation
+    html.on('click', '.ability-item.secondary .ability-remove', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      // Get index directly from the button's dataset
+      const index = parseInt(event.currentTarget.dataset.index);
+      const $item = $(event.currentTarget).closest('.ability-item.secondary');
+      const $section = $item.closest('.secondary-abilities');
+      const category = $section.data('category');
+      await this._removeSecondaryAbility(category, index);
     });
     
     // Restore dropdown values on initial load
@@ -2255,6 +2270,9 @@ export class WodCharacterWizard extends FormApplication {
           <button type="button" class="ability-increase" data-index="${newIndex}">
             <i class="fas fa-plus"></i>
           </button>
+          <button type="button" class="ability-remove" data-index="${newIndex}" title="${i18n('WODSYSTEM.Wizard.RemoveAbility')}" aria-label="${i18n('WODSYSTEM.Wizard.RemoveAbility')}">
+            <i class="fas fa-trash"></i>
+          </button>
         </div>
         <div class="ability-dots">
           ${Handlebars.helpers.renderDots(0, maxValue).toString()}
@@ -2267,8 +2285,7 @@ export class WodCharacterWizard extends FormApplication {
     const secondaryContainer = html.find(`.secondary-abilities[data-category="${category}"]`);
     secondaryContainer.find('.add-secondary').before(newItem);
     
-    // Re-attach listeners for abilities step
-    this._activateAbilitiesListeners(html);
+    // No need to re-attach listeners - event delegation handles new elements automatically
   }
 
   /**
@@ -2323,6 +2340,54 @@ export class WodCharacterWizard extends FormApplication {
     } else {
       console.error(`🔄 SECONDARY ABILITY UPDATE - Could not find item for ${category}[${index}]`);
     }
+    
+    // Update points tracker
+    const newValidation = this._validateCurrentStep();
+    if (newValidation.abilities?.[category]) {
+      const categoryDiv = html.find('.ability-category').filter((i, el) => {
+        return $(el).find('h4').text().toLowerCase().includes(category.toLowerCase());
+      });
+      
+      const tracker = categoryDiv.find('.points-tracker');
+      const detail = newValidation.abilities[category];
+      tracker.find('.spent').text(detail.spent);
+      tracker.find('.remaining').text(detail.remaining);
+    }
+    
+    // Update navigation buttons
+    this._updateNavigationButtons(html);
+  }
+
+  /**
+   * Remove secondary ability
+   */
+  async _removeSecondaryAbility(category, index) {
+    if (!this.wizardData.abilities.secondary[category] || !this.wizardData.abilities.secondary[category][index]) {
+      return;
+    }
+    
+    // Remove from data
+    this.wizardData.abilities.secondary[category].splice(index, 1);
+    
+    // Save progress
+    await this._saveProgress();
+    
+    // Remove from DOM
+    const html = this.element;
+    const targetItem = html.find(`.secondary-abilities[data-category="${category}"] .ability-item.secondary[data-index="${index}"]`);
+    if (targetItem.length) {
+      targetItem.remove();
+    }
+    
+    // Re-index remaining items in DOM and data
+    const secondaryContainer = html.find(`.secondary-abilities[data-category="${category}"]`);
+    secondaryContainer.find('.ability-item.secondary').each((i, item) => {
+      const $item = $(item);
+      $item.attr('data-index', i);
+      $item.find('.ability-decrease').attr('data-index', i);
+      $item.find('.ability-increase').attr('data-index', i);
+      $item.find('.ability-remove').attr('data-index', i);
+    });
     
     // Update points tracker
     const newValidation = this._validateCurrentStep();
@@ -2691,10 +2756,15 @@ export class WodCharacterWizard extends FormApplication {
       const bgIndex = parseInt(target);
       let actualBgName = bgName;
       
-      // If modifying existing background, get its name
+      // Priority: 1) Get name from array if background exists, 2) Use bgName parameter, 3) Try array lookup as fallback
       if (bgIndex >= 0 && bgIndex < this.wizardData.advantages.backgrounds.length) {
+        // Background exists in array, use its name (most reliable)
         actualBgName = this.wizardData.advantages.backgrounds[bgIndex].name;
+      } else if (!actualBgName && bgIndex >= 0 && bgIndex < this.wizardData.advantages.backgrounds.length) {
+        // Fallback: try array lookup if bgName wasn't passed
+        actualBgName = this.wizardData.advantages.backgrounds[bgIndex]?.name;
       }
+      // If bgIndex === -1 (background doesn't exist yet), use bgName parameter which should be passed from template
       
       // Double the cost if it's a double cost background
       if (actualBgName && doubleCostBgs.includes(actualBgName)) {
@@ -2903,7 +2973,12 @@ export class WodCharacterWizard extends FormApplication {
       // For backgrounds, check if it's a double cost background
       if (btnType === 'background') {
         const bgIndex = parseInt(btnTarget);
-        const bgName = this.wizardData.advantages.backgrounds[bgIndex]?.name;
+        // Try to get name from array first, then fallback to data-bg-name attribute
+        let bgName = this.wizardData.advantages.backgrounds[bgIndex]?.name;
+        if (!bgName) {
+          // Fallback: get name from button's data-bg-name attribute
+          bgName = $btn.data('bg-name') || $btn.attr('data-bg-name');
+        }
         if (bgName && doubleCostBgs.includes(bgName)) {
           btnCost = btnCost * 2; // Double the cost
         }
@@ -3107,6 +3182,7 @@ export class WodCharacterWizard extends FormApplication {
     if (this.actorType === "Technocrat") {
       updateData["system.identity.convention"] = this.wizardData.concept.convention;
       updateData["system.identity.amalgam"] = this.wizardData.concept.amalgam;
+      updateData["system.identity.eidolon"] = this.wizardData.concept.eidolon;
     }
     
     // Step 2: Attributes

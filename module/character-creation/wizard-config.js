@@ -4,6 +4,18 @@
  * Note: Labels are now stored in i18n files and translated dynamically
  */
 
+/**
+ * Complete list of Nature/Demeanor archetypes
+ */
+export const ARCHETYPES = [
+  "Activist", "Architect", "Artist", "Benefactor", "Bon Vivant", "Caregiver",
+  "Conformist", "Contrary", "Crusader", "Director", "Entertainer", "Guardian",
+  "Hacker", "Heretic", "Idealist", "Innovator", "Kid", "Loner", "Machine",
+  "Mad Scientist", "Martyr", "Mentor", "Monster", "Prophet", "Romantic",
+  "Rogue", "Sensualist", "Survivor", "Traditionalist", "Trickster", "Tycoon",
+  "Vigilante", "Visionary", "Zealot"
+].sort(); // Sort alphabetically for easier selection
+
 export const WIZARD_CONFIG = {
   // Technocrat Configuration
   Technocrat: {
@@ -24,20 +36,8 @@ export const WIZARD_CONFIG = {
       fields: [
         { name: "name", labelKey: "Wizard.FieldName", type: "text", required: true },
         { name: "concept", labelKey: "Wizard.FieldConcept", type: "text", required: true, placeholderKey: "Wizard.PlaceholderConcept" },
-        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: [
-          "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
-          "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
-          "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist",
-          "Monster", "Pedagogue", "Penitent", "Perfectionist", "Rebel", "Rogue",
-          "Scientist", "Survivor", "Traditionalist", "Trickster", "Visionary"
-        ]},
-        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: [
-          "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
-          "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
-          "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist",
-          "Monster", "Pedagogue", "Penitent", "Perfectionist", "Rebel", "Rogue",
-          "Scientist", "Survivor", "Traditionalist", "Trickster", "Visionary"
-        ]},
+        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: ARCHETYPES },
+        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: ARCHETYPES },
         { name: "convention", labelKey: "Wizard.FieldConvention", type: "select", required: true, options: [
           "Iteration X",
           "New World Order",
@@ -45,7 +45,8 @@ export const WIZARD_CONFIG = {
           "Syndicate",
           "Void Engineers"
         ]},
-        { name: "amalgam", labelKey: "Wizard.FieldAmalgam", type: "text", placeholderKey: "Wizard.PlaceholderAmalgam" }
+        { name: "amalgam", labelKey: "Wizard.FieldAmalgam", type: "text", placeholderKey: "Wizard.PlaceholderAmalgam" },
+        { name: "eidolon", labelKey: "Wizard.FieldEidolon", type: "text", placeholderKey: "Wizard.PlaceholderEidolon" }
       ],
       // Convention affinity spheres (at least 1 point must be in an affinity sphere)
       affinitySpheres: {
@@ -157,16 +158,8 @@ export const WIZARD_CONFIG = {
       fields: [
         { name: "name", labelKey: "Wizard.FieldName", type: "text", required: true },
         { name: "concept", labelKey: "Wizard.FieldConcept", type: "text", required: true },
-        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: [
-          "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
-          "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
-          "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist"
-        ]},
-        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: [
-          "Architect", "Autocrat", "Bon Vivant", "Bravo", "Capitalist", "Caregiver",
-          "Competitor", "Conformist", "Conniver", "Critic", "Curmudgeon", "Deviant",
-          "Director", "Fanatic", "Gallant", "Judge", "Loner", "Martyr", "Masochist"
-        ]}
+        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: ARCHETYPES },
+        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: ARCHETYPES }
       ]
     },
 
