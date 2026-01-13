@@ -62,7 +62,9 @@ export class EquipmentEffectsManager {
         });
 
         // Hook into item deletion to clean up effects
-        Hooks.on("deleteItem", (item, options, userId) => {
+        // CRITICAL: Use "preDeleteItem" to capture item data before deletion
+        Hooks.on("preDeleteItem", async (item, options, userId) => {
+            // CRITICAL: Only process if item was equipped and had effects
             if (item.system?.equipped) {
                 // Get actor from item - try multiple methods
                 let actor = item.actor;
@@ -76,7 +78,13 @@ export class EquipmentEffectsManager {
                 // CRITICAL: Only process if the current user is the one who deleted the item
                 // or if they are GM/owner of the actor
                 if (actor && (game.user.isGM || actor.isOwner)) {
-                    manager._handleEquipmentChange(item, false);
+                    // CRITICAL: Capture item effects BEFORE the item is deleted
+                    // This ensures we can remove only the effects from this specific item
+                    const itemId = item.id;
+                    const effects = item.system?.equipmentEffects || {};
+                    
+                    // Remove effects directly (bypassing _handleEquipmentChange since item will be gone)
+                    await manager._removeItemEffectsDirectly(actor, itemId, effects);
                 } else {
                     console.debug("WoD Equipment Effects: Skipping equipment change on delete - user does not have permission", {
                         userId: game.user.id,
@@ -123,7 +131,6 @@ export class EquipmentEffectsManager {
         // NOTE: We don't track token movement in real-time as it blocks performance
         // Instead, we'll find tokens when needed using getActiveTokens or stored location
 
-        console.log("WoD | Equipment Effects Manager initialized");
         return manager;
     }
 
@@ -205,21 +212,12 @@ export class EquipmentEffectsManager {
      */
     async _getStoredToken(actor) {
         if (!actor) {
-            console.log("WoD Equipment Effects: _getStoredToken - No actor provided");
             return null;
         }
         
         const location = actor.flags?.wodsystem?.tokenLocation;
-        console.log("WoD Equipment Effects: _getStoredToken - Checking location", {
-            actorName: actor.name,
-            actorId: actor.id,
-            hasLocation: !!location,
-            tokenId: location?.tokenId,
-            sceneId: location?.sceneId
-        });
         
         if (!location || !location.tokenId || !location.sceneId) {
-            console.log("WoD Equipment Effects: _getStoredToken - No valid location stored");
             return null;
         }
         
@@ -262,13 +260,8 @@ export class EquipmentEffectsManager {
                 
                 if (tokenDoc) {
                     // Found a token for this actor - update stored location
-                    console.log("WoD Equipment Effects: _getStoredToken - Found different token for actor, updating stored location", {
-                        oldTokenId: location.tokenId,
-                        newTokenId: tokenDoc.id
-                    });
                     await this._updateTokenLocation(actor, tokenDoc);
                 } else {
-                    console.warn("WoD Equipment Effects: _getStoredToken - No token found for actor in scene");
                     return null;
                 }
             }
@@ -276,10 +269,6 @@ export class EquipmentEffectsManager {
             // Verify the token is actually linked to this actor
             const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
             if (tokenActorId !== actor.id) {
-                console.warn("WoD Equipment Effects: _getStoredToken - Token not linked to actor", {
-                    tokenActorId: tokenActorId,
-                    targetActorId: actor.id
-                });
                 return null;
             }
             
@@ -287,13 +276,11 @@ export class EquipmentEffectsManager {
             if (scene.active && canvas && canvas.tokens) {
                 const canvasToken = canvas.tokens.get(location.tokenId);
                 if (canvasToken) {
-                    console.log("WoD Equipment Effects: _getStoredToken - Returning canvas token");
                     return canvasToken.object || canvasToken;
                 }
             }
             
             // Return TokenDocument as fallback
-            console.log("WoD Equipment Effects: _getStoredToken - Returning TokenDocument");
             return tokenDoc;
         } catch (e) {
             console.error("WoD Equipment Effects: _getStoredToken - Error", e);
@@ -307,12 +294,6 @@ export class EquipmentEffectsManager {
      * @param {boolean} isEquipped - Whether the item is now equipped
      */
     async _handleEquipmentChange(item, isEquipped) {
-        console.log("WoD Equipment Effects: _handleEquipmentChange called", {
-            itemName: item.name,
-            itemId: item.id,
-            isEquipped: isEquipped
-        });
-        
         // Get actor from item - try multiple methods
         let actor = item.actor;
         if (!actor && item.parent) {
@@ -323,25 +304,11 @@ export class EquipmentEffectsManager {
         }
         
         if (!actor) {
-            console.warn("WoD Equipment Effects: Item has no actor", item.name, item.id, {
-                hasActor: !!item.actor,
-                hasParent: !!item.parent,
-                actorId: item.actorId
-            });
             return;
         }
         
         // CRITICAL: Verify user has permission to modify this actor's items
         if (!game.user.isGM && !actor.isOwner) {
-            console.warn("WoD Equipment Effects: User does not have permission to modify actor's equipment", {
-                userId: game.user.id,
-                userName: game.user.name,
-                actorId: actor.id,
-                actorName: actor.name,
-                itemId: item.id,
-                itemName: item.name,
-                isOwner: actor.isOwner
-            });
             return;
         }
         
@@ -354,55 +321,36 @@ export class EquipmentEffectsManager {
         // Check if there are any actual effects configured (not null)
         const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
 
-        console.log("WoD Equipment Effects: Equipment change", {
-            isEquipped: isEquipped,
-            hasEffects: hasEffects,
-            effects: effects
-        });
-
         if (isEquipped && hasEffects) {
             // Apply effects
-            console.log("WoD Equipment Effects: Applying effects");
+            console.log("WoD Equipment Effects: Equipping item with effects", { itemId, itemName: item.name, effects });
             await this._applyItemEffects(actor, item, effects);
         } else if (!isEquipped) {
             // Remove effects
-            console.log("WoD Equipment Effects: Removing effects");
+            console.log("WoD Equipment Effects: Unequipping item, removing effects", { itemId, itemName: item.name, effects });
             await this._removeItemEffects(actor, itemId);
         }
     }
 
     /**
      * Apply effects from an equipped item
+     * Simple approach: iterate over the item's effects and enable each one
      * @param {Actor} actor - The actor
      * @param {Item} item - The equipped item
-     * @param {Object} effects - Effects configuration
+     * @param {Object} effects - Effects configuration (from item.system.equipmentEffects)
      */
     async _applyItemEffects(actor, item, effects) {
-        console.log("WoD Equipment Effects: _applyItemEffects called", {
-            actorName: actor.name,
-            actorId: actor.id,
-            itemName: item.name,
-            itemId: item.id,
-            effects: effects
-        });
-        
         const actorId = actor.id;
         const itemId = item.id;
 
-        // Store effect data
+        // Store effect data in map for tracking
         if (!this.activeEffects.has(actorId)) {
             this.activeEffects.set(actorId, new Map());
         }
         this.activeEffects.get(actorId).set(itemId, effects);
-        
-        console.log("WoD Equipment Effects: Stored effects in activeEffects", {
-            actorId: actorId,
-            itemId: itemId,
-            storedEffects: this.activeEffects.get(actorId).get(itemId),
-            allActiveEffects: Array.from(this.activeEffects.get(actorId).keys())
-        });
 
-        // Apply each effect type (only if not null)
+        // Iterate over all effects provided by this item and enable each one
+        // The item stores all its effects, so we just go through them
         if (effects.light !== null && effects.light !== undefined) {
             await this._applyLightEffect(actor, item, effects.light);
         }
@@ -421,62 +369,115 @@ export class EquipmentEffectsManager {
 
     /**
      * Remove effects from an unequipped item
+     * Simple approach: iterate over the item's effects and disable each one
      * @param {Actor} actor - The actor
      * @param {string} itemId - The item ID
      */
     async _removeItemEffects(actor, itemId) {
-        console.log("WoD Equipment Effects: _removeItemEffects called", {
-            actorName: actor.name,
-            actorId: actor.id,
-            itemId: itemId
-        });
+        console.log("WoD Equipment Effects: _removeItemEffects called", { actorId: actor.id, actorName: actor.name, itemId });
         
         const actorId = actor.id;
 
-        if (!this.activeEffects.has(actorId)) {
-            console.log("WoD Equipment Effects: No active effects for actor", {
-                actorId: actorId,
-                allActiveEffectsKeys: Array.from(this.activeEffects.keys())
-            });
+        // Get the item to access its effects
+        const item = actor.items.get(itemId);
+        console.log("WoD Equipment Effects: Item found", { itemId, itemExists: !!item, itemName: item?.name });
+        
+        // Get effects directly from the item - this is the source of truth
+        // If item doesn't exist (was deleted), try to get from the map
+        let effects = item?.system?.equipmentEffects;
+        console.log("WoD Equipment Effects: Effects from item", { effects });
+        
+        if (!effects && this.activeEffects.has(actorId)) {
+            const actorEffects = this.activeEffects.get(actorId);
+            effects = actorEffects.get(itemId);
+            console.log("WoD Equipment Effects: Effects from map", { effects });
+        }
+        
+        if (!effects) {
+            console.log("WoD Equipment Effects: No effects found, cleaning up map only");
+            // Item has no effects configured, just clean up the map
+            if (this.activeEffects.has(actorId)) {
+                const actorEffects = this.activeEffects.get(actorId);
+                actorEffects.delete(itemId);
+                if (actorEffects.size === 0) {
+                    this.activeEffects.delete(actorId);
+                }
+            }
             return;
         }
 
-        const actorEffects = this.activeEffects.get(actorId);
-        console.log("WoD Equipment Effects: Actor effects map", {
-            actorId: actorId,
-            itemIdsInMap: Array.from(actorEffects.keys()),
-            targetItemId: itemId
+        // CRITICAL: Remove from active effects map FIRST, before removing effects
+        // This ensures that when we check for other light sources, this item is already removed
+        if (this.activeEffects.has(actorId)) {
+            const actorEffects = this.activeEffects.get(actorId);
+            actorEffects.delete(itemId);
+            if (actorEffects.size === 0) {
+                this.activeEffects.delete(actorId);
+            }
+        }
+
+        // Iterate over all effects provided by this item and disable each one
+        // The item stores all its effects, so we just go through them
+        console.log("WoD Equipment Effects: Removing effects", { 
+            hasLight: effects.light !== null && effects.light !== undefined,
+            hasVisibility: effects.visibility !== null && effects.visibility !== undefined,
+            hasSound: effects.sound !== null && effects.sound !== undefined
         });
         
-        const effects = actorEffects.get(itemId);
-
-        if (!effects) {
-            console.log("WoD Equipment Effects: No effects found for item", {
-                itemId: itemId,
-                availableItemIds: Array.from(actorEffects.keys())
-            });
-            return;
-        }
-
-        console.log("WoD Equipment Effects: Removing effects", effects);
-
-        // Remove each effect type
-        if (effects.light) {
+        if (effects.light !== null && effects.light !== undefined) {
+            console.log("WoD Equipment Effects: Calling _removeLightEffect");
             await this._removeLightEffect(actor, itemId);
         }
 
-        if (effects.visibility) {
+        if (effects.visibility !== null && effects.visibility !== undefined) {
+            console.log("WoD Equipment Effects: Calling _removeVisibilityEffect");
             await this._removeVisibilityEffect(actor, itemId);
         }
 
-        if (effects.sound) {
+        if (effects.sound !== null && effects.sound !== undefined) {
+            console.log("WoD Equipment Effects: Calling _removeSoundEffect");
             await this._removeSoundEffect(actor, itemId);
         }
 
-        // Remove from active effects
-        actorEffects.delete(itemId);
-        if (actorEffects.size === 0) {
-            this.activeEffects.delete(actorId);
+        // Update tokens
+        await this._updateActorTokens(actor);
+        console.log("WoD Equipment Effects: _removeItemEffects completed");
+    }
+
+    /**
+     * Remove effects directly when item is being deleted
+     * This method is used when the item no longer exists, so we pass the effects directly
+     * CRITICAL: This ensures we only remove effects from the deleted item, not from other items
+     * @param {Actor} actor - The actor
+     * @param {string} itemId - The item ID
+     * @param {Object} effects - The effects configuration from the deleted item
+     */
+    async _removeItemEffectsDirectly(actor, itemId, effects) {
+        const actorId = actor.id;
+
+        // CRITICAL: Remove from activeEffects map FIRST
+        if (this.activeEffects.has(actorId)) {
+            const actorEffects = this.activeEffects.get(actorId);
+            actorEffects.delete(itemId);
+            if (actorEffects.size === 0) {
+                this.activeEffects.delete(actorId);
+            }
+        }
+
+        // Remove each effect type ONLY if this specific item had that effect configured
+        // This ensures we only remove effects from the deleted item, not from other items
+        if (effects) {
+            if (effects.light !== null && effects.light !== undefined) {
+                await this._removeLightEffect(actor, itemId);
+            }
+
+            if (effects.visibility !== null && effects.visibility !== undefined) {
+                await this._removeVisibilityEffect(actor, itemId);
+            }
+
+            if (effects.sound !== null && effects.sound !== undefined) {
+                await this._removeSoundEffect(actor, itemId);
+            }
         }
 
         // Update tokens
@@ -490,15 +491,7 @@ export class EquipmentEffectsManager {
      * @param {Object} lightConfig - Light configuration
      */
     async _applyLightEffect(actor, item, lightConfig) {
-        console.log("WoD Equipment Effects: _applyLightEffect called", {
-            actorName: actor.name,
-            actorId: actor.id,
-            itemName: item.name,
-            lightConfig: lightConfig
-        });
-        
         if (!lightConfig || (lightConfig.dim === 0 && lightConfig.bright === 0)) {
-            console.log("WoD Equipment Effects: No light to apply (dim and bright are 0)");
             return;
         }
 
@@ -509,21 +502,14 @@ export class EquipmentEffectsManager {
         const storedToken = await this._getStoredToken(actor);
         if (storedToken) {
             tokens.push(storedToken);
-            console.log("WoD Equipment Effects: ✓ Found stored token", {
-                tokenId: storedToken.id || storedToken.document?.id,
-                sceneId: storedToken.scene?.id || storedToken.sceneId || storedToken.document?.sceneId
-            });
         } else {
-            console.log("WoD Equipment Effects: No stored token found, trying getActiveTokens");
             // Method 2: Quick fallback - getActiveTokens (only if stored location not available)
             try {
                 const activeTokens = actor.getActiveTokens(true);
-                console.log("WoD Equipment Effects: getActiveTokens returned", activeTokens.length, "token(s)");
                 if (activeTokens.length > 0) {
                     tokens.push(...activeTokens);
                     // Store location for future use
                     await this._updateTokenLocation(actor, activeTokens[0]);
-                    console.log("WoD Equipment Effects: Stored token location for future use");
                 } else {
                     // If no active tokens, try to find token in the stored scene
                     const location = actor.flags?.wodsystem?.tokenLocation;
@@ -540,13 +526,7 @@ export class EquipmentEffectsManager {
                                 tokens.push(...sceneTokens);
                                 // Update stored location with the first token found
                                 await this._updateTokenLocation(actor, sceneTokens[0]);
-                                console.log("WoD Equipment Effects: Found token in stored scene, updated location");
                             }
-                        } else if (scene && !game.user.isGM && !scene.testUserPermission(game.user, "LIMITED")) {
-                            console.debug("WoD Equipment Effects: User does not have access to stored scene", {
-                                userId: game.user.id,
-                                sceneId: location.sceneId
-                            });
                         }
                     }
                 }
@@ -554,8 +534,6 @@ export class EquipmentEffectsManager {
                 console.warn("WoD Equipment Effects: getActiveTokens failed", e);
             }
         }
-        
-        console.log("WoD Equipment Effects: Total tokens to update:", tokens.length);
         
         if (tokens.length === 0) {
             // Store the light configuration so it can be applied when token is created
@@ -611,27 +589,25 @@ export class EquipmentEffectsManager {
         }
 
         for (const token of tokens) {
-            console.log("WoD Equipment Effects: Updating token light", {
-                tokenId: token.id || token.document?.id,
-                tokenName: token.name || token.document?.name,
-                hasDocument: !!token.document,
-                hasUpdate: !!token.update,
-                lightData: lightData
-            });
-            
             try {
-                // Check permissions - only GM or actor owner can update tokens
+                // CRITICAL: Verify token belongs to the correct actor
                 const tokenDoc = token.document || token;
+                const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                
+                // Double-check: token must belong to the actor we're modifying
+                if (tokenActorId !== actor.id) {
+                    console.warn("WoD Equipment Effects: Token does not belong to actor, skipping", {
+                        tokenActorId: tokenActorId,
+                        targetActorId: actor.id,
+                        tokenId: tokenDoc.id
+                    });
+                    continue;
+                }
+                
+                // Check permissions - only GM or actor owner can update tokens
                 const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
                 
                 if (!game.user.isGM && tokenActor && !tokenActor.isOwner) {
-                    console.warn("WoD Equipment Effects: User does not have permission to update this token", {
-                        userId: game.user.id,
-                        userName: game.user.name,
-                        actorId: tokenActor.id,
-                        actorName: tokenActor.name,
-                        isOwner: tokenActor.isOwner
-                    });
                     continue;
                 }
                 
@@ -639,13 +615,11 @@ export class EquipmentEffectsManager {
                 if (token.document) {
                     // It's a Token (from getActiveTokens or scene.tokens when active)
                     await token.document.update({ light: lightData });
-                    console.log("WoD Equipment Effects: ✓ Light updated via token.document.update");
                 } 
                 // Check if token is a TokenDocument (has .update method directly)
                 else if (token.update) {
                     // It's a TokenDocument (from scene.tokens when scene is not active)
                     await token.update({ light: lightData });
-                    console.log("WoD Equipment Effects: ✓ Light updated via token.update");
                 } 
                 // Check if token has data property (might be raw data)
                 else if (token.data && token.scene) {
@@ -655,29 +629,24 @@ export class EquipmentEffectsManager {
                     if (scene && (game.user.isGM || scene.testUserPermission(game.user, "LIMITED"))) {
                         const tokenDoc = scene.tokens.get(token.id || token.data._id);
                         if (tokenDoc) {
+                            // CRITICAL: Verify token belongs to the correct actor
+                            const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                            if (tokenActorId !== actor.id) {
+                                console.warn("WoD Equipment Effects: Token does not belong to actor, skipping light update via scene lookup", {
+                                    tokenActorId: tokenActorId,
+                                    targetActorId: actor.id,
+                                    tokenId: tokenDoc.id
+                                });
+                                continue;
+                            }
+                            
                             // Verify permissions again for the token document
                             const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
                             if (game.user.isGM || (tokenActor && tokenActor.isOwner)) {
                                 await tokenDoc.update({ light: lightData });
-                                console.log("WoD Equipment Effects: ✓ Light updated via scene lookup");
-                            } else {
-                                console.debug("WoD Equipment Effects: User does not have permission to update token via scene lookup");
                             }
-                        } else {
-                            console.warn("WoD Equipment Effects: TokenDocument not found in scene");
                         }
-                    } else if (scene && !game.user.isGM && !scene.testUserPermission(game.user, "LIMITED")) {
-                        console.debug("WoD Equipment Effects: User does not have access to scene for token update");
-                    } else {
-                        console.warn("WoD Equipment Effects: Scene not found");
                     }
-                } else {
-                    console.warn("WoD Equipment Effects: Unknown token type", {
-                        hasDocument: !!token.document,
-                        hasUpdate: !!token.update,
-                        hasData: !!token.data,
-                        hasScene: !!token.scene
-                    });
                 }
             } catch (error) {
                 console.error("WoD Equipment Effects: Error updating token light", error);
@@ -691,36 +660,37 @@ export class EquipmentEffectsManager {
      * @param {string} itemId - The item ID
      */
     async _removeLightEffect(actor, itemId) {
-        console.log("WoD Equipment Effects: _removeLightEffect called", {
-            actorName: actor.name,
-            actorId: actor.id,
-            itemId: itemId
-        });
+        console.log("WoD Equipment Effects: _removeLightEffect called", { actorId: actor.id, itemId });
         
-        // Check if other equipped items provide light
-        const hasOtherLight = this._hasOtherLightSource(actor, itemId);
-        console.log("WoD Equipment Effects: Has other light source?", hasOtherLight);
+        const actorId = actor.id;
+        
+        // CRITICAL: The item has already been removed from the map in _removeItemEffects
+        // So we can directly check if other items have light effects
+        const hasOtherLight = this._hasOtherLightSourceFromMap(actorId);
+        console.log("WoD Equipment Effects: Has other light sources?", { hasOtherLight });
         
         if (!hasOtherLight) {
+            console.log("WoD Equipment Effects: No other light sources, resetting to default");
             // Reset to default light (completely disable)
+            // Use Foundry's default light values to ensure proper reset
             const defaultLightData = {
                 dim: 0,
                 bright: 0,
                 angle: 360,
                 color: "#000000",
                 alpha: 0.5,
-                darkness: { min: 0, max: 1 }
+                darkness: { min: 0, max: 1 },
+                // Explicitly set animation to null to remove any animation
+                animation: null
             };
             
             let tokens = [];
             const storedToken = await this._getStoredToken(actor);
             if (storedToken) {
                 tokens.push(storedToken);
-                console.log("WoD Equipment Effects: Using stored token to remove light");
             } else {
                 // Try getActiveTokens first
                 tokens = actor.getActiveTokens(true);
-                console.log("WoD Equipment Effects: Using getActiveTokens, found", tokens.length, "token(s)");
                 
                 // If no active tokens, try to find token in the stored scene
                 if (tokens.length === 0) {
@@ -738,52 +708,55 @@ export class EquipmentEffectsManager {
                                 tokens.push(...sceneTokens);
                                 // Update stored location with the first token found
                                 await this._updateTokenLocation(actor, sceneTokens[0]);
-                                console.log("WoD Equipment Effects: Found token in stored scene, updated location");
                             }
                         }
                     }
                 }
             }
             
-            console.log("WoD Equipment Effects: Removing light from", tokens.length, "token(s)");
-            
             if (tokens.length === 0) {
+                console.log("WoD Equipment Effects: No tokens found, updating prototype token");
                 // No tokens found - update prototype token so new tokens won't have light
                 // CRITICAL: Only update prototype token if user has permission
                 if (game.user.isGM || actor.isOwner) {
                     await actor.update({ "prototypeToken.light": defaultLightData });
-                    console.log("WoD Equipment Effects: ✓ Light removed from prototype token");
-                } else {
-                    console.debug("WoD Equipment Effects: User does not have permission to update prototype token");
+                    console.log("WoD Equipment Effects: Prototype token updated");
                 }
             } else {
+                console.log("WoD Equipment Effects: Found tokens, updating", { tokenCount: tokens.length });
                 // Update all found tokens
                 for (const token of tokens) {
                     try {
-                        // Check permissions - only GM or actor owner can update tokens
+                        // CRITICAL: Verify token belongs to the correct actor
                         const tokenDoc = token.document || token;
+                        const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                        
+                        // Double-check: token must belong to the actor we're modifying
+                        if (tokenActorId !== actor.id) {
+                            console.warn("WoD Equipment Effects: Token does not belong to actor, skipping light removal", {
+                                tokenActorId: tokenActorId,
+                                targetActorId: actor.id,
+                                tokenId: tokenDoc.id
+                            });
+                            continue;
+                        }
+                        
+                        // Check permissions - only GM or actor owner can update tokens
                         const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
                         
                         if (!game.user.isGM && tokenActor && !tokenActor.isOwner) {
-                            console.warn("WoD Equipment Effects: User does not have permission to update this token", {
-                                userId: game.user.id,
-                                userName: game.user.name,
-                                actorId: tokenActor?.id,
-                                actorName: tokenActor?.name,
-                                isOwner: tokenActor?.isOwner
-                            });
                             continue;
                         }
                         
                         // Handle both Token and TokenDocument
                         if (token.document) {
+                            console.log("WoD Equipment Effects: Updating token via document", { tokenId: token.id });
                             await token.document.update({ light: defaultLightData });
-                            console.log("WoD Equipment Effects: ✓ Light removed via token.document.update");
+                            console.log("WoD Equipment Effects: Token updated successfully");
                         } else if (token.update) {
+                            console.log("WoD Equipment Effects: Updating token directly", { tokenId: token.id });
                             await token.update({ light: defaultLightData });
-                            console.log("WoD Equipment Effects: ✓ Light removed via token.update");
-                        } else {
-                            console.warn("WoD Equipment Effects: Cannot remove light - unknown token type");
+                            console.log("WoD Equipment Effects: Token updated successfully");
                         }
                     } catch (error) {
                         console.error("WoD Equipment Effects: Error removing light", error);
@@ -791,9 +764,9 @@ export class EquipmentEffectsManager {
                 }
             }
         } else {
-            // Recalculate light from other sources
-            console.log("WoD Equipment Effects: Recalculating light from other sources");
-            await this._recalculateLight(actor);
+            // Other items have light - recalculate from the map (no race conditions)
+            console.log("WoD Equipment Effects: Other items have light, recalculating");
+            await this._recalculateLightFromMap(actor);
         }
     }
 
@@ -815,32 +788,69 @@ export class EquipmentEffectsManager {
         }
         
         if (tokens.length === 0) {
-            console.warn("WoD Equipment Effects: No tokens found for visibility effect");
             return;
         }
         
         for (const token of tokens) {
-            // Check permissions - only GM or actor owner can update tokens
+            // CRITICAL: Verify token belongs to the correct actor
             const tokenDoc = token.document || token;
+            const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+            
+            // Double-check: token must belong to the actor we're modifying
+            if (tokenActorId !== actor.id) {
+                console.warn("WoD Equipment Effects: Token does not belong to actor, skipping visibility update", {
+                    tokenActorId: tokenActorId,
+                    targetActorId: actor.id,
+                    tokenId: tokenDoc.id
+                });
+                continue;
+            }
+            
+            // Check permissions - only GM or actor owner can update tokens
             const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
             
             if (!game.user.isGM && tokenActor && !tokenActor.isOwner) {
-                console.warn("WoD Equipment Effects: User does not have permission to update this token");
                 continue;
             }
             
             const updates = {};
 
-            if (visibilityConfig.dimSight !== undefined) {
+            // Set sight range (dim sight)
+            if (visibilityConfig.dimSight !== undefined && visibilityConfig.dimSight > 0) {
                 updates["sight.range"] = visibilityConfig.dimSight;
             }
 
-            if (visibilityConfig.brightSight !== undefined) {
-                updates["sight.angle"] = visibilityConfig.brightSight;
+            // Set bright sight range (for modes that support it)
+            // Note: Foundry uses sight.range for dim and doesn't have a separate bright range
+            // brightSight is typically the same as dimSight or represents enhanced vision range
+            if (visibilityConfig.brightSight !== undefined && visibilityConfig.brightSight > 0) {
+                // For most vision modes, bright sight is the same as dim sight
+                // But we can use it to set a higher range if needed
+                if (visibilityConfig.brightSight > (visibilityConfig.dimSight || 0)) {
+                    updates["sight.range"] = visibilityConfig.brightSight;
+                }
             }
 
+            // Set vision mode
             if (visibilityConfig.visionMode !== undefined) {
-                updates["visionMode"] = visibilityConfig.visionMode;
+                updates["sight.visionMode"] = visibilityConfig.visionMode;
+            }
+
+            // Set angle only for directional vision modes
+            // Omnidirectional modes (darkvision, tremorsense, blindsight, truesight, xray) should use 360
+            const directionalModes = ["basic", "lowlight"];
+            const visionMode = visibilityConfig.visionMode || "basic";
+            
+            if (directionalModes.includes(visionMode)) {
+                // For directional modes, use the configured angle (default 360 = full circle)
+                if (visibilityConfig.angle !== undefined) {
+                    updates["sight.angle"] = visibilityConfig.angle;
+                } else {
+                    updates["sight.angle"] = 360; // Default to full circle
+                }
+            } else {
+                // For omnidirectional modes, always use 360 (full circle)
+                updates["sight.angle"] = 360;
             }
 
             if (Object.keys(updates).length > 0) {
@@ -860,8 +870,14 @@ export class EquipmentEffectsManager {
      * @param {string} itemId - The item ID
      */
     async _removeVisibilityEffect(actor, itemId) {
-        // Check if other equipped items provide visibility
-        const hasOtherVisibility = this._hasOtherVisibilitySource(actor, itemId);
+        console.log("WoD Equipment Effects: _removeVisibilityEffect called", { actorId: actor.id, itemId });
+        
+        const actorId = actor.id;
+        
+        // CRITICAL: The item has already been removed from the map in _removeItemEffects
+        // So we can directly check if other items have visibility effects
+        const hasOtherVisibility = this._hasOtherVisibilitySourceFromMap(actorId);
+        console.log("WoD Equipment Effects: Has other visibility sources?", { hasOtherVisibility });
         
         // Get tokens using stored location or fallback
         let tokens = [];
@@ -879,12 +895,24 @@ export class EquipmentEffectsManager {
             }
             
             for (const token of tokens) {
-                // Check permissions - only GM or actor owner can update tokens
+                // CRITICAL: Verify token belongs to the correct actor
                 const tokenDoc = token.document || token;
+                const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                
+                // Double-check: token must belong to the actor we're modifying
+                if (tokenActorId !== actor.id) {
+                    console.warn("WoD Equipment Effects: Token does not belong to actor, skipping visibility reset", {
+                        tokenActorId: tokenActorId,
+                        targetActorId: actor.id,
+                        tokenId: tokenDoc.id
+                    });
+                    continue;
+                }
+                
+                // Check permissions - only GM or actor owner can update tokens
                 const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
                 
                 if (!game.user.isGM && tokenActor && !tokenActor.isOwner) {
-                    console.warn("WoD Equipment Effects: User does not have permission to update this token");
                     continue;
                 }
                 
@@ -902,8 +930,8 @@ export class EquipmentEffectsManager {
                 }
             }
         } else {
-            // Recalculate visibility from other sources
-            await this._recalculateVisibility(actor);
+            // Other items have visibility - recalculate from the map (no race conditions)
+            await this._recalculateVisibilityFromMap(actor);
         }
     }
 
@@ -935,22 +963,99 @@ export class EquipmentEffectsManager {
     }
 
     /**
-     * Check if actor has other light sources
+     * Check if there are other light sources in the activeEffects map
+     * This uses the map directly, avoiding race conditions with database state
+     * @param {string} actorId - The actor ID
+     * @returns {boolean}
+     */
+    _hasOtherLightSourceFromMap(actorId) {
+        if (!this.activeEffects.has(actorId)) {
+            return false;
+        }
+        
+        const actorEffects = this.activeEffects.get(actorId);
+        
+        // Check if any item in the map has a light effect with actual values
+        for (const [itemId, effects] of actorEffects.entries()) {
+            if (effects.light !== null && effects.light !== undefined) {
+                const lightEffect = effects.light;
+                // Verify the light effect has actual values
+                const hasLightValue = (lightEffect.dim > 0) || (lightEffect.bright > 0);
+                if (hasLightValue) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if actor has other light sources (legacy method - uses database state)
+     * @deprecated Use _hasOtherLightSourceFromMap instead to avoid race conditions
      * @param {Actor} actor - The actor
      * @param {string} excludeItemId - Item ID to exclude from check
      * @returns {boolean}
      */
     _hasOtherLightSource(actor, excludeItemId) {
-        const equippedItems = actor.items.filter(item => 
-            item.system?.equipped && 
-            item.id !== excludeItemId && 
-            item.system?.equipmentEffects?.light
-        );
+        // CRITICAL: Only check items if user has permission to view the actor
+        if (!game.user.isGM && !actor.isOwner) {
+            return false;
+        }
+        
+        // Check for items that are equipped AND have a non-null light effect
+        // CRITICAL: Also verify that the light effect has actual values (dim > 0 or bright > 0)
+        // and that the excluded item is not equipped (double-check to prevent race conditions)
+        const equippedItems = actor.items.filter(item => {
+            // Skip if item is not equipped
+            if (!item.system?.equipped) return false;
+            
+            // CRITICAL: Double-check - skip the item we're removing even if it still appears equipped
+            // This prevents race conditions where the item update hasn't propagated yet
+            if (item.id === excludeItemId) {
+                // Extra safety: if this is the excluded item, verify it's actually not equipped
+                // If it's still marked as equipped, it means the update hasn't propagated yet
+                return false;
+            }
+            
+            // Only count items that have an actual light effect (not null/undefined)
+            const lightEffect = item.system?.equipmentEffects?.light;
+            if (lightEffect === null || lightEffect === undefined) return false;
+            
+            // CRITICAL: Also verify the light effect has actual values
+            // An empty light effect object shouldn't count as a light source
+            const hasLightValue = (lightEffect.dim > 0) || (lightEffect.bright > 0);
+            return hasLightValue;
+        });
         return equippedItems.length > 0;
     }
 
     /**
-     * Check if actor has other visibility sources
+     * Check if there are other visibility sources in the activeEffects map
+     * This uses the map directly, avoiding race conditions with database state
+     * @param {string} actorId - The actor ID
+     * @returns {boolean}
+     */
+    _hasOtherVisibilitySourceFromMap(actorId) {
+        if (!this.activeEffects.has(actorId)) {
+            return false;
+        }
+        
+        const actorEffects = this.activeEffects.get(actorId);
+        
+        // Check if any item in the map has a visibility effect
+        for (const [itemId, effects] of actorEffects.entries()) {
+            if (effects.visibility !== null && effects.visibility !== undefined) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Check if actor has other visibility sources (legacy method - uses database state)
+     * @deprecated Use _hasOtherVisibilitySourceFromMap instead to avoid race conditions
      * @param {Actor} actor - The actor
      * @param {string} excludeItemId - Item ID to exclude from check
      * @returns {boolean}
@@ -970,10 +1075,10 @@ export class EquipmentEffectsManager {
     }
 
     /**
-     * Recalculate light from all equipped items
+     * Recalculate light from the activeEffects map (avoids race conditions)
      * @param {Actor} actor - The actor
      */
-    async _recalculateLight(actor) {
+    async _recalculateLightFromMap(actor) {
         // CRITICAL: Only recalculate if user has permission
         if (!game.user.isGM && !actor.isOwner) {
             console.debug("WoD Equipment Effects: User does not have permission to recalculate light", {
@@ -983,32 +1088,161 @@ export class EquipmentEffectsManager {
             return;
         }
         
-        const equippedItems = actor.items.filter(item => 
-            item.system?.equipped && 
-            item.system?.equipmentEffects?.light
-        );
+        const actorId = actor.id;
+        
+        // Get all items with light effects from the map
+        const itemsWithLight = [];
+        if (this.activeEffects.has(actorId)) {
+            const actorEffects = this.activeEffects.get(actorId);
+            
+            for (const [itemId, effects] of actorEffects.entries()) {
+                if (effects.light !== null && effects.light !== undefined) {
+                    const lightEffect = effects.light;
+                    // Verify the light effect has actual values
+                    const hasLightValue = (lightEffect.dim > 0) || (lightEffect.bright > 0);
+                    if (hasLightValue) {
+                        // Get the item to pass to _applyLightEffect
+                        const item = actor.items.get(itemId);
+                        if (item) {
+                            itemsWithLight.push({ item, light: lightEffect });
+                        }
+                    }
+                }
+            }
+        }
+        
+        // If no items with light, reset to default
+        if (itemsWithLight.length === 0) {
+            const defaultLightData = {
+                dim: 0,
+                bright: 0,
+                angle: 360,
+                color: "#000000",
+                alpha: 0.5,
+                darkness: { min: 0, max: 1 },
+                animation: null
+            };
+            
+            let tokens = [];
+            const storedToken = await this._getStoredToken(actor);
+            if (storedToken) {
+                tokens.push(storedToken);
+            } else {
+                tokens = actor.getActiveTokens(true);
+            }
+            
+            if (tokens.length === 0) {
+                if (game.user.isGM || actor.isOwner) {
+                    await actor.update({ "prototypeToken.light": defaultLightData });
+                }
+            } else {
+                for (const token of tokens) {
+                    try {
+                        // CRITICAL: Verify token belongs to the correct actor
+                        const tokenDoc = token.document || token;
+                        const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                        
+                        // Double-check: token must belong to the actor we're modifying
+                        if (tokenActorId !== actor.id) {
+                            console.warn("WoD Equipment Effects: Token does not belong to actor, skipping light reset in recalculate", {
+                                tokenActorId: tokenActorId,
+                                targetActorId: actor.id,
+                                tokenId: tokenDoc.id
+                            });
+                            continue;
+                        }
+                        
+                        const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
+                        
+                        if (!game.user.isGM && tokenActor && !tokenActor.isOwner) {
+                            continue;
+                        }
+                        
+                        if (token.document) {
+                            await token.document.update({ light: defaultLightData });
+                        } else if (token.update) {
+                            await token.update({ light: defaultLightData });
+                        }
+                    } catch (error) {
+                        console.error("WoD Equipment Effects: Error resetting light in recalculate", error);
+                    }
+                }
+            }
+            return;
+        }
 
         // Find the strongest light source (highest bright value)
         let strongestLight = null;
+        let strongestItem = null;
         let maxBright = 0;
 
-        for (const item of equippedItems) {
-            const light = item.system.equipmentEffects.light;
+        for (const { item, light } of itemsWithLight) {
             if (light.bright > maxBright) {
                 maxBright = light.bright;
                 strongestLight = light;
+                strongestItem = item;
             }
         }
 
-        if (strongestLight) {
-            await this._applyLightEffect(actor, equippedItems.find(i => 
-                i.system.equipmentEffects.light === strongestLight
-            ), strongestLight);
+        if (strongestLight && strongestItem) {
+            console.log("WoD Equipment Effects: Applying strongest light from recalculate", { itemId: strongestItem.id, bright: strongestLight.bright });
+            await this._applyLightEffect(actor, strongestItem, strongestLight);
         }
     }
 
     /**
-     * Recalculate visibility from all equipped items
+     * Recalculate visibility from the activeEffects map (avoids race conditions)
+     * @param {Actor} actor - The actor
+     */
+    async _recalculateVisibilityFromMap(actor) {
+        // CRITICAL: Only recalculate if user has permission
+        if (!game.user.isGM && !actor.isOwner) {
+            console.debug("WoD Equipment Effects: User does not have permission to recalculate visibility", {
+                userId: game.user.id,
+                actorId: actor.id
+            });
+            return;
+        }
+        
+        const actorId = actor.id;
+        
+        // Get all items with visibility effects from the map
+        const itemsWithVisibility = [];
+        if (this.activeEffects.has(actorId)) {
+            const actorEffects = this.activeEffects.get(actorId);
+            
+            for (const [itemId, effects] of actorEffects.entries()) {
+                if (effects.visibility !== null && effects.visibility !== undefined) {
+                    // Get the item to pass to _applyVisibilityEffect
+                    const item = actor.items.get(itemId);
+                    if (item) {
+                        itemsWithVisibility.push({ item, visibility: effects.visibility });
+                    }
+                }
+            }
+        }
+        
+        // Find the best visibility source (highest dimSight)
+        let bestVisibility = null;
+        let bestItem = null;
+        let maxDimSight = 0;
+
+        for (const { item, visibility } of itemsWithVisibility) {
+            if (visibility.dimSight > maxDimSight) {
+                maxDimSight = visibility.dimSight;
+                bestVisibility = visibility;
+                bestItem = item;
+            }
+        }
+
+        if (bestVisibility && bestItem) {
+            await this._applyVisibilityEffect(actor, bestItem, bestVisibility);
+        }
+    }
+
+    /**
+     * Recalculate visibility from all equipped items (legacy method - uses database state)
+     * @deprecated Use _recalculateVisibilityFromMap instead to avoid race conditions
      * @param {Actor} actor - The actor
      */
     async _recalculateVisibility(actor) {

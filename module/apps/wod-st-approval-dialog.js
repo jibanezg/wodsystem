@@ -91,8 +91,17 @@ async function handleSocketData(data) {
 export class WodStApprovalDialog extends Application {
     constructor(actor, effectIds, options = {}) {
         // Set title in options if not provided, using i18n if available
-        if (!options.title && game?.i18n) {
-            options.title = game.i18n.localize("WODSYSTEM.Dialogs.STApprovalRequired");
+        // This must be done BEFORE calling super() - exactly like WodEquipmentEffectsDialog
+        if (!options.title) {
+            if (game?.i18n) {
+                const localized = game.i18n.localize("WODSYSTEM.Dialogs.STApprovalRequired");
+                // Only use localized if it's not the same as the key (meaning translation was found)
+                options.title = (localized !== "WODSYSTEM.Dialogs.STApprovalRequired") 
+                    ? localized 
+                    : "ST Approval Required";
+            } else {
+                options.title = "ST Approval Required";
+            }
         }
         
         super(options);

@@ -1,24 +1,35 @@
 /* Equipment Effects Dialog Styles */
-/* Consistent with system look and feel - matches effect-manager and roll-dialog */
+/* Consistent with system look and feel - matches effect-manager and equipment tabs */
 
-/* Use the same base styles as other dialogs */
-form.wod-effect-manager.equipment-effects-dialog {
-    padding: 15px;
-    background: var(--wod-bg-main, #ffffff);
+/* Dialog Window Background - Ensure white background */
+.window-app.equipment-effects-dialog,
+.window-app#wod-equipment-effects {
+    background: white !important;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-content {
+/* Base form styles */
+form.wod-equipment-effects-dialog {
+    padding: 15px;
+    background: transparent !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+}
+
+form.wod-equipment-effects-dialog .dialog-content {
     padding: 0;
+    width: 100% !important;
+    max-width: 100% !important;
 }
 
 /* Header Section - Match effect-manager style */
-form.wod-effect-manager.equipment-effects-dialog .effect-header-section {
+form.wod-equipment-effects-dialog .effect-header-section {
     margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 2px solid var(--wod-primary, #2D5016);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .effect-header-section h3 {
+form.wod-equipment-effects-dialog .effect-header-section h3 {
     margin: 0;
     padding: 8px 12px;
     background: var(--wod-primary, #2D5016);
@@ -34,55 +45,76 @@ form.wod-effect-manager.equipment-effects-dialog .effect-header-section h3 {
     gap: 8px;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .effect-header-section h3 i {
+form.wod-equipment-effects-dialog .effect-header-section h3 i {
     font-size: 14px;
 }
 
-/* Effect Sections - Match effect-manager style */
-form.wod-effect-manager.equipment-effects-dialog .effect-metadata-section,
-form.wod-effect-manager.equipment-effects-dialog .effect-conditions-section,
-form.wod-effect-manager.equipment-effects-dialog .effect-modifiers {
-    margin-bottom: 20px;
+/* Tab Navigation Container - Match equipment type tabs */
+form.wod-equipment-effects-dialog .effect-tabs-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 6px;
+    background: linear-gradient(135deg, var(--wod-primary, #2D5016) 0%, var(--wod-primary-dark, #1a3009) 100%);
+    border-radius: 4px;
+}
+
+form.wod-equipment-effects-dialog .effect-tabs {
+    display: flex;
+    gap: 4px;
+}
+
+/* Tab Buttons - Match equipment type tab styling */
+form.wod-equipment-effects-dialog .effect-tab {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.7em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+form.wod-equipment-effects-dialog .effect-tab i {
+    font-size: 0.9em;
+}
+
+form.wod-equipment-effects-dialog .effect-tab:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+form.wod-equipment-effects-dialog .effect-tab.active {
+    background: white;
+    color: var(--wod-primary, #2D5016);
+}
+
+/* Effect Section Container */
+form.wod-equipment-effects-dialog .effect-section {
     padding: 12px;
     border: 1px solid var(--wod-border-light, #e0e0e0);
     border-radius: 4px;
     background: var(--wod-bg-secondary, #F8F9FA);
-}
-
-form.wod-effect-manager.equipment-effects-dialog .effect-metadata-section h3,
-form.wod-effect-manager.equipment-effects-dialog .effect-conditions-section h3,
-form.wod-effect-manager.equipment-effects-dialog .effect-modifiers h3 {
-    margin: 0 0 12px 0;
-    padding: 6px 10px;
-    background: var(--wod-primary, #2D5016);
-    color: white;
-    text-align: center;
-    border-radius: 3px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
-
-form.wod-effect-manager.equipment-effects-dialog .effect-metadata-section h3 i,
-form.wod-effect-manager.equipment-effects-dialog .effect-conditions-section h3 i,
-form.wod-effect-manager.equipment-effects-dialog .effect-modifiers h3 i {
-    font-size: 12px;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Form Groups - Match effect-manager style */
-form.wod-effect-manager.equipment-effects-dialog .form-group {
+form.wod-equipment-effects-dialog .form-group {
     margin-bottom: 12px;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .form-group:last-child {
+form.wod-equipment-effects-dialog .form-group:last-child {
     margin-bottom: 0;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .form-group label {
+form.wod-equipment-effects-dialog .form-group label {
     display: block;
     font-weight: bold;
     font-size: 11px;
@@ -92,8 +124,19 @@ form.wod-effect-manager.equipment-effects-dialog .form-group label {
     letter-spacing: 0.5px;
 }
 
+form.wod-equipment-effects-dialog .form-group small.form-hint {
+    display: block;
+    font-size: 10px;
+    color: #666;
+    font-style: italic;
+    margin-top: 2px;
+    font-weight: normal;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
 /* Checkbox Groups - Match effect-manager style */
-form.wod-effect-manager.equipment-effects-dialog .checkbox-group {
+form.wod-equipment-effects-dialog .checkbox-group {
     margin-bottom: 12px;
     padding: 8px;
     background: var(--wod-bg-light, #ffffff);
@@ -101,7 +144,7 @@ form.wod-effect-manager.equipment-effects-dialog .checkbox-group {
     border-radius: 3px;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .checkbox-group label {
+form.wod-equipment-effects-dialog .checkbox-group label {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -112,24 +155,17 @@ form.wod-effect-manager.equipment-effects-dialog .checkbox-group label {
     color: var(--wod-text-main, #000000);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .checkbox-group input[type="checkbox"] {
+form.wod-equipment-effects-dialog .checkbox-group input[type="checkbox"] {
     width: auto;
     margin: 0;
     cursor: pointer;
     flex-shrink: 0;
 }
 
-/* Effect Content - Collapsible sections */
-form.wod-effect-manager.equipment-effects-dialog .effect-content {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--wod-border-light, #e0e0e0);
-}
-
 /* Inputs - Match effect-manager style */
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="text"],
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="number"],
-form.wod-effect-manager.equipment-effects-dialog .form-group select {
+form.wod-equipment-effects-dialog .form-group input[type="text"],
+form.wod-equipment-effects-dialog .form-group input[type="number"],
+form.wod-equipment-effects-dialog .form-group select {
     width: 100%;
     padding: 5px 8px;
     border: 1px solid var(--wod-border-light, #e0e0e0);
@@ -142,25 +178,23 @@ form.wod-effect-manager.equipment-effects-dialog .form-group select {
     transition: all 0.2s;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="text"]:focus,
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="number"]:focus,
-form.wod-effect-manager.equipment-effects-dialog .form-group select:focus {
+form.wod-equipment-effects-dialog .form-group input[type="text"]:focus,
+form.wod-equipment-effects-dialog .form-group input[type="number"]:focus,
+form.wod-equipment-effects-dialog .form-group select:focus {
     border-color: var(--wod-primary, #2D5016);
     background: var(--wod-bg-light, #ffffff);
     outline: none;
     box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.1);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="text"]:disabled,
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="number"]:disabled,
-form.wod-effect-manager.equipment-effects-dialog .form-group select:disabled {
-    background: #f0f0f0;
-    color: #999;
-    cursor: not-allowed;
+/* Color Picker Group */
+form.wod-equipment-effects-dialog .color-picker-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
 }
 
-/* Color Picker */
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="color"] {
+form.wod-equipment-effects-dialog .form-group input[type="color"] {
     width: 60px;
     height: 40px;
     border: 1px solid var(--wod-border-light, #e0e0e0);
@@ -170,23 +204,24 @@ form.wod-effect-manager.equipment-effects-dialog .form-group input[type="color"]
     background: var(--wod-bg-light, #ffffff);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .form-group input[type="color"]:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+form.wod-equipment-effects-dialog .color-value-display {
+    flex: 1;
+    background: #f5f5f5;
+    cursor: default;
 }
 
 /* File Picker Group */
-form.wod-effect-manager.equipment-effects-dialog .file-picker-group {
+form.wod-equipment-effects-dialog .file-picker-group {
     display: flex;
     gap: 8px;
     align-items: stretch;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .file-picker-group input {
+form.wod-equipment-effects-dialog .file-picker-group input {
     flex: 1;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .file-picker-group button {
+form.wod-equipment-effects-dialog .file-picker-group button {
     padding: 5px 12px;
     background: var(--wod-primary, #2D5016);
     color: white;
@@ -203,27 +238,19 @@ form.wod-effect-manager.equipment-effects-dialog .file-picker-group button {
     gap: 6px;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .file-picker-group button:hover {
+form.wod-equipment-effects-dialog .file-picker-group button:hover {
     background: var(--wod-primary-light, #4A7C0F);
     border-color: var(--wod-primary-light, #4A7C0F);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .file-picker-group button:disabled {
-    background: #ccc;
-    border-color: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-form.wod-effect-manager.equipment-effects-dialog .file-picker-group button i {
+form.wod-equipment-effects-dialog .file-picker-group button i {
     font-size: 10px;
 }
 
 /* Dialog Buttons - Match effect-manager style */
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons {
+form.wod-equipment-effects-dialog .dialog-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -232,7 +259,7 @@ form.wod-effect-manager.equipment-effects-dialog .dialog-buttons {
     border-top: 2px solid var(--wod-primary, #2D5016);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons button {
+form.wod-equipment-effects-dialog .dialog-buttons button {
     padding: 6px 16px;
     border: none;
     border-radius: 3px;
@@ -246,72 +273,85 @@ form.wod-effect-manager.equipment-effects-dialog .dialog-buttons button {
     gap: 6px;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons .save-effect {
+form.wod-equipment-effects-dialog .dialog-buttons .save-effect {
     background: var(--wod-primary, #2D5016);
     color: white;
     border: 1px solid var(--wod-primary, #2D5016);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons .save-effect:hover {
+form.wod-equipment-effects-dialog .dialog-buttons .save-effect:hover {
     background: var(--wod-primary-light, #4A7C0F);
     border-color: var(--wod-primary-light, #4A7C0F);
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons .cancel-effect {
+form.wod-equipment-effects-dialog .dialog-buttons .cancel-effect {
     background: #ccc;
     color: #333;
     border: 1px solid #ccc;
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons .cancel-effect:hover {
+form.wod-equipment-effects-dialog .dialog-buttons .cancel-effect:hover {
     background: #bbb;
     border-color: #bbb;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-form.wod-effect-manager.equipment-effects-dialog .dialog-buttons button i {
+form.wod-equipment-effects-dialog .dialog-buttons button i {
     font-size: 11px;
 }
 
 /* Technocrat Theme Overrides */
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-header-section,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-metadata-section h3,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-conditions-section h3,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-modifiers h3 {
-    background: var(--wod-primary, #4682B4);
-    border-color: var(--wod-primary, #4682B4);
-}
-
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-header-section {
+.window-app.technocrat form.wod-equipment-effects-dialog .effect-header-section,
+form.wod-equipment-effects-dialog.technocrat .effect-header-section {
     border-bottom-color: var(--wod-primary, #4682B4);
 }
 
-form.wod-effect-manager.equipment-effects-dialog.technocrat .form-group label {
+.window-app.technocrat form.wod-equipment-effects-dialog .effect-header-section h3,
+form.wod-equipment-effects-dialog.technocrat .effect-header-section h3 {
+    background: var(--wod-primary, #4682B4);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .effect-tabs-container,
+form.wod-equipment-effects-dialog.technocrat .effect-tabs-container {
+    background: linear-gradient(135deg, var(--wod-primary, #4682B4) 0%, var(--wod-primary-dark, #2F4F6F) 100%);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .effect-tab.active,
+form.wod-equipment-effects-dialog.technocrat .effect-tab.active {
     color: var(--wod-primary, #4682B4);
 }
 
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-metadata-section,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-conditions-section,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .effect-modifiers {
+.window-app.technocrat form.wod-equipment-effects-dialog .form-group label,
+form.wod-equipment-effects-dialog.technocrat .form-group label {
+    color: var(--wod-primary, #4682B4);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .effect-section,
+form.wod-equipment-effects-dialog.technocrat .effect-section {
     background: var(--wod-bg-secondary, #E8EEF2);
     border-color: var(--wod-border-light, #B0BEC5);
 }
 
-form.wod-effect-manager.equipment-effects-dialog.technocrat .file-picker-group button,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .dialog-buttons .save-effect {
+.window-app.technocrat form.wod-equipment-effects-dialog .file-picker-group button,
+.window-app.technocrat form.wod-equipment-effects-dialog .dialog-buttons .save-effect,
+form.wod-equipment-effects-dialog.technocrat .file-picker-group button,
+form.wod-equipment-effects-dialog.technocrat .dialog-buttons .save-effect {
     background: var(--wod-primary, #4682B4);
     border-color: var(--wod-primary, #4682B4);
 }
 
-form.wod-effect-manager.equipment-effects-dialog.technocrat .file-picker-group button:hover,
-form.wod-effect-manager.equipment-effects-dialog.technocrat .dialog-buttons .save-effect:hover {
+.window-app.technocrat form.wod-equipment-effects-dialog .file-picker-group button:hover,
+.window-app.technocrat form.wod-equipment-effects-dialog .dialog-buttons .save-effect:hover,
+form.wod-equipment-effects-dialog.technocrat .file-picker-group button:hover,
+form.wod-equipment-effects-dialog.technocrat .dialog-buttons .save-effect:hover {
     background: var(--wod-primary-light, #6CA6CD);
     border-color: var(--wod-primary-light, #6CA6CD);
 }
 
-form.wod-effect-manager.equipment-effects-dialog.technocrat .dialog-buttons {
+.window-app.technocrat form.wod-equipment-effects-dialog .dialog-buttons,
+form.wod-equipment-effects-dialog.technocrat .dialog-buttons {
     border-top-color: var(--wod-primary, #4682B4);
 }

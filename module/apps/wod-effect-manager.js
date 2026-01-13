@@ -8,8 +8,17 @@ import { i18n } from '../helpers/i18n.js';
 export class WodEffectManager extends FormApplication {
     constructor(actor, effectId = null, options = {}) {
         // Set title in options if not provided, using i18n if available
-        if (!options.title && game?.i18n) {
-            options.title = game.i18n.localize("WODSYSTEM.EffectManager.ManageStatusEffect");
+        // This must be done BEFORE calling super() - exactly like WodRollDialog
+        if (!options.title) {
+            if (game?.i18n) {
+                const localized = game.i18n.localize("WODSYSTEM.EffectManager.ManageStatusEffect");
+                // Only use localized if it's not the same as the key (meaning translation was found)
+                options.title = (localized !== "WODSYSTEM.EffectManager.ManageStatusEffect") 
+                    ? localized 
+                    : "Manage Status Effect";
+            } else {
+                options.title = "Manage Status Effect";
+            }
         }
         
         super({}, options);

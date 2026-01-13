@@ -101,11 +101,12 @@
 .window-app.dialog form,
 form.wod-roll-dialog,
 form.wod-effect-manager,
-form.wod-st-approval-dialog {
+form.wod-st-approval-dialog,
+form.wod-equipment-effects-dialog {
     display: flex !important;
     flex-direction: column !important;
     gap: 0 !important;
-    width: fit-content !important;
+    width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
     overflow-x: hidden !important;
@@ -116,7 +117,8 @@ form.wod-st-approval-dialog {
 .window-app.dialog form > *,
 form.wod-roll-dialog > *,
 form.wod-effect-manager > *,
-form.wod-st-approval-dialog > * {
+form.wod-st-approval-dialog > *,
+form.wod-equipment-effects-dialog > * {
     display: block !important;
     visibility: visible !important;
     width: 100% !important;

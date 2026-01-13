@@ -1,109 +1,106 @@
-<form class="wod-effect-manager equipment-effects-dialog" autocomplete="off">
+<form class="wod-equipment-effects-dialog" autocomplete="off">
     <!-- Header Section -->
     <div class="effect-header-section">
-        <h3><i class="fas fa-cog"></i> {{i18n 'WODSYSTEM.EquipmentEffects.DialogTitle'}}: {{item.name}}</h3>
+        <h3><i class="fas fa-cog"></i> {{item.name}}</h3>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="effect-tabs-container">
+        <div class="effect-tabs">
+            <button type="button" class="effect-tab active" data-tab="light">
+                <i class="fas fa-lightbulb"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Light'}}
+            </button>
+            <button type="button" class="effect-tab" data-tab="visibility">
+                <i class="fas fa-eye"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Visibility'}}
+            </button>
+            <button type="button" class="effect-tab" data-tab="sound">
+                <i class="fas fa-volume-up"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Sound'}}
+            </button>
+        </div>
     </div>
     
     <div class="dialog-content">
-
-        <!-- Light Effects Section -->
-        <div class="effect-metadata-section">
-            <h3><i class="fas fa-lightbulb"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Light'}}</h3>
-            
-            <div class="form-group checkbox-group">
-                <label>
-                    <input type="checkbox" class="effect-toggle" name="light.enabled" data-effect-type="light" {{#if hasLight}}checked{{/if}} />
-                    {{i18n 'WODSYSTEM.EquipmentEffects.Enable'}} {{i18n 'WODSYSTEM.EquipmentEffects.Light'}}
-                </label>
-            </div>
-            
-            <div class="effect-content" {{#unless hasLight}}style="display: none;"{{/unless}}>
+        <!-- Light Effects Tab -->
+        <div class="effect-tab-content" data-tab="light">
+            <div class="effect-section">
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Dim'}}</label>
-                    <input type="number" name="light.dim" value="{{light.dim}}" min="0" step="1" {{#unless hasLight}}disabled{{/unless}} />
+                    <input type="number" name="light.dim" value="{{light.dim}}" min="0" step="1" />
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Bright'}}</label>
-                    <input type="number" name="light.bright" value="{{light.bright}}" min="0" step="1" {{#unless hasLight}}disabled{{/unless}} />
+                    <input type="number" name="light.bright" value="{{light.bright}}" min="0" step="1" />
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Angle'}}</label>
-                    <input type="number" name="light.angle" value="{{light.angle}}" min="0" max="360" step="1" {{#unless hasLight}}disabled{{/unless}} />
+                    <input type="number" name="light.angle" value="{{light.angle}}" min="0" max="360" step="1" />
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Color'}}</label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="color" class="light-color-picker" name="light.color" value="{{light.color}}" style="width: 60px; height: 40px; cursor: pointer;" {{#unless hasLight}}disabled{{/unless}} />
-                        <input type="text" value="{{light.color}}" readonly style="flex: 1; background: #f5f5f5;" />
+                    <div class="color-picker-group">
+                        <input type="color" class="light-color-picker" name="light.color" value="{{light.color}}" />
+                        <input type="text" value="{{light.color}}" readonly class="color-value-display" />
                     </div>
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Alpha'}}</label>
-                    <input type="number" name="light.alpha" value="{{light.alpha}}" min="0" max="1" step="0.1" {{#unless hasLight}}disabled{{/unless}} />
+                    <input type="number" name="light.alpha" value="{{light.alpha}}" min="0" max="1" step="0.1" />
                 </div>
             </div>
         </div>
 
-        <!-- Visibility Effects Section -->
-        <div class="effect-conditions-section">
-            <h3><i class="fas fa-eye"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Visibility'}}</h3>
-            
-            <div class="form-group checkbox-group">
-                <label>
-                    <input type="checkbox" class="effect-toggle" name="visibility.enabled" data-effect-type="visibility" {{#if hasVisibility}}checked{{/if}} />
-                    {{i18n 'WODSYSTEM.EquipmentEffects.Enable'}} {{i18n 'WODSYSTEM.EquipmentEffects.Visibility'}}
-                </label>
-            </div>
-            
-            <div class="effect-content" {{#unless hasVisibility}}style="display: none;"{{/unless}}>
+        <!-- Visibility Effects Tab -->
+        <div class="effect-tab-content" data-tab="visibility" style="display: none;">
+            <div class="effect-section">
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.DimSight'}}</label>
-                    <input type="number" name="visibility.dimSight" value="{{visibility.dimSight}}" min="0" step="1" {{#unless hasVisibility}}disabled{{/unless}} />
+                    <input type="number" name="visibility.dimSight" value="{{visibility.dimSight}}" min="0" step="1" />
+                    <small class="form-hint">{{i18n 'WODSYSTEM.EquipmentEffects.DimSightHint'}}</small>
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.BrightSight'}}</label>
-                    <input type="number" name="visibility.brightSight" value="{{visibility.brightSight}}" min="0" step="1" {{#unless hasVisibility}}disabled{{/unless}} />
+                    <input type="number" name="visibility.brightSight" value="{{visibility.brightSight}}" min="0" step="1" />
+                    <small class="form-hint">{{i18n 'WODSYSTEM.EquipmentEffects.BrightSightHint'}}</small>
+                </div>
+                <div class="form-group" id="visibility-angle-group" style="display: none;">
+                    <label>{{i18n 'WODSYSTEM.EquipmentEffects.Angle'}}</label>
+                    <input type="number" name="visibility.angle" value="{{visibility.angle}}" min="0" max="360" step="1" />
+                    <small class="form-hint">{{i18n 'WODSYSTEM.EquipmentEffects.AngleHint'}}</small>
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.VisionMode'}}</label>
-                    <select name="visibility.visionMode" {{#unless hasVisibility}}disabled{{/unless}}>
+                    <select name="visibility.visionMode" id="visibility-vision-mode">
                         <option value="basic" {{#if (eq visibility.visionMode "basic")}}selected{{/if}}>Basic</option>
                         <option value="darkvision" {{#if (eq visibility.visionMode "darkvision")}}selected{{/if}}>Darkvision</option>
-                        <option value="lowlight" {{#if (eq visibility.visionMode "lowlight")}}selected{{/if}}>Low-light</option>
+                        <option value="lowlight" {{#if (eq visibility.visionMode "lowlight")}}selected{{/if}}>Low-light Vision</option>
                         <option value="tremorsense" {{#if (eq visibility.visionMode "tremorsense")}}selected{{/if}}>Tremorsense</option>
+                        <option value="blindsight" {{#if (eq visibility.visionMode "blindsight")}}selected{{/if}}>Blindsight</option>
+                        <option value="truesight" {{#if (eq visibility.visionMode "truesight")}}selected{{/if}}>Truesight</option>
+                        <option value="xray" {{#if (eq visibility.visionMode "xray")}}selected{{/if}}>X-Ray Vision</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <!-- Sound Effects Section -->
-        <div class="effect-modifiers">
-            <h3><i class="fas fa-volume-up"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Sound'}}</h3>
-            
-            <div class="form-group checkbox-group">
-                <label>
-                    <input type="checkbox" class="effect-toggle" name="sound.enabled" data-effect-type="sound" {{#if hasSound}}checked{{/if}} />
-                    {{i18n 'WODSYSTEM.EquipmentEffects.Enable'}} {{i18n 'WODSYSTEM.EquipmentEffects.Sound'}}
-                </label>
-            </div>
-            
-            <div class="effect-content" {{#unless hasSound}}style="display: none;"{{/unless}}>
+        <!-- Sound Effects Tab -->
+        <div class="effect-tab-content" data-tab="sound" style="display: none;">
+            <div class="effect-section">
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.SoundFile'}}</label>
                     <div class="file-picker-group">
-                        <input type="text" name="sound.file" value="{{sound.file}}" placeholder="path/to/sound.mp3" {{#unless hasSound}}disabled{{/unless}} />
-                        <button type="button" class="sound-file-picker" {{#unless hasSound}}disabled{{/unless}}>
+                        <input type="text" name="sound.file" value="{{sound.file}}" placeholder="path/to/sound.mp3" />
+                        <button type="button" class="sound-file-picker">
                             <i class="fas fa-folder-open"></i> {{i18n 'WODSYSTEM.EquipmentEffects.Browse'}}
                         </button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Volume'}}</label>
-                    <input type="number" name="sound.volume" value="{{sound.volume}}" min="0" max="1" step="0.1" {{#unless hasSound}}disabled{{/unless}} />
+                    <input type="number" name="sound.volume" value="{{sound.volume}}" min="0" max="1" step="0.1" />
                 </div>
                 <div class="form-group checkbox-group">
                     <label>
-                        <input type="checkbox" name="sound.loop" {{#if sound.loop}}checked{{/if}} {{#unless hasSound}}disabled{{/unless}} />
+                        <input type="checkbox" name="sound.loop" {{#if sound.loop}}checked{{/if}} />
                         {{i18n 'WODSYSTEM.EquipmentEffects.Loop'}}
                     </label>
                 </div>

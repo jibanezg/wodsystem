@@ -27,8 +27,17 @@ export class WodRollDialog extends Application {
         }
         
         // Set title in options if not provided, using i18n if available
-        if (!options.title && game?.i18n) {
-            options.title = game.i18n.localize("WODSYSTEM.RollDialog.ConfigureRoll");
+        // This must be done BEFORE calling super() - exactly like WodEquipmentEffectsDialog
+        if (!options.title) {
+            if (game?.i18n) {
+                const localized = game.i18n.localize("WODSYSTEM.RollDialog.ConfigureRoll");
+                // Only use localized if it's not the same as the key (meaning translation was found)
+                options.title = (localized !== "WODSYSTEM.RollDialog.ConfigureRoll") 
+                    ? localized 
+                    : "Configure Roll";
+            } else {
+                options.title = "Configure Roll";
+            }
         }
         
         super(options);
