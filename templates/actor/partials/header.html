@@ -11,21 +11,11 @@
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Nature'}}</label>
-            <select name="system.identity.nature" class="archetype-select">
-                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
-                {{#each archetypes as |archetype|}}
-                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.nature archetype)}}selected{{/if}}>{{archetype}}</option>
-                {{/each}}
-            </select>
+            <input type="text" name="system.identity.nature" value="{{actor.system.identity.nature}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.NaturePlaceholder'}}" />
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Demeanor'}}</label>
-            <select name="system.identity.demeanor" class="archetype-select">
-                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
-                {{#each archetypes as |archetype|}}
-                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.demeanor archetype)}}selected{{/if}}>{{archetype}}</option>
-                {{/each}}
-            </select>
+            <input type="text" name="system.identity.demeanor" value="{{actor.system.identity.demeanor}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.DemeanorPlaceholder'}}" />
         </div>
     </div>
 </section>

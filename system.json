@@ -29,7 +29,8 @@
     "styles/themes/foundry-dialog-override.css",
     "styles/themes/quintessence-paradox-wheel.css",
     "styles/character-wizard.css",
-    "styles/reference-system.css"
+    "styles/reference-system.css",
+    "styles/themes/equipment-effects-dialog.css"
   ],
   "languages": [
     {

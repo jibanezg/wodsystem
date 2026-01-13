@@ -7,25 +7,32 @@ export class EquipmentEffects {
     /**
      * Grant effects to an actor when equipment is equipped
      * @param {Actor} actor - The actor equipping the item
-     * @param {Object} equipment - The equipment item
-     * @param {string} equipmentType - Type of equipment (weapon, armor, gear)
+     * @param {Item|Object} equipment - The equipment item (Item or legacy object)
+     * @param {string} equipmentType - Type of equipment (weapon, armor, gear) - optional if equipment is Item
      * @returns {Promise<Array>} Array of created effects
      */
-    static async grantEquipmentEffects(actor, equipment, equipmentType) {
-        if (!equipment.grantsEffects || equipment.grantsEffects.length === 0) {
+    static async grantEquipmentEffects(actor, equipment, equipmentType = null) {
+        // Support both Item objects and legacy equipment objects
+        const isItem = equipment instanceof Item;
+        const itemType = isItem ? equipment.type : equipmentType;
+        const itemId = isItem ? equipment.id : equipment.id;
+        const itemName = isItem ? equipment.name : equipment.name;
+        const grantsEffects = isItem ? (equipment.system?.grantsEffects || []) : (equipment.grantsEffects || []);
+        
+        if (!grantsEffects || grantsEffects.length === 0) {
             return [];
         }
         
         const createdEffects = [];
         
-        for (const effectData of equipment.grantsEffects) {
+        for (const effectData of grantsEffects) {
             // Create the effect with equipment as source
             const effectConfig = {
-                name: effectData.name || `${equipment.name} Effect`,
-                icon: effectData.icon || this._getDefaultIcon(equipmentType),
+                name: effectData.name || `${itemName} Effect`,
+                icon: effectData.icon || this._getDefaultIcon(itemType),
                 severity: effectData.severity || 1,
                 sourceType: 'equipment',
-                sourceId: equipment.id,
+                sourceId: itemId,
                 mandatory: effectData.mandatory !== undefined ? effectData.mandatory : false,
                 targetActor: effectData.targetActor || null,
                 conditionType: effectData.conditionType || 'always',
@@ -46,7 +53,7 @@ export class EquipmentEffects {
     /**
      * Remove all effects granted by a specific equipment item
      * @param {Actor} actor - The actor
-     * @param {string} equipmentId - The equipment item ID
+     * @param {string} equipmentId - The equipment item ID (works for both Items and legacy equipment)
      * @returns {Promise<void>}
      */
     static async removeEquipmentEffects(actor, equipmentId) {
@@ -123,19 +130,25 @@ export class EquipmentEffects {
 
     /**
      * Create an armor protection effect
-     * @param {Object} armor - Armor data
+     * @param {Item|Object} armor - Armor data (Item or legacy object)
      * @returns {Object} Effect data
      */
     static createArmorEffect(armor) {
+        // Support both Item objects and legacy armor objects
+        const isItem = armor instanceof Item;
+        const armorName = isItem ? armor.name : armor.name;
+        const armorRating = isItem ? (armor.system?.rating || 0) : (armor.rating || 0);
+        const armorPenalty = isItem ? (armor.system?.penalty || 0) : (armor.penalty || 0);
+        
         // Armor provides soak bonus and possibly dexterity penalty
         const effects = [];
         
         // Soak bonus (this would integrate with the soak system)
-        if (armor.rating > 0) {
+        if (armorRating > 0) {
             effects.push(this.createStandardEffect(
-                `${armor.name} - Protection`,
+                `${armorName} - Protection`,
                 'poolBonus',
-                armor.rating,
+                armorRating,
                 {
                     conditionType: 'specific_action',
                     conditionValue: 'soak',
@@ -146,11 +159,11 @@ export class EquipmentEffects {
         }
         
         // Dexterity penalty
-        if (armor.penalty < 0) {
+        if (armorPenalty < 0) {
             effects.push(this.createStandardEffect(
-                `${armor.name} - Encumbrance`,
+                `${armorName} - Encumbrance`,
                 'poolBonus',
-                armor.penalty,
+                armorPenalty,
                 {
                     conditionType: 'trait_roll',
                     conditionValue: 'Dexterity',

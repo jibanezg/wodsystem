@@ -10,6 +10,10 @@ import { WodCharacterWizard } from "./module/character-creation/wod-character-wi
 
 // Import Services
 import { ReferenceDataService } from "./module/services/reference-data-service.js"; // Merits, flaws, backgrounds
+import { EquipmentEffectsManager } from "./module/services/equipment-effects-manager.js"; // Equipment UI/token effects
+
+// Import Item Classes
+import { WodItem, WodWeapon, WodArmor, WodGear } from "./module/items/wod-item.js";
 
 Hooks.once("init", async function() {
     console.log("WoD | Initializing World of Darkness System");
@@ -54,6 +58,7 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/roll-dialog.html",
         "systems/wodsystem/templates/apps/effect-manager.html",
         "systems/wodsystem/templates/apps/st-approval-dialog.html",
+        "systems/wodsystem/templates/apps/equipment-effects-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html",
         "systems/wodsystem/templates/chat/reference-card.html",
         "systems/wodsystem/templates/chat/background-reference-card.html",
@@ -70,6 +75,26 @@ Hooks.once("init", async function() {
 
     // Register Actor Classes
     CONFIG.Actor.documentClass = WodActor;
+    
+    // Register Item Classes
+    CONFIG.Item.documentClass = WodItem;
+    
+    // Register Item types explicitly (Foundry should load from template.json, but we ensure they're available)
+    if (!CONFIG.Item.types) {
+        CONFIG.Item.types = {};
+    }
+    CONFIG.Item.types["Trait"] = "Trait";
+    CONFIG.Item.types["weapon"] = "Weapon";
+    CONFIG.Item.types["armor"] = "Armor";
+    CONFIG.Item.types["gear"] = "Gear";
+    
+    // Register Item type labels
+    CONFIG.Item.typeLabels = CONFIG.Item.typeLabels || {};
+    CONFIG.Item.typeLabels.weapon = "Weapon";
+    CONFIG.Item.typeLabels.armor = "Armor";
+    CONFIG.Item.typeLabels.gear = "Gear";
+    
+    console.log("WoD | Item types registered:", Object.keys(CONFIG.Item.types));
     
     // Make Character Wizard available globally
     game.wodsystem = game.wodsystem || {};
@@ -89,6 +114,22 @@ Hooks.once("init", async function() {
     console.log("WoD | Actor sheets registered");
 });
 
+Hooks.on("setup", () => {
+    // Ensure Item types are registered (Foundry loads these from template.json)
+    // But we explicitly register them here to ensure they're available
+    if (!CONFIG.Item.types) {
+        CONFIG.Item.types = {};
+    }
+    
+    // Register our Item types explicitly
+    CONFIG.Item.types["Trait"] = "Trait";
+    CONFIG.Item.types["weapon"] = "Weapon";
+    CONFIG.Item.types["armor"] = "Armor";
+    CONFIG.Item.types["gear"] = "Gear";
+    
+    console.log("WoD | Item types registered:", Object.keys(CONFIG.Item.types));
+});
+
 Hooks.on("ready", async () => {
     console.log("WoD | World of Darkness System ready");
     console.log("WoD | Reference data service loaded:", !!game.wod.referenceDataService);
@@ -99,4 +140,8 @@ Hooks.on("ready", async () => {
     // Initialize socket for effect approval system
     initializeApprovalSocket();
     console.log("WoD | Effect approval socket initialized");
+    
+    // Initialize Equipment Effects Manager
+    EquipmentEffectsManager.initialize();
+    console.log("WoD | Equipment Effects Manager initialized");
 });

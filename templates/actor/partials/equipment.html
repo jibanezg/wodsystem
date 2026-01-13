@@ -17,30 +17,35 @@
     <!-- Unified Equipment List -->
     <div class="equipment-list">
         <!-- Weapons -->
-        {{#each system.equipment.weapons}}
+        {{#each equipment.weapons}}
         <div class="equipment-item weapon-item" data-type="weapons" data-item-id="{{this.id}}">
             <div class="item-type-badge weapon-badge">
                 <i class="fas fa-crosshairs"></i>
             </div>
             <div class="item-equipped">
-                <input type="checkbox" class="weapon-equipped" id="eq-w-{{this.id}}" data-weapon-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                <input type="checkbox" class="weapon-equipped" id="eq-w-{{this.id}}" data-item-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
                 <label for="eq-w-{{this.id}}" title="{{#if this.equipped}}{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Equipped'}}{{else}}{{i18n 'WODSYSTEM.CharacterSheet.Equipment.NotEquipped'}}{{/if}}">
                     <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
                 </label>
             </div>
             <div class="item-name">
-                <input type="text" class="weapon-name" name="system.equipment.weapons.{{@index}}.name" value="{{this.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Weapon'}}" />
+                <input type="text" class="weapon-name" data-item-id="{{this.id}}" data-field="name" value="{{this.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Weapon'}}" />
             </div>
             <div class="item-stats">
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Damage'}}"><strong>DMG:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.damage" value="{{this.damage}}" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Difficulty'}}"><strong>DIF:</strong> <input type="number" name="system.equipment.weapons.{{@index}}.difficulty" value="{{this.difficulty}}" min="2" max="10" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Range'}}"><strong>RNG:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.range" value="{{this.range}}" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Rate'}}"><strong>RAT:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.rate" value="{{this.rate}}" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Clip'}}"><strong>CLP:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.clip" value="{{this.clip}}" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Concealment'}}"><strong>CON:</strong> <input type="text" name="system.equipment.weapons.{{@index}}.concealment" value="{{this.concealment}}" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Damage'}}"><strong>DMG:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.damage" value="{{this.system.damage}}" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Difficulty'}}"><strong>DIF:</strong> <input type="number" data-item-id="{{this.id}}" data-field="system.difficulty" value="{{this.system.difficulty}}" min="2" max="10" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Range'}}"><strong>RNG:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.range" value="{{this.system.range}}" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Rate'}}"><strong>RAT:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.rate" value="{{this.system.rate}}" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Clip'}}"><strong>CLP:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.clip" value="{{this.system.clip}}" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Concealment'}}"><strong>CON:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.concealment" value="{{this.system.concealment}}" /></span>
             </div>
             <div class="item-actions">
-                <button type="button" class="delete-weapon mini-btn danger" data-weapon-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Delete'}}">
+                {{#if ../isGM}}
+                <button type="button" class="manage-item-effects mini-btn" data-item-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.ManageEffects'}}">
+                    <i class="fas fa-magic"></i>
+                </button>
+                {{/if}}
+                <button type="button" class="delete-weapon mini-btn danger" data-item-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Delete'}}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -48,27 +53,32 @@
         {{/each}}
         
         <!-- Armor -->
-        {{#each system.equipment.armor}}
+        {{#each equipment.armor}}
         <div class="equipment-item armor-item" data-type="armor" data-item-id="{{this.id}}">
             <div class="item-type-badge armor-badge">
                 <i class="fas fa-shield-alt"></i>
             </div>
             <div class="item-equipped">
-                <input type="checkbox" class="armor-equipped" id="eq-a-{{this.id}}" data-armor-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                <input type="checkbox" class="armor-equipped" id="eq-a-{{this.id}}" data-item-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
                 <label for="eq-a-{{this.id}}" title="{{#if this.equipped}}{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Equipped'}}{{else}}{{i18n 'WODSYSTEM.CharacterSheet.Equipment.NotEquipped'}}{{/if}}">
                     <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
                 </label>
             </div>
             <div class="item-name">
-                <input type="text" class="armor-name" name="system.equipment.armor.{{@index}}.name" value="{{this.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.ArmorName'}}" />
+                <input type="text" class="armor-name" data-item-id="{{this.id}}" data-field="name" value="{{this.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.ArmorName'}}" />
             </div>
             <div class="item-stats">
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Rating'}}"><strong>RAT:</strong> <input type="number" name="system.equipment.armor.{{@index}}.rating" value="{{this.rating}}" min="0" max="10" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Penalty'}}"><strong>PEN:</strong> <input type="number" name="system.equipment.armor.{{@index}}.penalty" value="{{this.penalty}}" min="-5" max="0" /></span>
-                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" name="system.equipment.armor.{{@index}}.description" value="{{this.description}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Description'}}" style="max-width: 200px;" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Rating'}}"><strong>RAT:</strong> <input type="number" data-item-id="{{this.id}}" data-field="system.rating" value="{{this.system.rating}}" min="0" max="10" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Penalty'}}"><strong>PEN:</strong> <input type="number" data-item-id="{{this.id}}" data-field="system.penalty" value="{{this.system.penalty}}" min="-5" max="0" /></span>
+                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.description" value="{{this.system.description}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Description'}}" style="max-width: 200px;" /></span>
             </div>
             <div class="item-actions">
-                <button type="button" class="delete-armor mini-btn danger" data-armor-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Delete'}}">
+                {{#if ../isGM}}
+                <button type="button" class="manage-item-effects mini-btn" data-item-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.ManageEffects'}}">
+                    <i class="fas fa-magic"></i>
+                </button>
+                {{/if}}
+                <button type="button" class="delete-armor mini-btn danger" data-item-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Delete'}}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -76,21 +86,32 @@
         {{/each}}
         
         <!-- Gear -->
-        {{#each system.equipment.gear}}
+        {{#each equipment.gear}}
         <div class="equipment-item gear-item" data-type="gear" data-item-id="{{this.id}}">
             <div class="item-type-badge gear-badge">
                 <i class="fas fa-toolbox"></i>
             </div>
+            <div class="item-equipped">
+                <input type="checkbox" class="gear-equipped" id="eq-g-{{this.id}}" data-item-id="{{this.id}}" {{#if this.equipped}}checked{{/if}} />
+                <label for="eq-g-{{this.id}}" title="{{#if this.equipped}}{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Equipped'}}{{else}}{{i18n 'WODSYSTEM.CharacterSheet.Equipment.NotEquipped'}}{{/if}}">
+                    <i class="fas {{#if this.equipped}}fa-check-circle{{else}}fa-circle{{/if}}"></i>
+                </label>
+            </div>
             <div class="item-name">
-                <input type="text" class="gear-name" name="system.equipment.gear.{{@index}}.name" value="{{this.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.GearName'}}" />
+                <input type="text" class="gear-name" data-item-id="{{this.id}}" data-field="name" value="{{this.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.GearName'}}" />
             </div>
             <div class="item-stats">
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Quantity'}}"><strong>QTY:</strong> <input type="number" name="system.equipment.gear.{{@index}}.quantity" value="{{this.quantity}}" min="1" /></span>
-                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Weight'}}"><strong>WGT:</strong> <input type="text" name="system.equipment.gear.{{@index}}.weight" value="{{this.weight}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.WeightPlaceholder'}}" /></span>
-                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" name="system.equipment.gear.{{@index}}.description" value="{{this.description}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Description'}}" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Quantity'}}"><strong>QTY:</strong> <input type="number" data-item-id="{{this.id}}" data-field="system.quantity" value="{{this.system.quantity}}" min="1" /></span>
+                <span class="stat-mini" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Weight'}}"><strong>WGT:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.weight" value="{{this.system.weight}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.WeightPlaceholder'}}" /></span>
+                <span class="stat-mini stat-desc"><strong>DESC:</strong> <input type="text" data-item-id="{{this.id}}" data-field="system.description" value="{{this.system.description}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Description'}}" /></span>
             </div>
             <div class="item-actions">
-                <button type="button" class="delete-gear mini-btn danger" data-gear-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Delete'}}">
+                {{#if ../isGM}}
+                <button type="button" class="manage-item-effects mini-btn" data-item-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.ManageEffects'}}">
+                    <i class="fas fa-magic"></i>
+                </button>
+                {{/if}}
+                <button type="button" class="delete-gear mini-btn danger" data-item-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Equipment.Delete'}}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -98,7 +119,7 @@
         {{/each}}
         
         <!-- Empty State -->
-        {{#unless (or system.equipment.weapons.length system.equipment.armor.length system.equipment.gear.length)}}
+        {{#unless (or equipment.weapons.length equipment.armor.length equipment.gear.length)}}
         <div class="equipment-empty">
             <i class="fas fa-shield-alt"></i>
             <p>{{i18n 'WODSYSTEM.CharacterSheet.Equipment.NoEquipment'}}</p>

@@ -3096,6 +3096,35 @@ export class WodCharacterWizard extends FormApplication {
       return;
     }
     
+    // Capture current form values before validation (in case they weren't saved)
+    // This ensures nature, demeanor, and other concept fields are captured even if change events didn't fire
+    const conceptInputs = this.element.find('input[name^="concept."], select[name^="concept."], textarea[name^="concept."]');
+    let capturedAny = false;
+    conceptInputs.each((index, element) => {
+      const name = element.name;
+      if (name && name.startsWith('concept.')) {
+        const field = name.split('.')[1];
+        if (field && this.wizardData.concept.hasOwnProperty(field)) {
+          const value = element.value || '';
+          const oldValue = this.wizardData.concept[field];
+          if (value !== oldValue) {
+            this.wizardData.concept[field] = value;
+            console.log(`🎯 FINISH - Captured concept.${field}: "${oldValue}" -> "${value}"`);
+            capturedAny = true;
+          }
+        }
+      }
+    });
+    
+    // Save captured values immediately if any were updated
+    if (capturedAny) {
+      await this._saveProgress();
+      console.log('🎯 FINISH - Saved captured values to progress');
+    }
+    
+    // Debug: Log wizardData.concept before validation
+    console.log('🎯 FINISH - wizardData.concept before validation:', JSON.stringify(this.wizardData.concept, null, 2));
+    
     // Final validation
     const validation = this.validator.validateAll(this.wizardData);
     // console.log('🏁 FINISH - Final validation:', validation);
@@ -3116,7 +3145,7 @@ export class WodCharacterWizard extends FormApplication {
     if (!confirm) return;
     
     try {
-      // Apply to actor
+      // Apply to actor (this includes all wizard data)
       await this._applyToActor();
       
       // Set initial Quintessence based on Avatar/Genius background
@@ -3127,16 +3156,55 @@ export class WodCharacterWizard extends FormApplication {
       const startingQuintessence = avatarOrGenius ? (avatarOrGenius.value || 0) : 0;
       
       // Mark as created and set starting Quintessence
-      await this.actor.update({ 
+      // IMPORTANT: Include identity fields again to ensure they persist after this update
+      console.log('🎯 FINISH - Setting isCreated and Quintessence...');
+      const finalUpdate = { 
         "system.isCreated": true,
         "system.advantages.primalEnergy.current": startingQuintessence
-      });
+      };
+      
+      // Re-include identity fields to ensure they're not lost
+      if (this.wizardData.concept.nature) {
+        finalUpdate["system.identity.nature"] = this.wizardData.concept.nature;
+      }
+      if (this.wizardData.concept.demeanor) {
+        finalUpdate["system.identity.demeanor"] = this.wizardData.concept.demeanor;
+      }
+      
+      await this.actor.update(finalUpdate);
+      
+      // Verify identity values are still there after second update
+      console.log('🎯 FINISH - After second update, verifying identity values:');
+      console.log('🎯 FINISH - actor.system.identity.nature:', this.actor.system.identity.nature);
+      console.log('🎯 FINISH - actor.system.identity.demeanor:', this.actor.system.identity.demeanor);
       
       // Clear wizard progress
       await this.actor.unsetFlag('wodsystem', 'wizardProgress');
       
       // Force re-render the actor sheet to show all changes
-      this.actor.sheet?.render(true);
+      // Wait a bit to ensure the update has propagated
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verify the values were actually saved
+      console.log('🎯 FINISH - After all updates, verifying saved values:');
+      console.log('🎯 FINISH - actor.system.identity.nature:', this.actor.system.identity.nature);
+      console.log('🎯 FINISH - actor.system.identity.demeanor:', this.actor.system.identity.demeanor);
+      
+      // Force a full re-render of the sheet to ensure all data is refreshed
+      if (this.actor.sheet) {
+        console.log('🎯 FINISH - Re-rendering actor sheet...');
+        // Close and reopen the sheet to force a full refresh
+        const wasRendered = this.actor.sheet.rendered;
+        if (wasRendered) {
+          await this.actor.sheet.render(true);
+        }
+        console.log('🎯 FINISH - Sheet re-rendered, checking values in sheet context...');
+        
+        // Verify values are accessible in the sheet's getData
+        const sheetData = await this.actor.sheet.getData();
+        console.log('🎯 FINISH - Sheet getData() - actor.system.identity.nature:', sheetData.actor?.system?.identity?.nature);
+        console.log('🎯 FINISH - Sheet getData() - actor.system.identity.demeanor:', sheetData.actor?.system?.identity?.demeanor);
+      }
       
       ui.notifications.info(i18n('WODSYSTEM.Wizard.CharacterCreationComplete'));
       this.close();
@@ -3174,17 +3242,28 @@ export class WodCharacterWizard extends FormApplication {
     const updateData = {};
     
     // Step 1: Concept
-    updateData["system.identity.name"] = this.wizardData.concept.name;
-    updateData["system.identity.concept"] = this.wizardData.concept.concept;
-    updateData["system.identity.nature"] = this.wizardData.concept.nature;
-    updateData["system.identity.demeanor"] = this.wizardData.concept.demeanor;
+    // Debug: Log concept data before applying
+    console.log('🎯 APPLY TO ACTOR - wizardData.concept:', JSON.stringify(this.wizardData.concept, null, 2));
+    
+    // Ensure all identity fields are set (even if empty strings)
+    // Use explicit checks to avoid undefined/null issues
+    updateData["system.identity.name"] = this.wizardData.concept.name ?? "";
+    updateData["system.identity.concept"] = this.wizardData.concept.concept ?? "";
+    updateData["system.identity.nature"] = this.wizardData.concept.nature ?? "";
+    updateData["system.identity.demeanor"] = this.wizardData.concept.demeanor ?? "";
+    
+    // Debug: Log what we're about to update
+    console.log('🎯 APPLY TO ACTOR - Setting nature:', updateData["system.identity.nature"], '(type:', typeof updateData["system.identity.nature"], ')');
+    console.log('🎯 APPLY TO ACTOR - Setting demeanor:', updateData["system.identity.demeanor"], '(type:', typeof updateData["system.identity.demeanor"], ')');
     
     if (this.actorType === "Technocrat") {
-      updateData["system.identity.convention"] = this.wizardData.concept.convention;
-      updateData["system.identity.amalgam"] = this.wizardData.concept.amalgam;
-      updateData["system.identity.eidolon"] = this.wizardData.concept.eidolon;
+      updateData["system.identity.convention"] = this.wizardData.concept.convention ?? "";
+      updateData["system.identity.amalgam"] = this.wizardData.concept.amalgam ?? "";
+      updateData["system.identity.eidolon"] = this.wizardData.concept.eidolon ?? "";
+      console.log('🎯 APPLY TO ACTOR - Set Technocrat fields');
     }
     
+    console.log('🎯 APPLY TO ACTOR - Processing attributes...');
     // Step 2: Attributes
     for (const [category, attrs] of Object.entries(this.wizardData.attributes.values)) {
       for (const [attr, value] of Object.entries(attrs)) {
@@ -3192,6 +3271,7 @@ export class WodCharacterWizard extends FormApplication {
       }
     }
     
+    console.log('🎯 APPLY TO ACTOR - Processing abilities...');
     // Step 3: Abilities
     for (const [category, abilities] of Object.entries(this.wizardData.abilities.values)) {
       for (const [ability, value] of Object.entries(abilities)) {
@@ -3201,6 +3281,7 @@ export class WodCharacterWizard extends FormApplication {
       }
     }
     
+    console.log('🎯 APPLY TO ACTOR - Processing secondary abilities...');
     // Secondary abilities
     for (const [category, secondaries] of Object.entries(this.wizardData.abilities.secondary)) {
       if (secondaries.length > 0) {
@@ -3208,6 +3289,7 @@ export class WodCharacterWizard extends FormApplication {
       }
     }
     
+    console.log('🎯 APPLY TO ACTOR - Processing advantages...');
     // Step 4: Advantages
     if (this.actorType === "Technocrat") {
       // Enlightenment (Arete)
@@ -3222,6 +3304,7 @@ export class WodCharacterWizard extends FormApplication {
       }
     }
     
+    console.log('🎯 APPLY TO ACTOR - Processing backgrounds...');
     // Backgrounds - filter out backgrounds with no name or value
     // console.log('🎯 BACKGROUNDS CHECK - Raw array:', JSON.stringify(this.wizardData.advantages.backgrounds));
     
@@ -3239,6 +3322,7 @@ export class WodCharacterWizard extends FormApplication {
     updateData["system.miscellaneous.backgrounds"] = validBackgrounds;
     // console.log('🎯 BACKGROUNDS - Setting', validBackgrounds.length, 'backgrounds to system.miscellaneous.backgrounds');
     
+    console.log('🎯 APPLY TO ACTOR - Processing willpower...');
     // Willpower (base + freebies)
     const baseWillpower = this.config.advantages.willpower.starting;
     const freebieWillpower = this.wizardData.freebies.spent.willpower || 0;
@@ -3248,10 +3332,58 @@ export class WodCharacterWizard extends FormApplication {
     
     // console.log('🎯 WILLPOWER - Base:', baseWillpower, 'Freebies:', freebieWillpower, 'Total:', totalWillpower);
     
-    // Apply update
-    await this.actor.update(updateData);
+    console.log('🎯 APPLY TO ACTOR - Processing merits & flaws...');
+    // Step 5: Merits & Flaws
+    // Filter out merits/flaws with no name or value
+    const validMerits = (this.wizardData.meritsFlaws.merits || []).filter(m => 
+      m && m.name && m.name.trim() !== "" && m.value > 0
+    );
+    const validFlaws = (this.wizardData.meritsFlaws.flaws || []).filter(f => 
+      f && f.name && f.name.trim() !== "" && f.value > 0
+    );
+    
+    // Always set merits and flaws (even if empty array) to ensure initialization
+    updateData["system.miscellaneous.merits"] = validMerits;
+    updateData["system.miscellaneous.flaws"] = validFlaws;
+    
+    // Debug: Log the complete updateData before applying
+    console.log('🎯 APPLY TO ACTOR - Complete updateData:', JSON.stringify(updateData, null, 2));
+    console.log('🎯 APPLY TO ACTOR - About to update actor with nature:', updateData["system.identity.nature"]);
+    console.log('🎯 APPLY TO ACTOR - About to update actor with demeanor:', updateData["system.identity.demeanor"]);
+    
+    try {
+      // Apply update
+      console.log('🎯 APPLY TO ACTOR - Calling actor.update()...');
+      console.log('🎯 APPLY TO ACTOR - updateData keys:', Object.keys(updateData));
+      console.log('🎯 APPLY TO ACTOR - Identity fields in updateData:', {
+        name: updateData["system.identity.name"],
+        concept: updateData["system.identity.concept"],
+        nature: updateData["system.identity.nature"],
+        demeanor: updateData["system.identity.demeanor"]
+      });
+      
+      const result = await this.actor.update(updateData);
+      console.log('🎯 APPLY TO ACTOR - actor.update() completed, result:', result);
+      
+      // Immediately check if values were persisted by reading from the database
+      const freshActor = await fromUuid(this.actor.uuid);
+      console.log('🎯 APPLY TO ACTOR - Fresh actor from database - nature:', freshActor?.system?.identity?.nature);
+      console.log('🎯 APPLY TO ACTOR - Fresh actor from database - demeanor:', freshActor?.system?.identity?.demeanor);
+      
+      // Wait a moment for the update to propagate
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Debug: Verify what was actually saved
+      console.log('🎯 APPLY TO ACTOR - After update, actor.system.identity.nature:', this.actor.system.identity.nature);
+      console.log('🎯 APPLY TO ACTOR - After update, actor.system.identity.demeanor:', this.actor.system.identity.demeanor);
+      console.log('🎯 APPLY TO ACTOR - Full identity object:', JSON.stringify(this.actor.system.identity, null, 2));
+    } catch (error) {
+      console.error('🎯 APPLY TO ACTOR - ERROR during update:', error);
+      throw error;
+    }
     
     // console.log('🎯 APPLY TO ACTOR - Update complete. Backgrounds applied:', updateData["system.miscellaneous.backgrounds"]);
+    // console.log('🎯 APPLY TO ACTOR - Merits applied:', validMerits.length, 'Flaws applied:', validFlaws.length);
   }
 
   /**

@@ -11,14 +11,7 @@
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Convention'}}</label>
-            <select name="system.identity.convention" class="archetype-select">
-                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
-                <option value="Iteration X" {{#if (eq actor.system.identity.convention "Iteration X")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.IterationX'}}</option>
-                <option value="NWO" {{#if (eq actor.system.identity.convention "NWO")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.NewWorldOrder'}}</option>
-                <option value="Progenitors" {{#if (eq actor.system.identity.convention "Progenitors")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.Progenitors'}}</option>
-                <option value="Syndicate" {{#if (eq actor.system.identity.convention "Syndicate")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.Syndicate'}}</option>
-                <option value="Void Engineers" {{#if (eq actor.system.identity.convention "Void Engineers")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.Conventions.VoidEngineers'}}</option>
-            </select>
+            <input type="text" name="system.identity.convention" value="{{actor.system.identity.convention}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.ConventionPlaceholder'}}" />
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Amalgam'}}</label>
@@ -30,21 +23,11 @@
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Nature'}}</label>
-            <select name="system.identity.nature" class="archetype-select">
-                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
-                {{#each archetypes as |archetype|}}
-                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.nature archetype)}}selected{{/if}}>{{archetype}}</option>
-                {{/each}}
-            </select>
+            <input type="text" name="system.identity.nature" value="{{actor.system.identity.nature}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.NaturePlaceholder'}}" />
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Demeanor'}}</label>
-            <select name="system.identity.demeanor" class="archetype-select">
-                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.Select'}}</option>
-                {{#each archetypes as |archetype|}}
-                <option value="{{archetype}}" {{#if (eq ../actor.system.identity.demeanor archetype)}}selected{{/if}}>{{archetype}}</option>
-                {{/each}}
-            </select>
+            <input type="text" name="system.identity.demeanor" value="{{actor.system.identity.demeanor}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.DemeanorPlaceholder'}}" />
         </div>
     </div>
 </section>

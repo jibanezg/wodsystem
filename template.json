@@ -440,7 +440,7 @@
         }
     },
     "Item": {
-        "types": ["Trait"],
+        "types": ["Trait", "weapon", "armor", "gear"],
         "templates": {
             "Trait": {
                 "name": "Trait",
@@ -450,6 +450,58 @@
                     "type": "",
                     "category": "",
                     "max": 0
+                }
+            },
+            "weapon": {
+                "name": "Weapon",
+                "label": "Weapon",
+                "system": {
+                    "equipped": false,
+                    "subtype": "melee",
+                    "damage": "1",
+                    "difficulty": 6,
+                    "range": "-",
+                    "rate": "1",
+                    "clip": "-",
+                    "concealment": "P",
+                    "description": "",
+                    "grantsEffects": [],
+                    "equipmentEffects": {
+                        "light": null,
+                        "visibility": null,
+                        "sound": null
+                    }
+                }
+            },
+            "armor": {
+                "name": "Armor",
+                "label": "Armor",
+                "system": {
+                    "equipped": false,
+                    "rating": 1,
+                    "penalty": 0,
+                    "description": "",
+                    "grantsEffects": [],
+                    "equipmentEffects": {
+                        "light": null,
+                        "visibility": null,
+                        "sound": null
+                    }
+                }
+            },
+            "gear": {
+                "name": "Gear",
+                "label": "Gear",
+                "system": {
+                    "equipped": false,
+                    "quantity": 1,
+                    "weight": "",
+                    "description": "",
+                    "equipmentEffects": {
+                        "light": null,
+                        "visibility": null,
+                        "sound": null
+                    }
                 }
             }
         }

@@ -127,8 +127,11 @@
         "ConceptPlaceholder": "p. ej., Predicador Callejero",
         "ConceptPlaceholderTechnocrat": "p. ej., Especialista en Armas Cibernéticas",
         "Nature": "Naturaleza",
+        "NaturePlaceholder": "ej., Director, Visionario",
         "Demeanor": "Conducta",
+        "DemeanorPlaceholder": "ej., Idealista, Máquina",
         "Convention": "Convención",
+        "ConventionPlaceholder": "p. ej., Iteración X, Nuevo Orden Mundial",
         "Amalgam": "Amalgama",
         "AmalgamPlaceholder": "Afiliación inter-convención",
         "Eidolon": "Eidolon",
@@ -400,7 +403,47 @@
         "NoEquipment": "Aún no se ha añadido equipamiento",
         "AddWeapon": "Añadir Arma",
         "AddArmor": "Añadir Armadura",
-        "AddGear": "Añadir Equipo"
+        "AddGear": "Añadir Equipo",
+        "ManageEffects": "Configurar Efectos de Equipamiento"
+      },
+      "EquipmentEffects": {
+        "DialogTitle": "Configuración de Efectos de Equipamiento",
+        "Light": "Luz",
+        "Visibility": "Visibilidad",
+        "Sound": "Sonido",
+        "Enable": "Activar",
+        "Dim": "Luz Tenue",
+        "Bright": "Luz Brillante",
+        "Angle": "Ángulo",
+        "Color": "Color",
+        "Alpha": "Transparencia",
+        "Animation": "Animación",
+        "DarknessMin": "Oscuridad Mín",
+        "DarknessMax": "Oscuridad Máx",
+        "DimSight": "Rango de Vista Tenue",
+        "BrightSight": "Rango de Vista Brillante",
+        "VisionMode": "Modo de Visión",
+        "SoundFile": "Archivo de Sonido",
+        "Volume": "Volumen",
+        "Loop": "Repetir",
+        "Browse": "Buscar"
+      },
+      "ItemSheet": {
+        "Tabs": {
+          "Details": "Detalles",
+          "Effects": "Efectos"
+        },
+        "Effects": {
+          "Title": "Efectos Activos",
+          "Add": "Añadir Efecto",
+          "Edit": "Editar Efecto",
+          "Delete": "Eliminar Efecto",
+          "Enable": "Activar Efecto",
+          "Disable": "Desactivar Efecto",
+          "NoEffects": "No hay efectos activos. Haz clic en 'Añadir Efecto' para crear uno.",
+          "ConfirmDelete": "¿Eliminar Efecto?",
+          "ConfirmDeleteMessage": "¿Estás seguro de que quieres eliminar el efecto \"{name}\"?"
+        }
       },
       "Effects": {
         "StatusEffects": "Efectos de Estado",

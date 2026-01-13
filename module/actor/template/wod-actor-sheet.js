@@ -48,6 +48,9 @@ export class WodActorSheet extends ActorSheet {
     async getData() {
         const context = await super.getData();
         
+        // Add GM check for equipment effects management
+        context.isGM = game.user.isGM;
+        
         // In Foundry v10+, we need to expose system at the top level for templates
         // The data is in context.data.system, but templates expect context.system
         context.system = context.data.system;
@@ -144,6 +147,58 @@ export class WodActorSheet extends ActorSheet {
                 ...procPagination,
                 procedures: procPagination.items
             };
+        }
+        
+        // Prepare equipment Items for template
+        // Get all Items owned by this actor, filtered by type
+        const allItems = this.actor.items || [];
+        context.equipment = {
+            weapons: allItems.filter(item => item.type === 'weapon').map(item => ({
+                id: item.id,
+                name: item.name,
+                type: item.type,
+                system: item.system,
+                equipped: item.system.equipped || false
+            })),
+            armor: allItems.filter(item => item.type === 'armor').map(item => ({
+                id: item.id,
+                name: item.name,
+                type: item.type,
+                system: item.system,
+                equipped: item.system.equipped || false
+            })),
+            gear: allItems.filter(item => item.type === 'gear').map(item => ({
+                id: item.id,
+                name: item.name,
+                type: item.type,
+                system: item.system,
+                equipped: item.system.equipped || false
+            }))
+        };
+        
+        // Legacy equipment support (for migration period)
+        // If actor still has system.equipment, include it for backward compatibility
+        if (this.actor.system.equipment) {
+            const legacyWeapons = Array.isArray(this.actor.system.equipment.weapons) 
+                ? this.actor.system.equipment.weapons 
+                : Object.values(this.actor.system.equipment.weapons || {});
+            const legacyArmor = Array.isArray(this.actor.system.equipment.armor) 
+                ? this.actor.system.equipment.armor 
+                : Object.values(this.actor.system.equipment.armor || {});
+            const legacyGear = Array.isArray(this.actor.system.equipment.gear) 
+                ? this.actor.system.equipment.gear 
+                : Object.values(this.actor.system.equipment.gear || {});
+            
+            // Only add legacy items if no Items exist (migration not yet done)
+            if (context.equipment.weapons.length === 0 && legacyWeapons.length > 0) {
+                context.equipment.weapons = legacyWeapons;
+            }
+            if (context.equipment.armor.length === 0 && legacyArmor.length > 0) {
+                context.equipment.armor = legacyArmor;
+            }
+            if (context.equipment.gear.length === 0 && legacyGear.length > 0) {
+                context.equipment.gear = legacyGear;
+            }
         }
         
         // Devices pagination (2 per page)
@@ -391,12 +446,24 @@ export class WodActorSheet extends ActorSheet {
         html.find('.delete-weapon').click(this._onDeleteWeapon.bind(this));
         html.find('.delete-armor').click(this._onDeleteArmor.bind(this));
         html.find('.delete-gear').click(this._onDeleteGear.bind(this));
+        
+        // Equipment effect management
+        html.find('.manage-item-effects').click(this._onManageItemEffects.bind(this));
+        
         html.find('.weapon-equipped').change((event) => {
             this._onToggleWeaponEquipped(event);
         });
         html.find('.armor-equipped').change((event) => {
             this._onToggleArmorEquipped(event);
         });
+        html.find('.gear-equipped').change((event) => {
+            this._onToggleGearEquipped(event);
+        });
+        
+        // Equipment item field changes (for Items)
+        html.on('change', '.weapon-name, .armor-name, .gear-name', this._onEquipmentNameChange.bind(this));
+        html.on('change', 'input[data-item-id][data-field]', this._onEquipmentFieldChange.bind(this));
+        
         html.find('.equipment-type-tab').click(this._onEquipmentTypeTab.bind(this));
         
         // Status Effects Management
@@ -2033,35 +2100,35 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddWeapon(event) {
         event.preventDefault();
-        // console.log("Add weapon clicked!");
-        // console.log("Current equipment:", this.actor.system.equipment);
         
-        // Convert weapons to array (Foundry sometimes stores as object)
-        let weaponsData = this.actor.system.equipment?.weapons;
-        const weapons = Array.isArray(weaponsData) 
-            ? foundry.utils.duplicate(weaponsData)
-            : Object.values(weaponsData || {});
-        
-        // console.log("Current weapons (converted to array):", weapons);
-        
-        const newWeapon = {
-            id: foundry.utils.randomID(),
+        const newWeaponData = {
             name: "New Weapon",
             type: "weapon",
-            subtype: "melee",
-            equipped: false,
-            damage: "1",
-            difficulty: 6,
-            range: "-",
-            rate: "1",
-            clip: "-",
-            concealment: "P",
-            description: "",
-            grantsEffects: []
+            system: {
+                equipped: false,
+                subtype: "melee",
+                damage: "1",
+                difficulty: 6,
+                range: "-",
+                rate: "1",
+                clip: "-",
+                concealment: "P",
+                description: "",
+                grantsEffects: []
+            }
         };
         
-        weapons.push(newWeapon);
-        await this.actor.update({ "system.equipment.weapons": weapons });
+        // Create item with explicit parent to ensure it's properly linked to the actor
+        // Foundry will automatically synchronize this to all clients with access to the actor
+        const createdItem = await Item.create(newWeaponData, { 
+            parent: this.actor
+        });
+        
+        // Re-render the actor sheet to show the new item (for current user)
+        // Other users' sheets will update automatically via Foundry's synchronization
+        if (createdItem) {
+            this.render(false);
+        }
         
         // Scroll to bottom of equipment list to show new item
         setTimeout(() => {
@@ -2077,18 +2144,24 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDeleteWeapon(event) {
         event.preventDefault();
-        const weaponId = event.currentTarget.dataset.weaponId;
+        const itemId = event.currentTarget.dataset.itemId || event.currentTarget.dataset.weaponId;
+        const item = this.actor.items.get(itemId);
         
-        // Convert weapons to array (Foundry sometimes stores as object)
-        let weaponsData = this.actor.system.equipment?.weapons;
-        const weapons = Array.isArray(weaponsData) 
-            ? foundry.utils.duplicate(weaponsData)
-            : Object.values(weaponsData || {});
-        
-        const index = weapons.findIndex(w => w.id === weaponId);
-        if (index > -1) {
-            weapons.splice(index, 1);
-            await this.actor.update({ "system.equipment.weapons": weapons });
+        if (item) {
+            await item.delete();
+        } else {
+            // Legacy support: try to delete from system.equipment
+            const weaponId = event.currentTarget.dataset.weaponId;
+            let weaponsData = this.actor.system.equipment?.weapons;
+            const weapons = Array.isArray(weaponsData) 
+                ? foundry.utils.duplicate(weaponsData)
+                : Object.values(weaponsData || {});
+            
+            const index = weapons.findIndex(w => w.id === weaponId);
+            if (index > -1) {
+                weapons.splice(index, 1);
+                await this.actor.update({ "system.equipment.weapons": weapons });
+            }
         }
     }
 
@@ -2096,19 +2169,28 @@ export class WodActorSheet extends ActorSheet {
      * Toggle weapon equipped status
      */
     async _onToggleWeaponEquipped(event) {
-        const weaponId = event.currentTarget.dataset.weaponId;
+        const itemId = event.currentTarget.dataset.itemId || event.currentTarget.dataset.weaponId;
         const isEquipped = event.currentTarget.checked;
+        const item = this.actor.items.get(itemId);
         
-        // Convert weapons to array (Foundry sometimes stores as object)
-        let weaponsData = this.actor.system.equipment?.weapons;
-        const weapons = Array.isArray(weaponsData) 
-            ? foundry.utils.duplicate(weaponsData)
-            : Object.values(weaponsData || {});
-        
-        const weapon = weapons.find(w => w.id === weaponId);
-        if (weapon) {
-            weapon.equipped = isEquipped;
-            await this.actor.update({ "system.equipment.weapons": weapons });
+        if (item) {
+            await item.update({ "system.equipped": isEquipped });
+            
+            // Apply or remove item effects based on equipped status
+            await this._syncItemEffects(item, isEquipped);
+        } else {
+            // Legacy support: try to update system.equipment
+            const weaponId = event.currentTarget.dataset.weaponId;
+            let weaponsData = this.actor.system.equipment?.weapons;
+            const weapons = Array.isArray(weaponsData) 
+                ? foundry.utils.duplicate(weaponsData)
+                : Object.values(weaponsData || {});
+            
+            const weapon = weapons.find(w => w.id === weaponId);
+            if (weapon) {
+                weapon.equipped = isEquipped;
+                await this.actor.update({ "system.equipment.weapons": weapons });
+            }
         }
     }
 
@@ -2117,23 +2199,30 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddArmor(event) {
         event.preventDefault();
-        const armor = Array.isArray(this.actor.system.equipment?.armor)
-            ? foundry.utils.duplicate(this.actor.system.equipment.armor)
-            : [];
         
-        const newArmor = {
-            id: foundry.utils.randomID(),
+        const newArmorData = {
             name: "New Armor",
             type: "armor",
-            equipped: false,
-            rating: 1,
-            penalty: 0,
-            description: "",
-            grantsEffects: []
+            system: {
+                equipped: false,
+                rating: 1,
+                penalty: 0,
+                description: "",
+                grantsEffects: []
+            }
         };
         
-        armor.push(newArmor);
-        await this.actor.update({ "system.equipment.armor": armor });
+        // Create item with explicit parent to ensure it's properly linked to the actor
+        // Foundry will automatically synchronize this to all clients with access to the actor
+        const createdItem = await Item.create(newArmorData, { 
+            parent: this.actor
+        });
+        
+        // Re-render the actor sheet to show the new item (for current user)
+        // Other users' sheets will update automatically via Foundry's synchronization
+        if (createdItem) {
+            this.render(false);
+        }
     }
 
     /**
@@ -2141,15 +2230,23 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDeleteArmor(event) {
         event.preventDefault();
-        const armorId = event.currentTarget.dataset.armorId;
-        const armor = Array.isArray(this.actor.system.equipment?.armor)
-            ? foundry.utils.duplicate(this.actor.system.equipment.armor)
-            : [];
+        const itemId = event.currentTarget.dataset.itemId || event.currentTarget.dataset.armorId;
+        const item = this.actor.items.get(itemId);
         
-        const index = armor.findIndex(a => a.id === armorId);
-        if (index > -1) {
-            armor.splice(index, 1);
-            await this.actor.update({ "system.equipment.armor": armor });
+        if (item) {
+            await item.delete();
+        } else {
+            // Legacy support: try to delete from system.equipment
+            const armorId = event.currentTarget.dataset.armorId;
+            const armor = Array.isArray(this.actor.system.equipment?.armor)
+                ? foundry.utils.duplicate(this.actor.system.equipment.armor)
+                : [];
+            
+            const index = armor.findIndex(a => a.id === armorId);
+            if (index > -1) {
+                armor.splice(index, 1);
+                await this.actor.update({ "system.equipment.armor": armor });
+            }
         }
     }
 
@@ -2157,16 +2254,27 @@ export class WodActorSheet extends ActorSheet {
      * Toggle armor equipped status
      */
     async _onToggleArmorEquipped(event) {
-        const armorId = event.currentTarget.dataset.armorId;
+        const itemId = event.currentTarget.dataset.itemId || event.currentTarget.dataset.armorId;
         const isEquipped = event.currentTarget.checked;
-        const armor = Array.isArray(this.actor.system.equipment?.armor)
-            ? foundry.utils.duplicate(this.actor.system.equipment.armor)
-            : [];
+        const item = this.actor.items.get(itemId);
         
-        const armorPiece = armor.find(a => a.id === armorId);
-        if (armorPiece) {
-            armorPiece.equipped = isEquipped;
-            await this.actor.update({ "system.equipment.armor": armor });
+        if (item) {
+            await item.update({ "system.equipped": isEquipped });
+            
+            // Apply or remove item effects based on equipped status
+            await this._syncItemEffects(item, isEquipped);
+        } else {
+            // Legacy support: try to update system.equipment
+            const armorId = event.currentTarget.dataset.armorId;
+            const armor = Array.isArray(this.actor.system.equipment?.armor)
+                ? foundry.utils.duplicate(this.actor.system.equipment.armor)
+                : [];
+            
+            const armorPiece = armor.find(a => a.id === armorId);
+            if (armorPiece) {
+                armorPiece.equipped = isEquipped;
+                await this.actor.update({ "system.equipment.armor": armor });
+            }
         }
     }
 
@@ -2175,22 +2283,34 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onAddGear(event) {
         event.preventDefault();
-        const gear = Array.isArray(this.actor.system.equipment?.gear)
-            ? foundry.utils.duplicate(this.actor.system.equipment.gear)
-            : [];
         
-        const newGear = {
-            id: foundry.utils.randomID(),
+        const newGearData = {
             name: "New Gear",
             type: "gear",
-            quantity: 1,
-            weight: "0 lbs",
-            description: "",
-            grantsEffects: []
+            system: {
+                equipped: false,
+                quantity: 1,
+                weight: "",
+                description: "",
+                equipmentEffects: {
+                    light: null,
+                    visibility: null,
+                    sound: null
+                }
+            }
         };
         
-        gear.push(newGear);
-        await this.actor.update({ "system.equipment.gear": gear });
+        // Create item with explicit parent to ensure it's properly linked to the actor
+        // Foundry will automatically synchronize this to all clients with access to the actor
+        const createdItem = await Item.create(newGearData, { 
+            parent: this.actor
+        });
+        
+        // Re-render the actor sheet to show the new item (for current user)
+        // Other users' sheets will update automatically via Foundry's synchronization
+        if (createdItem) {
+            this.render(false);
+        }
     }
 
     /**
@@ -2198,19 +2318,160 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onDeleteGear(event) {
         event.preventDefault();
-        const gearId = event.currentTarget.dataset.gearId;
-        const gear = Array.isArray(this.actor.system.equipment?.gear)
-            ? foundry.utils.duplicate(this.actor.system.equipment.gear)
-            : [];
+        const itemId = event.currentTarget.dataset.itemId || event.currentTarget.dataset.gearId;
+        const item = this.actor.items.get(itemId);
         
-        const index = gear.findIndex(g => g.id === gearId);
-        if (index > -1) {
-            gear.splice(index, 1);
-            await this.actor.update({ "system.equipment.gear": gear });
+        if (item) {
+            await item.delete();
+        } else {
+            // Legacy support: try to delete from system.equipment
+            const gearId = event.currentTarget.dataset.gearId;
+            const gear = Array.isArray(this.actor.system.equipment?.gear)
+                ? foundry.utils.duplicate(this.actor.system.equipment.gear)
+                : [];
+            
+            const index = gear.findIndex(g => g.id === gearId);
+            if (index > -1) {
+                gear.splice(index, 1);
+                await this.actor.update({ "system.equipment.gear": gear });
+            }
         }
     }
 
+    /**
+     * Toggle gear equipped status
+     */
+    async _onToggleGearEquipped(event) {
+        const itemId = event.currentTarget.dataset.itemId || event.currentTarget.dataset.gearId;
+        const isEquipped = event.currentTarget.checked;
+        const item = this.actor.items.get(itemId);
+        
+        if (item) {
+            await item.update({ "system.equipped": isEquipped });
+            
+            // Apply or remove item effects based on equipped status
+            await this._syncItemEffects(item, isEquipped);
+        } else {
+            // Legacy support: try to update system.equipment
+            const gearId = event.currentTarget.dataset.gearId;
+            const gear = Array.isArray(this.actor.system.equipment?.gear)
+                ? foundry.utils.duplicate(this.actor.system.equipment.gear)
+                : [];
+            
+            const gearItem = gear.find(g => g.id === gearId);
+            if (gearItem) {
+                gearItem.equipped = isEquipped;
+                await this.actor.update({ "system.equipment.gear": gear });
+            }
+        }
+    }
 
+    /**
+     * Sync item effects with actor when item is equipped/unequipped
+     * Foundry V13 automatically handles effects with transfer=true and origin set correctly.
+     * This method only ensures origin is set for compatibility, but Foundry does the heavy lifting.
+     * Modules like Active Token Effects will handle the rest automatically.
+     */
+    async _syncItemEffects(item, isEquipped) {
+        if (!item) return;
+        
+        // Foundry V13 automatically transfers effects with transfer=true when item is equipped
+        // We just ensure origin is set correctly so Foundry's system works properly
+        // Modules like Active Token Effects will handle the rest
+        const itemEffects = item.effects || [];
+        
+        for (const effect of itemEffects) {
+            // Ensure origin is set to the item (required for Foundry's transfer system)
+            if (effect.origin !== item.uuid) {
+                await effect.update({ origin: item.uuid });
+            }
+        }
+        
+        // Note: Foundry automatically handles:
+        // - Transferring effects with transfer=true to actor when item is equipped
+        // - Removing transferred effects when item is unequipped
+        // - Modules like Active Token Effects can extend this behavior
+    }
+
+    /**
+     * Open equipment effects configuration dialog
+     * Allows users to configure light, visibility, and sound effects for equipment
+     */
+    async _onManageItemEffects(event) {
+        event.preventDefault();
+        
+        // Only GM can manage equipment effects
+        if (!game.user.isGM) {
+            ui.notifications.warn("Only the GM can manage equipment effects.");
+            return;
+        }
+        
+        const itemId = event.currentTarget.dataset.itemId;
+        const item = this.actor.items.get(itemId);
+        
+        if (!item) {
+            ui.notifications.warn("Item not found.");
+            return;
+        }
+        
+        // Import and open the equipment effects dialog
+        const { WodEquipmentEffectsDialog } = await import("../../apps/wod-equipment-effects-dialog.js");
+        const dialog = new WodEquipmentEffectsDialog(item);
+        dialog.render(true);
+    }
+
+    /**
+     * Handle equipment name change
+     */
+    async _onEquipmentNameChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const itemId = input.dataset.itemId;
+        const newName = input.value.trim();
+        
+        if (!itemId) return;
+        
+        const item = this.actor.items.get(itemId);
+        if (item) {
+            await item.update({ name: newName || "Unnamed Item" });
+        }
+    }
+    
+    /**
+     * Handle equipment field change
+     */
+    async _onEquipmentFieldChange(event) {
+        event.preventDefault();
+        const input = event.currentTarget;
+        const itemId = input.dataset.itemId;
+        const field = input.dataset.field;
+        
+        if (!itemId || !field) return;
+        
+        const item = this.actor.items.get(itemId);
+        if (!item) return;
+        
+        let value = input.value;
+        
+        // Convert numeric fields
+        if (input.type === 'number') {
+            value = input.value !== '' ? parseFloat(input.value) : 0;
+        }
+        
+        // Build update object - handle nested fields like "system.damage"
+        const updateData = {};
+        const fieldParts = field.split('.');
+        let current = updateData;
+        
+        for (let i = 0; i < fieldParts.length - 1; i++) {
+            current[fieldParts[i]] = {};
+            current = current[fieldParts[i]];
+        }
+        current[fieldParts[fieldParts.length - 1]] = value;
+        
+        await item.update(updateData);
+    }
+    
     /**
      * Determine roll context based on traits being rolled
      * @param {Array} traits - Array of trait objects {name, value}

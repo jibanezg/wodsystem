@@ -42,7 +42,17 @@ export class WodActor extends Actor {
             
             // If the update is trying to set backgrounds to null, undefined, or non-array, preserve current
             if (!Array.isArray(newBackgrounds)) {
-                console.warn(`Actor ${this.name} (${this.id}): Attempted to update backgrounds to invalid type (${typeof newBackgrounds}), preserving current backgrounds`);
+                // Check if this might be from an external module (like Active Token Effects) that sends full objects
+                // Only log warning if it's not a plain object (which external modules often send)
+                const isPlainObject = newBackgrounds !== null && 
+                                     typeof newBackgrounds === 'object' && 
+                                     newBackgrounds.constructor === Object &&
+                                     Object.keys(newBackgrounds).length > 0;
+                
+                if (!isPlainObject) {
+                    console.warn(`Actor ${this.name} (${this.id}): Attempted to update backgrounds to invalid type (${typeof newBackgrounds}), preserving current backgrounds`);
+                }
+                // Silently fix it regardless of source
                 changed.system.miscellaneous.backgrounds = currentBackgrounds;
             }
             // If the update is trying to clear all backgrounds without explicit intent, log it

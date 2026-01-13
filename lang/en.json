@@ -127,8 +127,11 @@
         "ConceptPlaceholder": "e.g., Street Preacher",
         "ConceptPlaceholderTechnocrat": "e.g., Cyber-Weapons Specialist",
         "Nature": "Nature",
+        "NaturePlaceholder": "e.g., Director, Visionary",
         "Demeanor": "Demeanor",
+        "DemeanorPlaceholder": "e.g., Idealist, Machine",
         "Convention": "Convention",
+        "ConventionPlaceholder": "e.g., Iteration X, New World Order",
         "Amalgam": "Amalgam",
         "AmalgamPlaceholder": "Cross-convention affiliation",
         "Eidolon": "Eidolon",
@@ -400,7 +403,47 @@
         "NoEquipment": "No equipment added yet",
         "AddWeapon": "Add Weapon",
         "AddArmor": "Add Armor",
-        "AddGear": "Add Gear"
+        "AddGear": "Add Gear",
+        "ManageEffects": "Configure Equipment Effects"
+      },
+      "EquipmentEffects": {
+        "DialogTitle": "Equipment Effects Configuration",
+        "Light": "Light",
+        "Visibility": "Visibility",
+        "Sound": "Sound",
+        "Enable": "Enable",
+        "Dim": "Dim Light",
+        "Bright": "Bright Light",
+        "Angle": "Angle",
+        "Color": "Color",
+        "Alpha": "Alpha",
+        "Animation": "Animation",
+        "DarknessMin": "Darkness Min",
+        "DarknessMax": "Darkness Max",
+        "DimSight": "Dim Sight Range",
+        "BrightSight": "Bright Sight Range",
+        "VisionMode": "Vision Mode",
+        "SoundFile": "Sound File",
+        "Volume": "Volume",
+        "Loop": "Loop",
+        "Browse": "Browse"
+      },
+      "ItemSheet": {
+        "Tabs": {
+          "Details": "Details",
+          "Effects": "Effects"
+        },
+        "Effects": {
+          "Title": "Active Effects",
+          "Add": "Add Effect",
+          "Edit": "Edit Effect",
+          "Delete": "Delete Effect",
+          "Enable": "Enable Effect",
+          "Disable": "Disable Effect",
+          "NoEffects": "No active effects. Click 'Add Effect' to create one.",
+          "ConfirmDelete": "Delete Effect?",
+          "ConfirmDeleteMessage": "Are you sure you want to delete the effect \"{name}\"?"
+        }
       },
       "Effects": {
         "StatusEffects": "Status Effects",
