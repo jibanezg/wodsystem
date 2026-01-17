@@ -187,6 +187,95 @@ form.wod-equipment-effects-dialog .form-group select:focus {
     box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.1);
 }
 
+/* Intensity Control Group */
+form.wod-equipment-effects-dialog .intensity-control-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+form.wod-equipment-effects-dialog .light-intensity-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--wod-border-light, #e0e0e0);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--wod-primary, #2D5016);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb:hover {
+    background: var(--wod-primary-light, #4A7C0F);
+    transform: scale(1.1);
+}
+
+form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--wod-primary, #2D5016);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb:hover {
+    background: var(--wod-primary-light, #4A7C0F);
+    transform: scale(1.1);
+}
+
+form.wod-equipment-effects-dialog .intensity-value-display {
+    min-width: 30px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: var(--wod-primary, #2D5016);
+    padding: 4px 8px;
+    background: var(--wod-bg-light, #ffffff);
+    border: 1px solid var(--wod-border-light, #e0e0e0);
+    border-radius: 3px;
+}
+
+/* Technocrat theme intensity slider */
+.window-app.technocrat form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb,
+form.wod-equipment-effects-dialog.technocrat .light-intensity-slider::-webkit-slider-thumb {
+    background: var(--wod-primary, #4682B4);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb:hover,
+form.wod-equipment-effects-dialog.technocrat .light-intensity-slider::-webkit-slider-thumb:hover {
+    background: var(--wod-primary-light, #6CA6CD);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb,
+form.wod-equipment-effects-dialog.technocrat .light-intensity-slider::-moz-range-thumb {
+    background: var(--wod-primary, #4682B4);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb:hover,
+form.wod-equipment-effects-dialog.technocrat .light-intensity-slider::-moz-range-thumb:hover {
+    background: var(--wod-primary-light, #6CA6CD);
+}
+
+.window-app.technocrat form.wod-equipment-effects-dialog .intensity-value-display,
+form.wod-equipment-effects-dialog.technocrat .intensity-value-display {
+    color: var(--wod-primary, #4682B4);
+}
+
 /* Color Picker Group */
 form.wod-equipment-effects-dialog .color-picker-group {
     display: flex;

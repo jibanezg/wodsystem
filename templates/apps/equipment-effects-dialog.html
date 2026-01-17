@@ -24,12 +24,23 @@
         <div class="effect-tab-content" data-tab="light">
             <div class="effect-section">
                 <div class="form-group">
+                    <label>{{i18n 'WODSYSTEM.EquipmentEffects.Intensity'}}</label>
+                    <div class="intensity-control-group">
+                        <input type="range" class="light-intensity-slider" name="light.intensity" 
+                               value="{{light.intensity}}" min="0" max="100" step="1" />
+                        <span class="intensity-value-display">{{light.intensity}}</span>
+                    </div>
+                    <small class="form-hint">{{i18n 'WODSYSTEM.EquipmentEffects.IntensityHint'}}</small>
+                </div>
+                <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Dim'}}</label>
-                    <input type="number" name="light.dim" value="{{light.dim}}" min="0" step="1" />
+                    <input type="number" name="light.dim" value="{{light.dim}}" min="0" step="1" class="light-dim-input" />
+                    <small class="form-hint">{{i18n 'WODSYSTEM.EquipmentEffects.DimHint'}}</small>
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Bright'}}</label>
-                    <input type="number" name="light.bright" value="{{light.bright}}" min="0" step="1" />
+                    <input type="number" name="light.bright" value="{{light.bright}}" min="0" step="1" class="light-bright-input" />
+                    <small class="form-hint">{{i18n 'WODSYSTEM.EquipmentEffects.BrightHint'}}</small>
                 </div>
                 <div class="form-group">
                     <label>{{i18n 'WODSYSTEM.EquipmentEffects.Angle'}}</label>

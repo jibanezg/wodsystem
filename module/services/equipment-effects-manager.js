@@ -16,22 +16,39 @@ export class EquipmentEffectsManager {
         game.wod = game.wod || {};
         game.wod.equipmentEffectsManager = manager;
 
-        // Hook into item updates to detect equipment changes
+        // Hook into item updates to detect equipment changes and effect configuration changes
         Hooks.on("updateItem", async (item, updateData, options, userId) => {
+            const actor = item.actor || (item.actorId ? game.actors.get(item.actorId) : null);
+            if (!actor || (!game.user.isGM && !actor.isOwner)) {
+                return;
+            }
+
+            // Wait for the update to complete, then get the fresh item
+            await new Promise(resolve => setTimeout(resolve, 0));
+            const freshItem = item.actor?.items?.get(item.id) || item;
+
+            // Check for equipment state change (equip/unequip)
             if (updateData.system?.equipped !== undefined) {
-                // CRITICAL: Only process if the current user is the one who made the change
-                // or if they are GM/owner of the actor
-                const actor = item.actor || (item.actorId ? game.actors.get(item.actorId) : null);
-                if (actor && (game.user.isGM || actor.isOwner)) {
-                    // Wait for the update to complete, then get the fresh item
-                    await new Promise(resolve => setTimeout(resolve, 0));
-                    const freshItem = item.actor?.items?.get(item.id) || item;
-                    manager._handleEquipmentChange(freshItem, updateData.system.equipped);
+                manager._handleEquipmentChange(freshItem, updateData.system.equipped);
+            }
+            // Check for equipment effects configuration changes (when item is already equipped)
+            else if (updateData.system?.equipmentEffects !== undefined && freshItem.system?.equipped) {
+                // Item is equipped and effects configuration changed - reapply effects
+                console.log("WoD Equipment Effects: Equipment effects configuration changed, reapplying", {
+                    itemId: freshItem.id,
+                    itemName: freshItem.name,
+                    actorId: actor.id,
+                    newEffects: updateData.system.equipmentEffects
+                });
+                const effects = freshItem.system?.equipmentEffects || {};
+                const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
+                
+                if (hasEffects) {
+                    // Reapply effects with new configuration
+                    await manager._applyItemEffects(actor, freshItem, effects);
                 } else {
-                    console.debug("WoD Equipment Effects: Skipping equipment change - user does not have permission", {
-                        userId: game.user.id,
-                        actorId: actor?.id
-                    });
+                    // Effects were removed, clean up
+                    await manager._removeItemEffects(actor, freshItem.id);
                 }
             }
         });
@@ -113,10 +130,20 @@ export class EquipmentEffectsManager {
             if (actor) {
                 // Verify permissions before updating
                 if (game.user.isGM || actor.isOwner) {
-                    // Store token location in actor flags only
+                    // Store token location in actor flags
                     await manager._updateTokenLocation(actor, token);
-                    // Apply effects only once when token is created
-                    await manager._applyActorEffects(actor);
+                    
+                    // CRITICAL: Wait a moment for token to be fully initialized in the scene
+                    // Then apply all effects from equipped items when token is created
+                    // This ensures effects work immediately when token is added to scene
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    console.log("WoD Equipment Effects: Token created, applying actor effects", { 
+                        actorId: actor.id, 
+                        actorName: actor.name,
+                        tokenId: token.id || token.document?.id
+                    });
+                    await manager._applyActorEffects(actor, token);
                 } else {
                     console.debug("WoD Equipment Effects: User does not have permission to update token location on create", {
                         userId: game.user.id,
@@ -338,8 +365,9 @@ export class EquipmentEffectsManager {
      * @param {Actor} actor - The actor
      * @param {Item} item - The equipped item
      * @param {Object} effects - Effects configuration (from item.system.equipmentEffects)
+     * @param {Token|TokenDocument} specificToken - Optional: specific token to apply effects to (when token is just created)
      */
-    async _applyItemEffects(actor, item, effects) {
+    async _applyItemEffects(actor, item, effects, specificToken = null) {
         const actorId = actor.id;
         const itemId = item.id;
 
@@ -349,14 +377,34 @@ export class EquipmentEffectsManager {
         }
         this.activeEffects.get(actorId).set(itemId, effects);
 
+        // Track if we need to recalculate combined effects
+        let needsLightRecalc = false;
+        let needsVisibilityRecalc = false;
+
         // Iterate over all effects provided by this item and enable each one
         // The item stores all its effects, so we just go through them
         if (effects.light !== null && effects.light !== undefined) {
-            await this._applyLightEffect(actor, item, effects.light);
+            // Check if there are other light sources - if so, we need to recalculate
+            needsLightRecalc = this._hasOtherLightSourceFromMap(actor, itemId);
+            if (needsLightRecalc) {
+                // If there are other lights, recalculate to get the combined/strongest light
+                await this._recalculateLightFromMap(actor);
+            } else {
+                // No other lights, just apply this one directly
+                await this._applyLightEffect(actor, item, effects.light, specificToken);
+            }
         }
 
         if (effects.visibility !== null && effects.visibility !== undefined) {
-            await this._applyVisibilityEffect(actor, item, effects.visibility);
+            // Check if there are other visibility sources - if so, we need to recalculate
+            needsVisibilityRecalc = this._hasOtherVisibilitySourceFromMap(actor, itemId);
+            if (needsVisibilityRecalc) {
+                // If there are other visibility sources, recalculate to get the best one
+                await this._recalculateVisibilityFromMap(actor);
+            } else {
+                // No other visibility sources, just apply this one directly
+                await this._applyVisibilityEffect(actor, item, effects.visibility, specificToken);
+            }
         }
 
         if (effects.sound !== null && effects.sound !== undefined) {
@@ -490,48 +538,60 @@ export class EquipmentEffectsManager {
      * @param {Item} item - The item providing the light
      * @param {Object} lightConfig - Light configuration
      */
-    async _applyLightEffect(actor, item, lightConfig) {
+    async _applyLightEffect(actor, item, lightConfig, specificToken = null) {
         if (!lightConfig || (lightConfig.dim === 0 && lightConfig.bright === 0)) {
             return;
         }
 
-        // Get tokens - use stored location first, then quick fallback
+        console.log("WoD Equipment Effects: _applyLightEffect called", { 
+            actorId: actor.id, 
+            itemId: item.id,
+            hasSpecificToken: !!specificToken
+        });
+
+        // Get tokens - use specific token if provided (just created), then stored location, then fallback
         let tokens = [];
         
-        // Method 1: Try stored token location (most reliable and fastest)
-        const storedToken = await this._getStoredToken(actor);
-        if (storedToken) {
-            tokens.push(storedToken);
+        // Method 1: Use specific token if provided (token just created)
+        if (specificToken) {
+            console.log("WoD Equipment Effects: Using specific token provided", { tokenId: specificToken.id || specificToken.document?.id });
+            tokens.push(specificToken);
         } else {
-            // Method 2: Quick fallback - getActiveTokens (only if stored location not available)
-            try {
-                const activeTokens = actor.getActiveTokens(true);
-                if (activeTokens.length > 0) {
-                    tokens.push(...activeTokens);
-                    // Store location for future use
-                    await this._updateTokenLocation(actor, activeTokens[0]);
-                } else {
-                    // If no active tokens, try to find token in the stored scene
-                    const location = actor.flags?.wodsystem?.tokenLocation;
-                    if (location && location.sceneId) {
-                        const scene = game.scenes.get(location.sceneId);
-                        // CRITICAL: Verify user has access to the scene before searching
-                        if (scene && (game.user.isGM || scene.testUserPermission(game.user, "LIMITED"))) {
-                            // Try to find any token for this actor in the stored scene
-                            const sceneTokens = Array.from(scene.tokens.values()).filter(t => {
-                                const tokenActorId = t.actorId || t.data?.actorId;
-                                return tokenActorId === actor.id;
-                            });
-                            if (sceneTokens.length > 0) {
-                                tokens.push(...sceneTokens);
-                                // Update stored location with the first token found
-                                await this._updateTokenLocation(actor, sceneTokens[0]);
+            // Method 2: Try stored token location (most reliable and fastest)
+            const storedToken = await this._getStoredToken(actor);
+            if (storedToken) {
+                tokens.push(storedToken);
+            } else {
+                // Method 3: Quick fallback - getActiveTokens (only if stored location not available)
+                try {
+                    const activeTokens = actor.getActiveTokens(true);
+                    if (activeTokens.length > 0) {
+                        tokens.push(...activeTokens);
+                        // Store location for future use
+                        await this._updateTokenLocation(actor, activeTokens[0]);
+                    } else {
+                        // If no active tokens, try to find token in the stored scene
+                        const location = actor.flags?.wodsystem?.tokenLocation;
+                        if (location && location.sceneId) {
+                            const scene = game.scenes.get(location.sceneId);
+                            // CRITICAL: Verify user has access to the scene before searching
+                            if (scene && (game.user.isGM || scene.testUserPermission(game.user, "LIMITED"))) {
+                                // Try to find any token for this actor in the stored scene
+                                const sceneTokens = Array.from(scene.tokens.values()).filter(t => {
+                                    const tokenActorId = t.actorId || t.data?.actorId;
+                                    return tokenActorId === actor.id;
+                                });
+                                if (sceneTokens.length > 0) {
+                                    tokens.push(...sceneTokens);
+                                    // Update stored location with the first token found
+                                    await this._updateTokenLocation(actor, sceneTokens[0]);
+                                }
                             }
                         }
                     }
+                } catch (e) {
+                    console.warn("WoD Equipment Effects: getActiveTokens failed", e);
                 }
-            } catch (e) {
-                console.warn("WoD Equipment Effects: getActiveTokens failed", e);
             }
         }
         
@@ -775,16 +835,31 @@ export class EquipmentEffectsManager {
      * @param {Actor} actor - The actor
      * @param {Item} item - The item providing the visibility
      * @param {Object} visibilityConfig - Visibility configuration
+     * @param {Token|TokenDocument} specificToken - Optional: specific token to apply effect to (when token is just created)
      */
-    async _applyVisibilityEffect(actor, item, visibilityConfig) {
-        // Try stored token location first
+    async _applyVisibilityEffect(actor, item, visibilityConfig, specificToken = null) {
+        console.log("WoD Equipment Effects: _applyVisibilityEffect called", { 
+            actorId: actor.id, 
+            itemId: item.id,
+            hasSpecificToken: !!specificToken
+        });
+        
+        // Get tokens - use specific token if provided (just created), then stored location, then fallback
         let tokens = [];
-        const storedToken = await this._getStoredToken(actor);
-        if (storedToken) {
-            tokens.push(storedToken);
+        
+        // Method 1: Use specific token if provided (token just created)
+        if (specificToken) {
+            console.log("WoD Equipment Effects: Using specific token provided for visibility", { tokenId: specificToken.id || specificToken.document?.id });
+            tokens.push(specificToken);
         } else {
-            // Fallback to getActiveTokens
-            tokens = actor.getActiveTokens(true);
+            // Method 2: Try stored token location first
+            const storedToken = await this._getStoredToken(actor);
+            if (storedToken) {
+                tokens.push(storedToken);
+            } else {
+                // Method 3: Fallback to getActiveTokens
+                tokens = actor.getActiveTokens(true);
+            }
         }
         
         if (tokens.length === 0) {
@@ -1282,9 +1357,16 @@ export class EquipmentEffectsManager {
     /**
      * Apply all effects for an actor (used when token is created/updated)
      * @param {Actor} actor - The actor
+     * @param {Token|TokenDocument} specificToken - Optional: specific token to apply effects to (when token is just created)
      */
-    async _applyActorEffects(actor) {
+    async _applyActorEffects(actor, specificToken = null) {
         if (!actor) return;
+        
+        console.log("WoD Equipment Effects: _applyActorEffects called", { 
+            actorId: actor.id, 
+            actorName: actor.name,
+            hasSpecificToken: !!specificToken
+        });
         
         // CRITICAL: Only apply effects if user has permission
         if (!game.user.isGM && !actor.isOwner) {
@@ -1295,16 +1377,28 @@ export class EquipmentEffectsManager {
             return;
         }
 
+        // Get all equipped items with effects
         const equippedItems = actor.items.filter(item => 
             item.system?.equipped && 
             item.system?.equipmentEffects &&
             Object.values(item.system.equipmentEffects).some(e => e !== null)
         );
 
+        console.log("WoD Equipment Effects: Found equipped items with effects", { 
+            count: equippedItems.length,
+            items: equippedItems.map(item => ({ id: item.id, name: item.name, effects: item.system.equipmentEffects }))
+        });
+
+        // Apply effects for each equipped item
         for (const item of equippedItems) {
             const effects = item.system.equipmentEffects;
-            await this._applyItemEffects(actor, item, effects);
+            console.log("WoD Equipment Effects: Applying effects for item", { itemId: item.id, itemName: item.name, effects });
+            
+            // If we have a specific token (just created), pass it to apply methods
+            await this._applyItemEffects(actor, item, effects, specificToken);
         }
+        
+        console.log("WoD Equipment Effects: _applyActorEffects completed");
     }
 
     /**

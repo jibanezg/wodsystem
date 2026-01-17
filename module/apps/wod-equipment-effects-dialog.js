@@ -58,15 +58,23 @@ export class WodEquipmentEffectsDialog extends FormApplication {
             hasLight: !!effects.light,
             hasVisibility: !!effects.visibility,
             hasSound: !!effects.sound,
-            light: effects.light || {
-                dim: 0,
-                bright: 0,
-                angle: 360,
-                color: "#ffffff",
-                alpha: 0.5,
-                animation: null,
-                darkness: { min: 0, max: 1 }
-            },
+            light: (() => {
+                const light = effects.light || {
+                    dim: 0,
+                    bright: 0,
+                    intensity: 0,
+                    angle: 360,
+                    color: "#ffffff",
+                    alpha: 0.5,
+                    animation: null,
+                    darkness: { min: 0, max: 1 }
+                };
+                // Calculate intensity from dim/bright if not set
+                if (!light.intensity && (light.dim > 0 || light.bright > 0)) {
+                    light.intensity = Math.max(light.dim, Math.ceil(light.bright / 0.8));
+                }
+                return light;
+            })(),
             visibility: effects.visibility || {
                 dimSight: 0,
                 brightSight: 0,
@@ -106,6 +114,12 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         
         // Color picker for light
         html.find('.light-color-picker').change(this._onLightColorChange.bind(this));
+        
+        // Intensity slider for light - updates dim and bright proportionally
+        html.find('.light-intensity-slider').on('input', this._onLightIntensityChange.bind(this));
+        
+        // Individual dim/bright inputs - update intensity when changed manually
+        html.find('.light-dim-input, .light-bright-input').on('input', this._onLightDimBrightChange.bind(this));
         
         // Vision mode change handler - show/hide angle field based on vision mode
         html.find('#visibility-vision-mode').change(this._onVisionModeChange.bind(this));
@@ -174,11 +188,90 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         const light = this.item.system?.equipmentEffects?.light || {
             dim: 0,
             bright: 0,
+            intensity: 0,
             angle: 360,
             color: "#ffffff",
             alpha: 0.5
         };
         light.color = color;
+        this._updateEffectData("light", light);
+    }
+
+    /**
+     * Handle light intensity slider change - updates dim and bright proportionally
+     * Intensity 0-20: dim = intensity, bright = Math.floor(intensity * 0.8)
+     * 
+     * NOTE: This is a convenience feature - the intensity slider provides a quick way
+     * to adjust overall light strength. Users can still manually adjust dim and bright
+     * independently, which will recalculate the intensity value.
+     */
+    _onLightIntensityChange(event) {
+        const intensity = parseFloat(event.currentTarget.value) || 0;
+        const html = $(event.currentTarget).closest('form');
+        
+        // Update display value
+        html.find('.intensity-value-display').text(intensity);
+        
+        // Calculate dim and bright based on intensity
+        // Dim is the full intensity, bright is 80% of intensity (rounded down)
+        // This provides a realistic light falloff pattern
+        const dim = intensity;
+        const bright = Math.floor(intensity * 0.8);
+        
+        // Update input fields
+        html.find('.light-dim-input').val(dim);
+        html.find('.light-bright-input').val(bright);
+        
+        // Get existing light effect to preserve other properties
+        const existingLight = this.item.system?.equipmentEffects?.light || {
+            dim: 0,
+            bright: 0,
+            intensity: 0,
+            angle: 360,
+            color: "#ffffff",
+            alpha: 0.5,
+            animation: null,
+            darkness: { min: 0, max: 1 }
+        };
+        
+        // Update effect data
+        const light = {
+            ...existingLight,
+            intensity: intensity,
+            dim: dim,
+            bright: bright
+        };
+        this._updateEffectData("light", light);
+    }
+
+    /**
+     * Handle individual dim/bright input change - recalculate intensity
+     */
+    _onLightDimBrightChange(event) {
+        const html = $(event.currentTarget).closest('form');
+        const dim = parseFloat(html.find('.light-dim-input').val()) || 0;
+        const bright = parseFloat(html.find('.light-bright-input').val()) || 0;
+        
+        // Intensity is the maximum of dim and bright (or dim if they're proportional)
+        // Use dim as the primary intensity value
+        const intensity = Math.max(dim, Math.ceil(bright / 0.8));
+        
+        // Update intensity slider and display
+        html.find('.light-intensity-slider').val(intensity);
+        html.find('.intensity-value-display').text(intensity);
+        
+        // Update effect data
+        const light = this.item.system?.equipmentEffects?.light || {
+            dim: 0,
+            bright: 0,
+            intensity: 0,
+            angle: 360,
+            color: "#ffffff",
+            alpha: 0.5
+        };
+        light.intensity = intensity;
+        light.dim = dim;
+        light.bright = bright;
         this._updateEffectData("light", light);
     }
 
@@ -234,39 +327,69 @@ export class WodEquipmentEffectsDialog extends FormApplication {
             sound: null
         };
 
+        // Get existing light effect to preserve all properties
+        const existingLight = this.item.system?.equipmentEffects?.light;
+        
         // Process light effects (always process if any light field exists)
         if (formData["light.dim"] !== undefined || formData["light.bright"] !== undefined || 
-            formData["light.angle"] !== undefined || formData["light.color"] !== undefined ||
-            formData["light.alpha"] !== undefined) {
-            const dim = parseFloat(formData["light.dim"]) || 0;
-            const bright = parseFloat(formData["light.bright"]) || 0;
+            formData["light.intensity"] !== undefined || formData["light.angle"] !== undefined || 
+            formData["light.color"] !== undefined || formData["light.alpha"] !== undefined) {
+            // If intensity is provided, use it to calculate dim and bright
+            let dim, bright, intensity;
+            if (formData["light.intensity"] !== undefined && formData["light.intensity"] !== "") {
+                intensity = parseFloat(formData["light.intensity"]) || 0;
+                dim = intensity;
+                bright = Math.floor(intensity * 0.8);
+            } else {
+                dim = parseFloat(formData["light.dim"]) || 0;
+                bright = parseFloat(formData["light.bright"]) || 0;
+                intensity = Math.max(dim, Math.ceil(bright / 0.8));
+            }
             
-            // Parse angle - use the actual value from form, default to 360 only if not provided
-            let angle = 360;
-            if (formData["light.angle"] !== undefined && formData["light.angle"] !== "") {
-                const parsedAngle = parseFloat(formData["light.angle"]);
-                if (!isNaN(parsedAngle)) {
-                    angle = parsedAngle;
+            // Parse angle - CRITICAL: Always parse angle from form if present, even if it's 0 or 360
+            // These are valid values and must be preserved
+            let angle = existingLight?.angle ?? 360;
+            if (formData["light.angle"] !== undefined) {
+                // Check if it's an empty string or null - if so, use existing or default
+                if (formData["light.angle"] === "" || formData["light.angle"] === null) {
+                    // Keep existing angle or use default
+                    angle = existingLight?.angle ?? 360;
+                } else {
+                    // Parse the angle value - 0 is a valid value, so we need to check for NaN specifically
+                    const parsedAngle = parseFloat(formData["light.angle"]);
+                    if (!isNaN(parsedAngle)) {
+                        angle = parsedAngle;
+                    }
                 }
             }
             
-            const alpha = formData["light.alpha"] !== undefined ? (parseFloat(formData["light.alpha"]) || 0.5) : 0.5;
+            const alpha = formData["light.alpha"] !== undefined && formData["light.alpha"] !== "" 
+                ? (parseFloat(formData["light.alpha"]) || 0.5) 
+                : (existingLight?.alpha ?? 0.5);
             
-            // Save light effect if any value is set (including angle, color, alpha even if dim/bright are 0)
-            if (dim > 0 || bright > 0 || angle !== 360 || formData["light.color"] || alpha !== 0.5) {
-                effects.light = {
-                    dim: dim,
-                    bright: bright,
-                    angle: angle,
-                    color: formData["light.color"] || "#ffffff",
-                    alpha: alpha,
-                    animation: formData["light.animation"] || null,
-                    darkness: {
-                        min: formData["light.darknessMin"] !== undefined ? (parseFloat(formData["light.darknessMin"]) || 0) : 0,
-                        max: formData["light.darknessMax"] !== undefined ? (parseFloat(formData["light.darknessMax"]) || 1) : 1
-                    }
-                };
-            }
+            // Save light effect - CRITICAL: Always save if we have any light-related form data
+            // This ensures that all values (including angle=360 or angle=0) are preserved
+            effects.light = {
+                dim: dim,
+                bright: bright,
+                intensity: intensity,
+                angle: angle,
+                color: formData["light.color"] !== undefined && formData["light.color"] !== "" 
+                    ? formData["light.color"] 
+                    : (existingLight?.color || "#ffffff"),
+                alpha: alpha,
+                animation: formData["light.animation"] !== undefined && formData["light.animation"] !== "" 
+                    ? formData["light.animation"] 
+                    : (existingLight?.animation || null),
+                darkness: {
+                    min: formData["light.darknessMin"] !== undefined && formData["light.darknessMin"] !== "" 
+                        ? (parseFloat(formData["light.darknessMin"]) || 0) 
+                        : (existingLight?.darkness?.min ?? 0),
+                    max: formData["light.darknessMax"] !== undefined && formData["light.darknessMax"] !== "" 
+                        ? (parseFloat(formData["light.darknessMax"]) || 1) 
+                        : (existingLight?.darkness?.max ?? 1)
+                }
+            };
         }
 
         // Process visibility effects (always process if values exist)
@@ -299,16 +422,37 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         // Update the item
         await this.item.update({ "system.equipmentEffects": effects });
         
+        // CRITICAL: Get fresh item data after update to ensure we have the latest values
+        const updatedItem = this.item.actor.items.get(this.item.id) || this.item;
+        
         // If item is equipped, apply effects immediately
-        if (this.item.system?.equipped && game.wod?.equipmentEffectsManager) {
+        if (updatedItem.system?.equipped && game.wod?.equipmentEffectsManager) {
             const manager = game.wod.equipmentEffectsManager;
             const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
             
+            console.log("WoD Equipment Effects Dialog: Applying effects after save", {
+                itemId: updatedItem.id,
+                itemName: updatedItem.name,
+                isEquipped: updatedItem.system?.equipped,
+                hasEffects: hasEffects,
+                effects: effects,
+                lightEffect: effects.light
+            });
+            
             if (hasEffects) {
-                await manager._applyItemEffects(this.item.actor, this.item, effects);
+                // Use the effects object we just created, which has the latest values
+                await manager._applyItemEffects(updatedItem.actor, updatedItem, effects);
             } else {
-                await manager._removeItemEffects(this.item.actor, this.item.id);
+                await manager._removeItemEffects(updatedItem.actor, updatedItem.id);
             }
+        } else {
+            console.log("WoD Equipment Effects Dialog: Item not equipped, effects will apply when equipped", {
+                itemId: updatedItem.id,
+                itemName: updatedItem.name,
+                isEquipped: updatedItem.system?.equipped,
+                hasManager: !!game.wod?.equipmentEffectsManager,
+                effects: effects
+            });
         }
     }
 }
