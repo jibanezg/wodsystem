@@ -338,7 +338,12 @@ export class ReferenceDataService {
         // Translation happens in templates using translateRef helper
         // This ensures matching works correctly (value="original" but display="translated")
         return backgrounds
-            .map(bg => bg.name)
+            .map(bg => {
+                // Ensure we always return a string, not an object
+                const name = bg && typeof bg === 'object' ? bg.name : bg;
+                return typeof name === 'string' ? name : String(name || '');
+            })
+            .filter(name => name && name.length > 0) // Filter out empty strings
             .sort((a, b) => a.localeCompare(b));
     }
 

@@ -125,11 +125,13 @@
         <div class="freebie-list">
           {{#each backgroundsList}}
           {{#unless (eq this "Custom")}}
-          {{#with (findBackgroundValue @root.wizardData.advantages.backgrounds this) as |bgValue|}}
-          {{#with (findBackgroundIndex @root.wizardData.advantages.backgrounds ../this) as |bgIndex|}}
-          <div class="freebie-item" data-background-name="{{../../this}}">
-            <span class="item-name">{{../../this}}</span>
-            <button type="button" class="background-reference-btn" data-background-name="{{../../this}}" title="{{i18n 'Wizard.ViewBackgroundDetails' name=../../this}}">
+          {{#with this as |bgName|}}
+          {{#if (ne (typeof bgName) "object")}}
+          {{#with (findBackgroundValue @root.wizardData.advantages.backgrounds bgName) as |bgValue|}}
+          {{#with (findBackgroundIndex @root.wizardData.advantages.backgrounds bgName) as |bgIndex|}}
+          <div class="freebie-item" data-background-name="{{bgName}}">
+            <span class="item-name">{{bgName}}</span>
+            <button type="button" class="background-reference-btn" data-background-name="{{bgName}}" title="{{i18n 'Wizard.ViewBackgroundDetails' name=bgName}}">
               <i class="fas fa-book"></i>
             </button>
             <span class="item-current">{{i18n 'Wizard.Current'}}: {{default bgValue 0}}</span>
@@ -138,7 +140,7 @@
                       class="freebie-decrease" 
                       data-type="background" 
                       data-target="{{bgIndex}}"
-                      data-bg-name="{{../../this}}"
+                      data-bg-name="{{bgName}}"
                       {{#if (eq bgValue 0)}}disabled{{/if}}>
                 <i class="fas fa-minus"></i>
               </button>
@@ -146,13 +148,15 @@
                       class="freebie-increase" 
                       data-type="background" 
                       data-target="{{bgIndex}}"
-                      data-bg-name="{{../../this}}"
+                      data-bg-name="{{bgName}}"
                       {{#if (eq bgValue 5)}}disabled{{/if}}>
                 <i class="fas fa-plus"></i>
               </button>
             </div>
           </div>
           {{/with}}
+          {{/with}}
+          {{/if}}
           {{/with}}
           {{/unless}}
           {{/each}}

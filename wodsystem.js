@@ -11,6 +11,7 @@ import { WodCharacterWizard } from "./module/character-creation/wod-character-wi
 // Import Services
 import { ReferenceDataService } from "./module/services/reference-data-service.js"; // Merits, flaws, backgrounds
 import { EquipmentEffectsManager } from "./module/services/equipment-effects-manager.js"; // Equipment UI/token effects
+import { MinimapManager } from "./module/services/minimap-manager.js"; // Minimap feature
 
 // Import Item Classes
 import { WodItem, WodWeapon, WodArmor, WodGear } from "./module/items/wod-item.js";
@@ -59,6 +60,8 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/effect-manager.html",
         "systems/wodsystem/templates/apps/st-approval-dialog.html",
         "systems/wodsystem/templates/apps/equipment-effects-dialog.html",
+        "systems/wodsystem/templates/apps/minimap-config-dialog.html",
+        "systems/wodsystem/templates/apps/minimap-marker-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html",
         "systems/wodsystem/templates/chat/reference-card.html",
         "systems/wodsystem/templates/chat/background-reference-card.html",
@@ -144,4 +147,25 @@ Hooks.on("ready", async () => {
     // Initialize Equipment Effects Manager
     EquipmentEffectsManager.initialize();
     console.log("WoD | Equipment Effects Manager initialized");
+    
+    // Initialize Minimap Manager
+    MinimapManager.initialize();
+    console.log("WoD | Minimap Manager initialized");
+    
+    // Load Minimap dialogs and make them globally available
+    Promise.all([
+        import("./module/apps/wod-minimap-config-dialog.js"),
+        import("./module/apps/wod-minimap-marker-dialog.js"),
+        import("./module/ui/minimap-hud.js")
+    ]).then(([configDialog, markerDialog, hud]) => {
+        // Make dialogs globally available
+        game.wod = game.wod || {};
+        game.wod.MinimapConfigDialog = configDialog.WodMinimapConfigDialog;
+        game.wod.MinimapMarkerDialog = markerDialog.WodMinimapMarkerDialog;
+        
+        // Initialize Minimap HUD
+        hud.MinimapHUD.initialize();
+        console.log("WoD | Minimap HUD initialized");
+        console.log("WoD | Minimap dialogs loaded");
+    });
 });

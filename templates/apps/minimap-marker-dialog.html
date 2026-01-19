@@ -1,0 +1,64 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <header class="sheet-header">
+        <h1 class="dialog-title">
+            {{#if isEdit}}
+                {{i18n 'WODSYSTEM.Minimap.Markers.EditTitle'}}
+            {{else}}
+                {{i18n 'WODSYSTEM.Minimap.Markers.AddTitle'}}
+            {{/if}}
+        </h1>
+    </header>
+
+    <section class="content">
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.Minimap.Markers.Name'}}</label>
+            <input type="text" name="name" value="{{marker.name}}" required />
+        </div>
+
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.Minimap.Markers.Description'}}</label>
+            <textarea name="description" rows="3">{{marker.description}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.Minimap.Markers.Category'}}</label>
+            <select name="category">
+                <option value="">{{i18n 'WODSYSTEM.Minimap.Markers.CategorySelect'}}</option>
+                {{#each categoryOptions}}
+                <option value="{{this.value}}" {{#if (eq ../marker.category this.value)}}selected{{/if}}>
+                    {{this.label}}
+                </option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.Minimap.Markers.Color'}}</label>
+            <div class="form-fields">
+                <input type="color" name="color" value="{{marker.color}}" />
+                <div class="color-preview" style="width: 40px; height: 40px; border: 1px solid #ccc; display: inline-block; vertical-align: middle;"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.Minimap.Markers.Coordinates'}}</label>
+            <div class="form-fields">
+                <input type="number" name="sceneX" value="{{marker.sceneX}}" placeholder="X" />
+                <input type="number" name="sceneY" value="{{marker.sceneY}}" placeholder="Y" />
+                <button type="button" class="select-coordinates">
+                    <i class="fas fa-crosshairs"></i> {{i18n 'WODSYSTEM.Minimap.Markers.SelectFromCanvas'}}
+                </button>
+            </div>
+            <small class="form-hint">{{i18n 'WODSYSTEM.Minimap.Markers.CoordinatesHint'}}</small>
+        </div>
+    </section>
+
+    <footer class="sheet-footer">
+        <button type="submit">
+            <i class="fas fa-save"></i> {{i18n 'WODSYSTEM.Minimap.Markers.Save'}}
+        </button>
+        <button type="button" class="cancel">
+            <i class="fas fa-times"></i> {{i18n 'WODSYSTEM.Minimap.Markers.Cancel'}}
+        </button>
+    </footer>
+</form>

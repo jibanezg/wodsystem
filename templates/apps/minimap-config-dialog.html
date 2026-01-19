@@ -1,0 +1,214 @@
+<form class="{{cssClass}}" autocomplete="off">
+    <header class="sheet-header">
+        <h1 class="dialog-title">{{i18n 'WODSYSTEM.Minimap.Config.Title'}}</h1>
+    </header>
+
+    <nav class="tabs" data-group="primary">
+        <a class="tab {{#if (eq activeTab 'general')}}active{{/if}}" data-tab="general">
+            {{i18n 'WODSYSTEM.Minimap.Config.TabGeneral'}}
+        </a>
+        <a class="tab {{#if (eq activeTab 'mapping')}}active{{/if}}" data-tab="mapping">
+            {{i18n 'WODSYSTEM.Minimap.Config.TabMapping'}}
+        </a>
+        <a class="tab {{#if (eq activeTab 'markers')}}active{{/if}}" data-tab="markers">
+            {{i18n 'WODSYSTEM.Minimap.Config.TabMarkers'}}
+        </a>
+    </nav>
+
+    <section class="content">
+        <!-- General Tab -->
+        <div class="tab-content" data-tab="general">
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="enabled" {{#if config.enabled}}checked{{/if}} />
+                    {{i18n 'WODSYSTEM.Minimap.Config.Enabled'}}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.Width'}}</label>
+                <input type="number" name="width" value="{{config.width}}" min="50" max="1000" step="10" />
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.Height'}}</label>
+                <input type="number" name="height" value="{{config.height}}" min="50" max="1000" step="10" />
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.PositionVertical'}}</label>
+                <select name="position.vertical">
+                    {{#each positionOptions.vertical}}
+                    <option value="{{this}}" {{#if (eq ../config.position.vertical this)}}selected{{/if}}>
+                        {{#if (eq this 'top')}}{{i18n 'WODSYSTEM.Minimap.Position.Top'}}{{/if}}
+                        {{#if (eq this 'bottom')}}{{i18n 'WODSYSTEM.Minimap.Position.Bottom'}}{{/if}}
+                        {{#if (eq this 'left')}}{{i18n 'WODSYSTEM.Minimap.Position.Left'}}{{/if}}
+                        {{#if (eq this 'center')}}{{i18n 'WODSYSTEM.Minimap.Position.Center'}}{{/if}}
+                        {{#if (eq this 'right')}}{{i18n 'WODSYSTEM.Minimap.Position.Right'}}{{/if}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.PositionHorizontal'}}</label>
+                <select name="position.horizontal">
+                    {{#each positionOptions.horizontal}}
+                    <option value="{{this}}" {{#if (eq ../config.position.horizontal this)}}selected{{/if}}>
+                        {{#if (eq this 'top')}}{{i18n 'WODSYSTEM.Minimap.Position.Top'}}{{/if}}
+                        {{#if (eq this 'bottom')}}{{i18n 'WODSYSTEM.Minimap.Position.Bottom'}}{{/if}}
+                        {{#if (eq this 'left')}}{{i18n 'WODSYSTEM.Minimap.Position.Left'}}{{/if}}
+                        {{#if (eq this 'center')}}{{i18n 'WODSYSTEM.Minimap.Position.Center'}}{{/if}}
+                        {{#if (eq this 'right')}}{{i18n 'WODSYSTEM.Minimap.Position.Right'}}{{/if}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.Zoom'}}</label>
+                <small class="form-hint">{{i18n 'WODSYSTEM.Minimap.Config.ZoomHint'}}</small>
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.TokenDisplay'}}</label>
+                <select name="tokenDisplay">
+                    {{#each tokenDisplayOptions}}
+                    <option value="{{this.value}}" {{#if (eq ../config.tokenDisplay this.value)}}selected{{/if}}>
+                        {{this.label}}
+                    </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="showSecretWalls" {{#if config.showSecretWalls}}checked{{/if}} />
+                    {{i18n 'WODSYSTEM.Minimap.Config.ShowSecretWalls'}}
+                </label>
+            </div>
+            <div class="form-group">
+                <small class="form-hint">{{i18n 'WODSYSTEM.Minimap.Config.ShowSecretWallsHint'}}</small>
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.StyleFillColor'}}</label>
+                <input type="color" name="style.fillColor" value="{{config.style.fillColor}}" />
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.StyleStrokeColor'}}</label>
+                <input type="color" name="style.strokeColor" value="{{config.style.strokeColor}}" />
+            </div>
+
+            <div class="form-group">
+                <label>{{i18n 'WODSYSTEM.Minimap.Config.StyleStrokeWidth'}}</label>
+                <input type="number" name="style.strokeWidth" value="{{config.style.strokeWidth}}" min="1" max="10" step="1" />
+            </div>
+        </div>
+
+        <!-- Mapping Tab -->
+        <div class="tab-content" data-tab="mapping">
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="coordinateMapping.autoDetect" 
+                           {{#if config.coordinateMapping.autoDetect}}checked{{/if}} />
+                    {{i18n 'WODSYSTEM.Minimap.Config.AutoDetectMapping'}}
+                </label>
+                <small class="form-hint">{{i18n 'WODSYSTEM.Minimap.Config.AutoDetectMappingHint'}}</small>
+            </div>
+
+            <div class="manual-mapping" style="{{#if config.coordinateMapping.autoDetect}}display: none;{{/if}}">
+                <h3>{{i18n 'WODSYSTEM.Minimap.Config.ManualMapping'}}</h3>
+                
+                <div class="form-group">
+                    <label>{{i18n 'WODSYSTEM.Minimap.Config.SceneTopLeft'}}</label>
+                    <div class="form-fields">
+                        <input type="number" name="coordinateMapping.sceneTopLeft.x" 
+                               value="{{config.coordinateMapping.sceneTopLeft.x}}" placeholder="X" />
+                        <input type="number" name="coordinateMapping.sceneTopLeft.y" 
+                               value="{{config.coordinateMapping.sceneTopLeft.y}}" placeholder="Y" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>{{i18n 'WODSYSTEM.Minimap.Config.SceneBottomRight'}}</label>
+                    <div class="form-fields">
+                        <input type="number" name="coordinateMapping.sceneBottomRight.x" 
+                               value="{{config.coordinateMapping.sceneBottomRight.x}}" placeholder="X" />
+                        <input type="number" name="coordinateMapping.sceneBottomRight.y" 
+                               value="{{config.coordinateMapping.sceneBottomRight.y}}" placeholder="Y" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>{{i18n 'WODSYSTEM.Minimap.Config.MinimapTopLeft'}}</label>
+                    <div class="form-fields">
+                        <input type="number" name="coordinateMapping.minimapTopLeft.x" 
+                               value="{{config.coordinateMapping.minimapTopLeft.x}}" placeholder="X" />
+                        <input type="number" name="coordinateMapping.minimapTopLeft.y" 
+                               value="{{config.coordinateMapping.minimapTopLeft.y}}" placeholder="Y" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>{{i18n 'WODSYSTEM.Minimap.Config.MinimapBottomRight'}}</label>
+                    <div class="form-fields">
+                        <input type="number" name="coordinateMapping.minimapBottomRight.x" 
+                               value="{{config.coordinateMapping.minimapBottomRight.x}}" placeholder="X" />
+                        <input type="number" name="coordinateMapping.minimapBottomRight.y" 
+                               value="{{config.coordinateMapping.minimapBottomRight.y}}" placeholder="Y" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <h3>{{i18n 'WODSYSTEM.Minimap.Config.ContourPreview'}}</h3>
+                <div class="contour-preview" style="width: 100%; height: 300px; border: 1px solid #ccc; position: relative;">
+                    <canvas class="contour-canvas" width="400" height="300"></canvas>
+                </div>
+                <small class="form-hint">{{i18n 'WODSYSTEM.Minimap.Config.ContourPreviewHint'}}</small>
+            </div>
+        </div>
+
+        <!-- Markers Tab -->
+        <div class="tab-content" data-tab="markers">
+            <div class="form-group">
+                <button type="button" class="add-marker">
+                    <i class="fas fa-plus"></i> {{i18n 'WODSYSTEM.Minimap.Markers.Add'}}
+                </button>
+            </div>
+
+            <div class="markers-list">
+                {{#each markers}}
+                <div class="marker-item" data-marker-id="{{this.id}}">
+                    <div class="marker-header">
+                        <span class="marker-color" style="background-color: {{this.color}};"></span>
+                        <span class="marker-name">{{this.name}}</span>
+                        <span class="marker-category">{{this.category}}</span>
+                    </div>
+                    <div class="marker-actions">
+                        <button type="button" class="edit-marker" data-marker-id="{{this.id}}">
+                            <i class="fas fa-edit"></i> {{i18n 'WODSYSTEM.Minimap.Markers.Edit'}}
+                        </button>
+                        <button type="button" class="delete-marker" data-marker-id="{{this.id}}">
+                            <i class="fas fa-trash"></i> {{i18n 'WODSYSTEM.Minimap.Markers.Delete'}}
+                        </button>
+                    </div>
+                    {{#if this.description}}
+                    <div class="marker-description">{{this.description}}</div>
+                    {{/if}}
+                </div>
+                {{else}}
+                <p class="no-markers">{{i18n 'WODSYSTEM.Minimap.Markers.NoMarkers'}}</p>
+                {{/each}}
+            </div>
+        </div>
+    </section>
+
+    <footer class="sheet-footer">
+        <button type="submit">
+            <i class="fas fa-save"></i> {{i18n 'WODSYSTEM.Minimap.Config.Save'}}
+        </button>
+    </footer>
+</form>

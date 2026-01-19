@@ -1,0 +1,361 @@
+/* Minimap HUD Styles */
+#wod-minimap-hud {
+    position: absolute;
+    z-index: 100;
+    pointer-events: auto; /* Changed from none to auto to capture mouse events */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    overflow: hidden; /* Keep hidden for clean borders */
+}
+
+#wod-minimap-hud.minimap-top {
+    top: 10px;
+}
+
+#wod-minimap-hud.minimap-bottom {
+    bottom: 10px;
+}
+
+#wod-minimap-hud.minimap-left {
+    left: 10px;
+}
+
+#wod-minimap-hud.minimap-center {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Ensure center transform doesn't interfere with content zoom */
+#wod-minimap-hud.minimap-center .wod-minimap-content {
+    transform-origin: center top;
+}
+
+#wod-minimap-hud.minimap-right {
+    right: 10px;
+}
+
+.wod-minimap-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: visible; /* Changed from hidden to visible to allow zoomed content to extend */
+}
+
+.wod-minimap-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.wod-minimap-tokens,
+.wod-minimap-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.wod-minimap-controls {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 10;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.wod-minimap-zoom-in,
+.wod-minimap-zoom-out {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.wod-minimap-zoom-in:hover,
+.wod-minimap-zoom-out:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.wod-minimap-zoom-value {
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 35px;
+    text-align: center;
+}
+
+.wod-minimap-token {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    margin-top: -4px;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.wod-minimap-token .token-dot {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #00ff00;
+    border: 1px solid #ffffff;
+    box-shadow: 0 0 3px rgba(0, 255, 0, 0.8);
+}
+
+.wod-minimap-marker {
+    position: absolute;
+    font-size: 16px;
+    margin-left: -8px;
+    margin-top: -16px;
+    pointer-events: auto;
+    cursor: pointer;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+    transition: transform 0.2s;
+}
+
+.wod-minimap-marker:hover {
+    transform: scale(1.2);
+}
+
+/* Minimap Config Dialog Styles */
+.wod-minimap-config-dialog .tabs {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.wod-minimap-config-dialog .tab {
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+}
+
+.wod-minimap-config-dialog .tab:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.wod-minimap-config-dialog .tab.active {
+    border-bottom-color: #4a9eff;
+    color: #4a9eff;
+}
+
+.wod-minimap-config-dialog .tab-content {
+    display: none;
+    padding: 10px 0;
+}
+
+.wod-minimap-config-dialog .tab-content[data-tab="general"] {
+    display: block;
+}
+
+.wod-minimap-config-dialog .form-group {
+    margin-bottom: 15px;
+}
+
+.wod-minimap-config-dialog .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.wod-minimap-config-dialog .form-group input[type="number"],
+.wod-minimap-config-dialog .form-group input[type="text"],
+.wod-minimap-config-dialog .form-group select {
+    width: 100%;
+    padding: 5px;
+}
+
+.wod-minimap-config-dialog .form-fields {
+    display: flex;
+    gap: 10px;
+}
+
+.wod-minimap-config-dialog .form-fields input {
+    flex: 1;
+}
+
+.wod-minimap-config-dialog .form-hint {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+}
+
+.wod-minimap-config-dialog .zoom-value {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.wod-minimap-config-dialog .contour-preview {
+    position: relative;
+    background: #f0f0f0;
+}
+
+.wod-minimap-config-dialog .contour-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.wod-minimap-config-dialog .markers-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.wod-minimap-config-dialog .marker-item {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+}
+
+.wod-minimap-config-dialog .marker-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.wod-minimap-config-dialog .marker-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+}
+
+.wod-minimap-config-dialog .marker-name {
+    font-weight: bold;
+    flex: 1;
+}
+
+.wod-minimap-config-dialog .marker-category {
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+}
+
+.wod-minimap-config-dialog .marker-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.wod-minimap-config-dialog .marker-actions button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+.wod-minimap-config-dialog .marker-description {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.wod-minimap-config-dialog .no-markers {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+.wod-minimap-config-dialog .add-marker {
+    padding: 10px 20px;
+    background: #4a9eff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.wod-minimap-config-dialog .add-marker:hover {
+    background: #3a8eef;
+}
+
+/* Minimap Marker Dialog Styles */
+.wod-minimap-marker-dialog .form-group {
+    margin-bottom: 15px;
+}
+
+.wod-minimap-marker-dialog .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.wod-minimap-marker-dialog .form-group input[type="text"],
+.wod-minimap-marker-dialog .form-group input[type="number"],
+.wod-minimap-marker-dialog .form-group textarea,
+.wod-minimap-marker-dialog .form-group select {
+    width: 100%;
+    padding: 5px;
+}
+
+.wod-minimap-marker-dialog .form-group textarea {
+    resize: vertical;
+}
+
+.wod-minimap-marker-dialog .form-fields {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.wod-minimap-marker-dialog .form-fields input {
+    flex: 1;
+}
+
+.wod-minimap-marker-dialog .color-preview {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.wod-minimap-marker-dialog .select-coordinates {
+    padding: 5px 10px;
+    background: #4a9eff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.wod-minimap-marker-dialog .select-coordinates:hover {
+    background: #3a8eef;
+}
+
+.wod-minimap-marker-dialog .form-hint {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+}

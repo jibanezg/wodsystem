@@ -377,24 +377,26 @@ export class WizardValidator {
       };
     }
     
-    // If merits > 0, must be balanced with equal flaws
-    if (meritPoints > 0 && meritPoints !== flawPoints) {
+    // If merits > flaws, must be balanced (cannot have more merits than flaws)
+    if (meritPoints > flawPoints) {
       const needed = meritPoints - flawPoints;
       return {
         valid: false,
-        message: `Merits must be balanced with equal Flaws (need ${needed} more flaw points)`,
+        message: `Merits must be balanced with equal or more Flaws (need ${needed} more flaw points)`,
         balanced: false,
         needed: needed
       };
     }
     
-    // All good - either no merits, or balanced merits/flaws
+    // All good - either no merits, balanced merits/flaws, or flaws > merits (which gives freebie bonus)
+    // If flaws > merits, the difference converts to freebie points
+    const freebieBonus = flawPoints > meritPoints ? flawPoints - meritPoints : 0;
     return {
       valid: true,
-      balanced: meritPoints === 0 || meritPoints === flawPoints,
+      balanced: meritPoints === 0 || meritPoints === flawPoints || flawPoints > meritPoints,
       meritPoints: meritPoints,
       flawPoints: flawPoints,
-      freebieBonus: meritsFlawsData.freebieBonus || 0
+      freebieBonus: freebieBonus
     };
   }
 

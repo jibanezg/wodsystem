@@ -162,6 +162,16 @@ export function registerHandlebarsHelpers() {
     });
 
     /**
+     * Type check helper
+     * Usage: {{#if (eq (typeof value) "string")}}...{{/if}}
+     */
+    Handlebars.registerHelper('typeof', function(value) {
+        if (value === null) return 'null';
+        if (Array.isArray(value)) return 'array';
+        return typeof value;
+    });
+
+    /**
      * Greater than comparison
      * Usage: {{#if (gt value 5)}}...{{/if}}
      */

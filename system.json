@@ -30,7 +30,8 @@
     "styles/themes/quintessence-paradox-wheel.css",
     "styles/character-wizard.css",
     "styles/reference-system.css",
-    "styles/themes/equipment-effects-dialog.css"
+    "styles/themes/equipment-effects-dialog.css",
+    "styles/themes/minimap.css"
   ],
   "languages": [
     {

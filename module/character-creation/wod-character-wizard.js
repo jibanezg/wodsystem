@@ -1577,15 +1577,25 @@ export class WodCharacterWizard extends FormApplication {
     
     this.wizardData.meritsFlaws.meritPoints = meritPoints;
     this.wizardData.meritsFlaws.flawPoints = flawPoints;
-    this.wizardData.meritsFlaws.freebieBonus = meritPoints === 0 ? flawPoints : 0;
+    
+    // Calculate freebie bonus: if flaws > merits, the difference converts to freebie points
+    // Only if flaws > merits (not if merits > flaws)
+    if (flawPoints > meritPoints) {
+      this.wizardData.meritsFlaws.freebieBonus = flawPoints - meritPoints;
+    } else {
+      this.wizardData.meritsFlaws.freebieBonus = 0;
+    }
   }
   
   _updateMeritsFlawsUI(html) {
     html.find('.merits-total').text(this.wizardData.meritsFlaws.meritPoints);
     html.find('.flaws-total').text(this.wizardData.meritsFlaws.flawPoints);
     
-    const balanced = this.wizardData.meritsFlaws.meritPoints === 0 || 
-                     this.wizardData.meritsFlaws.meritPoints === this.wizardData.meritsFlaws.flawPoints;
+    const meritPoints = this.wizardData.meritsFlaws.meritPoints;
+    const flawPoints = this.wizardData.meritsFlaws.flawPoints;
+    
+    // Balanced means: no merits, or merits == flaws, or flaws > merits (which is valid and gives freebie bonus)
+    const balanced = meritPoints === 0 || meritPoints === flawPoints || flawPoints > meritPoints;
     html.find('.balance-status').toggleClass('balanced', balanced).toggleClass('unbalanced', !balanced);
     
     // Update merit dots and values
