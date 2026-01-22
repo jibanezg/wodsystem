@@ -1101,20 +1101,63 @@ export class WodActor extends Actor {
     }
 
     /**
+     * Get initiative roll formula - used by Foundry's Combat Tracker
+     * This method is called by Foundry when rolling initiative from the Combat Tracker
+     * @returns {string} Roll formula
+     */
+    getInitiativeRoll() {
+        const initiativeValue = this.getInitiative();
+        return `1d10 + ${initiativeValue}`;
+    }
+
+    /**
      * Roll initiative and update combat tracker if in combat
      * @param {Object} options - Options for the roll
      * @returns {Roll} The initiative roll
      */
     async rollInitiative(options = {}) {
+        // Get individual components for breakdown
+        const dexterity = Number(this._findAttributeValue("Dexterity")) || 0;
+        const wits = Number(this._findAttributeValue("Wits")) || 0;
+        const bonus = Number(this.system.combat?.initiativeBonus) || 0;
         const initiativeValue = this.getInitiative();
+        
         // Roll 1d10 + initiative value
         const roll = new Roll(`1d10 + ${initiativeValue}`);
         await roll.evaluate();
         
-        // Show roll in chat
+        // Get the d10 result (first die in the roll)
+        // roll.dice[0] is the d10, results[0] is the first (and only) result
+        let d10Result = 0;
+        if (roll.dice && roll.dice.length > 0 && roll.dice[0].results && roll.dice[0].results.length > 0) {
+            d10Result = roll.dice[0].results[0].result || roll.dice[0].results[0].value || 0;
+        }
+        
+        // Ensure roll.total includes the d10 result
+        // The roll formula is "1d10 + initiativeValue", so roll.total should already be correct
+        // But we'll verify and correct if needed
+        const expectedTotal = d10Result + initiativeValue;
+        if (roll.total !== expectedTotal) {
+            console.warn(`Initiative roll total mismatch: roll.total=${roll.total}, expected=${expectedTotal}. Using expected total.`);
+            roll._total = expectedTotal;
+        }
+        
+        // Create detailed breakdown for flavor
+        let breakdown = `Dexterity: ${dexterity}`;
+        breakdown += ` + Wits: ${wits}`;
+        if (bonus !== 0) {
+            breakdown += ` + Bonus: ${bonus}`;
+        }
+        breakdown += ` = Base: ${initiativeValue}`;
+        breakdown += ` | Roll: 1d10 (${d10Result}) + ${initiativeValue} = ${roll.total}`;
+        
+        // Show roll in chat with detailed breakdown
         await roll.toMessage({
             speaker: ChatMessage.getSpeaker({actor: this}),
-            flavor: `Initiative Roll (Base: ${initiativeValue})`
+            flavor: `<div class="wod-initiative-roll">
+                <strong>Initiative Roll</strong><br/>
+                <div class="initiative-breakdown">${breakdown}</div>
+            </div>`
         });
         
         // If in combat, update combatant

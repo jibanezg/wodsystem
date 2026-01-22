@@ -363,6 +363,233 @@
     color: #4caf50;
 }
 
+/* Initiative Roll Display - Similar style to reference cards */
+/* Note: These styles are global (not scoped to .wod.sheet.actor.Mortal) because chat messages are not within that context */
+.wod-initiative-card {
+    background: linear-gradient(135deg, #f8f8f8 0%, #e0e0e0 100%);
+    border: 2px solid #2D5016;
+    border-left: 4px solid #2D5016;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.initiative-header {
+    border-bottom: 2px solid #2D5016;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+}
+
+.initiative-header h3 {
+    margin: 0;
+    color: #2D5016;
+    font-size: 1.4em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.initiative-header h3 i {
+    font-size: 1.1em;
+}
+
+.initiative-breakdown {
+    margin-top: 8px;
+}
+
+.initiative-calculation {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.initiative-base,
+.initiative-roll {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    background: #f8f9fa;
+    border-left: 4px solid #2D5016;
+    border-radius: 4px;
+    font-family: 'Courier New', 'Consolas', 'Monaco', monospace;
+    font-size: 0.95em;
+    flex-wrap: wrap;
+    margin: 8px 0;
+    transition: background 0.2s ease;
+}
+
+.initiative-base:hover,
+.initiative-roll:hover {
+    background: #f0f0f0;
+}
+
+.initiative-base .calc-label,
+.initiative-roll .calc-label {
+    color: #2D5016;
+    font-weight: 700;
+    min-width: 55px;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.initiative-base .calc-formula,
+.initiative-roll .calc-formula {
+    color: #000000;
+}
+
+.initiative-base .calc-equals,
+.initiative-roll .calc-equals {
+    color: #666;
+    font-weight: 600;
+}
+
+.initiative-base .calc-result {
+    color: #2D5016;
+    font-weight: 700;
+    font-size: 1.1em;
+}
+
+.initiative-roll .dice-notation {
+    color: #1C3310;
+    font-weight: 600;
+    background: rgba(45, 80, 22, 0.1);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.initiative-roll .dice-result {
+    color: #2D5016;
+    font-weight: 700;
+    font-size: 1.05em;
+}
+
+.initiative-roll .initiative-total {
+    color: #2D5016;
+    font-weight: 700;
+    font-size: 1.2em;
+    background: rgba(45, 80, 22, 0.15);
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+/* Hide default Foundry roll display for initiative rolls */
+/* Target ONLY Foundry's default elements, NOT our custom elements */
+/* Rule: Hide elements that are siblings or children of .dice-roll (Foundry's structure) */
+.chat-message:has(.wod-initiative-card) > .dice-roll,
+.chat-message:has(.wod-initiative-card) .message-content > .dice-roll,
+.chat-message:has(.wod-initiative-card) .dice-roll:not(.wod-initiative-card .dice-roll),
+.chat-message:has(.wod-initiative-card) .dice-roll .dice-result,
+.chat-message:has(.wod-initiative-card) .dice-formula:not(.wod-initiative-card .dice-formula),
+.chat-message:has(.wod-initiative-card) .dice-total:not(.wod-initiative-card .dice-total),
+.chat-message:has(.wod-initiative-card) .dice-formula-part,
+.chat-message:has(.wod-initiative-card) .dice-tooltip,
+.chat-message:has(.wod-initiative-card) .dice-rolls,
+.chat-message:has(.wod-initiative-roll) > .dice-roll,
+.chat-message:has(.wod-initiative-roll) .message-content > .dice-roll,
+.chat-message:has(.wod-initiative-roll) .dice-roll:not(.wod-initiative-roll .dice-roll),
+.chat-message:has(.wod-initiative-roll) .dice-roll .dice-result,
+.chat-message:has(.wod-initiative-roll) .dice-formula:not(.wod-initiative-roll .dice-formula),
+.chat-message:has(.wod-initiative-roll) .dice-total:not(.wod-initiative-roll .dice-total),
+.chat-message:has(.wod-initiative-roll) .dice-formula-part,
+.chat-message:has(.wod-initiative-roll) .dice-tooltip,
+.chat-message:has(.wod-initiative-roll) .dice-rolls {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* CRITICAL: Ensure our custom .dice-result inside initiative cards is visible */
+/* This MUST come AFTER the hiding rules and use EQUAL OR HIGHER specificity */
+/* Lesson learned: Always create visibility rules immediately after hiding rules */
+/* Use maximum specificity to override any hiding rules */
+.chat-message:has(.wod-initiative-card) .wod-initiative-card .initiative-roll .dice-result[data-d10-result],
+.chat-message:has(.wod-initiative-card) .wod-initiative-card .initiative-roll .dice-result,
+.chat-message:has(.wod-initiative-roll) .wod-initiative-roll .initiative-roll .dice-result[data-d10-result],
+.chat-message:has(.wod-initiative-roll) .wod-initiative-roll .initiative-roll .dice-result,
+.wod-initiative-card .initiative-roll .dice-result[data-d10-result],
+.wod-initiative-card .initiative-roll .dice-result,
+.wod-initiative-roll .initiative-roll .dice-result[data-d10-result],
+.wod-initiative-roll .initiative-roll .dice-result {
+    display: inline !important;
+    visibility: visible !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #2D5016 !important;
+    font-weight: 700 !important;
+    font-size: 1.05em !important;
+    opacity: 1 !important;
+}
+
+/* Alternative selector for Foundry versions that don't support :has() */
+/* Only hide Foundry's default dice elements, not our custom ones */
+.chat-message .wod-initiative-card ~ .dice-roll,
+.chat-message .wod-initiative-card ~ .dice-roll .dice-result,
+.chat-message .wod-initiative-card ~ .dice-formula,
+.chat-message .wod-initiative-card ~ .dice-total,
+.chat-message .wod-initiative-card ~ .dice,
+.chat-message .wod-initiative-card ~ .dice-formula-part,
+.chat-message .wod-initiative-card ~ .dice-rolls,
+.chat-message .wod-initiative-roll ~ .dice-roll,
+.chat-message .wod-initiative-roll ~ .dice-roll .dice-result,
+.chat-message .wod-initiative-roll ~ .dice-formula,
+.chat-message .wod-initiative-roll ~ .dice-total,
+.chat-message .wod-initiative-roll ~ .dice,
+.chat-message .wod-initiative-roll ~ .dice-formula-part,
+.chat-message .wod-initiative-roll ~ .dice-rolls {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide roll content that appears after our custom breakdown */
+/* Only hide Foundry's default dice elements, not our custom ones */
+.chat-message .message-content:has(.wod-initiative-card) > .dice-roll,
+.chat-message .message-content:has(.wod-initiative-card) > .dice-roll .dice-result,
+.chat-message .message-content:has(.wod-initiative-card) > .dice,
+.chat-message .message-content:has(.wod-initiative-card) .dice-roll:not(.wod-initiative-card .dice-roll),
+.chat-message .message-content:has(.wod-initiative-card) .dice-rolls,
+.chat-message .message-content:has(.wod-initiative-roll) > .dice-roll,
+.chat-message .message-content:has(.wod-initiative-roll) > .dice-roll .dice-result,
+.chat-message .message-content:has(.wod-initiative-roll) > .dice,
+.chat-message .message-content:has(.wod-initiative-roll) .dice-roll:not(.wod-initiative-roll .dice-roll),
+.chat-message .message-content:has(.wod-initiative-roll) .dice-rolls {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* More specific: hide dice display boxes that Foundry creates */
+/* Only hide Foundry's default dice elements, not our custom ones */
+.chat-message:has(.wod-initiative-card) .message-content > div:has(.dice):not(.wod-initiative-card),
+.chat-message:has(.wod-initiative-card) .message-content > .dice-roll,
+.chat-message:has(.wod-initiative-card) .message-content > .dice-roll .dice-result,
+.chat-message:has(.wod-initiative-card) .message-content > .dice-rolls,
+.chat-message:has(.wod-initiative-roll) .message-content > div:has(.dice):not(.wod-initiative-roll),
+.chat-message:has(.wod-initiative-roll) .message-content > .dice-roll,
+.chat-message:has(.wod-initiative-roll) .message-content > .dice-roll .dice-result,
+.chat-message:has(.wod-initiative-roll) .message-content > .dice-rolls {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .die.specialty {
     border-color: #ffd700;
     background: rgba(255, 215, 0, 0.2);
