@@ -565,7 +565,7 @@ export class MinimapHUD {
             // If token is from canvas.tokens.placeables, use token.x/y directly (more up-to-date)
             // Otherwise use tokenDoc.x/y
             let x, y;
-            if (token.x !== undefined && token.y !== undefined && token instanceof Token) {
+            if (token.x !== undefined && token.y !== undefined && token.constructor?.name === 'Token') {
                 // Canvas token - use its position directly (most up-to-date)
                 x = token.x;
                 y = token.y;

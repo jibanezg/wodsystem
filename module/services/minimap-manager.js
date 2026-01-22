@@ -527,7 +527,9 @@ export class MinimapManager {
             });
             
             // Store only wall IDs to save space
-            wallsByLevel.set(level, wallsForLevel.map(w => w.id));
+            const wallIdsForLevel = wallsForLevel.map(w => w.id);
+            wallsByLevel.set(level, wallIdsForLevel);
+            
             
         });
         
@@ -567,21 +569,25 @@ export class MinimapManager {
         
         // Try different ways to get the current level
         // Levels module v3+ uses canvas.levels
+        let detectedLevel = null;
+        let detectionMethod = null;
+        
         if (canvas?.levels) {
             // Try various properties that Levels might use
             if (canvas.levels.currentLevel !== undefined) {
-                return canvas.levels.currentLevel;
-            }
-            if (canvas.levels.current !== undefined) {
-                return canvas.levels.current;
-            }
-            if (canvas.levels.elevation !== undefined) {
-                return canvas.levels.elevation;
-            }
-            // Try getCurrentLevel method if available
-            if (typeof canvas.levels.getCurrentLevel === 'function') {
+                detectedLevel = canvas.levels.currentLevel;
+                detectionMethod = "canvas.levels.currentLevel";
+            } else if (canvas.levels.current !== undefined) {
+                detectedLevel = canvas.levels.current;
+                detectionMethod = "canvas.levels.current";
+            } else if (canvas.levels.elevation !== undefined) {
+                detectedLevel = canvas.levels.elevation;
+                detectionMethod = "canvas.levels.elevation";
+            } else if (typeof canvas.levels.getCurrentLevel === 'function') {
+                // Try getCurrentLevel method if available
                 try {
-                    return canvas.levels.getCurrentLevel();
+                    detectedLevel = canvas.levels.getCurrentLevel();
+                    detectionMethod = "canvas.levels.getCurrentLevel()";
                 } catch (e) {
                     console.warn("WoD Minimap: Error calling getCurrentLevel:", e);
                 }
@@ -589,17 +595,18 @@ export class MinimapManager {
         }
         
         // Try game.levels
-        if (game?.levels) {
+        if (detectedLevel === null && game?.levels) {
             if (game.levels.currentLevel !== undefined) {
-                return game.levels.currentLevel;
-            }
-            if (game.levels.current !== undefined) {
-                return game.levels.current;
-            }
-            // Try getCurrentLevel method if available
-            if (typeof game.levels.getCurrentLevel === 'function') {
+                detectedLevel = game.levels.currentLevel;
+                detectionMethod = "game.levels.currentLevel";
+            } else if (game.levels.current !== undefined) {
+                detectedLevel = game.levels.current;
+                detectionMethod = "game.levels.current";
+            } else if (typeof game.levels.getCurrentLevel === 'function') {
+                // Try getCurrentLevel method if available
                 try {
-                    return game.levels.getCurrentLevel();
+                    detectedLevel = game.levels.getCurrentLevel();
+                    detectionMethod = "game.levels.getCurrentLevel()";
                 } catch (e) {
                     console.warn("WoD Minimap: Error calling game.levels.getCurrentLevel:", e);
                 }
@@ -607,8 +614,13 @@ export class MinimapManager {
         }
         
         // Try canvas elevation (some versions use this)
-        if (canvas?.elevation !== undefined) {
-            return canvas.elevation;
+        if (detectedLevel === null && canvas?.elevation !== undefined) {
+            detectedLevel = canvas.elevation;
+            detectionMethod = "canvas.elevation";
+        }
+        
+        if (detectedLevel !== null) {
+            return detectedLevel;
         }
         
         // Try to get from the first controlled token's elevation
@@ -641,7 +653,6 @@ export class MinimapManager {
         }
         
         // Default to level 0 if Levels is active but we can't find the current level
-        // Don't log this as an error, just use 0 silently
         return 0;
     }
 
@@ -659,6 +670,7 @@ export class MinimapManager {
         const currentLevel = this.getCurrentLevel();
         const levelsModule = game.modules.get("levels");
         const levelsActive = levelsModule?.active;
+
 
         let walls = [];
         
@@ -698,6 +710,7 @@ export class MinimapManager {
             
             // Filter by level if Levels module is active (only for GM, players already filtered above)
             if (currentLevel !== null && levelsActive && isGM) {
+                const wallId = wallData.id;
                 // Use the same extraction logic as _precalculateWallsByLevel
                 let wallBottom = null;
                 let wallTop = null;
@@ -763,7 +776,6 @@ export class MinimapManager {
                         return false; // Wall is not on current level
                     }
                 } else {
-                    // If wall has no level info, exclude it when Levels is active
                     return false;
                 }
             }
