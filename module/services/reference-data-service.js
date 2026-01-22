@@ -44,7 +44,7 @@ export class ReferenceDataService {
      */
     async loadMeritsFlaws() {
         try {
-            const response = await fetch('systems/wodsystem/datasource/merits_flaws.json');
+            const response = await fetch('systems/wodsystem/datasource/M20/merits_flaws.json');
             if (!response.ok) {
                 throw new Error(`Failed to load merits_flaws.json: ${response.statusText}`);
             }
@@ -66,7 +66,7 @@ export class ReferenceDataService {
      */
     async loadBackgrounds() {
         try {
-            const response = await fetch('systems/wodsystem/datasource/backgrounds.json');
+            const response = await fetch('systems/wodsystem/datasource/M20/backgrounds.json');
             if (!response.ok) {
                 throw new Error(`Failed to load backgrounds.json: ${response.statusText}`);
             }
@@ -86,7 +86,7 @@ export class ReferenceDataService {
      */
     async loadSpheres() {
         try {
-            const response = await fetch('systems/wodsystem/datasource/spheres.json');
+            const response = await fetch('systems/wodsystem/datasource/M20/spheres.json');
             if (!response.ok) {
                 throw new Error(`Failed to load spheres.json: ${response.statusText}`);
             }

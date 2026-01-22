@@ -119,22 +119,56 @@ export class WodCharacterWizard extends FormApplication {
 
   /**
    * Initialize ability values from actor data
+   * Respects the order from M20/abilities.md for M20-based creature types (Technocrat, Mage)
    */
   _initializeAbilityValues() {
+    // Get abilities from actor's system data
+    const actorAbilities = this.actor.system.abilities || {};
+    
+    // M20 ability order (from datasource/M20/abilities.md)
+    // Used for Technocrat and Mage creature types
+    const m20AbilityOrder = {
+      skills: ["Crafts", "Drive", "Etiquette", "Firearms", "Martial Arts", "Meditation", "Melee", "Research", "Stealth", "Survival", "Technology"],
+      talents: ["Alertness", "Art", "Athletics", "Awareness", "Brawl", "Empathy", "Expression", "Intimidation", "Leadership", "Streetwise", "Subterfuge"],
+      knowledges: ["Academics", "Computer", "Cosmology", "Enigmas", "Esoterica", "Investigation", "Law", "Medicine", "Occult", "Politics", "Science"]
+    };
+    
+    // Determine if this creature type uses M20 abilities
+    const usesM20 = this.actorType === "Technocrat" || this.actorType === "Mage";
+    const abilityOrder = usesM20 ? m20AbilityOrder : null;
+    
     const abilityValues = {
       talents: {},
       skills: {},
       knowledges: {}
     };
-
-    // Get abilities from actor's system data
-    const actorAbilities = this.actor.system.abilities || {};
     
-    // Initialize each category with 0 for all abilities
+    // Initialize each category with abilities in the correct order
     for (const category of this.config.abilities.categories) {
       const categoryAbilities = actorAbilities[category] || {};
-      for (const abilityName in categoryAbilities) {
-        abilityValues[category][abilityName] = this.config.abilities.starting || 0;
+      
+      if (abilityOrder && abilityOrder[category]) {
+        // Use M20 order for M20-based creature types
+        for (const abilityName of abilityOrder[category]) {
+          // Preserve existing value if present, otherwise use starting value
+          abilityValues[category][abilityName] = categoryAbilities[abilityName] !== undefined 
+            ? categoryAbilities[abilityName] 
+            : (this.config.abilities.starting || 0);
+        }
+        
+        // Add any additional abilities not in the M20 list (secondary/custom abilities)
+        for (const abilityName in categoryAbilities) {
+          if (!abilityValues[category][abilityName] && abilityValues[category][abilityName] !== 0) {
+            abilityValues[category][abilityName] = categoryAbilities[abilityName];
+          }
+        }
+      } else {
+        // Use original order for non-M20 creature types
+        for (const abilityName in categoryAbilities) {
+          abilityValues[category][abilityName] = categoryAbilities[abilityName] !== undefined
+            ? categoryAbilities[abilityName]
+            : (this.config.abilities.starting || 0);
+        }
       }
     }
 

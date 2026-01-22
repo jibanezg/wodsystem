@@ -78,6 +78,9 @@ export class WodActor extends Actor {
         // Migrate secondary abilities from arrays to objects (one-time fix)
         this._migrateSecondaryAbilitiesToObjects();
         
+        // Migrate abilities between categories if needed (preserves values)
+        this._migrateAbilitiesBetweenCategories();
+        
         // Ensure secondary abilities stay as arrays (fix Foundry form corruption)
         this._ensureSecondaryAbilitiesAreArrays();
         
@@ -229,6 +232,173 @@ export class WodActor extends Actor {
                 this.system.secondaryAbilities[category] = newAbilities;
             }
         });
+    }
+    
+    /**
+     * Migrate abilities to match the current template structure
+     * - Moves abilities between categories (preserves values)
+     * - Removes obsolete abilities (no longer in template)
+     * - Adds missing abilities (from template, with value 0)
+     */
+    _migrateAbilitiesBetweenCategories() {
+        if (!this.system.abilities) return;
+        
+        // Get the template abilities structure from M20/abilities.md
+        // Order matters - this matches the exact order in datasource/M20/abilities.md
+        // Format: { category: [ordered list of ability names] }
+        const templateOrder = {
+            skills: ["Crafts", "Drive", "Etiquette", "Firearms", "Martial Arts", "Meditation", "Melee", "Research", "Stealth", "Survival", "Technology"],
+            talents: ["Alertness", "Art", "Athletics", "Awareness", "Brawl", "Empathy", "Expression", "Intimidation", "Leadership", "Streetwise", "Subterfuge"],
+            knowledges: ["Academics", "Computer", "Cosmology", "Enigmas", "Esoterica", "Investigation", "Law", "Medicine", "Occult", "Politics", "Science"]
+        };
+        
+        // Create template object from ordered list (for compatibility)
+        const template = {};
+        for (const [category, abilityList] of Object.entries(templateOrder)) {
+            template[category] = {};
+            for (const abilityName of abilityList) {
+                template[category][abilityName] = 0;
+            }
+        }
+        
+        // Define ability migrations (abilities that moved between categories)
+        const abilityMigrations = {
+            "Technology": { from: "knowledges", to: "skills" },
+        };
+        
+        // Define obsolete abilities (to be removed - no longer in template)
+        const obsoleteAbilities = {
+            "skills": ["Animal Ken", "Larceny", "Performance"],
+            "knowledges": ["Finance"]
+        };
+        
+        let hasChanges = false;
+        const updates = {};
+        
+        // Step 1: Move abilities between categories
+        for (const [abilityName, migration] of Object.entries(abilityMigrations)) {
+            const { from, to } = migration;
+            
+            if (this.system.abilities[from] && 
+                this.system.abilities[from][abilityName] !== undefined) {
+                
+                const value = this.system.abilities[from][abilityName];
+                
+                if (!this.system.abilities[to]) {
+                    this.system.abilities[to] = {};
+                }
+                
+                if (this.system.abilities[to][abilityName] === undefined) {
+                    this.system.abilities[to][abilityName] = value;
+                    
+                    if (!updates[from]) {
+                        updates[from] = {};
+                    }
+                    updates[from][abilityName] = null; // null means delete
+                    
+                    hasChanges = true;
+                    console.log(`WoD System | Migrated ability "${abilityName}" from ${from} to ${to} (value: ${value})`);
+                } else {
+                    if (!updates[from]) {
+                        updates[from] = {};
+                    }
+                    updates[from][abilityName] = null;
+                    hasChanges = true;
+                    console.log(`WoD System | Removed ability "${abilityName}" from ${from} (already exists in ${to})`);
+                }
+            }
+        }
+        
+        // Step 2: Remove obsolete abilities
+        for (const [category, obsoleteList] of Object.entries(obsoleteAbilities)) {
+            if (this.system.abilities[category]) {
+                for (const abilityName of obsoleteList) {
+                    if (this.system.abilities[category][abilityName] !== undefined) {
+                        if (!updates[category]) {
+                            updates[category] = {};
+                        }
+                        updates[category][abilityName] = null;
+                        hasChanges = true;
+                        console.log(`WoD System | Removed obsolete ability "${abilityName}" from ${category}`);
+                    }
+                }
+            }
+        }
+        
+        // Step 3: Add missing abilities from template (with value 0)
+        // This ensures all template abilities exist, even if they were accidentally removed
+        for (const [category, templateAbilities] of Object.entries(template)) {
+            if (!this.system.abilities[category]) {
+                this.system.abilities[category] = {};
+            }
+            
+            for (const abilityName in templateAbilities) {
+                // Always ensure template abilities exist - add if missing
+                if (this.system.abilities[category][abilityName] === undefined) {
+                    this.system.abilities[category][abilityName] = 0;
+                    hasChanges = true;
+                    console.log(`WoD System | Added missing ability "${abilityName}" to ${category}`);
+                }
+            }
+        }
+        
+        // Apply updates if any changes were made
+        if (hasChanges) {
+            for (const [category, abilities] of Object.entries(updates)) {
+                for (const [abilityName, value] of Object.entries(abilities)) {
+                    if (value === null && this.system.abilities[category]) {
+                        delete this.system.abilities[category][abilityName];
+                    }
+                }
+            }
+        }
+        
+        // Always ensure all template abilities exist (even if no changes were made)
+        // This is a safety net in case abilities were removed elsewhere
+        for (const [category, templateAbilities] of Object.entries(template)) {
+            if (!this.system.abilities[category]) {
+                this.system.abilities[category] = {};
+            }
+            for (const abilityName in templateAbilities) {
+                if (this.system.abilities[category][abilityName] === undefined) {
+                    this.system.abilities[category][abilityName] = 0;
+                }
+            }
+        }
+        
+        // Step 4: Reorder abilities to match M20/abilities.md order
+        // This preserves existing values but ensures correct order
+        for (const [category, orderedAbilities] of Object.entries(templateOrder)) {
+            if (this.system.abilities[category]) {
+                const currentAbilities = this.system.abilities[category];
+                const reordered = {};
+                
+                // First, add abilities in the correct order (preserving existing values)
+                for (const abilityName of orderedAbilities) {
+                    if (currentAbilities[abilityName] !== undefined) {
+                        reordered[abilityName] = currentAbilities[abilityName];
+                    } else {
+                        reordered[abilityName] = 0;
+                    }
+                }
+                
+                // Then, add any remaining abilities that aren't in the template (secondary/custom abilities)
+                for (const abilityName in currentAbilities) {
+                    if (!reordered[abilityName] && !template[category][abilityName]) {
+                        reordered[abilityName] = currentAbilities[abilityName];
+                    }
+                }
+                
+                // Only update if order changed
+                const currentKeys = Object.keys(currentAbilities);
+                const reorderedKeys = Object.keys(reordered);
+                if (JSON.stringify(currentKeys) !== JSON.stringify(reorderedKeys)) {
+                    this.system.abilities[category] = reordered;
+                    hasChanges = true;
+                    console.log(`WoD System | Reordered abilities in ${category} to match M20/abilities.md`);
+                }
+            }
+        }
     }
     
     /**
