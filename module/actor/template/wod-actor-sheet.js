@@ -132,9 +132,20 @@ export class WodActorSheet extends ActorSheet {
         const avatarBg = allBackgrounds.find(bg => bg.name === 'Avatar' || bg.name === 'Avatar/ Genius' || bg.name === 'Genius');
         context.avatarRating = avatarBg ? (avatarBg.value || 0) : 0;
         
-        // Calculate Enhancement Paradox (permanent Paradox from Enhancement background)
-        const enhancementBg = allBackgrounds.find(bg => bg.name === 'Enhancement');
-        context.enhancementParadox = enhancementBg ? (enhancementBg.value || 0) : 0;
+        // Calculate Enhancement Paradox (permanent Paradox from Enhancement expanded backgrounds)
+        // Permanent paradox comes from templateData.permanentParadox in expanded backgrounds, not from background rating
+        // Ensure backgroundsExpanded is always an array
+        const backgroundsExpanded = Array.isArray(this.actor.system.backgroundsExpanded) 
+            ? this.actor.system.backgroundsExpanded 
+            : [];
+        const enhancementExpanded = backgroundsExpanded.filter(bg => 
+            bg && (bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder')
+        );
+        let totalPermanentParadox = 0;
+        for (const bg of enhancementExpanded) {
+            totalPermanentParadox += Number(bg.templateData?.permanentParadox) || 0;
+        }
+        context.enhancementParadox = totalPermanentParadox;
         
         // Procedures pagination (4 per page)
         if (this.actor.system.procedures) {
@@ -1406,7 +1417,12 @@ export class WodActorSheet extends ActorSheet {
         }
         
         const backgrounds = foundry.utils.duplicate(currentBackgrounds);
-        backgrounds.push({ name: "Allies", value: 1 });
+        // Add unique ID to new background to identify it uniquely
+        backgrounds.push({ 
+            id: foundry.utils.randomID(), 
+            name: "Allies", 
+            value: 1 
+        });
         
         // Navigate to the page containing the new background
         const backgroundsPerPage = 9;
@@ -3254,10 +3270,11 @@ export class WodActorSheet extends ActorSheet {
     
     /**
      * Request ST approval for removing permanent Paradox
+     * @param {Object} affectedBackground - Optional: expanded background being affected (Enhancement/Device/Wonder)
      * @returns {Promise<boolean>} True if approved, false if denied
      * @private
      */
-    async _requestSTApprovalForParadoxRemoval() {
+    async _requestSTApprovalForParadoxRemoval(affectedBackground = null) {
         // If current user is GM, auto-approve
         if (game.user.isGM) {
             return true;
@@ -3274,6 +3291,21 @@ export class WodActorSheet extends ActorSheet {
         // Create a unique request ID
         const requestId = `paradox-removal-${this.actor.id}-${Date.now()}`;
 
+        // Build message content - add device/enhancement info if applicable
+        let deviceInfo = '';
+        if (affectedBackground) {
+            const bgName = affectedBackground.templateData?.name || affectedBackground.backgroundName || 'Unknown';
+            const bgType = affectedBackground.backgroundName === 'Device' || affectedBackground.backgroundName === 'Wonder' 
+                ? 'device/wonder' 
+                : 'enhancement';
+            deviceInfo = `
+                <div style="background: #FFF3CD; border-left: 4px solid #FFC107; padding: 10px; margin: 10px 0; border-radius: 4px;">
+                    <strong><i class="fas fa-info-circle"></i> Device/Enhancement Affected:</strong><br/>
+                    <em>${bgType}: "${bgName}"</em>
+                </div>
+            `;
+        }
+
         // Create chat message with approval buttons
         const messageContent = `
             <div class="wod-approval-request" data-request-id="${requestId}">
@@ -3283,6 +3315,7 @@ export class WodActorSheet extends ActorSheet {
                 <p style="margin: 8px 0;">
                     <strong>${game.user.name}</strong> ${i18n('WODSYSTEM.Notifications.WantsToRemovePermanentParadox')} <strong>${this.actor.name}</strong>.
                 </p>
+                ${deviceInfo}
                 <div style="display: flex; gap: 10px; margin-top: 12px;" class="approval-buttons">
                     <button class="approve-paradox-btn" data-request-id="${requestId}" style="flex: 1; background: linear-gradient(135deg, #2ECC71, #27AE60); color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">
                         <i class="fas fa-check"></i> ${i18n('WODSYSTEM.Common.Approve')}
@@ -3372,11 +3405,44 @@ export class WodActorSheet extends ActorSheet {
                 return;
             }
             
+            // Check if this permanent paradox comes from an expanded Enhancement/Device background
+            // Ensure backgroundsExpanded is always an array
+            const backgroundsExpanded = Array.isArray(this.actor.system.backgroundsExpanded) 
+                ? this.actor.system.backgroundsExpanded 
+                : [];
+            const enhancementExpanded = backgroundsExpanded.filter(bg => 
+                bg && (bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder' || bg.backgroundName === 'Device' || bg.backgroundName === 'Wonder') &&
+                (Number(bg.templateData?.permanentParadox) || 0) > 0
+            );
+            
+            // Find which expanded background has the permanent paradox point we're removing
+            // We're removing the last point, so find which background has the highest permanentParadox
+            let affectedBackground = null;
+            if (enhancementExpanded.length > 0) {
+                // Sort by permanentParadox descending to find the one with the most points
+                const sorted = [...enhancementExpanded].sort((a, b) => 
+                    (Number(b.templateData?.permanentParadox) || 0) - (Number(a.templateData?.permanentParadox) || 0)
+                );
+                affectedBackground = sorted[0];
+            }
+            
             // Permanent Paradox removal REQUIRES ST APPROVAL
-            const approved = await this._requestSTApprovalForParadoxRemoval();
+            // Pass affectedBackground so GM knows which device/enhancement is being affected
+            const approved = await this._requestSTApprovalForParadoxRemoval(affectedBackground);
             
             if (!approved) {
                 return;
+            }
+            
+            // If removing from an expanded background, notify GM about which device/enhancement is affected
+            if (affectedBackground && game.user.isGM) {
+                const bgName = affectedBackground.templateData?.name || affectedBackground.backgroundName || 'Unknown';
+                const bgType = affectedBackground.backgroundName === 'Device' || affectedBackground.backgroundName === 'Wonder' 
+                    ? 'device/wonder' 
+                    : 'enhancement';
+                ui.notifications.info(
+                    `Removing permanent Paradox from ${bgType}: "${bgName}" (${this.actor.name})`
+                );
             }
             
             newPermanentParadox = permanentParadox - 1;
@@ -3390,23 +3456,38 @@ export class WodActorSheet extends ActorSheet {
             newPermanentParadox = permanentParadox + 1;
         }
         
-        // Update Enhancement background value
-        const backgrounds = foundry.utils.duplicate(this.actor.system.miscellaneous.backgrounds || []);
-        const enhancementIndex = backgrounds.findIndex(bg => bg.name === 'Enhancement');
+        // Update permanentParadox in expanded Enhancement backgrounds
+        // Permanent paradox is stored in templateData.permanentParadox, not in background rating
+        // Ensure backgroundsExpanded is always an array
+        const backgroundsExpanded = foundry.utils.duplicate(
+            Array.isArray(this.actor.system.backgroundsExpanded) ? this.actor.system.backgroundsExpanded : []
+        );
         
-        if (enhancementIndex >= 0) {
-            backgrounds[enhancementIndex].value = newPermanentParadox;
+        const enhancementExpanded = backgroundsExpanded.filter(bg => 
+            bg && (bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder')
+        );
+        
+        if (enhancementExpanded.length > 0) {
+            // Update the first Enhancement expanded background's permanentParadox
+            // If multiple exist, we update the first one (user can manually adjust others)
+            const firstEnhancement = backgroundsExpanded.find(bg => 
+                bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder'
+            );
+            if (firstEnhancement) {
+                if (!firstEnhancement.templateData) {
+                    firstEnhancement.templateData = {};
+                }
+                firstEnhancement.templateData.permanentParadox = newPermanentParadox;
+            }
         } else if (newPermanentParadox > 0) {
-            // Create Enhancement background if it doesn't exist
-            backgrounds.push({
-                name: 'Enhancement',
-                value: newPermanentParadox,
-                locked: false
-            });
+            // If no expanded Enhancement exists, we can't add permanent paradox this way
+            // User needs to create an expanded Enhancement background first
+            ui.notifications.warn("Please create an expanded Enhancement background first to add permanent paradox");
+            return;
         }
         
         await this.actor.update({
-            'system.miscellaneous.backgrounds': backgrounds
+            'system.backgroundsExpanded': backgroundsExpanded
         }, { render: false });
         
         // Update visuals
@@ -3440,9 +3521,27 @@ export class WodActorSheet extends ActorSheet {
      * @private
      */
     _getEnhancementParadox() {
-        const backgrounds = this.actor.system.miscellaneous?.backgrounds || [];
-        const enhancementBg = backgrounds.find(bg => bg.name === 'Enhancement');
-        return enhancementBg ? (enhancementBg.value || 0) : 0;
+        // Permanent paradox comes from expanded Enhancement backgrounds, not from the background rating
+        // Each expanded Enhancement background has a permanentParadox field in templateData
+        // Ensure backgroundsExpanded is always an array
+        const backgroundsExpanded = Array.isArray(this.actor.system.backgroundsExpanded) 
+            ? this.actor.system.backgroundsExpanded 
+            : [];
+        const enhancementExpanded = backgroundsExpanded.filter(bg => 
+            bg && (bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder')
+        );
+        
+        let totalParadox = 0;
+        for (const bg of enhancementExpanded) {
+            // Get permanentParadox from templateData (not from background rating)
+            const permanentParadox = Number(bg.templateData?.permanentParadox) || 0;
+            totalParadox += permanentParadox;
+        }
+        
+        // Ensure total is between 0 and 20 (sanity check to prevent overflow)
+        const finalParadox = Math.max(0, Math.min(totalParadox, 20));
+        
+        return finalParadox;
     }
 
     /**
@@ -3451,14 +3550,21 @@ export class WodActorSheet extends ActorSheet {
      */
     _updateQuintessenceParadoxVisuals() {
         const permanentQuintessence = 0; // No permanent Quintessence
-        const currentQuintessence = this.actor.system.advantages.primalEnergy.current || 0;
+        const currentQuintessence = Number(this.actor.system.advantages.primalEnergy.current) || 0;
         const totalQuintessence = currentQuintessence;
         
-        const permanentParadox = this._getEnhancementParadox();
-        const currentParadox = this.actor.system.advantages.paradox.current || 0;
+        // Ensure permanentParadox is calculated correctly (only from Enhancement background)
+        const permanentParadox = Number(this._getEnhancementParadox()) || 0;
+        const currentParadox = Number(this.actor.system.advantages.paradox.current) || 0;
         const totalParadox = permanentParadox + currentParadox;
         
-        const paradoxStartIndex = 20 - totalParadox;
+        // Ensure totalParadox doesn't exceed 20
+        const validTotalParadox = Math.min(totalParadox, 20);
+        const paradoxStartIndex = 20 - validTotalParadox;
+        
+        // Track permanent boxes for debugging
+        const permanentBoxes = [];
+        const currentBoxes = [];
         
         // Update all wheel boxes
         this.element.find('.wheel-box').each((i, box) => {
@@ -3477,34 +3583,40 @@ export class WodActorSheet extends ActorSheet {
             // PARADOX ALWAYS WINS IN OVERLAP
             if (isOverlap) {
                 // This box has Paradox that cancelled Quintessence
+                // Calculate which paradox point this is (0 = first from right, 1 = second, etc.)
                 const paradoxIndex = 19 - index;
                 $box.addClass('paradox cancelled');
                 
-                // Permanent Paradox
-                if (paradoxIndex < permanentParadox) {
+                // Permanent Paradox: first permanentParadox points from the right (indices 0 to permanentParadox-1)
+                if (paradoxIndex >= 0 && paradoxIndex < permanentParadox) {
                     $box.addClass('permanent');
                     $box.html('✗');
+                    permanentBoxes.push({ index, paradoxIndex, type: 'overlap' });
                 }
-                // Current Paradox (cancelling Quintessence)
+                // Current Paradox (cancelling Quintessence): points after permanent ones
                 else {
                     $box.addClass('current');
                     $box.html('✗');
+                    currentBoxes.push({ index, paradoxIndex, type: 'overlap' });
                 }
             }
             // Paradox zone ONLY (not overlapping)
             else if (isInParadoxZone) {
+                // Calculate which paradox point this is (0 = first from right, 1 = second, etc.)
                 const paradoxIndex = 19 - index;
                 $box.addClass('paradox');
                 
-                // Permanent Paradox
-                if (paradoxIndex < permanentParadox) {
+                // Permanent Paradox: first permanentParadox points from the right (indices 0 to permanentParadox-1)
+                if (paradoxIndex >= 0 && paradoxIndex < permanentParadox) {
                     $box.addClass('permanent');
                     $box.html('✗');
+                    permanentBoxes.push({ index, paradoxIndex, type: 'paradox-only' });
                 }
-                // Current Paradox
+                // Current Paradox: points after permanent ones
                 else {
                     $box.addClass('current');
                     $box.html('✗');
+                    currentBoxes.push({ index, paradoxIndex, type: 'paradox-only' });
                 }
             }
             // Quintessence zone ONLY (not overlapped by Paradox)
@@ -4036,14 +4148,17 @@ export class WodActorSheet extends ActorSheet {
      */
     async _renderBackgroundForm(template, data, index) {
         const partialPath = `systems/wodsystem/templates/actor/partials/backgrounds/bg-${template}.html`;
+        
         const context = { 
-            data: data, 
+            data: data || {}, 
             index: index,
             isEditMode: index >= 0  // Edit mode if index is valid, add mode if -1
         };
         
         try {
-            return await foundry.applications.handlebars.renderTemplate(partialPath, context);
+            const rendered = await foundry.applications.handlebars.renderTemplate(partialPath, context);
+            
+            return rendered;
         } catch (error) {
             console.error("Error rendering background form:", error);
             return `<p>Template not found for: ${template}</p>`;
@@ -4175,6 +4290,16 @@ export class WodActorSheet extends ActorSheet {
         if (!backgroundsExpanded || !backgroundsExpanded[index]) return;
         
         const bg = backgroundsExpanded[index];
+        
+        // Determine template if not set
+        if (!bg.template) {
+            bg.template = this._getBackgroundTemplate(bg.backgroundName);
+            // Save the template to the actor if it was missing
+            if (bg.template) {
+                await this.actor.update({ [`system.backgroundsExpanded.${index}.template`]: bg.template }, { render: false });
+            }
+        }
+        
         const modal = this.element.find('.bg-modal-overlay');
         const modalTitle = modal.find('.bg-modal-title');
         const formContainer = modal.find('.bg-modal-form');

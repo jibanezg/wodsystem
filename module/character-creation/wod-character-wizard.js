@@ -3358,6 +3358,13 @@ export class WodCharacterWizard extends FormApplication {
         // console.log('🎯 BACKGROUNDS - Filtering out invalid:', bg);
       }
       return isValid;
+    }).map(bg => {
+      // Ensure each background has a unique ID
+      return {
+        id: bg.id || foundry.utils.randomID(),
+        name: bg.name,
+        value: bg.value
+      };
     });
     
     // console.log('🎯 BACKGROUNDS CHECK - Valid backgrounds:', JSON.stringify(validBackgrounds));

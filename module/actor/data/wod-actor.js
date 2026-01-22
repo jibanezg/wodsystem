@@ -69,6 +69,17 @@ export class WodActor extends Actor {
         // Ensure health levels exist (migration for old actors)
         this._ensureHealthLevels();
         
+        // Ensure backgroundsExpanded is initialized as an array
+        if (!Array.isArray(this.system.backgroundsExpanded)) {
+            if (this.system.backgroundsExpanded && typeof this.system.backgroundsExpanded === 'object' && this.system.backgroundsExpanded !== null) {
+                // Convert object to array if possible
+                this.system.backgroundsExpanded = Object.values(this.system.backgroundsExpanded);
+            } else {
+                // Initialize to empty array
+                this.system.backgroundsExpanded = [];
+            }
+        }
+        
         // Migrate backgrounds from object to array (for old actors)
         this._migrateBackgrounds();
         
@@ -149,7 +160,8 @@ export class WodActor extends Actor {
     /**
      * Migrate backgrounds from object to array format (for old actors)
      * Converts old format: { "Allies": 3, "Contacts": 2 }
-     * To new format: [{ name: "Allies", value: 3 }, { name: "Contacts", value: 2 }]
+     * To new format: [{ id: "...", name: "Allies", value: 3 }, { id: "...", name: "Contacts", value: 2 }]
+     * Also ensures all backgrounds have unique IDs
      */
     _migrateBackgrounds() {
         if (!this.system.miscellaneous) return;
@@ -161,7 +173,11 @@ export class WodActor extends Actor {
             const bgArray = [];
             for (const [name, value] of Object.entries(backgrounds)) {
                 if (value > 0) {
-                    bgArray.push({ name, value });
+                    bgArray.push({ 
+                        id: foundry.utils.randomID(), 
+                        name, 
+                        value 
+                    });
                 }
             }
             this.system.miscellaneous.backgrounds = bgArray;
@@ -173,7 +189,25 @@ export class WodActor extends Actor {
             console.warn(`Actor ${this.name} (${this.id}): backgrounds was not an array (was ${typeof this.system.miscellaneous.backgrounds}), resetting to empty array`);
             this.system.miscellaneous.backgrounds = [];
         }
+        
+        // Ensure all backgrounds have unique IDs (migration for existing backgrounds without IDs)
+        let needsUpdate = false;
+        const updatedBackgrounds = this.system.miscellaneous.backgrounds.map(bg => {
+            if (!bg.id) {
+                needsUpdate = true;
+                return { 
+                    ...bg, 
+                    id: foundry.utils.randomID() 
+                };
+            }
+            return bg;
+        });
+        
+        if (needsUpdate) {
+            this.system.miscellaneous.backgrounds = updatedBackgrounds;
+        }
     }
+    
     
     /**
      * Ensure secondary abilities are properly initialized (for old or corrupted actors)
