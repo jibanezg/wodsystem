@@ -444,3 +444,165 @@ form.wod-equipment-effects-dialog.technocrat .dialog-buttons .save-effect:hover 
 form.wod-equipment-effects-dialog.technocrat .dialog-buttons {
     border-top-color: var(--wod-primary, #4682B4);
 }
+
+/* Mage Theme Overrides - Support both .Mage (capitalized) and .mage (lowercase) */
+.window-app.Mage form.wod-equipment-effects-dialog .effect-header-section,
+.window-app.mage form.wod-equipment-effects-dialog .effect-header-section,
+form.wod-equipment-effects-dialog.Mage .effect-header-section,
+form.wod-equipment-effects-dialog.mage .effect-header-section {
+    border-bottom-color: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .effect-header-section h3,
+.window-app.mage form.wod-equipment-effects-dialog .effect-header-section h3,
+form.wod-equipment-effects-dialog.Mage .effect-header-section h3,
+form.wod-equipment-effects-dialog.mage .effect-header-section h3 {
+    background: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .effect-tabs-container,
+.window-app.mage form.wod-equipment-effects-dialog .effect-tabs-container,
+form.wod-equipment-effects-dialog.Mage .effect-tabs-container,
+form.wod-equipment-effects-dialog.mage .effect-tabs-container {
+    background: linear-gradient(135deg, var(--wod-primary, #7B2CBF) 0%, var(--wod-primary-dark, #5A189A) 100%);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .effect-tab.active,
+.window-app.mage form.wod-equipment-effects-dialog .effect-tab.active,
+form.wod-equipment-effects-dialog.Mage .effect-tab.active,
+form.wod-equipment-effects-dialog.mage .effect-tab.active {
+    color: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .form-group label,
+.window-app.mage form.wod-equipment-effects-dialog .form-group label,
+form.wod-equipment-effects-dialog.Mage .form-group label,
+form.wod-equipment-effects-dialog.mage .form-group label {
+    color: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .effect-section,
+.window-app.mage form.wod-equipment-effects-dialog .effect-section,
+form.wod-equipment-effects-dialog.Mage .effect-section,
+form.wod-equipment-effects-dialog.mage .effect-section {
+    background: var(--wod-bg-secondary, #F3E5F5);
+    border-color: var(--wod-border-light, #CE93D8);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .file-picker-group button,
+.window-app.Mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect,
+.window-app.mage form.wod-equipment-effects-dialog .file-picker-group button,
+.window-app.mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect,
+form.wod-equipment-effects-dialog.Mage .file-picker-group button,
+form.wod-equipment-effects-dialog.Mage .dialog-buttons .save-effect,
+form.wod-equipment-effects-dialog.mage .file-picker-group button,
+form.wod-equipment-effects-dialog.mage .dialog-buttons .save-effect,
+.app.dialog.Mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect,
+.app.dialog.mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect,
+.window-app.Mage.equipment-effects-dialog .dialog-buttons .save-effect,
+.window-app.mage.equipment-effects-dialog .dialog-buttons .save-effect,
+.app.dialog.Mage.equipment-effects-dialog .dialog-buttons .save-effect,
+.app.dialog.mage.equipment-effects-dialog .dialog-buttons .save-effect {
+    background: var(--wod-primary, #7B2CBF) !important;
+    border-color: var(--wod-primary, #7B2CBF) !important;
+    color: white !important;
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .file-picker-group button:hover,
+.window-app.Mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect:hover,
+.window-app.mage form.wod-equipment-effects-dialog .file-picker-group button:hover,
+.window-app.mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect:hover,
+form.wod-equipment-effects-dialog.Mage .file-picker-group button:hover,
+form.wod-equipment-effects-dialog.Mage .dialog-buttons .save-effect:hover,
+form.wod-equipment-effects-dialog.mage .file-picker-group button:hover,
+form.wod-equipment-effects-dialog.mage .dialog-buttons .save-effect:hover,
+.app.dialog.Mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect:hover,
+.app.dialog.mage form.wod-equipment-effects-dialog .dialog-buttons .save-effect:hover,
+.window-app.Mage.equipment-effects-dialog .dialog-buttons .save-effect:hover,
+.window-app.mage.equipment-effects-dialog .dialog-buttons .save-effect:hover,
+.app.dialog.Mage.equipment-effects-dialog .dialog-buttons .save-effect:hover,
+.app.dialog.mage.equipment-effects-dialog .dialog-buttons .save-effect:hover {
+    background: var(--wod-primary-light, #9D4EDD) !important;
+    border-color: var(--wod-primary-light, #9D4EDD) !important;
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .dialog-buttons,
+.window-app.mage form.wod-equipment-effects-dialog .dialog-buttons,
+form.wod-equipment-effects-dialog.Mage .dialog-buttons,
+form.wod-equipment-effects-dialog.mage .dialog-buttons {
+    border-top-color: var(--wod-primary, #7B2CBF);
+}
+
+/* Override dialog window header for Mage - must override foundry-dialog-override.css */
+.window-app.mage.equipment-effects-dialog .window-header,
+.window-app.mage#wod-equipment-effects .window-header,
+.app.dialog.mage.equipment-effects-dialog .window-header,
+.app.dialog.mage#wod-equipment-effects .window-header,
+.window-app.Mage.equipment-effects-dialog .window-header,
+.window-app.Mage#wod-equipment-effects .window-header,
+.app.dialog.Mage.equipment-effects-dialog .window-header,
+.app.dialog.Mage#wod-equipment-effects .window-header {
+    background: linear-gradient(135deg, var(--wod-primary, #7B2CBF) 0%, var(--wod-primary-dark, #5A189A) 100%) !important;
+}
+
+.window-app.mage.equipment-effects-dialog .window-title,
+.window-app.mage#wod-equipment-effects .window-title,
+.app.dialog.mage.equipment-effects-dialog .window-title,
+.app.dialog.mage#wod-equipment-effects .window-title,
+.window-app.Mage.equipment-effects-dialog .window-title,
+.window-app.Mage#wod-equipment-effects .window-title,
+.app.dialog.Mage.equipment-effects-dialog .window-title,
+.app.dialog.Mage#wod-equipment-effects .window-title {
+    color: white !important;
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb,
+.window-app.mage form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb,
+form.wod-equipment-effects-dialog.Mage .light-intensity-slider::-webkit-slider-thumb,
+form.wod-equipment-effects-dialog.mage .light-intensity-slider::-webkit-slider-thumb {
+    background: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb:hover,
+.window-app.mage form.wod-equipment-effects-dialog .light-intensity-slider::-webkit-slider-thumb:hover,
+form.wod-equipment-effects-dialog.Mage .light-intensity-slider::-webkit-slider-thumb:hover,
+form.wod-equipment-effects-dialog.mage .light-intensity-slider::-webkit-slider-thumb:hover {
+    background: var(--wod-primary-light, #9D4EDD);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb,
+.window-app.mage form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb,
+form.wod-equipment-effects-dialog.Mage .light-intensity-slider::-moz-range-thumb,
+form.wod-equipment-effects-dialog.mage .light-intensity-slider::-moz-range-thumb {
+    background: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb:hover,
+.window-app.mage form.wod-equipment-effects-dialog .light-intensity-slider::-moz-range-thumb:hover,
+form.wod-equipment-effects-dialog.Mage .light-intensity-slider::-moz-range-thumb:hover,
+form.wod-equipment-effects-dialog.mage .light-intensity-slider::-moz-range-thumb:hover {
+    background: var(--wod-primary-light, #9D4EDD);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .intensity-value-display,
+.window-app.mage form.wod-equipment-effects-dialog .intensity-value-display,
+form.wod-equipment-effects-dialog.Mage .intensity-value-display,
+form.wod-equipment-effects-dialog.mage .intensity-value-display {
+    color: var(--wod-primary, #7B2CBF);
+}
+
+.window-app.Mage form.wod-equipment-effects-dialog .form-group input[type="text"]:focus,
+.window-app.Mage form.wod-equipment-effects-dialog .form-group input[type="number"]:focus,
+.window-app.Mage form.wod-equipment-effects-dialog .form-group select:focus,
+.window-app.mage form.wod-equipment-effects-dialog .form-group input[type="text"]:focus,
+.window-app.mage form.wod-equipment-effects-dialog .form-group input[type="number"]:focus,
+.window-app.mage form.wod-equipment-effects-dialog .form-group select:focus,
+form.wod-equipment-effects-dialog.Mage .form-group input[type="text"]:focus,
+form.wod-equipment-effects-dialog.Mage .form-group input[type="number"]:focus,
+form.wod-equipment-effects-dialog.Mage .form-group select:focus,
+form.wod-equipment-effects-dialog.mage .form-group input[type="text"]:focus,
+form.wod-equipment-effects-dialog.mage .form-group input[type="number"]:focus,
+form.wod-equipment-effects-dialog.mage .form-group select:focus {
+    border-color: var(--wod-primary, #7B2CBF);
+    box-shadow: 0 0 0 2px rgba(123, 44, 191, 0.2);
+}

@@ -1,0 +1,1347 @@
+/**
+ * Spirit Theme - Ethereal, Otherworldly, Transcendent
+ * Color Palette: Silver/Blue/White - ethereal, spiritual, otherworldly
+ * Identity: Spirit realm, ephemeral, transcendent
+ * 
+ * Mage: The Ascension - Spirits
+ */
+
+/* Color variables for spirit actor sheets (lowercase) */
+.wod.sheet.actor.spirit {
+    /* Primary Colors - Silver/Blue (ethereal/otherworldly) */
+    --wod-primary: #4A90E2;           /* Sky Blue - ethereal */
+    --wod-primary-dark: #2E5C8A;      /* Deep Blue - spiritual */
+    --wod-primary-light: #6BA3E8;      /* Light Blue - transcendent */
+    
+    /* Background Colors - Ethereal/Misty */
+    --wod-bg-main: #F5F7FA;           /* Misty white */
+    --wod-bg-secondary: #E8F0F8;       /* Light blue-gray */
+    --wod-bg-tertiary: #D4E4F5;       /* Soft blue */
+    --wod-bg-hover: #B8D4F0;          /* Blue hover */
+    --wod-bg-input: #F5F7FA;           /* Input backgrounds */
+    --wod-bg-subtle: #F0F5FA;         /* Subtle background */
+    --wod-bg-light: #FFFFFF;           /* Pure white for elements */
+    --wod-bg-alt: #E8F0F8;            /* Alternate background */
+    --wod-bg-hover-light: #D9E8F5;    /* Light blue hover */
+    --wod-bg-highlight: #D4E4F5;      /* Highlight color */
+    --wod-bg-info: #E8F0F8;           /* Light blue info background */
+    
+    /* Border Colors - Silver/Blue */
+    --wod-border-main: #4A90E2;        /* Sky blue main borders */
+    --wod-border-dark: #2E5C8A;        /* Deep blue borders for sections */
+    --wod-border-light: #B8D4F0;       /* Light blue for inputs */
+    --wod-border-subtle: #D4E4F5;      /* Subtle blue borders */
+    --wod-border-info: #6BA3E8;        /* Blue info borders */
+    
+    /* Text Colors */
+    --wod-text-main: #1A1A1A;          /* Near-black primary text */
+    --wod-text-light: white;           /* White text on dark backgrounds */
+    --wod-text-alt: #2E5C8A;          /* Deep blue secondary text */
+    --wod-text-inverse: #FFFFFF;       /* White inverse text */
+    
+    /* Status Colors */
+    --wod-success: #43A047;            /* Green for success */
+    --wod-danger: #E53935;             /* Red for danger */
+    --wod-error: #E53935;              /* Red for errors */
+    --wod-error-dark: #C62828;         /* Dark red */
+    --wod-danger-dark: #C62828;        /* Dark red danger */
+    --wod-warning: #FFF3E0;            /* Warning background */
+    --wod-info: #E8F0F8;               /* Blue info background */
+    
+    /* Accents - Silver/White */
+    --wod-accent-spirit: #C0C0C0;      /* Silver accent */
+    --wod-accent-ethereal: #E0E8F0;     /* Ethereal white */
+    
+    /* Health Damage Colors - Blue theme */
+    --wod-damage-bashing: #4A90E2;     /* Blue X mark */
+    --wod-damage-lethal: #4A90E2;      /* Blue stripes */
+    --wod-damage-aggravated: #4A90E2;  /* Blue fill */
+}
+
+/* Color variables for Spirit dialogs (capital S - Foundry auto-capitalizes) */
+.wod.dialog.Spirit {
+    /* Primary Colors - Silver/Blue (ethereal/otherworldly) */
+    --wod-primary: #4A90E2;
+    --wod-primary-dark: #2E5C8A;
+    --wod-primary-light: #6BA3E8;
+    
+    /* Background Colors */
+    --wod-bg-main: #F5F7FA;
+    --wod-bg-secondary: #E8F0F8;
+    --wod-bg-tertiary: #D4E4F5;
+    --wod-bg-hover: #B8D4F0;
+    --wod-bg-input: #F5F7FA;
+    --wod-bg-subtle: #F0F5FA;
+    --wod-bg-light: #FFFFFF;
+    
+    /* Border Colors */
+    --wod-border-main: #4A90E2;
+    --wod-border-light: #B8D4F0;
+    --wod-border-info: #6BA3E8;
+    
+    /* Text Colors */
+    --wod-text-main: #1A1A1A;
+    --wod-text-light: white;
+    --wod-text-alt: #2E5C8A;
+    
+    /* Status Colors */
+    --wod-success: #43A047;
+    --wod-danger: #E53935;
+    --wod-danger-dark: #C62828;
+}
+
+/* Spirit-Specific Component Styles */
+
+/* Spirit Identity Grid - 2 columns: Name/Title on first row, Spirit Type/Disposition on second row */
+.wod.sheet.actor.spirit .identity-section.spirit-identity {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 15px;
+}
+
+.wod.sheet.actor.spirit .identity-section.spirit-identity .identity-field {
+    grid-column: span 1;
+    max-width: 100%;
+    width: 100%;
+}
+
+.wod.sheet.actor.spirit .identity-section.spirit-identity .identity-field input[type="text"],
+.wod.sheet.actor.spirit .identity-section.spirit-identity .identity-field input {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Spirit Type Dropdown - prevent text cutoff */
+.wod.sheet.actor.spirit .identity-section.spirit-identity select[name="system.identity.spiritType"] {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 10px 30px 10px 8px !important;
+    border: 1px solid var(--wod-border-light) !important;
+    border-radius: 4px !important;
+    background: var(--wod-bg-input) !important;
+    color: var(--wod-text-main) !important;
+    font-size: 0.9em !important;
+    line-height: 1.5 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    box-sizing: border-box !important;
+    min-height: 42px !important;
+    height: auto !important;
+}
+
+.wod.sheet.actor.spirit .identity-section.spirit-identity select[name="system.identity.spiritType"]:focus {
+    overflow: visible !important;
+}
+
+.wod.sheet.actor.spirit .identity-section.spirit-identity select[name="system.identity.spiritType"] option {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    padding: 6px 8px !important;
+    line-height: 1.5 !important;
+    min-height: 1.5em !important;
+    display: block !important;
+}
+
+/* Disposition Dropdown - match Spirit Type styling */
+.wod.sheet.actor.spirit .identity-section.spirit-identity select[name="system.miscellaneous.disposition"] {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 10px 30px 10px 8px !important;
+    border: 1px solid var(--wod-border-light) !important;
+    border-radius: 4px !important;
+    background: var(--wod-bg-input) !important;
+    color: var(--wod-text-main) !important;
+    font-size: 0.9em !important;
+    line-height: 1.5 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    box-sizing: border-box !important;
+    min-height: 42px !important;
+    height: auto !important;
+}
+
+/* Spirit Attributes Section - Willpower, Rage, Gnosis */
+.wod.sheet.actor.spirit .spirit-attributes-section {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.spirit .spirit-attributes-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 15px;
+    align-items: start;
+}
+
+.wod.sheet.actor.spirit .spirit-attributes-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* Willpower, Rage, Gnosis sections - match Technocrat/Mage willpower styling */
+.wod.sheet.actor.spirit .willpower-section {
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    padding: 8px;
+    background: var(--wod-bg-main);
+    min-width: 0;
+    width: 100%;
+}
+
+.wod.sheet.actor.spirit .willpower-section h4 {
+    margin: 0 0 8px 0;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    color: white;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.75em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.wod.sheet.actor.spirit .willpower-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px;
+}
+
+.wod.sheet.actor.spirit .willpower-permanent,
+.wod.sheet.actor.spirit .willpower-temporary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7em;
+    gap: 4px;
+}
+
+.wod.sheet.actor.spirit .willpower-permanent label,
+.wod.sheet.actor.spirit .willpower-temporary label {
+    font-weight: bold;
+    margin-right: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.wod.sheet.actor.spirit .willpower-permanent .dot-container,
+.wod.sheet.actor.spirit .willpower-temporary .dot-container {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+}
+
+.wod.sheet.actor.spirit .willpower-temporary .dot {
+    border-radius: 0;
+}
+
+.wod.sheet.actor.spirit .spirit-notes-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.wod.sheet.actor.spirit .spirit-notes-section h4 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 10px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    font-size: 0.95em;
+}
+
+.wod.sheet.actor.spirit .spirit-notes-textarea {
+    flex: 1;
+    min-height: 200px;
+    padding: 12px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+    background: white;
+    color: var(--wod-text-main);
+    font-family: inherit;
+    font-size: 0.9em;
+    line-height: 1.5;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.spirit .spirit-notes-textarea:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* Legacy support for old class names */
+.wod.sheet.actor.spirit .attributes-section.spirit-attributes {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.spirit .attributes-section.spirit-attributes .attributes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.wod.sheet.actor.spirit .attributes-section.spirit-attributes .attribute-category {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+    padding: 10px;
+    background: var(--wod-bg-light);
+}
+
+.wod.sheet.actor.spirit .attributes-section.spirit-attributes .attribute-category h3 {
+    color: var(--wod-primary);
+    font-size: 1em;
+    margin-bottom: 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--wod-border-subtle);
+    padding-bottom: 5px;
+}
+
+/* Essence Section */
+.wod.sheet.actor.spirit .essence-section {
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.wod.sheet.actor.spirit .essence-section h2 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+/* Current Essence Display */
+.wod.sheet.actor.spirit .essence-current-display {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: var(--wod-bg-subtle);
+    border-radius: 4px;
+    border: 1px solid var(--wod-border-subtle);
+}
+
+.wod.sheet.actor.spirit .essence-current-display label {
+    display: block;
+    font-weight: 600;
+    color: var(--wod-text-main);
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.spirit .essence-value-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.wod.sheet.actor.spirit .essence-current-value {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--wod-primary);
+    min-width: 50px;
+    text-align: center;
+}
+
+/* Essence buttons - ensure they are perfectly circular - override all global button styles */
+.wod.sheet.actor.spirit .essence-value-controls button.essence-increase-btn,
+.wod.sheet.actor.spirit .essence-value-controls button.essence-decrease-btn,
+.wod.sheet.actor.spirit button.essence-increase-btn,
+.wod.sheet.actor.spirit button.essence-decrease-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    border: none !important;
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 1.1em !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-align: center !important;
+}
+
+.wod.sheet.actor.spirit button.essence-increase-btn i,
+.wod.sheet.actor.spirit button.essence-decrease-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: block !important;
+    font-size: inherit !important;
+}
+
+.wod.sheet.actor.spirit .essence-increase-btn {
+    background: linear-gradient(135deg, var(--wod-success, #28a745) 0%, #218838 100%);
+    color: white;
+}
+
+.wod.sheet.actor.spirit .essence-increase-btn:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.wod.sheet.actor.spirit .essence-increase-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.spirit .essence-decrease-btn {
+    background: linear-gradient(135deg, var(--wod-danger, #E53935) 0%, #C62828 100%);
+    color: white;
+}
+
+.wod.sheet.actor.spirit .essence-decrease-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.wod.sheet.actor.spirit .essence-decrease-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Maximum Essence Capacity Controls */
+.wod.sheet.actor.spirit .essence-capacity-controls {
+    margin-bottom: 15px;
+    padding: 12px;
+    background: var(--wod-bg-subtle);
+    border-radius: 4px;
+    border: 1px solid var(--wod-border-subtle);
+}
+
+.wod.sheet.actor.spirit .essence-capacity-controls label {
+    display: block;
+    font-weight: 600;
+    color: var(--wod-text-main);
+    margin-bottom: 8px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.spirit .essence-capacity-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.wod.sheet.actor.spirit .essence-maximum-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--wod-primary-dark);
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Essence capacity buttons - ensure they are perfectly circular - override all global button styles */
+.wod.sheet.actor.spirit .essence-capacity-buttons button.essence-capacity-increase,
+.wod.sheet.actor.spirit .essence-capacity-buttons button.essence-capacity-decrease,
+.wod.sheet.actor.spirit button.essence-capacity-increase,
+.wod.sheet.actor.spirit button.essence-capacity-decrease {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-width: 32px !important;
+    max-height: 32px !important;
+    border: none !important;
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-size: 1em !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-align: center !important;
+}
+
+.wod.sheet.actor.spirit button.essence-capacity-increase i,
+.wod.sheet.actor.spirit button.essence-capacity-decrease i {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: block !important;
+    font-size: inherit !important;
+}
+
+.wod.sheet.actor.spirit .essence-capacity-increase {
+    background: linear-gradient(135deg, var(--wod-success, #28a745) 0%, #218838 100%);
+    color: white;
+}
+
+.wod.sheet.actor.spirit .essence-capacity-increase:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.wod.sheet.actor.spirit .essence-capacity-decrease {
+    background: linear-gradient(135deg, var(--wod-danger, #E53935) 0%, #C62828 100%);
+    color: white;
+}
+
+.wod.sheet.actor.spirit .essence-capacity-decrease:hover {
+    transform: scale(1.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.wod.sheet.actor.spirit .essence-capacity-decrease:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Visual Essence Boxes */
+.wod.sheet.actor.spirit .essence-visual {
+    margin-top: 15px;
+}
+
+.wod.sheet.actor.spirit .essence-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    padding: 10px;
+    background: var(--wod-bg-subtle);
+    border-radius: 4px;
+    border: 1px solid var(--wod-border-subtle);
+}
+
+.wod.sheet.actor.spirit .essence-box {
+    width: 35px;
+    height: 35px;
+    border: 2px solid var(--wod-border-main);
+    border-radius: 4px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.spirit .essence-box.filled {
+    background: var(--wod-primary);
+    border-color: var(--wod-primary-dark);
+    box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+}
+
+.wod.sheet.actor.spirit .essence-box:hover {
+    border-color: var(--wod-primary-light);
+    transform: scale(1.1);
+}
+
+/* Charms and S-Advantages Container - Side by Side Layout */
+.wod.sheet.actor.spirit .charms-s-advantages-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    overflow: visible;
+}
+
+/* Charms Section */
+.wod.sheet.actor.spirit .charms-section {
+    margin-bottom: 0;
+    min-width: 0;
+    overflow: visible;
+    width: 100%;
+}
+
+.wod.sheet.actor.spirit .charms-section h2 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.wod.sheet.actor.spirit .charms-controls {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.spirit .charm-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    min-width: 0;
+    overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.wod.sheet.actor.spirit .charm-selector > select {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.wod.sheet.actor.spirit .charm-selector label {
+    font-weight: 600;
+    color: var(--wod-text-main);
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+/* Charm selector dropdown - prevent text cutoff */
+.wod.sheet.actor.spirit .select-charm-to-add {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding: 12px 30px 12px 12px !important;
+    border: 1px solid var(--wod-border-light) !important;
+    border-radius: 4px !important;
+    background: var(--wod-bg-input) !important;
+    color: var(--wod-text-main) !important;
+    font-size: 0.95em !important;
+    line-height: 1.6 !important;
+    transition: all 0.2s ease !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    height: 44px !important;
+}
+
+.wod.sheet.actor.spirit .select-charm-to-add:focus {
+    overflow: visible !important;
+}
+
+.wod.sheet.actor.spirit .select-charm-to-add option {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    padding: 6px 8px !important;
+    line-height: 1.5 !important;
+    min-height: 1.5em !important;
+    display: block !important;
+}
+
+.wod.sheet.actor.spirit .select-charm-to-add:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.wod.sheet.actor.spirit .add-charm-btn,
+.wod.sheet.actor.spirit button.add-charm-btn,
+.wod.sheet.actor.spirit .charm-selector .add-charm-btn {
+    background: linear-gradient(135deg, var(--wod-success, #28a745) 0%, #218838 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 1.2em !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-align: center !important;
+}
+
+.wod.sheet.actor.spirit .add-charm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wod.sheet.actor.spirit .add-charm-btn i,
+.wod.sheet.actor.spirit button.add-charm-btn i,
+.wod.sheet.actor.spirit .charm-selector .add-charm-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: block !important;
+    font-size: inherit !important;
+}
+
+.wod.sheet.actor.spirit .charms-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wod.sheet.actor.spirit .charm-item {
+    background: #ffffff;
+    border: none;
+    border-left: 4px solid var(--wod-primary);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 12px 15px;
+    transition: all 0.2s ease;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.wod.sheet.actor.spirit .charm-item:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: translateX(2px);
+}
+
+.wod.sheet.actor.spirit .charm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wod-border-subtle);
+}
+
+.wod.sheet.actor.spirit .charm-header h4.charm-name {
+    color: var(--wod-primary);
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.wod.sheet.actor.spirit .delete-charm {
+    padding: 6px 10px;
+    border: 1px solid var(--wod-danger);
+    border-radius: 4px;
+    background: white;
+    color: var(--wod-danger);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.wod.sheet.actor.spirit .delete-charm:hover {
+    background: var(--wod-danger);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(229, 57, 53, 0.3);
+}
+
+.wod.sheet.actor.spirit .charm-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wod.sheet.actor.spirit .charm-cost,
+.wod.sheet.actor.spirit .charm-roll {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.spirit .charm-cost label,
+.wod.sheet.actor.spirit .charm-roll label {
+    font-weight: 600;
+    color: var(--wod-text-alt);
+    min-width: 100px;
+}
+
+.wod.sheet.actor.spirit .charm-cost span,
+.wod.sheet.actor.spirit .charm-roll span {
+    color: var(--wod-text-main);
+}
+
+.wod.sheet.actor.spirit .charm-description {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wod.sheet.actor.spirit .charm-description-btn {
+    /* Inherit sphere-reference-btn styles from reference-system.css */
+    /* No additional styles needed - uses sphere-reference-btn class */
+}
+
+.wod.sheet.actor.spirit .charm-description-preview {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 8px;
+    position: relative;
+}
+
+.wod.sheet.actor.spirit .charm-preview-text {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    color: #555;
+    font-size: 0.9em;
+    line-height: 1.4;
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    pointer-events: none;
+}
+
+.wod.sheet.actor.spirit .charm-description-preview .charm-description-btn,
+.wod.sheet.actor.spirit .charm-description-preview .sphere-reference-btn {
+    flex-shrink: 0;
+    margin-top: 2px;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 100 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.wod.sheet.actor.spirit .charm-description-preview .charm-description-btn i,
+.wod.sheet.actor.spirit .charm-description-preview .sphere-reference-btn i {
+    pointer-events: none;
+}
+
+.wod.sheet.actor.spirit .no-charms {
+    text-align: center;
+    padding: 30px;
+    color: var(--wod-text-alt);
+    font-style: italic;
+    background: white;
+    border-radius: 4px;
+    border: 1px dashed var(--wod-border-light);
+}
+
+/* S-Advantages Section */
+.wod.sheet.actor.spirit .s-advantages-section {
+    margin-top: 0;
+    min-width: 0;
+    overflow: visible;
+    width: 100%;
+}
+
+.wod.sheet.actor.spirit .s-advantages-section h2 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.wod.sheet.actor.spirit .s-advantages-controls {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.spirit .s-advantage-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    min-width: 0;
+    overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.wod.sheet.actor.spirit .s-advantage-selector > select {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.wod.sheet.actor.spirit .s-advantage-selector label {
+    font-weight: 600;
+    color: var(--wod-text-main);
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+/* S-Advantage selector dropdown - prevent text cutoff */
+.wod.sheet.actor.spirit .select-s-advantage-to-add {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding: 12px 30px 12px 12px !important;
+    border: 1px solid var(--wod-border-light) !important;
+    border-radius: 4px !important;
+    background: var(--wod-bg-input) !important;
+    color: var(--wod-text-main) !important;
+    font-size: 0.95em !important;
+    line-height: 1.6 !important;
+    transition: all 0.2s ease !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    height: 44px !important;
+}
+
+.wod.sheet.actor.spirit .select-s-advantage-to-add:focus {
+    overflow: visible !important;
+}
+
+.wod.sheet.actor.spirit .select-s-advantage-to-add option {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    padding: 6px 8px !important;
+    line-height: 1.5 !important;
+    min-height: 1.5em !important;
+    display: block !important;
+}
+
+.wod.sheet.actor.spirit .select-s-advantage-to-add:focus {
+    outline: none;
+    border-color: var(--wod-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.wod.sheet.actor.spirit .add-s-advantage-btn,
+.wod.sheet.actor.spirit button.add-s-advantage-btn,
+.wod.sheet.actor.spirit .s-advantage-selector .add-s-advantage-btn {
+    background: linear-gradient(135deg, var(--wod-success, #28a745) 0%, #218838 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    -webkit-border-radius: 50% !important;
+    -moz-border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 1.2em !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-align: center !important;
+}
+
+.wod.sheet.actor.spirit .add-s-advantage-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wod.sheet.actor.spirit .add-s-advantage-btn i,
+.wod.sheet.actor.spirit button.add-s-advantage-btn i,
+.wod.sheet.actor.spirit .s-advantage-selector .add-s-advantage-btn i {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: block !important;
+    font-size: inherit !important;
+}
+
+.wod.sheet.actor.spirit .s-advantages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wod.sheet.actor.spirit .s-advantage-item {
+    background: #ffffff;
+    border: none;
+    border-left: 4px solid var(--wod-primary);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 12px 15px;
+    transition: all 0.2s ease;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.wod.sheet.actor.spirit .s-advantage-item:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: translateX(2px);
+}
+
+.wod.sheet.actor.spirit .s-advantage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--wod-border-subtle);
+}
+
+.wod.sheet.actor.spirit .s-advantage-header h4.s-advantage-name {
+    color: var(--wod-primary);
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.wod.sheet.actor.spirit .delete-s-advantage {
+    padding: 6px 10px;
+    border: 1px solid var(--wod-danger);
+    border-radius: 4px;
+    background: white;
+    color: var(--wod-danger);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.wod.sheet.actor.spirit .delete-s-advantage:hover {
+    background: var(--wod-danger);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(229, 57, 53, 0.3);
+}
+
+.wod.sheet.actor.spirit .s-advantage-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wod.sheet.actor.spirit .s-advantage-cost {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.spirit .s-advantage-cost label {
+    font-weight: 600;
+    color: var(--wod-text-alt);
+    min-width: 100px;
+}
+
+.wod.sheet.actor.spirit .s-advantage-cost span {
+    color: var(--wod-text-main);
+}
+
+.wod.sheet.actor.spirit .s-advantage-description-preview {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 8px;
+    position: relative;
+}
+
+.wod.sheet.actor.spirit .s-advantage-preview-text {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    color: #555;
+    font-size: 0.9em;
+    line-height: 1.4;
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    pointer-events: none;
+}
+
+.wod.sheet.actor.spirit .s-advantage-description-preview .s-advantage-description-btn,
+.wod.sheet.actor.spirit .s-advantage-description-preview .sphere-reference-btn {
+    flex-shrink: 0;
+    margin-top: 2px;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 100 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.wod.sheet.actor.spirit .s-advantage-description-preview .s-advantage-description-btn i,
+.wod.sheet.actor.spirit .s-advantage-description-preview .sphere-reference-btn i {
+    pointer-events: none;
+}
+
+.wod.sheet.actor.spirit .s-advantage-description {
+    margin-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wod.sheet.actor.spirit .s-advantage-description-btn {
+    /* Inherit sphere-reference-btn styles from reference-system.css */
+    /* No additional styles needed - uses sphere-reference-btn class */
+}
+
+.wod.sheet.actor.spirit .no-s-advantages {
+    text-align: center;
+    padding: 30px;
+    color: var(--wod-text-alt);
+    font-style: italic;
+    background: white;
+    border-radius: 4px;
+    border: 1px dashed var(--wod-border-light);
+}
+
+/* Optional Spheres Section (if optionalUmbroodMagick is enabled) */
+.wod.sheet.actor.spirit .tab[data-tab="spheres"] {
+    padding: 5px 25px 5px 5px;
+}
+
+/* Wizard Overlay */
+.wod.sheet.actor.spirit .wizard-overlay-icon {
+    color: var(--wod-primary, #4A90E2);
+}
+
+.wod.sheet.actor.spirit button.start-character-wizard-overlay {
+    background: var(--wod-primary, #4A90E2);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+}
+
+.wod.sheet.actor.spirit button.start-character-wizard-overlay:hover {
+    background: var(--wod-primary-dark, #2E5C8A);
+    box-shadow: 0 6px 20px rgba(74, 144, 226, 0.6);
+}
+
+/* Reduce gap in left-content for spirit sheets */
+.wod.sheet.actor.spirit .left-content {
+    gap: 5px !important;
+}
+
+/* Powers Summary (Merged Charms and S-Advantages List in Main Tab) */
+/* Positioned below notes/gnosis, spans both attributes and notes columns */
+.wod.sheet.actor.spirit .left-content .spirit-powers-summary {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding: 4px !important;
+    background: var(--wod-bg-light);
+    border-radius: 4px;
+    border: 1px solid var(--wod-border-subtle);
+    width: 100%;
+    box-sizing: border-box;
+    /* Spans full width of left-content (which contains both attributes and notes columns) */
+}
+
+.wod.sheet.actor.spirit .spirit-powers-summary h3 {
+    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    color: white;
+    padding: 3px 6px !important;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 2px 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    font-size: 0.75em !important;
+}
+
+.wod.sheet.actor.spirit .powers-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px !important;
+}
+
+.wod.sheet.actor.spirit .power-summary-card {
+    background: #ffffff;
+    border: none;
+    border-left: 3px solid var(--wod-primary);
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 3px 6px !important;
+    margin: 0 !important;
+    transition: all 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Hide any delete buttons in power summary cards - only add/remove in charms tab */
+.wod.sheet.actor.spirit .power-summary-card .delete-charm,
+.wod.sheet.actor.spirit .power-summary-card .delete-s-advantage,
+.wod.sheet.actor.spirit .power-summary-card button[class*="delete"] {
+    display: none !important;
+}
+
+.wod.sheet.actor.spirit .power-summary-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transform: translateX(2px);
+}
+
+.wod.sheet.actor.spirit .power-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.spirit .power-summary-header h4.power-summary-name {
+    color: var(--wod-primary);
+    font-size: 0.95em;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.wod.sheet.actor.spirit .power-summary-type {
+    font-size: 0.75em;
+    color: var(--wod-text-alt);
+    background: var(--wod-bg-subtle);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.wod.sheet.actor.spirit .power-summary-description {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+    position: relative;
+}
+
+.wod.sheet.actor.spirit .power-summary-text {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    color: #666;
+    font-size: 0.8em;
+    line-height: 1.3;
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.wod.sheet.actor.spirit .power-summary-description .power-description-btn {
+    flex-shrink: 0;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 100 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-width: auto !important;
+    width: auto !important;
+    height: auto !important;
+}
+
+.wod.sheet.actor.spirit .power-summary-description .power-description-btn i {
+    pointer-events: none;
+    font-size: 0.85em;
+}
+
+.wod.sheet.actor.spirit .no-powers-summary {
+    text-align: center;
+    padding: 20px;
+    color: var(--wod-text-alt);
+    font-style: italic;
+    background: var(--wod-bg-subtle);
+    border-radius: 4px;
+    border: 1px dashed var(--wod-border-light);
+    font-size: 0.9em;
+}

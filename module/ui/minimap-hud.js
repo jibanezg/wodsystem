@@ -606,13 +606,41 @@ export class MinimapHUD {
                 
             }
             
-            // Determine color:
-            // - If GM: all tokens are blue
-            // - If player: my token is blue, others are green
-            const tokenColor = isMyToken ? "#0080ff" : "#00ff00";
-            const borderColor = "#ffffff";
-            const shadowColor = isMyToken ? "rgba(0, 128, 255, 0.8)" : "rgba(0, 255, 0, 0.8)";
-            const tokenClass = isMyToken ? "wod-minimap-token active" : "wod-minimap-token";
+            // Determine color based on NPC disposition or ownership
+            let tokenColor, borderColor, shadowColor, tokenClass;
+            
+            // Check if actor is NPC
+            const isNPC = actor?.system?.miscellaneous?.isNPC === true;
+            const disposition = actor?.system?.miscellaneous?.disposition || "neutral";
+            
+            if (isNPC) {
+                // NPC tokens: color by disposition
+                switch (disposition) {
+                    case "aggressive":
+                        tokenColor = "#ff0000"; // Red
+                        shadowColor = "rgba(255, 0, 0, 0.8)";
+                        break;
+                    case "ally":
+                        tokenColor = "#00ff00"; // Green
+                        shadowColor = "rgba(0, 255, 0, 0.8)";
+                        break;
+                    case "neutral":
+                    default:
+                        tokenColor = "#ffff00"; // Yellow
+                        shadowColor = "rgba(255, 255, 0, 0.8)";
+                        break;
+                }
+                borderColor = "#ffffff";
+                tokenClass = "wod-minimap-token npc";
+            } else {
+                // Player tokens: use existing logic
+                // - If GM: all tokens are blue
+                // - If player: my token is blue, others are green
+                tokenColor = isMyToken ? "#0080ff" : "#00ff00";
+                borderColor = "#ffffff";
+                shadowColor = isMyToken ? "rgba(0, 128, 255, 0.8)" : "rgba(0, 255, 0, 0.8)";
+                tokenClass = isMyToken ? "wod-minimap-token active" : "wod-minimap-token";
+            }
 
             // Create token indicator
             const tokenIndicator = $(`

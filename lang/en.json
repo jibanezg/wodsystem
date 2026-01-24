@@ -123,19 +123,33 @@
       },
       "Header": {
         "Name": "Name",
+        "NamePlaceholder": "Thor",
         "Concept": "Concept",
         "ConceptPlaceholder": "e.g., Street Preacher",
         "ConceptPlaceholderTechnocrat": "e.g., Cyber-Weapons Specialist",
+        "Title": "Title",
+        "TitlePlaceholder": "e.g., The Lord of Thunder",
+        "SpiritType": "Spirit Type",
+        "SpiritTypePlaceholder": "Select spirit type...",
         "Nature": "Nature",
         "NaturePlaceholder": "e.g., Director, Visionary",
         "Demeanor": "Demeanor",
         "DemeanorPlaceholder": "e.g., Idealist, Machine",
+        "Disposition": "Disposition",
+        "DispositionNeutral": "Neutral",
+        "DispositionAlly": "Ally",
+        "DispositionAggressive": "Aggressive",
         "Convention": "Convention",
         "ConventionPlaceholder": "e.g., Iteration X, New World Order",
         "Amalgam": "Amalgam",
         "AmalgamPlaceholder": "Cross-convention affiliation",
         "Eidolon": "Eidolon",
         "EidolonPlaceholder": "Digital assistant name",
+        "Essence": "Essence",
+        "EssencePlaceholder": "e.g., Primordial, Pattern, Dynamic",
+        "Tradition": "Tradition",
+        "Cabal": "Cabal",
+        "CabalPlaceholder": "e.g., The Golden Circle, The Silver Ladder",
         "Select": "-- Select --",
         "Conventions": {
           "IterationX": "Iteration X",
@@ -146,6 +160,8 @@
         }
       },
       "Sections": {
+        "PowersSummary": "Powers Summary",
+        "NoPowersSummary": "No powers selected",
         "Attributes": "Attributes",
         "Abilities": "Abilities",
         "Physical": "Physical",
@@ -168,7 +184,10 @@
         "Numina": "Numina (Special Powers)",
         "SecondaryTalents": "Secondary Talents",
         "SecondarySkills": "Secondary Skills",
-        "SecondaryKnowledges": "Secondary Knowledges"
+        "SecondaryKnowledges": "Secondary Knowledges",
+        "Charms": "CHARMS",
+        "SAdvantages": "Special Advantages",
+        "Essence": "ESSENCE"
       },
       "Health": {
         "Penalty": "Penalty",
@@ -256,7 +275,7 @@
           "GameMechanicsPlaceholder": "What mechanical benefits does this provide?",
           "GameMechanicsPlaceholderLong": "Specific game mechanics, dice pools, difficulties, durations, activation requirements, etc.",
           "GameMechanicsPlaceholderWonder": "Specific game mechanics, rules, and effects (dice pools, difficulties, durations, etc.)",
-          "NotesPlaceholder": "Additional notes, story elements, etc.",
+          "NotesPlaceholder": "e.g., Thor was the mightiest god in Asgard...",
           "DeviceName": "Device Name",
           "DeviceNamePlaceholder": "Name of the device/wonder",
           "WonderName": "Wonder Name",
@@ -405,6 +424,49 @@
         "AddArmor": "Add Armor",
         "AddGear": "Add Gear",
         "ManageEffects": "Configure Equipment Effects"
+      },
+      "Charms": {
+        "AddCharm": "Add Charm",
+        "SelectCharm": "Select Charm",
+        "AddSelectedCharm": "Add Selected Charm",
+        "RemoveCharm": "Remove Charm",
+        "NoCharmsSelected": "No charms selected",
+        "EssenceCost": "Essence Cost",
+        "Roll": "Roll",
+        "None": "None",
+        "ViewDescription": "View Description",
+        "NoCharmSelected": "Please select a charm to add",
+        "ServiceNotAvailable": "Reference data service is not available",
+        "CharmNotFound": "Charm '{name}' not found",
+        "CharmAlreadyAdded": "Charm '{name}' is already added",
+        "CharmAdded": "Charm '{name}' added successfully",
+        "CharmRemoved": "Charm removed successfully"
+      },
+      "SAdvantages": {
+        "AddSAdvantage": "Add S-Advantage",
+        "SelectSAdvantage": "Select S-Advantage",
+        "AddSelectedSAdvantage": "Add Selected S-Advantage",
+        "RemoveSAdvantage": "Remove S-Advantage",
+        "NoSAdvantagesSelected": "No s-advantages selected",
+        "Cost": "Cost",
+        "ViewDescription": "View Description",
+        "NoSAdvantageSelected": "Please select an s-advantage to add",
+        "ServiceNotAvailable": "Reference data service is not available",
+        "SAdvantageNotFound": "S-Advantage '{name}' not found",
+        "SAdvantageAlreadyAdded": "S-Advantage '{name}' is already added",
+        "SAdvantageAdded": "S-Advantage '{name}' added successfully",
+        "SAdvantageRemoved": "S-Advantage removed successfully"
+      },
+      "Essence": {
+        "Current": "Current",
+        "Maximum": "Maximum"
+      },
+      "SpiritAttributes": {
+        "Willpower": "WILLPOWER",
+        "Rage": "RAGE",
+        "Gnosis": "GNOSIS",
+        "Permanent": "Permanent",
+        "Temporary": "Temporary"
       },
       "EquipmentEffects": {
         "DialogTitle": "Equipment Effects Configuration",
@@ -761,9 +823,14 @@
       "FieldConvention": "Convention",
       "FieldAmalgam": "Amalgam",
       "FieldEidolon": "Eidolon",
+      "FieldTradition": "Tradition",
+      "FieldCabal": "Cabal",
+      "FieldEssence": "Essence",
       "PlaceholderConcept": "e.g., Cybernetics Specialist, Reality Engineer",
       "PlaceholderAmalgam": "e.g., BioMechanics, MECHA",
       "PlaceholderEidolon": "e.g., Primordial, Pattern, Dynamic",
+      "PlaceholderCabal": "e.g., The Golden Circle, The Silver Ladder",
+      "PlaceholderEssence": "e.g., Primordial, Pattern, Dynamic",
       "IsRequired": "is required",
       "FieldIsRequired": "{field} is required",
       "NoPermissionEditCharacter": "You don't have permission to edit this character. Wizard will be read-only.",
@@ -1032,6 +1099,18 @@
         "Time": "Time",
         "Data": "Data"
       }
+    }
+  },
+  
+  "TYPES": {
+    "Actor": {
+      "Mortal": "Mortal",
+      "Technocrat": "Technocrat",
+      "Mage": "Mage",
+      "Spirit": "Spirit",
+      "Mortal-NPC": "Mortal NPC",
+      "Technocrat-NPC": "Technocrat NPC",
+      "Mage-NPC": "Mage NPC"
     }
   }
 }

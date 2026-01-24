@@ -1,21 +1,22 @@
-<!-- Identity Section - Character Header -->
+<!-- Spirit Identity Section - Character Header -->
 <section class="sheet-header">
-    <div class="identity-section">
+    <div class="identity-section spirit-identity">
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Name'}}</label>
-            <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" />
+            <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.NamePlaceholder'}}" />
         </div>
         <div class="identity-field">
-            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Concept'}}</label>
-            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.ConceptPlaceholder'}}" />
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Title'}}</label>
+            <input type="text" name="system.identity.title" value="{{actor.system.identity.title}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.TitlePlaceholder'}}" />
         </div>
         <div class="identity-field">
-            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Nature'}}</label>
-            <input type="text" name="system.identity.nature" value="{{actor.system.identity.nature}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.NaturePlaceholder'}}" />
-        </div>
-        <div class="identity-field">
-            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Demeanor'}}</label>
-            <input type="text" name="system.identity.demeanor" value="{{actor.system.identity.demeanor}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.DemeanorPlaceholder'}}" />
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.SpiritType'}}</label>
+            <select name="system.identity.spiritType">
+                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Header.SpiritTypePlaceholder'}}</option>
+                {{#each spiritTypes}}
+                <option value="{{this}}" {{#if (eq ../actor.system.identity.spiritType this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+            </select>
         </div>
         {{#if isNPC}}
         <div class="identity-field">
@@ -29,4 +30,3 @@
         {{/if}}
     </div>
 </section>
-

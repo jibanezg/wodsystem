@@ -1,0 +1,43 @@
+<!-- Essence Section - Replaces Health for Spirits -->
+<div class="essence-section">
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Essence'}}</h2>
+    
+    <!-- Current Essence Display -->
+    <div class="essence-current-display">
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.Essence.Current'}}</label>
+        <div class="essence-value-controls">
+            <button type="button" class="essence-decrease-btn" data-action="decrease-current" title="{{i18n 'WODSYSTEM.Common.Remove'}}" {{#if (eq actor.system.advantages.essence.current 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+            </button>
+            <span class="essence-current-value">{{actor.system.advantages.essence.current}}</span>
+            <button type="button" class="essence-increase-btn" data-action="increase-current" title="{{i18n 'WODSYSTEM.Common.Add'}}" {{#if (eq actor.system.advantages.essence.current actor.system.advantages.essence.maximum)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+            </button>
+            <input type="hidden" name="system.advantages.essence.current" value="{{actor.system.advantages.essence.current}}" />
+        </div>
+    </div>
+    
+    <!-- Maximum Essence Capacity Controls -->
+    <div class="essence-capacity-controls">
+        <label>{{i18n 'WODSYSTEM.CharacterSheet.Essence.Maximum'}}</label>
+        <div class="essence-capacity-buttons">
+            <button type="button" class="essence-capacity-decrease" data-action="decrease-maximum" title="{{i18n 'WODSYSTEM.Common.Remove'}}" {{#if (eq actor.system.advantages.essence.maximum 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+            </button>
+            <span class="essence-maximum-value">{{actor.system.advantages.essence.maximum}}</span>
+            <button type="button" class="essence-capacity-increase" data-action="increase-maximum" title="{{i18n 'WODSYSTEM.Common.Add'}}">
+                <i class="fas fa-plus"></i>
+            </button>
+            <input type="hidden" name="system.advantages.essence.maximum" value="{{actor.system.advantages.essence.maximum}}" />
+        </div>
+    </div>
+    
+    <!-- Visual Essence Boxes -->
+    <div class="essence-visual">
+        <div class="essence-boxes">
+            {{#times actor.system.advantages.essence.maximum}}
+            <div class="essence-box {{#if (lt @index ../actor.system.advantages.essence.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+            {{/times}}
+        </div>
+    </div>
+</div>

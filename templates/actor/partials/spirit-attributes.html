@@ -1,0 +1,96 @@
+<!-- Spirit Attributes Section - Willpower, Rage, Gnosis -->
+<div class="spirit-attributes-section">
+    <div class="spirit-attributes-layout">
+        <!-- Left Column: Attributes (narrower) -->
+        <div class="spirit-attributes-left">
+            <!-- Willpower -->
+            <div class="willpower-section">
+                <h4>{{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Willpower'}}</h4>
+                <div class="willpower-tracks">
+                    <div class="willpower-permanent">
+                        <label class="trait-label" data-trait="Willpower" data-value="{{actor.system.attributes.willpower.current}}" data-category="spirit-attribute" data-attribute-type="willpower">
+                            {{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Permanent'}}
+                        </label>
+                        <div class="dot-container" data-attribute="willpower" data-key="current">
+                            {{#times 10}}
+                            <div class="dot {{#if (lt @index ../actor.system.attributes.willpower.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                            {{/times}}
+                            <input type="hidden" class="dot-input" name="system.attributes.willpower.current" value="{{actor.system.attributes.willpower.current}}"/>
+                        </div>
+                    </div>
+                    <div class="willpower-temporary">
+                        <label>{{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Temporary'}}</label>
+                        <div class="dot-container" data-attribute="willpower" data-key="maximum">
+                            {{#times 10}}
+                            <div class="dot {{#if (lt @index ../actor.system.attributes.willpower.maximum)}}filled{{/if}}" data-index="{{@index}}"></div>
+                            {{/times}}
+                            <input type="hidden" class="dot-input" name="system.attributes.willpower.maximum" value="{{actor.system.attributes.willpower.maximum}}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rage -->
+            <div class="willpower-section">
+                <h4>{{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Rage'}}</h4>
+                <div class="willpower-tracks">
+                    <div class="willpower-permanent">
+                        <label class="trait-label" data-trait="Rage" data-value="{{actor.system.attributes.rage.current}}" data-category="spirit-attribute" data-attribute-type="rage">
+                            {{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Permanent'}}
+                        </label>
+                        <div class="dot-container" data-attribute="rage" data-key="current">
+                            {{#times 10}}
+                            <div class="dot {{#if (lt @index ../actor.system.attributes.rage.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                            {{/times}}
+                            <input type="hidden" class="dot-input" name="system.attributes.rage.current" value="{{actor.system.attributes.rage.current}}"/>
+                        </div>
+                    </div>
+                    <div class="willpower-temporary">
+                        <label>{{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Temporary'}}</label>
+                        <div class="dot-container" data-attribute="rage" data-key="maximum">
+                            {{#times 10}}
+                            <div class="dot {{#if (lt @index ../actor.system.attributes.rage.maximum)}}filled{{/if}}" data-index="{{@index}}"></div>
+                            {{/times}}
+                            <input type="hidden" class="dot-input" name="system.attributes.rage.maximum" value="{{actor.system.attributes.rage.maximum}}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gnosis -->
+            <div class="willpower-section">
+                <h4>{{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Gnosis'}}</h4>
+                <div class="willpower-tracks">
+                    <div class="willpower-permanent">
+                        <label class="trait-label" data-trait="Gnosis" data-value="{{actor.system.attributes.gnosis.current}}" data-category="spirit-attribute" data-attribute-type="gnosis">
+                            {{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Permanent'}}
+                        </label>
+                        <div class="dot-container" data-attribute="gnosis" data-key="current">
+                            {{#times 10}}
+                            <div class="dot {{#if (lt @index ../actor.system.attributes.gnosis.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+                            {{/times}}
+                            <input type="hidden" class="dot-input" name="system.attributes.gnosis.current" value="{{actor.system.attributes.gnosis.current}}"/>
+                        </div>
+                    </div>
+                    <div class="willpower-temporary">
+                        <label>{{i18n 'WODSYSTEM.CharacterSheet.SpiritAttributes.Temporary'}}</label>
+                        <div class="dot-container" data-attribute="gnosis" data-key="maximum">
+                            {{#times 10}}
+                            <div class="dot {{#if (lt @index ../actor.system.attributes.gnosis.maximum)}}filled{{/if}}" data-index="{{@index}}"></div>
+                            {{/times}}
+                            <input type="hidden" class="dot-input" name="system.attributes.gnosis.maximum" value="{{actor.system.attributes.gnosis.maximum}}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Notes/Description -->
+        <div class="spirit-notes-section">
+            <h4>{{i18n 'WODSYSTEM.CharacterSheet.Biography.Notes'}}</h4>
+            <textarea name="system.biography.notes" 
+                      placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.NotesPlaceholder'}}"
+                      class="spirit-notes-textarea">{{actor.system.biography.notes}}</textarea>
+        </div>
+    </div>
+</div>

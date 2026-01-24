@@ -1,7 +1,7 @@
 <div class="wizard-step step-advantages">
   <div class="step-header">
     <h3><i class="fas fa-star"></i> {{i18n 'Wizard.Advantages'}}</h3>
-    <p class="step-description">{{i18n 'Wizard.SelectAdvantages'}}{{#if (eq actorType "Technocrat")}} {{i18n 'Wizard.IncludingSpheres'}}{{/if}}.</p>
+    <p class="step-description">{{i18n 'Wizard.SelectAdvantages'}}{{#if (or (eq actorType "Technocrat") (eq actorType "Mage"))}} {{i18n 'Wizard.IncludingSpheres'}}{{/if}}.</p>
   </div>
 
   <div class="step-body">
@@ -65,8 +65,8 @@
         </button>
       </div>
 
-      <!-- Enlightenment (Technocrat only) -->
-      {{#if (eq actorType "Technocrat")}}
+      <!-- Enlightenment (Technocrat and Mage) -->
+      {{#if (or (eq actorType "Technocrat") (eq actorType "Mage"))}}
       <div class="advantage-section enlightenment-section">
         <h4>{{i18n 'Advantages.Enlightenment'}} (Arete)</h4>
         <div class="enlightenment-info">
@@ -96,8 +96,8 @@
       </div>
       {{/if}}
 
-      <!-- Spheres (Technocrat only) -->
-      {{#if (eq actorType "Technocrat")}}
+      <!-- Spheres (Technocrat and Mage) -->
+      {{#if (or (eq actorType "Technocrat") (eq actorType "Mage"))}}
       <div class="advantage-section">
         <h4>{{i18n 'Spheres.Spheres'}} ({{config.advantages.spheres.points}} {{i18n 'Wizard.Points'}})</h4>
         <p class="note sphere-limit-note">{{i18n 'Wizard.YouHaveSpherePoints' points=config.advantages.spheres.points}} {{i18n 'Wizard.NoSphereCanExceedEnlightenment' enlightenment=(default wizardData.advantages.enlightenment config.advantages.enlightenment.starting)}}.</p>
@@ -159,7 +159,7 @@
       <h4><i class="fas fa-lightbulb"></i> {{i18n 'Wizard.AdvantagesGuide'}}</h4>
       <ul>
         <li><strong>{{i18n 'Advantages.Backgrounds'}}:</strong> {{i18n 'Wizard.BackgroundsDescription'}}</li>
-        {{#if (eq actorType "Technocrat")}}
+        {{#if (or (eq actorType "Technocrat") (eq actorType "Mage"))}}
         <li><strong>{{i18n 'Spheres.Spheres'}}:</strong> {{i18n 'Wizard.SpheresDescription'}}</li>
         <li>{{i18n 'Wizard.MaxSpheresAtCreation' max=config.advantages.spheres.maxAtCreation}}</li>
         {{/if}}

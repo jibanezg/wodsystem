@@ -1,0 +1,197 @@
+<!-- Spheres Section (styled like Attributes) -->
+<div class="attributes-section spheres-section">
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Spheres'}}</h2>
+    <div class="attributes-grid">
+        <!-- Column 1: Correspondence, Entropy, Forces -->
+        <div class="attribute-category">
+            <div class="attribute-list">
+                <!-- Correspondence -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Correspondence'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="correspondence" title="View Correspondence sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="correspondence">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.correspondence.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.correspondence.rating" value="{{actor.system.spheres.correspondence.rating}}"/>
+                    </div>
+                </div>
+                
+                <!-- Entropy -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Entropy'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="entropy" title="View Entropy sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="entropy">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.entropy.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.entropy.rating" value="{{actor.system.spheres.entropy.rating}}"/>
+                    </div>
+                </div>
+                
+                <!-- Forces -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Forces'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="forces" title="View Forces sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="forces">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.forces.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.forces.rating" value="{{actor.system.spheres.forces.rating}}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 2: Life, Matter, Mind -->
+        <div class="attribute-category">
+            <div class="attribute-list">
+                <!-- Life -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Life'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="life" title="View Life sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="life">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.life.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.life.rating" value="{{actor.system.spheres.life.rating}}"/>
+                    </div>
+                </div>
+                
+                <!-- Matter -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Matter'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="matter" title="View Matter sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="matter">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.matter.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.matter.rating" value="{{actor.system.spheres.matter.rating}}"/>
+                    </div>
+                </div>
+                
+                <!-- Mind -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Mind'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="mind" title="View Mind sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="mind">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.mind.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.mind.rating" value="{{actor.system.spheres.mind.rating}}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Column 3: Prime, Spirit, Time -->
+        <div class="attribute-category">
+            <div class="attribute-list">
+                <!-- Prime -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Prime'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="prime" title="View Prime sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="prime">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.prime.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.prime.rating" value="{{actor.system.spheres.prime.rating}}"/>
+                    </div>
+                </div>
+                
+                <!-- Spirit -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Spirit'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="spirit" title="View Spirit sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="spirit">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.spirit.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.spirit.rating" value="{{actor.system.spheres.spirit.rating}}"/>
+                    </div>
+                </div>
+                
+                <!-- Time -->
+                <div class="attribute">
+                    <label>{{translateRef 'sphere' 'Time'}}</label>
+                    <div class="sphere-buttons">
+                        <button type="button" class="sphere-reference-btn" data-sphere-id="time" title="View Time sphere details"><i class="fas fa-book"></i></button>
+                    </div>
+                    <div class="dot-container" data-sphere="time">
+                        {{#times 5}}
+                        <div class="dot {{#if (lt @index ../actor.system.spheres.time.rating)}}filled{{/if}}" data-index="{{@index}}"></div>
+                        {{/times}}
+                        <input type="hidden" class="dot-input" name="system.spheres.time.rating" value="{{actor.system.spheres.time.rating}}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Procedures (Rotes) Section -->
+<div class="abilities-section procedures-section">
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Procedures'}}</h2>
+    <div class="procedures-list">
+        {{#each proceduresPagination.procedures as |procedure|}}
+        <div class="procedure-item">
+            <div class="procedure-header">
+                <input type="text" 
+                       name="system.procedures.{{procedure.actualIndex}}.name" 
+                       value="{{procedure.name}}" 
+                       placeholder="Procedure Name" 
+                       class="procedure-name-input" />
+                <a class="delete-procedure" data-index="{{procedure.actualIndex}}" title="Delete Procedure">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            <div class="procedure-details">
+                <input type="text" 
+                       name="system.procedures.{{procedure.actualIndex}}.spheres" 
+                       value="{{procedure.spheres}}" 
+                       placeholder="Spheres (e.g., Forces 2, Prime 1)" 
+                       class="procedure-spheres-input"
+                       style="max-width: 300px;" />
+                <textarea 
+                       name="system.procedures.{{procedure.actualIndex}}.description" 
+                       placeholder="Description"
+                       class="procedure-description-input">{{procedure.description}}</textarea>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <div class="procedure-controls">
+        <button class="add-procedure" type="button" title="Add Procedure">+</button>
+        {{#if proceduresPagination.hasMultiplePages}}
+        <div class="procedure-pagination">
+            <button class="procedures-prev-page pagination-btn" type="button"
+                    {{#unless proceduresPagination.hasPrevPage}}disabled{{/unless}}
+                    title="Previous Page">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="pagination-info">{{add proceduresPagination.currentPage 1}} / {{proceduresPagination.totalPages}}</span>
+            <button class="procedures-next-page pagination-btn" type="button"
+                    {{#unless proceduresPagination.hasNextPage}}disabled{{/unless}}
+                    title="Next Page">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        {{/if}}
+    </div>
+</div>

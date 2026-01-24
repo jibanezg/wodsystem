@@ -263,6 +263,18 @@ export class WodEffectManager extends FormApplication {
     activateListeners(html) {
         super.activateListeners(html);
         
+        // Apply theme class to dialog window (not just form)
+        const actorTypeLower = this.actor ? this.actor.type.toLowerCase() : "mortal";
+        
+        // Apply theme to form
+        html[0].classList.add(actorTypeLower);
+        
+        // Apply theme to dialog window element
+        const dialogElement = html[0].closest('.window-app');
+        if (dialogElement) {
+            dialogElement.classList.add(actorTypeLower);
+        }
+        
         html.find('.add-modifier-row').click(this._onAddModifier.bind(this));
         html.find('.remove-modifier-row').click(this._onRemoveModifier.bind(this));
         html.find('.save-effect').click(this._onSaveEffect.bind(this));

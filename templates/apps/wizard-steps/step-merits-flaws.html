@@ -113,17 +113,17 @@
         <span class="label">{{i18n 'Wizard.FlawPoints'}}:</span>
         <span class="value flaws-total">{{wizardData.meritsFlaws.flawPoints}}</span>
       </div>
-      <div class="balance-row balance-status {{#if validation.meritsFlaws.balanced}}balanced{{else}}unbalanced{{/if}}">
+      <div class="balance-row balance-status {{#if validation.balanced}}balanced{{else}}unbalanced{{/if}}">
         <span class="label">{{i18n 'Wizard.Status'}}:</span>
         <span class="value">
-          {{#if validation.meritsFlaws.balanced}}
-            {{#if (gt wizardData.meritsFlaws.freebieBonus 0)}}
-              <i class="fas fa-star"></i> {{wizardData.meritsFlaws.freebieBonus}} {{i18n 'Wizard.FreebiePointsGained'}}
+          {{#if validation.balanced}}
+            {{#if (gt validation.freebieBonus 0)}}
+              <i class="fas fa-star"></i> {{validation.freebieBonus}} {{i18n 'Wizard.FreebiePointsGained'}}
             {{else}}
               <i class="fas fa-check-circle"></i> {{i18n 'Wizard.Balanced'}}
             {{/if}}
           {{else}}
-            <i class="fas fa-exclamation-triangle"></i> {{i18n 'Wizard.NeedsMoreFlawPoints' needed=validation.meritsFlaws.needed}}
+            <i class="fas fa-exclamation-triangle"></i> {{i18n 'Wizard.NeedsMoreFlawPoints' needed=(default validation.needed 0)}}
           {{/if}}
         </span>
       </div>

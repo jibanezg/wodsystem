@@ -1,0 +1,141 @@
+<!-- Column 1: Willpower, Enlightenment, Primal Energy, Paradox -->
+<div class="advantage-column Mage-column-1">
+    <!-- Section 1: Willpower -->
+    <div class="willpower-section">
+        <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Willpower'}}</h4>
+        <div class="willpower-tracks">
+            <div class="willpower-permanent">
+                <label class="trait-label" data-trait="Willpower" data-value="{{actor.system.miscellaneous.willpower.permanent}}" data-category="willpower">{{i18n 'WODSYSTEM.CharacterSheet.Willpower.Permanent'}}</label>
+                <div class="dot-container" data-willpower="permanent">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.permanent)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.willpower.permanent" value="{{actor.system.miscellaneous.willpower.permanent}}"/>
+                </div>
+            </div>
+            <div class="willpower-temporary">
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Willpower.Temporary'}}</label>
+                <div class="dot-container" data-willpower="temporary">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../actor.system.miscellaneous.willpower.temporary)}}filled{{/if}}" data-index="{{@index}}"></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.willpower.temporary" value="{{actor.system.miscellaneous.willpower.temporary}}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Enlightenment -->
+    <div class="enlightenment-section">
+        <h4 class="trait-label" data-trait="Enlightenment" data-value="{{actor.system.advantages.enlightenment.current}}" data-category="enlightenment">{{i18n 'WODSYSTEM.CharacterSheet.Sections.Enlightenment'}}</h4>
+        <div class="dot-container" data-enlightenment="current">
+            {{#times 10}}
+            <div class="dot {{#if (lt @index ../actor.system.advantages.enlightenment.current)}}filled{{/if}}" data-index="{{@index}}"></div>
+            {{/times}}
+            <input type="hidden" class="dot-input" name="system.advantages.enlightenment.current" value="{{actor.system.advantages.enlightenment.current}}"/>
+        </div>
+    </div>
+    
+    <!-- Section 3 & 4: Quintessence/Paradox Wheel -->
+    <div class="quintessence-paradox-wheel">
+        <h4>{{i18n 'QuintessenceParadox.Title'}}</h4>
+        
+        <!-- Single set of 20 boxes in a circle -->
+        <div class="wheel-row">
+            <div class="wheel-container">
+                {{#times 20}}
+                <div class="wheel-box" 
+                     data-index="{{@index}}">
+                </div>
+                {{/times}}
+            </div>
+            <input type="hidden" name="system.advantages.primalEnergy.permanent" value="{{avatarRating}}"/>
+            <input type="hidden" name="system.advantages.primalEnergy.current" value="{{actor.system.advantages.primalEnergy.current}}"/>
+            <input type="hidden" name="system.advantages.paradox.permanent" value="{{enhancementParadox}}"/>
+            <input type="hidden" name="system.advantages.paradox.current" value="{{actor.system.advantages.paradox.current}}"/>
+        </div>
+        
+        <div class="wheel-legend">
+            <span class="legend-item"><span class="legend-permanent"></span> {{i18n 'QuintessenceParadox.Permanent'}}</span>
+            <span class="legend-item"><span class="legend-check"></span> {{i18n 'QuintessenceParadox.Quintessence'}}</span>
+            <span class="legend-item"><span class="legend-x"></span> {{i18n 'QuintessenceParadox.Paradox'}}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Column 2: Backgrounds Only -->
+<div class="advantage-column Mage-column-2">
+    <!-- Backgrounds (inherited list: base + creature-specific) -->
+    <div class="backgrounds-section">
+        <h4>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Backgrounds'}}</h4>
+        <div class="background-list">
+            {{#each backgroundsPagination.backgrounds as |background|}}
+            <div class="background-item">
+                {{#if (eq background.name "Custom")}}
+                <input type="text" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.customName" 
+                       value="{{background.customName}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.CustomBackground'}}" 
+                       class="background-custom-name {{#if background.locked}}trait-label locked{{/if}}"
+                       {{#if background.locked}}
+                       data-trait="{{background.customName}}" 
+                       data-value="{{background.value}}" 
+                       data-category="background"
+                       data-background-index="{{background.actualIndex}}"
+                       readonly
+                       {{/if}}/>
+                {{else}}
+                <select name="system.miscellaneous.backgrounds.{{background.actualIndex}}.name" 
+                        class="background-name-select {{#if background.locked}}trait-label locked{{/if}}" 
+                        data-selected-value="{{background.name}}"
+                        {{#if background.locked}}
+                        data-trait="{{background.name}}" 
+                        data-value="{{background.value}}" 
+                        data-category="background"
+                        data-background-index="{{background.actualIndex}}"
+                        {{/if}}>
+                    {{#each @root.backgroundsList as |bg|}}
+                    <option value="{{bg}}">{{bg}}</option>
+                    {{/each}}
+                </select>
+                {{/if}}
+                {{#if (and (ne background.name "Custom") background.name)}}
+                <button type="button" class="background-reference-btn" data-background-name="{{background.name}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.ViewDetails'}}">
+                    <i class="fas fa-book"></i>
+                </button>
+                {{/if}}
+                <div class="dot-container" data-background="{{background.actualIndex}}" data-max-rating="{{background.maxRating}}">
+                    {{#times 10}}
+                    <div class="dot {{#if (lt @index ../background.value)}}filled{{/if}} {{#if (gte @index ../background.maxRating)}}disabled{{/if}}" 
+                         data-index="{{@index}}" 
+                         {{#if (gte @index ../background.maxRating)}}data-disabled="true"{{/if}}></div>
+                    {{/times}}
+                    <input type="hidden" class="dot-input" name="system.miscellaneous.backgrounds.{{background.actualIndex}}.value" value="{{background.value}}"/>
+                </div>
+                <a class="lock-background" data-index="{{background.actualIndex}}" title="{{#if background.locked}}{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.UnlockBackground'}}{{else}}{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.LockBackground'}}{{/if}}">
+                    <i class="fas {{#if background.locked}}fa-lock{{else}}fa-lock-open{{/if}}"></i>
+                </a>
+                <a class="delete-background" data-index="{{background.actualIndex}}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+            {{/each}}
+            <div class="background-controls">
+                <button class="add-background" type="button" title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.AddBackground'}}">+</button>
+                {{#if backgroundsPagination.hasMultiplePages}}
+                <div class="background-pagination">
+                    <button class="backgrounds-prev-page pagination-btn" type="button"
+                            {{#unless backgroundsPagination.hasPrevPage}}disabled{{/unless}}
+                            title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.PreviousPage'}}">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="pagination-info">{{add backgroundsPagination.currentPage 1}} / {{backgroundsPagination.totalPages}}</span>
+                    <button class="backgrounds-next-page pagination-btn" type="button"
+                            {{#unless backgroundsPagination.hasNextPage}}disabled{{/unless}}
+                            title="{{i18n 'WODSYSTEM.CharacterSheet.Backgrounds.NextPage'}}">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>

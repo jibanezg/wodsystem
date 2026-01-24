@@ -368,6 +368,24 @@ export function registerHandlebarsHelpers() {
         return translation === key ? name : translation;
     });
 
+    /**
+     * Truncate text to a specified length
+     * Usage: {{truncate text 150}} - truncates to 150 characters
+     */
+    Handlebars.registerHelper('truncate', function(text, length) {
+        if (!text) return '';
+        const maxLength = length || 100;
+        const str = String(text);
+        if (str.length <= maxLength) return str;
+        // Try to truncate at a word boundary
+        const truncated = str.substring(0, maxLength);
+        const lastSpace = truncated.lastIndexOf(' ');
+        if (lastSpace > maxLength * 0.8) {
+            return truncated.substring(0, lastSpace) + '...';
+        }
+        return truncated + '...';
+    });
+
     console.log("WoD | Handlebars helpers registered");
 }
 

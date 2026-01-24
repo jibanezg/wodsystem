@@ -324,8 +324,23 @@ export class WizardValidator {
       }
       
       // Rule 2: At least 1 point must be in an affinity sphere
-      const convention = conceptData.convention;
-      const affinitySpheres = this.config.concept?.affinitySpheres?.[convention] || [];
+      let affinitySpheres = [];
+      const service = game.wod?.referenceDataService;
+      
+      // Check for Technocrat (convention) or Mage (tradition)
+      if (conceptData.convention && service?.data?.affinities) {
+        // Technocrat - use reference service
+        affinitySpheres = service.getAffinitySpheres(conceptData.convention, "convention");
+      } else if (conceptData.tradition && service?.data?.affinities) {
+        // Mage - use reference service
+        affinitySpheres = service.getAffinitySpheres(conceptData.tradition, "tradition");
+      } else {
+        // Fallback to config (for backwards compatibility)
+        const convention = conceptData.convention;
+        const tradition = conceptData.tradition;
+        affinitySpheres = this.config.concept?.affinitySpheres?.[convention] || 
+                         this.config.concept?.affinitySpheres?.[tradition] || [];
+      }
       
       if (affinitySpheres.length > 0 && totalSpherePoints > 0) {
         const affinityPoints = affinitySpheres.reduce((sum, sphere) => {
@@ -365,7 +380,11 @@ export class WizardValidator {
     if (meritPoints > 7) {
       return {
         valid: false,
-        message: `Cannot exceed 7 merit points (currently ${meritPoints})`
+        message: `Cannot exceed 7 merit points (currently ${meritPoints})`,
+        balanced: false,
+        needed: 0,
+        meritPoints: meritPoints,
+        flawPoints: flawPoints
       };
     }
     
@@ -373,7 +392,11 @@ export class WizardValidator {
     if (flawPoints > 7) {
       return {
         valid: false,
-        message: `Cannot exceed 7 flaw points (currently ${flawPoints})`
+        message: `Cannot exceed 7 flaw points (currently ${flawPoints})`,
+        balanced: false,
+        needed: 0,
+        meritPoints: meritPoints,
+        flawPoints: flawPoints
       };
     }
     
@@ -391,40 +414,50 @@ export class WizardValidator {
     // All good - either no merits, balanced merits/flaws, or flaws > merits (which gives freebie bonus)
     // If flaws > merits, the difference converts to freebie points
     const freebieBonus = flawPoints > meritPoints ? flawPoints - meritPoints : 0;
+    const isBalanced = meritPoints === 0 || meritPoints === flawPoints || flawPoints > meritPoints;
     return {
       valid: true,
-      balanced: meritPoints === 0 || meritPoints === flawPoints || flawPoints > meritPoints,
+      balanced: isBalanced,
       meritPoints: meritPoints,
       flawPoints: flawPoints,
-      freebieBonus: freebieBonus
+      freebieBonus: freebieBonus,
+      needed: 0 // Always include needed, 0 when balanced (merits <= flaws)
     };
   }
 
   /**
    * Validate freebies step
+   * Note: remaining should never be negative due to button disabling logic
+   * If it is negative, it indicates a bug that needs to be fixed
    */
   validateFreebies(freebiesData, advantagesData = {}) {
     // freebiesData.remaining already accounts for Enlightenment spending
+    // Ensure remaining is never negative (safety check - should never happen)
+    const remaining = Math.max(0, freebiesData.remaining || 0);
     
-    // Check if overspent
-    if (freebiesData.remaining < 0) {
+    // Check if overspent (should never happen if buttons are properly disabled)
+    if (remaining < 0) {
+      console.error('BUG: Freebies remaining is negative! This should not be possible.', {
+        remaining: freebiesData.remaining,
+        freebiesData
+      });
       return { 
         valid: false, 
-        message: `You've overspent freebie points by ${Math.abs(freebiesData.remaining)}` 
+        message: `System error: Freebie calculation issue. Please report this bug.` 
       };
     }
     
     // Check if all points are spent (required)
-    if (freebiesData.remaining > 0) {
+    if (remaining > 0) {
       return {
         valid: false,
-        message: `You must spend all freebie points (${freebiesData.remaining} remaining)`
+        message: `You must spend all freebie points (${remaining} remaining)`
       };
     }
     
     return { 
       valid: true, 
-      remaining: freebiesData.remaining,
+      remaining: remaining,
       total: this.config.freebies.total
     };
   }

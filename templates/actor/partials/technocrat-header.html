@@ -29,6 +29,16 @@
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Demeanor'}}</label>
             <input type="text" name="system.identity.demeanor" value="{{actor.system.identity.demeanor}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.DemeanorPlaceholder'}}" />
         </div>
+        {{#if isNPC}}
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Disposition'}}</label>
+            <select name="system.miscellaneous.disposition">
+                <option value="neutral" {{#if (eq actor.system.miscellaneous.disposition "neutral")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.DispositionNeutral'}}</option>
+                <option value="ally" {{#if (eq actor.system.miscellaneous.disposition "ally")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.DispositionAlly'}}</option>
+                <option value="aggressive" {{#if (eq actor.system.miscellaneous.disposition "aggressive")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.DispositionAggressive'}}</option>
+            </select>
+        </div>
+        {{/if}}
     </div>
 </section>
 

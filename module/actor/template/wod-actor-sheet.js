@@ -82,7 +82,10 @@ export class WodActorSheet extends ActorSheet {
         
         // Add character creation status
         context.isCreated = this.actor.system.isCreated ?? false;
-        context.hasWizardSupport = ['Mortal', 'Technocrat'].includes(this.actor.type);
+        // Wizard support: exclude NPC types (types ending with "-NPC")
+        const isNPC = this.actor.type.endsWith('-NPC') || this.actor.system.miscellaneous?.isNPC === true;
+        context.isNPC = isNPC;
+        context.hasWizardSupport = !isNPC && ['Mortal', 'Technocrat', 'Mage'].includes(this.actor.type);
         
         // Add health edit mode flag
         context.isHealthEditMode = this.actor.getFlag('wodsystem', 'healthEditMode') || false;
@@ -548,13 +551,19 @@ export class WodActorSheet extends ActorSheet {
         // Technocrat-specific handlers
         if (this.actor.type === "Technocrat") {
             html.find('.primal-box').click(this._onPrimalEnergyClick.bind(this));
-            
+        }
+        
+        // Technocrat and Mage share Spheres
+        if (this.actor.type === "Technocrat" || this.actor.type === "Mage") {
+            // Spheres - use event delegation to avoid conflicts
+            html.find('[data-sphere] .dot').click(this._onSphereClick.bind(this));
+        }
+        
+        // Technocrat and Mage share Quintessence/Paradox Wheel
+        if (this.actor.type === "Technocrat" || this.actor.type === "Mage") {
             // Quintessence/Paradox Wheel
             html.find('.wheel-box').click(this._onWheelBoxClick.bind(this));
             html.find('.wheel-box').contextmenu(this._onWheelBoxRightClick.bind(this));
-            
-            // Spheres - use event delegation to avoid conflicts
-            html.find('[data-sphere] .dot').click(this._onSphereClick.bind(this));
             
             // Procedures
             html.find('.add-procedure').click(this._onAddProcedure.bind(this));
@@ -1774,17 +1783,29 @@ export class WodActorSheet extends ActorSheet {
         event.stopPropagation();
         
         const sphereId = $(event.currentTarget).data('sphere-id');
+        console.log("📊 [Sphere Table] Button clicked", { sphereId });
+        
         const service = game.wod?.referenceDataService;
         
         if (!service) {
+            console.warn("📊 [Sphere Table] Reference data service not available");
             ui.notifications.warn("Reference data service not available");
             return;
         }
         
         const sphere = service.getSphereById(sphereId);
+        console.log("📊 [Sphere Table] Sphere found", { 
+            sphereId, 
+            sphereName: sphere?.name, 
+            hasSpecialTable: !!sphere?.specialTable 
+        });
         
         if (sphere && sphere.specialTable) {
+            console.log("📊 [Sphere Table] Showing tooltip");
             this._showSphereTableTooltip(event, sphere);
+        } else {
+            console.warn("📊 [Sphere Table] Sphere not found or has no special table", { sphereId, sphere });
+            ui.notifications.warn(`Sphere '${sphereId}' not found or has no special table`);
         }
     }
 
@@ -2688,11 +2709,27 @@ export class WodActorSheet extends ActorSheet {
      * Update an attribute
      */
     async _updateAttribute(category, key, value) {
+        // Check if this is a Spirit attribute (willpower, rage, gnosis)
+        const isSpiritAttribute = this.actor.type === "Spirit" &&
+                                  (category === "willpower" || category === "rage" || category === "gnosis") &&
+                                  key === "current";
+        
         const updateData = {};
-        const newValue = Math.min(Math.max(value, 1), 5);
+        // For Spirit attributes, allow values up to 10, otherwise max 5
+        const maxValue = isSpiritAttribute ? 10 : 5;
+        const newValue = Math.min(Math.max(value, 1), maxValue);
         updateData[`system.attributes.${category}.${key}`] = newValue;
         
         await this.actor.update(updateData, { render: false });
+        
+        // For Spirit attributes, also update the temporary (maximum) dots if permanent changed
+        if (isSpiritAttribute && key === "current") {
+            const tempContainer = this.element.find(`.dot-container[data-attribute="${category}"][data-key="maximum"]`)[0];
+            if (tempContainer) {
+                const tempValue = Number(this.actor.system.attributes?.[category]?.maximum ?? newValue);
+                this._updateDotVisuals(tempContainer, tempValue);
+            }
+        }
         
         // Update visual dots
         const container = this.element.find(`.dot-container[data-attribute="${category}"][data-key="${key}"]`)[0];
@@ -2704,6 +2741,11 @@ export class WodActorSheet extends ActorSheet {
         const label = this.element.find(`.trait-label[data-trait="${key}"][data-attribute-type="${category}"]`)[0];
         if (label) {
             label.setAttribute('data-value', newValue);
+        }
+        
+        // For Spirit attributes, force a re-render to update Essence display
+        if (isSpiritAttribute && key === "current") {
+            await this.render();
         }
     }
 

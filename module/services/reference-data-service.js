@@ -14,7 +14,10 @@ export class ReferenceDataService {
             backgrounds: [],
             abilities: [],
             spheres: [],
-            attributes: []
+            attributes: [],
+            charms: [],
+            sAdvantages: [],
+            affinities: null
         };
         
         this.trieIndices = {};
@@ -31,6 +34,9 @@ export class ReferenceDataService {
             await this.loadMeritsFlaws();
             await this.loadBackgrounds();
             await this.loadSpheres();
+            await this.loadCharms();
+            await this.loadSAdvantages();
+            await this.loadAffinities();
             this.buildTrieIndices();
             this.initialized = true;
             console.log("WoD System | Reference Data Service initialized successfully");
@@ -102,6 +108,90 @@ export class ReferenceDataService {
     }
 
     /**
+     * Load charms from JSON
+     */
+    async loadCharms() {
+        try {
+            const response = await fetch('systems/wodsystem/datasource/M20/charms.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load charms.json: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            this.data.charms = data.charms || [];
+            
+            console.log(`WoD System | Loaded ${this.data.charms.length} charms`);
+        } catch (error) {
+            console.error("WoD System | Error loading charms:", error);
+            this.data.charms = [];
+        }
+    }
+
+    /**
+     * Load s-advantages from JSON
+     */
+    async loadSAdvantages() {
+        try {
+            const response = await fetch('systems/wodsystem/datasource/M20/s-advantages.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load s-advantages.json: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            this.data.sAdvantages = data.advantages || [];
+            
+            console.log(`WoD System | Loaded ${this.data.sAdvantages.length} s-advantages`);
+        } catch (error) {
+            console.error("WoD System | Error loading s-advantages:", error);
+            this.data.sAdvantages = [];
+        }
+    }
+
+    /**
+     * Load affinities from JSON
+     */
+    async loadAffinities() {
+        try {
+            const response = await fetch('systems/wodsystem/datasource/M20/affinities.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load affinities.json: ${response.statusText}`);
+            }
+            
+            this.data.affinities = await response.json();
+            
+            console.log(`WoD System | Loaded affinities for ${Object.keys(this.data.affinities.traditions || {}).length} traditions and ${Object.keys(this.data.affinities.conventions || {}).length} conventions`);
+        } catch (error) {
+            console.error("WoD System | Error loading affinities:", error);
+            this.data.affinities = null;
+        }
+    }
+
+    /**
+     * Get affinity spheres for a tradition or convention
+     * @param {string} name - Tradition or convention name
+     * @param {string} type - "tradition", "convention", or "disparateCraft"
+     * @returns {Array<string>} Array of affinity sphere keys
+     */
+    getAffinitySpheres(name, type = "tradition") {
+        if (!this.data.affinities) return [];
+        
+        const category = type === "convention" ? "conventions" : 
+                        type === "disparateCraft" ? "disparateCrafts" : 
+                        "traditions";
+        
+        const entry = this.data.affinities[category]?.[name];
+        if (!entry) return [];
+        
+        // Handle "any" case - return all standard sphere keys
+        if (entry.affinitySpheres.includes("any")) {
+            // Return all standard sphere keys (consistent with wizard config)
+            return ["correspondence", "entropy", "forces", "life", "matter", "mind", "prime", "spirit", "time"];
+        }
+        
+        return entry.affinitySpheres || [];
+    }
+
+    /**
      * Build trie indices for fast searching
      */
     buildTrieIndices() {
@@ -147,7 +237,41 @@ export class ReferenceDataService {
             }
         }
         
-        console.log(`WoD System | Built trie indices for ${this.data.merits.length + this.data.flaws.length} items`);
+        // Build trie for charms
+        this.trieIndices.charms = new Trie();
+        for (const charm of this.data.charms) {
+            this.trieIndices.charms.insert(charm.name, charm);
+            if (charm.searchTerms && Array.isArray(charm.searchTerms)) {
+                charm.searchTerms.forEach(term => {
+                    this.trieIndices.charms.insert(term, charm);
+                });
+            }
+            if (charm.keywords && Array.isArray(charm.keywords)) {
+                charm.keywords.forEach(keyword => {
+                    this.trieIndices.charms.insert(keyword, charm);
+                });
+            }
+        }
+        
+        // Build trie for s-advantages
+        this.trieIndices.sAdvantages = new Trie();
+        for (const advantage of this.data.sAdvantages) {
+            this.trieIndices.sAdvantages.insert(advantage.name, advantage);
+            if (advantage.searchTerms && Array.isArray(advantage.searchTerms)) {
+                advantage.searchTerms.forEach(term => {
+                    this.trieIndices.sAdvantages.insert(term, advantage);
+                });
+            }
+            if (advantage.keywords && Array.isArray(advantage.keywords)) {
+                advantage.keywords.forEach(keyword => {
+                    this.trieIndices.sAdvantages.insert(keyword, advantage);
+                });
+            }
+        }
+        
+        const totalItems = this.data.merits.length + this.data.flaws.length + 
+                          this.data.charms.length + this.data.sAdvantages.length;
+        console.log(`WoD System | Built trie indices for ${totalItems} items`);
     }
 
     /**
@@ -240,6 +364,100 @@ export class ReferenceDataService {
      */
     getFlaw(id) {
         return this.data.flaws.find(f => f.id === id) || null;
+    }
+
+    /**
+     * Search for charms using trie-based prefix matching
+     * @param {string} query - Search query
+     * @returns {Array} Matching charms
+     */
+    searchCharms(query) {
+        if (!this.initialized || !query || !this.trieIndices.charms) return [];
+        
+        let results = this.trieIndices.charms.search(query);
+        const uniqueResults = Array.from(new Set(results.map(r => r.id)))
+            .map(id => results.find(r => r.id === id));
+        
+        return uniqueResults;
+    }
+
+    /**
+     * Get charm by ID
+     * @param {string} id - Charm ID
+     * @returns {object|null} Charm or null
+     */
+    getCharm(id) {
+        return this.data.charms.find(c => c.id === id) || null;
+    }
+
+    /**
+     * Get charm by name (case-insensitive)
+     * @param {string} name - Charm name
+     * @returns {object|null} Charm or null
+     */
+    getCharmByName(name) {
+        if (!this.initialized || !name) return null;
+        const normalized = name.trim().toLowerCase();
+        return this.data.charms.find(c => c.name.toLowerCase() === normalized) || null;
+    }
+
+    /**
+     * Get all charms as a sorted list
+     * @returns {Array} Array of charm names
+     */
+    getCharmsList() {
+        if (!this.initialized) return [];
+        return this.data.charms
+            .map(c => c.name)
+            .filter(name => name && name.length > 0)
+            .sort((a, b) => a.localeCompare(b));
+    }
+
+    /**
+     * Search for s-advantages using trie-based prefix matching
+     * @param {string} query - Search query
+     * @returns {Array} Matching s-advantages
+     */
+    searchSAdvantages(query) {
+        if (!this.initialized || !query || !this.trieIndices.sAdvantages) return [];
+        
+        let results = this.trieIndices.sAdvantages.search(query);
+        const uniqueResults = Array.from(new Set(results.map(r => r.id)))
+            .map(id => results.find(r => r.id === id));
+        
+        return uniqueResults;
+    }
+
+    /**
+     * Get s-advantage by ID
+     * @param {string} id - S-Advantage ID
+     * @returns {object|null} S-Advantage or null
+     */
+    getSAdvantage(id) {
+        return this.data.sAdvantages.find(a => a.id === id) || null;
+    }
+
+    /**
+     * Get s-advantage by name (case-insensitive)
+     * @param {string} name - S-Advantage name
+     * @returns {object|null} S-Advantage or null
+     */
+    getSAdvantageByName(name) {
+        if (!this.initialized || !name) return null;
+        const normalized = name.trim().toLowerCase();
+        return this.data.sAdvantages.find(a => a.name.toLowerCase() === normalized) || null;
+    }
+
+    /**
+     * Get all s-advantages as a sorted list
+     * @returns {Array} Array of s-advantage names
+     */
+    getSAdvantagesList() {
+        if (!this.initialized) return [];
+        return this.data.sAdvantages
+            .map(a => a.name)
+            .filter(name => name && name.length > 0)
+            .sort((a, b) => a.localeCompare(b));
     }
 
     /**

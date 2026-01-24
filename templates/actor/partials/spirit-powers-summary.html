@@ -1,0 +1,48 @@
+<!-- Merged Charms and S-Advantages Summary List -->
+<div class="spirit-powers-summary">
+    <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.PowersSummary'}}</h3>
+    
+    <div class="powers-summary-list">
+        {{#if (or selectedCharms selectedSAdvantages)}}
+            <!-- Charms -->
+            {{#each selectedCharms}}
+            <div class="power-summary-card charm-summary-card" data-charm-id="{{this.id}}">
+                <div class="power-summary-header">
+                    <h4 class="power-summary-name">{{this.name}}</h4>
+                    <span class="power-summary-type">Charm</span>
+                </div>
+                {{#if this.description}}
+                <div class="power-summary-description">
+                    <span class="power-summary-text">{{truncate this.description 60}}</span>
+                    <button type="button" class="power-description-btn sphere-reference-btn" data-charm-id="{{this.id}}" data-type="charm" title="{{i18n 'WODSYSTEM.CharacterSheet.Charms.ViewDescription'}}">
+                        <i class="fas fa-book"></i>
+                    </button>
+                </div>
+                {{/if}}
+            </div>
+            {{/each}}
+            
+            <!-- S-Advantages -->
+            {{#each selectedSAdvantages}}
+            <div class="power-summary-card sadvantage-summary-card" data-s-advantage-id="{{this.id}}">
+                <div class="power-summary-header">
+                    <h4 class="power-summary-name">{{this.name}}</h4>
+                    <span class="power-summary-type">S-Advantage</span>
+                </div>
+                {{#if this.description}}
+                <div class="power-summary-description">
+                    <span class="power-summary-text">{{truncate this.description 60}}</span>
+                    <button type="button" class="power-description-btn sphere-reference-btn" data-s-advantage-id="{{this.id}}" data-type="sadvantage" title="{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.ViewDescription'}}">
+                        <i class="fas fa-book"></i>
+                    </button>
+                </div>
+                {{/if}}
+            </div>
+            {{/each}}
+        {{else}}
+            <div class="no-powers-summary">
+                <p>{{i18n 'WODSYSTEM.CharacterSheet.Sections.NoPowersSummary'}}</p>
+            </div>
+        {{/if}}
+    </div>
+</div>

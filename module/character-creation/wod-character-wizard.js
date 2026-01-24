@@ -66,17 +66,16 @@ export class WodCharacterWizard extends FormApplication {
         demeanor: "",
         convention: "",
         amalgam: "",
-        eidolon: ""
+        eidolon: "",
+        tradition: "",
+        cabal: "",
+        essence: ""
       },
 
       // Step 2: Attributes
       attributes: {
         prioritySelection: { primary: null, secondary: null, tertiary: null },
-        values: {
-          physical: { Strength: 1, Dexterity: 1, Stamina: 1 },
-          social: { Charisma: 1, Manipulation: 1, Appearance: 1 },
-          mental: { Perception: 1, Intelligence: 1, Wits: 1 }
-        }
+        values: this._initializeAttributeValues()
       },
 
       // Step 3: Abilities
@@ -118,14 +117,26 @@ export class WodCharacterWizard extends FormApplication {
   }
 
   /**
+   * Initialize attribute values based on actor type
+   */
+  _initializeAttributeValues() {
+    // Standard attributes for all creature types
+    return {
+      physical: { Strength: 1, Dexterity: 1, Stamina: 1 },
+      social: { Charisma: 1, Manipulation: 1, Appearance: 1 },
+      mental: { Perception: 1, Intelligence: 1, Wits: 1 }
+    };
+  }
+
+  /**
    * Initialize ability values from actor data
-   * Respects the order from M20/abilities.md for M20-based creature types (Technocrat, Mage)
+   * Respects the order from template.json for M20-based creature types (Technocrat, Mage)
    */
   _initializeAbilityValues() {
     // Get abilities from actor's system data
     const actorAbilities = this.actor.system.abilities || {};
     
-    // M20 ability order (from datasource/M20/abilities.md)
+    // M20 ability order (from template.json baseTraits.abilities)
     // Used for Technocrat and Mage creature types
     const m20AbilityOrder = {
       skills: ["Crafts", "Drive", "Etiquette", "Firearms", "Martial Arts", "Meditation", "Melee", "Research", "Stealth", "Survival", "Technology"],
@@ -182,8 +193,8 @@ export class WodCharacterWizard extends FormApplication {
   _initializeSpheres() {
     const spheres = {};
     
-    // Only initialize spheres for Technocrat
-    if (this.actorType === "Technocrat" && this.config.advantages?.spheres?.available) {
+    // Initialize spheres for Technocrat and Mage
+    if ((this.actorType === "Technocrat" || this.actorType === "Mage") && this.config.advantages?.spheres?.available) {
       // spheres.available is an object like { correspondence: "Data", entropy: "Entropy", ... }
       for (const sphereKey in this.config.advantages.spheres.available) {
         spheres[sphereKey] = 0;
@@ -204,7 +215,7 @@ export class WodCharacterWizard extends FormApplication {
       this.wizardData = foundry.utils.mergeObject(this.wizardData, saved.data || {});
       
       // Ensure all spheres are initialized with at least 0
-      if (this.actorType === "Technocrat" && this.config.advantages?.spheres?.available) {
+      if ((this.actorType === "Technocrat" || this.actorType === "Mage") && this.config.advantages?.spheres?.available) {
         for (const sphereKey in this.config.advantages.spheres.available) {
           if (this.wizardData.advantages.spheres[sphereKey] === undefined) {
             this.wizardData.advantages.spheres[sphereKey] = 0;
@@ -261,28 +272,25 @@ export class WodCharacterWizard extends FormApplication {
       const freebiesSpentInStep = Object.values(this.wizardData.freebies.spent || {}).reduce((sum, val) => sum + (val || 0), 0);
       
       // Recalculate if no freebies have been spent in this step yet (allows for changes to merits/flaws)
-      if (freebiesSpentInStep === 0) {
-        // console.log(`💰 getData - Calculating freebies: ${this.config.freebies.total} + ${freebieBonus} (flaws) - ${enlightenmentSpent} (enlightenment) = ${baseFreebiesTotalWithBonus - enlightenmentSpent}`);
-        this.wizardData.freebies.remaining = baseFreebiesTotalWithBonus - enlightenmentSpent;
-        
-        // Capture baseline values when first entering freebies step
-        // These represent what was set in previous steps and cannot be reduced below
-        if (!this.wizardData.freebies.baselines) {
-          this.wizardData.freebies.baselines = {
-            attributes: JSON.parse(JSON.stringify(this.wizardData.attributes.values)),
-            abilities: JSON.parse(JSON.stringify(this.wizardData.abilities.values)),
-            backgrounds: this.wizardData.advantages.backgrounds.map(bg => ({
-              name: bg.name,
-              value: bg.value || 0
-            })),
-            spheres: JSON.parse(JSON.stringify(this.wizardData.advantages.spheres)),
-            willpower: 0 // Willpower starts at 0 in freebies
-          };
-          // console.log('💰 Captured baselines:', this.wizardData.freebies.baselines);
-        }
-      } else {
-        // console.log(`💰 getData - Freebies step, already spent ${freebiesSpentInStep} in this step, remaining: ${this.wizardData.freebies.remaining}`);
+      // Capture baseline values when first entering freebies step
+      // These represent what was set in previous steps and cannot be reduced below
+      if (!this.wizardData.freebies.baselines) {
+        this.wizardData.freebies.baselines = {
+          attributes: JSON.parse(JSON.stringify(this.wizardData.attributes.values)),
+          abilities: JSON.parse(JSON.stringify(this.wizardData.abilities.values)),
+          backgrounds: this.wizardData.advantages.backgrounds.map(bg => ({
+            name: bg.name,
+            value: bg.value || 0
+          })),
+          spheres: JSON.parse(JSON.stringify(this.wizardData.advantages.spheres)),
+          willpower: 0 // Willpower starts at 0 in freebies
+        };
+        // console.log('💰 Captured baselines:', this.wizardData.freebies.baselines);
       }
+      
+      // Always recalculate remaining from scratch to ensure accuracy
+      // This ensures consistency even if baselines were just set
+      this._recalculateFreebiesRemaining();
     }
     
     const validation = this._validateCurrentStep();
@@ -956,7 +964,7 @@ export class WodCharacterWizard extends FormApplication {
       await this._modifyBackground(index, -1);
     });
 
-    // Enlightenment increase/decrease (Technocrat only)
+    // Enlightenment increase/decrease (Technocrat and Mage)
     html.find('.enlightenment-increase').click(async (event) => {
       await this._modifyEnlightenment(1);
     });
@@ -1625,12 +1633,27 @@ export class WodCharacterWizard extends FormApplication {
     html.find('.merits-total').text(this.wizardData.meritsFlaws.meritPoints);
     html.find('.flaws-total').text(this.wizardData.meritsFlaws.flawPoints);
     
-    const meritPoints = this.wizardData.meritsFlaws.meritPoints;
-    const flawPoints = this.wizardData.meritsFlaws.flawPoints;
+    // Re-validate to get current status
+    const validation = this.validator.validateMeritsFlaws(this.wizardData.meritsFlaws);
+    const balanced = validation.balanced || false;
+    const needed = validation.needed || 0;
+    const freebieBonus = validation.freebieBonus || 0;
     
-    // Balanced means: no merits, or merits == flaws, or flaws > merits (which is valid and gives freebie bonus)
-    const balanced = meritPoints === 0 || meritPoints === flawPoints || flawPoints > meritPoints;
+    // Update CSS classes
     html.find('.balance-status').toggleClass('balanced', balanced).toggleClass('unbalanced', !balanced);
+    
+    // Update status text
+    const $statusValue = html.find('.balance-status .value');
+    if (balanced) {
+      if (freebieBonus > 0) {
+        $statusValue.html(`<i class="fas fa-star"></i> ${freebieBonus} ${game.i18n.localize('WODSYSTEM.Wizard.FreebiePointsGained')}`);
+      } else {
+        $statusValue.html(`<i class="fas fa-check-circle"></i> ${game.i18n.localize('WODSYSTEM.Wizard.Balanced')}`);
+      }
+    } else {
+      const neededText = game.i18n.format('WODSYSTEM.Wizard.NeedsMoreFlawPoints', { needed: needed });
+      $statusValue.html(`<i class="fas fa-exclamation-triangle"></i> ${neededText}`);
+    }
     
     // Update merit dots and values
     this.wizardData.meritsFlaws.merits.forEach((merit, index) => {
@@ -2784,8 +2807,8 @@ export class WodCharacterWizard extends FormApplication {
       totalSpent += willpowerSpent * this.config.freebies.costs.willpower;
     }
     
-    // Update remaining
-    this.wizardData.freebies.remaining = baseTotal - totalSpent;
+    // Update remaining - ensure it never goes negative (shouldn't happen, but safety check)
+    this.wizardData.freebies.remaining = Math.max(0, baseTotal - totalSpent);
   }
 
   /**
@@ -2818,7 +2841,14 @@ export class WodCharacterWizard extends FormApplication {
     
     const change = cost * delta;
     
+    // Prevent spending if not enough freebies available (should never happen if buttons are properly disabled)
     if (delta > 0 && this.wizardData.freebies.remaining < cost) {
+      ui.notifications.warn(i18n('WODSYSTEM.Wizard.NotEnoughFreebiePointsGeneric'));
+      return;
+    }
+    
+    // Safety check: ensure remaining never goes negative
+    if (delta > 0 && (this.wizardData.freebies.remaining - cost) < 0) {
       ui.notifications.warn(i18n('WODSYSTEM.Wizard.NotEnoughFreebiePointsGeneric'));
       return;
     }
@@ -3292,19 +3322,43 @@ export class WodCharacterWizard extends FormApplication {
     // Ensure all identity fields are set (even if empty strings)
     // Use explicit checks to avoid undefined/null issues
     updateData["system.identity.name"] = this.wizardData.concept.name ?? "";
-    updateData["system.identity.concept"] = this.wizardData.concept.concept ?? "";
-    updateData["system.identity.nature"] = this.wizardData.concept.nature ?? "";
-    updateData["system.identity.demeanor"] = this.wizardData.concept.demeanor ?? "";
+    
+    // Spirits use "title" instead of "concept"
+    if (this.actorType === "Spirit") {
+        updateData["system.identity.title"] = this.wizardData.concept.concept ?? "";
+    } else {
+        updateData["system.identity.concept"] = this.wizardData.concept.concept ?? "";
+    }
+    
+    // Nature and Demeanor are not used by Spirits
+    if (this.actorType !== "Spirit") {
+        updateData["system.identity.nature"] = this.wizardData.concept.nature ?? "";
+        updateData["system.identity.demeanor"] = this.wizardData.concept.demeanor ?? "";
+    }
     
     // Debug: Log what we're about to update
-    console.log('🎯 APPLY TO ACTOR - Setting nature:', updateData["system.identity.nature"], '(type:', typeof updateData["system.identity.nature"], ')');
-    console.log('🎯 APPLY TO ACTOR - Setting demeanor:', updateData["system.identity.demeanor"], '(type:', typeof updateData["system.identity.demeanor"], ')');
+    if (this.actorType !== "Spirit") {
+        console.log('🎯 APPLY TO ACTOR - Setting nature:', updateData["system.identity.nature"], '(type:', typeof updateData["system.identity.nature"], ')');
+        console.log('🎯 APPLY TO ACTOR - Setting demeanor:', updateData["system.identity.demeanor"], '(type:', typeof updateData["system.identity.demeanor"], ')');
+    }
     
     if (this.actorType === "Technocrat") {
       updateData["system.identity.convention"] = this.wizardData.concept.convention ?? "";
       updateData["system.identity.amalgam"] = this.wizardData.concept.amalgam ?? "";
       updateData["system.identity.eidolon"] = this.wizardData.concept.eidolon ?? "";
       console.log('🎯 APPLY TO ACTOR - Set Technocrat fields');
+    }
+    
+    if (this.actorType === "Mage") {
+      updateData["system.identity.tradition"] = this.wizardData.concept.tradition ?? "";
+      updateData["system.identity.cabal"] = this.wizardData.concept.cabal ?? "";
+      updateData["system.identity.essence"] = this.wizardData.concept.essence ?? "";
+      console.log('🎯 APPLY TO ACTOR - Set Mage fields');
+    }
+    
+    if (this.actorType === "Spirit") {
+      updateData["system.identity.spiritType"] = this.wizardData.concept.spiritType ?? "";
+      console.log('🎯 APPLY TO ACTOR - Set Spirit fields');
     }
     
     console.log('🎯 APPLY TO ACTOR - Processing attributes...');
@@ -3335,7 +3389,7 @@ export class WodCharacterWizard extends FormApplication {
     
     console.log('🎯 APPLY TO ACTOR - Processing advantages...');
     // Step 4: Advantages
-    if (this.actorType === "Technocrat") {
+    if (this.actorType === "Technocrat" || this.actorType === "Mage") {
       // Enlightenment (Arete)
       const enlightenment = this.wizardData.advantages.enlightenment || this.config.advantages.enlightenment.starting;
       updateData["system.advantages.enlightenment.current"] = enlightenment;

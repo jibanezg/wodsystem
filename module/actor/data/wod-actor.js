@@ -35,6 +35,86 @@ export class WodActor extends Actor {
             }
         }
         
+        // Recalculate Essence for Spirits when willpower, rage, or gnosis current (permanent) values change
+        if (this.type === "Spirit" && 
+            changed.system?.attributes &&
+            (changed.system.attributes.willpower?.current !== undefined ||
+             changed.system.attributes.rage?.current !== undefined ||
+             changed.system.attributes.gnosis?.current !== undefined)) {
+            
+            // Get new permanent (current) values - prioritize changed values, then current system values
+            // This ensures we use the NEW value being set, not the old one
+            const willpowerCurrent = Number(
+                changed.system.attributes.willpower?.current !== undefined 
+                    ? changed.system.attributes.willpower.current 
+                    : (this.system.attributes?.willpower?.current ?? 1)
+            );
+            const rageCurrent = Number(
+                changed.system.attributes.rage?.current !== undefined 
+                    ? changed.system.attributes.rage.current 
+                    : (this.system.attributes?.rage?.current ?? 1)
+            );
+            const gnosisCurrent = Number(
+                changed.system.attributes.gnosis?.current !== undefined 
+                    ? changed.system.attributes.gnosis.current 
+                    : (this.system.attributes?.gnosis?.current ?? 1)
+            );
+            
+            // Calculate new essence maximum from permanent attribute values
+            const newEssenceMax = willpowerCurrent + rageCurrent + gnosisCurrent;
+            
+            // Update essence maximum in the changed data
+            if (!changed.system.advantages) {
+                changed.system.advantages = {};
+            }
+            if (!changed.system.advantages.essence) {
+                changed.system.advantages.essence = {};
+            }
+            changed.system.advantages.essence.maximum = newEssenceMax;
+            
+            // Ensure current essence doesn't exceed new maximum
+            const currentEssence = Number(
+                changed.system.advantages?.essence?.current !== undefined
+                    ? changed.system.advantages.essence.current
+                    : (this.system.advantages?.essence?.current ?? 0)
+            );
+            if (currentEssence > newEssenceMax) {
+                if (!changed.system.advantages.essence) {
+                    changed.system.advantages.essence = {};
+                }
+                changed.system.advantages.essence.current = newEssenceMax;
+            }
+            
+            // Reset temporary (maximum) values to match new permanent (current) values
+            if (!changed.system.attributes) {
+                changed.system.attributes = {};
+            }
+            
+            // If willpower permanent changed, reset temporary to match
+            if (changed.system.attributes.willpower?.current !== undefined) {
+                if (!changed.system.attributes.willpower) {
+                    changed.system.attributes.willpower = {};
+                }
+                changed.system.attributes.willpower.maximum = willpowerCurrent;
+            }
+            
+            // If rage permanent changed, reset temporary to match
+            if (changed.system.attributes.rage?.current !== undefined) {
+                if (!changed.system.attributes.rage) {
+                    changed.system.attributes.rage = {};
+                }
+                changed.system.attributes.rage.maximum = rageCurrent;
+            }
+            
+            // If gnosis permanent changed, reset temporary to match
+            if (changed.system.attributes.gnosis?.current !== undefined) {
+                if (!changed.system.attributes.gnosis) {
+                    changed.system.attributes.gnosis = {};
+                }
+                changed.system.attributes.gnosis.maximum = gnosisCurrent;
+            }
+        }
+        
         // CRITICAL: Protect backgrounds from being accidentally deleted or set to invalid values
         if (changed.system?.miscellaneous?.backgrounds !== undefined) {
             const newBackgrounds = changed.system.miscellaneous.backgrounds;
@@ -116,6 +196,11 @@ export class WodActor extends Actor {
             // TODO: Implement Primal Energy auto-calculation from Genius table
             // Awaiting Genius->Primal lookup table from user
             // this._calculatePrimalEnergyMax();
+        }
+        
+        // Calculate Essence for Spirits
+        if (this.type === "Spirit") {
+            this._calculateEssence();
         }
         
         // Calculate derived stats for all creature types
@@ -277,8 +362,8 @@ export class WodActor extends Actor {
     _migrateAbilitiesBetweenCategories() {
         if (!this.system.abilities) return;
         
-        // Get the template abilities structure from M20/abilities.md
-        // Order matters - this matches the exact order in datasource/M20/abilities.md
+        // Get the template abilities structure from template.json
+        // Order matters - this matches the exact order in template.json baseTraits.abilities
         // Format: { category: [ordered list of ability names] }
         const templateOrder = {
             skills: ["Crafts", "Drive", "Etiquette", "Firearms", "Martial Arts", "Meditation", "Melee", "Research", "Stealth", "Survival", "Technology"],
@@ -400,7 +485,7 @@ export class WodActor extends Actor {
             }
         }
         
-        // Step 4: Reorder abilities to match M20/abilities.md order
+        // Step 4: Reorder abilities to match template.json order
         // This preserves existing values but ensures correct order
         for (const [category, orderedAbilities] of Object.entries(templateOrder)) {
             if (this.system.abilities[category]) {
@@ -429,7 +514,7 @@ export class WodActor extends Actor {
                 if (JSON.stringify(currentKeys) !== JSON.stringify(reorderedKeys)) {
                     this.system.abilities[category] = reordered;
                     hasChanges = true;
-                    console.log(`WoD System | Reordered abilities in ${category} to match M20/abilities.md`);
+                    console.log(`WoD System | Reordered abilities in ${category} to match template.json`);
                 }
             }
         }
@@ -552,6 +637,31 @@ export class WodActor extends Actor {
         // const geniusBg = this.system.miscellaneous.backgrounds.find(bg => bg.name === "Genius");
         // const geniusRating = geniusBg ? geniusBg.value : 0;
         // this.system.advantages.primalEnergy.maximum = GENIUS_PRIMAL_TABLE[geniusRating];
+    }
+    
+    /**
+     * Calculate Essence for Spirits
+     * Formula: Willpower Current (permanent) + Rage Current (permanent) + Gnosis Current (permanent)
+     * @private
+     */
+    _calculateEssence() {
+        if (!this.system.advantages?.essence) return;
+        
+        // Use current values (permanent ratings) for essence calculation
+        const willpowerCurrent = Number(this.system.attributes?.willpower?.current) || 1;
+        const rageCurrent = Number(this.system.attributes?.rage?.current) || 1;
+        const gnosisCurrent = Number(this.system.attributes?.gnosis?.current) || 1;
+        
+        // Calculate base essence from formula using current (permanent) values
+        const calculatedEssence = willpowerCurrent + rageCurrent + gnosisCurrent;
+        
+        // Always update maximum essence based on formula (automatically recalculates when attributes change)
+        this.system.advantages.essence.maximum = calculatedEssence;
+        
+        // Ensure current doesn't exceed maximum
+        if (this.system.advantages.essence.current > this.system.advantages.essence.maximum) {
+            this.system.advantages.essence.current = this.system.advantages.essence.maximum;
+        }
     }
     
     /**
@@ -1094,6 +1204,14 @@ export class WodActor extends Actor {
      * @returns {number} Initiative value
      */
     getInitiative() {
+        // Spirits use Willpower instead of Dex+Wits
+        if (this.type === 'Spirit') {
+            const willpower = Number(this.system.attributes?.willpower?.current) || 1;
+            const bonus = Number(this.system.combat?.initiativeBonus) || 0;
+            return willpower + bonus;
+        }
+        
+        // Standard calculation for other types
         const dexterity = Number(this._findAttributeValue("Dexterity")) || 0;
         const wits = Number(this._findAttributeValue("Wits")) || 0;
         const bonus = Number(this.system.combat?.initiativeBonus) || 0;
@@ -1117,8 +1235,13 @@ export class WodActor extends Actor {
      */
     async rollInitiative(options = {}) {
         // Get individual components for breakdown
-        const dexterity = Number(this._findAttributeValue("Dexterity")) || 0;
-        const wits = Number(this._findAttributeValue("Wits")) || 0;
+        let dexterity = 0, wits = 0, willpower = 0;
+        if (this.type === 'Spirit') {
+            willpower = Number(this.system.attributes?.willpower?.current) || 1;
+        } else {
+            dexterity = Number(this._findAttributeValue("Dexterity")) || 0;
+            wits = Number(this._findAttributeValue("Wits")) || 0;
+        }
         const bonus = Number(this.system.combat?.initiativeBonus) || 0;
         const initiativeValue = this.getInitiative();
         
@@ -1143,12 +1266,21 @@ export class WodActor extends Actor {
         }
         
         // Create detailed breakdown for flavor
-        let breakdown = `Dexterity: ${dexterity}`;
-        breakdown += ` + Wits: ${wits}`;
-        if (bonus !== 0) {
-            breakdown += ` + Bonus: ${bonus}`;
+        let breakdown;
+        if (this.type === 'Spirit') {
+            breakdown = `Willpower: ${willpower}`;
+            if (bonus !== 0) {
+                breakdown += ` + Bonus: ${bonus}`;
+            }
+            breakdown += ` = Base: ${initiativeValue}`;
+        } else {
+            breakdown = `Dexterity: ${dexterity}`;
+            breakdown += ` + Wits: ${wits}`;
+            if (bonus !== 0) {
+                breakdown += ` + Bonus: ${bonus}`;
+            }
+            breakdown += ` = Base: ${initiativeValue}`;
         }
-        breakdown += ` = Base: ${initiativeValue}`;
         breakdown += ` | Roll: 1d10 (${d10Result}) + ${initiativeValue} = ${roll.total}`;
         
         // Show roll in chat with detailed breakdown

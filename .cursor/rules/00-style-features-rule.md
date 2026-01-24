@@ -6,6 +6,9 @@
 ## Documenting Lessons Learned
 **After successfully implementing a feature or fixing a bug, document generalized lessons learned.** See `02-lessons-learned-process.md` for the process and guidelines.
 
+## Dialog Theming for New Creature Types
+**When adding a new creature type, ALL dialogs must have theme-specific styles.** See `03-dialog-theming-for-creature-types.md` for the complete guide on dialog theming.
+
 ## Decision Tree: Universal vs Creature-Specific
 
 When implementing a new feature or style change, **ALWAYS** follow this decision process:
@@ -144,6 +147,7 @@ styles/
 - [ ] **Matched** existing spacing, borders, and layout patterns
 - [ ] **Placed** new styles in the appropriate section
 - [ ] **Documented** any creature-specific overrides if needed
+- [ ] **If adding new creature type:** Checked `03-dialog-theming-for-creature-types.md` and themed all dialogs
 
 ## Red Flags (Don't Do This)
 
@@ -153,6 +157,8 @@ styles/
 ❌ **Ignoring existing patterns** and creating from scratch
 ❌ **Putting universal styles** in creature-specific files
 ❌ **Putting creature-specific styles** in mortal.css without override pattern
+❌ **Adding new creature type without theming dialogs** - all dialogs need theme-specific overrides (see `03-dialog-theming-for-creature-types.md`)
+❌ **Not comparing with existing creature type** - you'll miss elements that need theming
 
 ## Example Workflow
 

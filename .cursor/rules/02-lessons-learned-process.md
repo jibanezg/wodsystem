@@ -75,6 +75,7 @@ After successfully solving a problem, ask:
 - **CSS/Styling issues** → `00-style-features-rule.md` or `01-chat-messages-and-foundry-hooks.md`
 - **DOM manipulation issues** → `01-chat-messages-and-foundry-hooks.md`
 - **Data validation issues** → Create new rule or add to relevant existing rule
+- **Dialog theming issues** → `03-dialog-theming-for-creature-types.md`
 - **Process/workflow issues** → This file (`02-lessons-learned-process.md`)
 
 ### Step 4: Update Checklists

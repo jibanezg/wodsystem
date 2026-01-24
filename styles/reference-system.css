@@ -111,6 +111,35 @@
     -ms-user-select: text;
 }
 
+/* Ensure good contrast for charm and s-advantage tooltips */
+.wod-charm-tooltip,
+.wod-charm-tooltip-inner,
+.wod-s-advantage-tooltip,
+.wod-s-advantage-tooltip-inner {
+    color: #1a1a1a !important;
+}
+
+.wod-charm-tooltip-inner p,
+.wod-s-advantage-tooltip-inner p,
+.wod-charm-tooltip p,
+.wod-s-advantage-tooltip p {
+    color: #1a1a1a !important;
+}
+
+.wod-charm-tooltip-inner strong,
+.wod-s-advantage-tooltip-inner strong,
+.wod-charm-tooltip strong,
+.wod-s-advantage-tooltip strong {
+    color: #333 !important;
+}
+
+.wod-charm-tooltip-inner div,
+.wod-s-advantage-tooltip-inner div,
+.wod-charm-tooltip div,
+.wod-s-advantage-tooltip div {
+    color: #1a1a1a !important;
+}
+
 /* Bullet sections within descriptions */
 .wod-reference-tooltip .description ul.bullet-section,
 .wod-reference-tooltip ul.bullet-section,
@@ -713,8 +742,10 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 6px !important;
+    gap: 4px !important;
     margin-right: 8px !important;
+    min-width: 0 !important;
+    overflow: visible !important;
 }
 
 .wod.sheet.actor .spheres-section .attribute .dot-container {
@@ -725,20 +756,23 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 .sphere-table-btn {
     background: none !important;
     border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 4px 6px !important;
+    margin: 0 2px !important;
     cursor: pointer !important;
     color: #9C27B0 !important;
-    font-size: 11px !important;
+    font-size: 14px !important;
     transition: all 0.2s !important;
-    opacity: 0.7 !important;
-    display: inline-block !important;
-    vertical-align: baseline !important;
+    opacity: 0.9 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
     line-height: 1 !important;
     width: auto !important;
     height: auto !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
+    flex-shrink: 0 !important;
 }
 
 .sphere-reference-btn:hover,
@@ -752,9 +786,13 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 .sphere-reference-btn i,
 .sphere-table-btn i {
     pointer-events: none !important;
-    display: inline !important;
+    display: inline-block !important;
     margin: 0 !important;
     padding: 0 !important;
+    font-size: inherit !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: 1 !important;
 }
 
 /* -------------------------------------------- */
@@ -1234,6 +1272,8 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 /* ============================================== */
 
 /* Allow text selection in all tooltip content */
+.wod-charm-tooltip,
+.wod-s-advantage-tooltip,
 .wod-reference-tooltip,
 .wod-sphere-tooltip,
 .wod-sphere-table-tooltip {
@@ -1256,10 +1296,14 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 .wod-reference-tooltip button,
 .wod-sphere-tooltip button,
 .wod-sphere-table-tooltip button,
+.wod-charm-tooltip button,
+.wod-s-advantage-tooltip button,
 .wod-reference-tooltip .post-to-chat-btn,
 .wod-sphere-tooltip .post-level-btn,
 .wod-sphere-tooltip .post-description-btn,
-.wod-sphere-table-tooltip .post-table-btn {
+.wod-sphere-table-tooltip .post-table-btn,
+.wod-charm-tooltip .post-charm-btn,
+.wod-s-advantage-tooltip .post-s-advantage-btn {
     user-select: none !important;
     -webkit-user-select: none !important;
     -moz-user-select: none !important;

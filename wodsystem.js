@@ -2,6 +2,8 @@ import { WodActor } from "./module/actor/data/wod-actor.js";
 import { WodActorSheet } from "./module/actor/template/wod-actor-sheet.js";
 import { MortalSheet } from "./module/actor/template/mortal-sheet.js";
 import { TechnocratSheet } from "./module/actor/template/technocrat-sheet.js";
+import { MageSheet } from "./module/actor/template/mage-sheet.js";
+import { SpiritSheet } from "./module/actor/template/spirit-sheet.js";
 import { WodDicePool } from "./module/dice/wod-dice-pool.js";
 import { WodRollDialog } from "./module/apps/wod-roll-dialog.js";
 import { initializeApprovalSocket } from "./module/apps/wod-st-approval-dialog.js";
@@ -31,9 +33,18 @@ Hooks.once("init", async function() {
     await loadTemplates([
         "systems/wodsystem/templates/actor/partials/header.html",
         "systems/wodsystem/templates/actor/partials/technocrat-header.html",
+        "systems/wodsystem/templates/actor/partials/mage-header.html",
+        "systems/wodsystem/templates/actor/partials/spirit-header.html",
         "systems/wodsystem/templates/actor/partials/technocrat-advantages.html",
+        "systems/wodsystem/templates/actor/partials/mage-advantages.html",
         "systems/wodsystem/templates/actor/partials/technocrat-spheres.html",
+        "systems/wodsystem/templates/actor/partials/mage-spheres.html",
+        "systems/wodsystem/templates/actor/partials/spirit-spheres.html",
         "systems/wodsystem/templates/actor/partials/technocrat-backgrounds-expanded.html",
+        "systems/wodsystem/templates/actor/partials/spirit-attributes.html",
+        "systems/wodsystem/templates/actor/partials/spirit-essence.html",
+        "systems/wodsystem/templates/actor/partials/spirit-charms.html",
+        "systems/wodsystem/templates/actor/partials/spirit-advantages.html",
         "systems/wodsystem/templates/actor/partials/backgrounds/bg-sanctum.html",
         "systems/wodsystem/templates/actor/partials/backgrounds/bg-construct.html",
         "systems/wodsystem/templates/actor/partials/backgrounds/bg-mentor.html",
@@ -114,6 +125,16 @@ Hooks.once("init", async function() {
         makeDefault: true
     });
     
+    Actors.registerSheet("wodsystem", MageSheet, {
+        types: ["Mage"],
+        makeDefault: true
+    });
+    
+    Actors.registerSheet("wodsystem", SpiritSheet, {
+        types: ["Spirit"],
+        makeDefault: true
+    });
+    
     console.log("WoD | Actor sheets registered");
 });
 
@@ -131,6 +152,65 @@ Hooks.on("setup", () => {
     CONFIG.Item.types["gear"] = "Gear";
     
     console.log("WoD | Item types registered:", Object.keys(CONFIG.Item.types));
+});
+
+// Filter NPC types from actor creation dialog - only show to GMs
+// Spirits are always NPCs and only available to GMs
+Hooks.on("getActorTypes", (actorTypes) => {
+    // If user is not GM, filter out NPC types and Spirits
+    if (!game.user.isGM) {
+        const filteredTypes = {};
+        for (const [key, value] of Object.entries(actorTypes)) {
+            // Filter out types ending with '-NPC' and also 'Spirit' (always NPC)
+            if (!key.endsWith('-NPC') && key !== 'Spirit') {
+                filteredTypes[key] = value;
+            }
+        }
+        return filteredTypes;
+    }
+    // GMs see all types
+    return actorTypes;
+});
+
+// Hook to recalculate Essence for Spirits after actor update (backup to _preUpdate)
+Hooks.on("updateActor", async (actor, updateData, options, userId) => {
+    // Only process for Spirit actors and skip if this update already includes essence changes (to avoid loops)
+    if (actor.type === "Spirit" && 
+        !updateData.system?.advantages?.essence && // Skip if essence is already being updated
+        updateData.system?.attributes &&
+        (updateData.system.attributes.willpower?.current !== undefined ||
+         updateData.system.attributes.rage?.current !== undefined ||
+         updateData.system.attributes.gnosis?.current !== undefined)) {
+        
+        // Wait a tick to ensure the update has been applied
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        // Get the fresh actor data
+        const freshActor = game.actors.get(actor.id);
+        if (!freshActor) return;
+        
+        // Calculate essence from current permanent values
+        const willpowerCurrent = Number(freshActor.system.attributes?.willpower?.current ?? 1);
+        const rageCurrent = Number(freshActor.system.attributes?.rage?.current ?? 1);
+        const gnosisCurrent = Number(freshActor.system.attributes?.gnosis?.current ?? 1);
+        const newEssenceMax = willpowerCurrent + rageCurrent + gnosisCurrent;
+        
+        // Only update if the essence maximum needs to change
+        const currentEssenceMax = Number(freshActor.system.advantages?.essence?.maximum ?? 0);
+        if (currentEssenceMax !== newEssenceMax) {
+            const updatePayload = {
+                "system.advantages.essence.maximum": newEssenceMax
+            };
+            
+            // Also cap current essence if it exceeds the new maximum
+            const currentEssence = Number(freshActor.system.advantages?.essence?.current ?? 0);
+            if (currentEssence > newEssenceMax) {
+                updatePayload["system.advantages.essence.current"] = newEssenceMax;
+            }
+            
+            await freshActor.update(updatePayload, { render: true });
+        }
+    }
 });
 
 Hooks.on("ready", async () => {

@@ -1,0 +1,130 @@
+<!-- Charms and S-Advantages Container -->
+<div class="charms-s-advantages-container">
+    <!-- Charms Section -->
+    <div class="charms-section">
+        <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.Charms'}}</h2>
+        
+        <div class="charms-controls">
+            <div class="charm-selector">
+                <label>{{i18n 'WODSYSTEM.CharacterSheet.Charms.AddCharm'}}:</label>
+                <select class="select-charm-to-add">
+                    <option value="">{{i18n 'WODSYSTEM.CharacterSheet.Charms.SelectCharm'}}</option>
+                    {{#each charmsList}}
+                    <option value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+                <button type="button" class="add-charm-btn" title="{{i18n 'WODSYSTEM.CharacterSheet.Charms.AddSelectedCharm'}}">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="charms-list">
+            {{#each selectedCharms}}
+            <div class="charm-item" data-charm-id="{{this.id}}">
+                <div class="charm-header">
+                    <h4 class="charm-name">{{this.name}}</h4>
+                    <button type="button" class="delete-charm" data-charm-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Charms.RemoveCharm'}}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="charm-details">
+                    <div class="charm-cost">
+                        <label>{{i18n 'WODSYSTEM.CharacterSheet.Charms.EssenceCost'}}:</label>
+                        <span>
+                            {{#if this.essenceCost}}
+                                {{#if (eq this.essenceCost.type 'none')}}
+                                    {{i18n 'WODSYSTEM.CharacterSheet.Charms.None'}}
+                                {{else}}
+                                    {{this.essenceCost.value}}
+                                {{/if}}
+                            {{else}}
+                                {{i18n 'WODSYSTEM.CharacterSheet.Charms.None'}}
+                            {{/if}}
+                        </span>
+                    </div>
+                    {{#if this.description}}
+                    <div class="charm-description-preview">
+                        <p class="charm-preview-text">{{truncate this.description 150}}</p>
+                        <button type="button" class="charm-description-btn sphere-reference-btn" data-charm-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.Charms.ViewDescription'}}">
+                            <i class="fas fa-book"></i>
+                        </button>
+                    </div>
+                    {{/if}}
+                </div>
+            </div>
+            {{else}}
+            <div class="no-charms">
+                <p>{{i18n 'WODSYSTEM.CharacterSheet.Charms.NoCharmsSelected'}}</p>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <!-- S-Advantages Section -->
+    <div class="s-advantages-section">
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.SAdvantages'}}</h2>
+    
+    <div class="s-advantages-controls">
+        <div class="s-advantage-selector">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.AddSAdvantage'}}:</label>
+            <select class="select-s-advantage-to-add">
+                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.SelectSAdvantage'}}</option>
+                {{#each sAdvantagesList}}
+                <option value="{{this}}">{{this}}</option>
+                {{/each}}
+            </select>
+            <button type="button" class="add-s-advantage-btn" title="{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.AddSelectedSAdvantage'}}">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="s-advantages-list">
+        {{#each selectedSAdvantages}}
+        <div class="s-advantage-item" data-s-advantage-id="{{this.id}}">
+            <div class="s-advantage-header">
+                <h4 class="s-advantage-name">{{this.name}}</h4>
+                <button type="button" class="delete-s-advantage" data-s-advantage-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.RemoveSAdvantage'}}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+            <div class="s-advantage-details">
+                {{#if this.cost}}
+                <div class="s-advantage-cost">
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.Cost'}}:</label>
+                    <span>
+                        {{#if this.cost.values}}
+                            {{this.cost.values.join ', '}} {{this.cost.unit}}
+                        {{else if this.cost.cost}}
+                            {{this.cost.cost}}{{#if this.cost.per}} per {{this.cost.per}}{{/if}}{{#if this.cost.unit}} {{this.cost.unit}}{{/if}}
+                        {{else if this.cost.description}}
+                            {{this.cost.description}}
+                        {{else if this.cost.value}}
+                            {{this.cost.value}}{{#if this.cost.unit}} {{this.cost.unit}}{{/if}}
+                        {{else if (eq (typeof this.cost) 'number')}}
+                            {{this.cost}}
+                        {{else}}
+                            {{#if this.cost.type}}{{this.cost.type}}: {{/if}}{{#if this.cost.cost}}{{this.cost.cost}}{{/if}}{{#if this.cost.per}} per {{this.cost.per}}{{/if}}{{#if this.cost.unit}} {{this.cost.unit}}{{/if}}
+                        {{/if}}
+                    </span>
+                </div>
+                {{/if}}
+                {{#if this.description}}
+                <div class="s-advantage-description-preview">
+                    <p class="s-advantage-preview-text">{{truncate this.description 150}}</p>
+                    <button type="button" class="s-advantage-description-btn sphere-reference-btn" data-s-advantage-id="{{this.id}}" title="{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.ViewDescription'}}">
+                        <i class="fas fa-book"></i>
+                    </button>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+        {{else}}
+        <div class="no-s-advantages">
+            <p>{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.NoSAdvantagesSelected'}}</p>
+        </div>
+        {{/each}}
+    </div>
+</div>
+</div>

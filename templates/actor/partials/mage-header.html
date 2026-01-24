@@ -1,13 +1,25 @@
-<!-- Identity Section - Character Header -->
+<!-- Mage Identity Section - Character Header -->
 <section class="sheet-header">
-    <div class="identity-section">
+    <div class="identity-section mage-identity">
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Name'}}</label>
             <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" />
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Concept'}}</label>
-            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.ConceptPlaceholder'}}" />
+            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.ConceptPlaceholderMage'}}" />
+        </div>
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Tradition'}}</label>
+            <input type="text" name="system.identity.tradition" value="{{actor.system.identity.tradition}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.TraditionPlaceholder'}}" />
+        </div>
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Cabal'}}</label>
+            <input type="text" name="system.identity.cabal" value="{{actor.system.identity.cabal}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.CabalPlaceholder'}}" />
+        </div>
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Essence'}}</label>
+            <input type="text" name="system.identity.essence" value="{{actor.system.identity.essence}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.EssencePlaceholder'}}" />
         </div>
         <div class="identity-field">
             <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Nature'}}</label>
@@ -29,4 +41,3 @@
         {{/if}}
     </div>
 </section>
-

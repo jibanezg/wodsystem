@@ -123,13 +123,22 @@
       },
       "Header": {
         "Name": "Nombre",
+        "NamePlaceholder": "Thor",
         "Concept": "Concepto",
         "ConceptPlaceholder": "p. ej., Predicador Callejero",
         "ConceptPlaceholderTechnocrat": "p. ej., Especialista en Armas Cibernéticas",
+        "Title": "Título",
+        "TitlePlaceholder": "p. ej., El Señor del Trueno",
+        "SpiritType": "Tipo de Espíritu",
+        "SpiritTypePlaceholder": "Seleccionar tipo de espíritu...",
         "Nature": "Naturaleza",
         "NaturePlaceholder": "ej., Director, Visionario",
         "Demeanor": "Conducta",
         "DemeanorPlaceholder": "ej., Idealista, Máquina",
+        "Disposition": "Disposición",
+        "DispositionNeutral": "Neutral",
+        "DispositionAlly": "Aliado",
+        "DispositionAggressive": "Agresivo",
         "Convention": "Convención",
         "ConventionPlaceholder": "p. ej., Iteración X, Nuevo Orden Mundial",
         "Amalgam": "Amalgama",
@@ -146,6 +155,8 @@
         }
       },
       "Sections": {
+        "PowersSummary": "Resumen de Poderes",
+        "NoPowersSummary": "No hay poderes seleccionados",
         "Attributes": "Atributos",
         "Abilities": "Habilidades",
         "Physical": "Físico",
@@ -168,7 +179,10 @@
         "Numina": "Numina (Poderes Especiales)",
         "SecondaryTalents": "Talentos Secundarios",
         "SecondarySkills": "Habilidades Secundarias",
-        "SecondaryKnowledges": "Conocimientos Secundarios"
+        "SecondaryKnowledges": "Conocimientos Secundarios",
+        "Charms": "ENCANTOS",
+        "SAdvantages": "VENTAJAS ESPECIALES",
+        "Essence": "ESENCIA"
       },
       "Health": {
         "Penalty": "Penalización",
@@ -256,7 +270,7 @@
           "GameMechanicsPlaceholder": "¿Qué beneficios mecánicos proporciona?",
           "GameMechanicsPlaceholderLong": "Mecánicas de juego específicas, pools de dados, dificultades, duraciones, requisitos de activación, etc.",
           "GameMechanicsPlaceholderWonder": "Mecánicas de juego específicas, reglas y efectos (pools de dados, dificultades, duraciones, etc.)",
-          "NotesPlaceholder": "Notas adicionales, elementos de historia, etc.",
+          "NotesPlaceholder": "p. ej., Thor era el dios más poderoso de Asgard...",
           "DeviceName": "Nombre del Dispositivo",
           "DeviceNamePlaceholder": "Nombre del dispositivo/maravilla",
           "WonderName": "Nombre de la Maravilla",
@@ -405,6 +419,49 @@
         "AddArmor": "Añadir Armadura",
         "AddGear": "Añadir Equipo",
         "ManageEffects": "Configurar Efectos de Equipamiento"
+      },
+      "Charms": {
+        "AddCharm": "Añadir Encanto",
+        "SelectCharm": "Seleccionar Encanto",
+        "AddSelectedCharm": "Añadir Encanto Seleccionado",
+        "RemoveCharm": "Eliminar Encanto",
+        "NoCharmsSelected": "No hay encantos seleccionados",
+        "EssenceCost": "Costo de Esencia",
+        "Roll": "Tirada",
+        "None": "Ninguno",
+        "ViewDescription": "Ver Descripción",
+        "NoCharmSelected": "Por favor selecciona un encanto para añadir",
+        "ServiceNotAvailable": "El servicio de datos de referencia no está disponible",
+        "CharmNotFound": "Encanto '{name}' no encontrado",
+        "CharmAlreadyAdded": "El encanto '{name}' ya está añadido",
+        "CharmAdded": "Encanto '{name}' añadido exitosamente",
+        "CharmRemoved": "Encanto eliminado exitosamente"
+      },
+      "SAdvantages": {
+        "AddSAdvantage": "Añadir Ventaja Especial",
+        "SelectSAdvantage": "Seleccionar Ventaja Especial",
+        "AddSelectedSAdvantage": "Añadir Ventaja Especial Seleccionada",
+        "RemoveSAdvantage": "Eliminar Ventaja Especial",
+        "NoSAdvantagesSelected": "No hay ventajas especiales seleccionadas",
+        "Cost": "Costo",
+        "ViewDescription": "Ver Descripción",
+        "NoSAdvantageSelected": "Por favor selecciona una ventaja especial para añadir",
+        "ServiceNotAvailable": "El servicio de datos de referencia no está disponible",
+        "SAdvantageNotFound": "Ventaja Especial '{name}' no encontrada",
+        "SAdvantageAlreadyAdded": "La ventaja especial '{name}' ya está añadida",
+        "SAdvantageAdded": "Ventaja Especial '{name}' añadida exitosamente",
+        "SAdvantageRemoved": "Ventaja Especial eliminada exitosamente"
+      },
+      "Essence": {
+        "Current": "Actual",
+        "Maximum": "Máximo"
+      },
+      "SpiritAttributes": {
+        "Willpower": "VOLUNTAD",
+        "Rage": "IRA",
+        "Gnosis": "GNOSIS",
+        "Permanent": "Permanente",
+        "Temporary": "Temporal"
       },
       "EquipmentEffects": {
         "DialogTitle": "Configuración de Efectos de Equipamiento",
@@ -1067,6 +1124,18 @@
         "Time": "Tiempo",
         "Data": "Datos"
       }
+    }
+  },
+  
+  "TYPES": {
+    "Actor": {
+      "Mortal": "Mortal",
+      "Technocrat": "Tecnócrata",
+      "Mage": "Mago",
+      "Spirit": "Espíritu",
+      "Mortal-NPC": "Mortal PNJ",
+      "Technocrat-NPC": "Tecnócrata PNJ",
+      "Mage-NPC": "Mago PNJ"
     }
   }
 }

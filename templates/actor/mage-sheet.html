@@ -1,0 +1,104 @@
+<form class="wod sheet actor mage" autocomplete="off">
+    <!-- Mage-Specific Header with Tradition/Cabal/Eidolon -->
+    {{> "systems/wodsystem/templates/actor/partials/mage-header.html"}}
+    
+    <!-- Tab Navigation -->
+    <nav class="sheet-tabs" data-group="primary">
+        <a class="item" data-tab="main">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Main'}}</a>
+        <a class="item" data-tab="spheres">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Spheres'}}</a>
+        <a class="item" data-tab="backgrounds-expanded">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.BackgroundsExpanded'}}</a>
+        <a class="item" data-tab="traits">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Traits'}}</a>
+        <a class="item" data-tab="equipment">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Equipment'}}</a>
+        <a class="item" data-tab="effects">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Effects'}}</a>
+        <a class="item" data-tab="biography">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Biography'}}</a>
+    </nav>
+
+    <!-- Tab Content -->
+    <section class="sheet-body">
+        <!-- Main Tab -->
+        <div class="tab" data-group="primary" data-tab="main">
+            <div class="main-layout">
+                <!-- Left Column: Attributes, Abilities, and Advantages -->
+                <div class="left-content">
+                    <div class="attributes-abilities-section">
+                        {{> "systems/wodsystem/templates/actor/partials/attributes.html"}}
+                        {{> "systems/wodsystem/templates/actor/partials/abilities.html"}}
+                    </div>
+
+                    <div class="advantages-bottom">
+                        {{> "systems/wodsystem/templates/actor/partials/mage-advantages.html"}}
+                    </div>
+                </div>
+
+                <!-- Right Column: Health Sidebar -->
+                <div class="health-sidebar">
+                    {{> "systems/wodsystem/templates/actor/partials/health.html"}}
+                    {{> "systems/wodsystem/templates/actor/partials/experience.html"}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Spheres Tab -->
+        <div class="tab" data-group="primary" data-tab="spheres">
+            {{> "systems/wodsystem/templates/actor/partials/mage-spheres.html"}}
+        </div>
+
+        <!-- Backgrounds (Expanded) Tab -->
+        <div class="tab" data-group="primary" data-tab="backgrounds-expanded">
+            {{> "systems/wodsystem/templates/actor/partials/technocrat-backgrounds-expanded.html"}}
+        </div>
+
+        <!-- Traits Tab (Secondary Abilities + Merits & Flaws) -->
+        <div class="tab" data-group="primary" data-tab="traits">
+            <div class="traits-layout">
+                <!-- Secondary Abilities Section (Full Width Top) -->
+                <div class="secondary-abilities-container">
+                    {{> "systems/wodsystem/templates/actor/partials/secondary-abilities.html"}}
+                </div>
+                
+                <!-- Merits & Flaws Section (Two Columns Below) -->
+                <div class="merits-flaws-container">
+                    {{> "systems/wodsystem/templates/actor/partials/merits-flaws.html"}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div class="tab" data-group="primary" data-tab="equipment">
+            {{> "systems/wodsystem/templates/actor/partials/equipment.html"}}
+        </div>
+
+        <!-- Effects Tab -->
+        <div class="tab" data-group="primary" data-tab="effects">
+            {{> "systems/wodsystem/templates/actor/partials/active-effects.html"}}
+        </div>
+
+        <!-- Biography Tab -->
+        <div class="tab" data-group="primary" data-tab="biography">
+            {{> "systems/wodsystem/templates/actor/partials/biography.html"}}
+        </div>
+    </section>
+
+    <!-- Character Creation Wizard Overlay -->
+    {{#if hasWizardSupport}}
+    {{#unless isCreated}}
+    <div class="wizard-overlay">
+        <div class="wizard-overlay-content">
+            <div class="wizard-overlay-icon">
+                <i class="fas fa-hat-wizard"></i>
+            </div>
+            <h2>{{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.NewCharacter'}}</h2>
+            <p class="wizard-overlay-description">
+                {{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.CharacterNotCreated'}}
+            </p>
+            <button type="button" class="start-character-wizard-overlay">
+                <i class="fas fa-magic"></i> {{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.StartWizard'}}
+            </button>
+            <p class="wizard-overlay-hint">
+                {{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.OrFillManually'}}
+            </p>
+        </div>
+    </div>
+    {{/unless}}
+    {{/if}}
+</form>

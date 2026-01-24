@@ -1,0 +1,123 @@
+<form class="wod sheet actor spirit" autocomplete="off">
+    <!-- Spirit-Specific Header with Spirit Type -->
+    {{> "systems/wodsystem/templates/actor/partials/spirit-header.html"}}
+    
+    <!-- Tab Navigation -->
+    <nav class="sheet-tabs" data-group="primary">
+        <a class="item" data-tab="main">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Main'}}</a>
+        <a class="item" data-tab="spheres">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Spheres'}}</a>
+        <a class="item" data-tab="charms">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Charms'}}</a>
+        <a class="item" data-tab="effects">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Effects'}}</a>
+    </nav>
+
+    <!-- Tab Content -->
+    <section class="sheet-body">
+        <!-- Main Tab -->
+        <div class="tab" data-group="primary" data-tab="main">
+            <div class="main-layout">
+                <!-- Left Column: Attributes and Advantages -->
+                <div class="left-content">
+                    <div class="attributes-abilities-section">
+                        {{> "systems/wodsystem/templates/actor/partials/spirit-attributes.html"}}
+                    </div>
+
+                    <div class="advantages-bottom">
+                        {{> "systems/wodsystem/templates/actor/partials/spirit-advantages.html"}}
+                    </div>
+                    
+                    <!-- Powers Summary (Charms and S-Advantages merged list) - spans attributes and notes columns -->
+                    <div class="spirit-powers-summary">
+                        <h3>{{i18n 'WODSYSTEM.CharacterSheet.Sections.PowersSummary'}}</h3>
+                        
+                        <div class="powers-summary-list">
+                            {{#if (or selectedCharms selectedSAdvantages)}}
+                                <!-- Charms -->
+                                {{#each selectedCharms}}
+                                <div class="power-summary-card charm-summary-card" data-charm-id="{{this.id}}">
+                                    <div class="power-summary-header">
+                                        <h4 class="power-summary-name">{{this.name}}</h4>
+                                        <span class="power-summary-type">Charm</span>
+                                    </div>
+                                    {{#if this.description}}
+                                    <div class="power-summary-description">
+                                        <span class="power-summary-text">{{truncate this.description 60}}</span>
+                                        <button type="button" class="power-description-btn sphere-reference-btn" data-charm-id="{{this.id}}" data-type="charm" title="{{i18n 'WODSYSTEM.CharacterSheet.Charms.ViewDescription'}}">
+                                            <i class="fas fa-book"></i>
+                                        </button>
+                                    </div>
+                                    {{/if}}
+                                </div>
+                                {{/each}}
+                                
+                                <!-- S-Advantages -->
+                                {{#each selectedSAdvantages}}
+                                <div class="power-summary-card sadvantage-summary-card" data-s-advantage-id="{{this.id}}">
+                                    <div class="power-summary-header">
+                                        <h4 class="power-summary-name">{{this.name}}</h4>
+                                        <span class="power-summary-type">S-Advantage</span>
+                                    </div>
+                                    {{#if this.description}}
+                                    <div class="power-summary-description">
+                                        <span class="power-summary-text">{{truncate this.description 60}}</span>
+                                        <button type="button" class="power-description-btn sphere-reference-btn" data-s-advantage-id="{{this.id}}" data-type="sadvantage" title="{{i18n 'WODSYSTEM.CharacterSheet.SAdvantages.ViewDescription'}}">
+                                            <i class="fas fa-book"></i>
+                                        </button>
+                                    </div>
+                                    {{/if}}
+                                </div>
+                                {{/each}}
+                            {{else}}
+                                <div class="no-powers-summary">
+                                    <p>{{i18n 'WODSYSTEM.CharacterSheet.Sections.NoPowersSummary'}}</p>
+                                </div>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Essence Sidebar (replaces Health) -->
+                <div class="health-sidebar">
+                    {{> "systems/wodsystem/templates/actor/partials/spirit-essence.html"}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Spheres Tab -->
+        <div class="tab" data-group="primary" data-tab="spheres">
+            {{> "systems/wodsystem/templates/actor/partials/spirit-spheres.html"}}
+        </div>
+
+        <!-- Charms Tab (includes Charms and Special Advantages) -->
+        <div class="tab" data-group="primary" data-tab="charms">
+            {{> "systems/wodsystem/templates/actor/partials/spirit-charms.html"}}
+        </div>
+
+        <!-- Effects Tab -->
+        <div class="tab" data-group="primary" data-tab="effects">
+            {{> "systems/wodsystem/templates/actor/partials/active-effects.html"}}
+        </div>
+    </section>
+
+    <!-- Character Creation Wizard Overlay -->
+    {{#if hasWizardSupport}}
+    {{#unless isCreated}}
+    <div class="wizard-overlay">
+        <div class="wizard-overlay-content">
+            <div class="wizard-overlay-icon">
+                <i class="fas fa-hat-wizard"></i>
+            </div>
+            <h2>{{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.NewCharacter'}}</h2>
+            <p class="wizard-overlay-description">
+                {{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.CharacterNotCreated'}}
+            </p>
+            <button type="button" class="start-character-wizard-overlay">
+                <i class="fas fa-magic"></i> {{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.StartWizard'}}
+            </button>
+            <p class="wizard-overlay-hint">
+                {{i18n 'WODSYSTEM.CharacterSheet.WizardOverlay.OrFillManually'}}
+            </p>
+        </div>
+    </div>
+    {{/unless}}
+    {{/if}}
+</form>

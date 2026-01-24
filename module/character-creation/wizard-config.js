@@ -210,6 +210,139 @@ export const WIZARD_CONFIG = {
         numina: 5
       }
     }
+  },
+
+  // Mage Configuration
+  Mage: {
+    name: "Mage",
+    labelKey: "Wizard.MageCharacter",
+    steps: [
+      { id: "concept", labelKey: "Wizard.StepConceptIdentity", icon: "fa-user" },
+      { id: "attributes", labelKey: "Wizard.StepAttributes", icon: "fa-dumbbell" },
+      { id: "abilities", labelKey: "Wizard.StepAbilities", icon: "fa-brain" },
+      { id: "advantages", labelKey: "Wizard.StepAdvantages", icon: "fa-star" },
+      { id: "merits-flaws", labelKey: "Wizard.StepMeritsFlaws", icon: "fa-balance-scale" },
+      { id: "freebies", labelKey: "Wizard.StepFreebies", icon: "fa-coins" },
+      { id: "review", labelKey: "Wizard.StepReview", icon: "fa-check-circle" }
+    ],
+    
+    // Step 1: Concept
+    concept: {
+      fields: [
+        { name: "name", labelKey: "Wizard.FieldName", type: "text", required: true },
+        { name: "concept", labelKey: "Wizard.FieldConcept", type: "text", required: true, placeholderKey: "Wizard.PlaceholderConcept" },
+        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: ARCHETYPES },
+        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: ARCHETYPES },
+        { name: "tradition", labelKey: "Wizard.FieldTradition", type: "select", required: true, options: [
+          "Akashic Brotherhood",
+          "Celestial Chorus",
+          "Cult of Ecstasy",
+          "Dreamspeakers",
+          "Euthanatos",
+          "Order of Hermes",
+          "Sons of Ether",
+          "Verbena",
+          "Virtual Adepts"
+        ]},
+        { name: "cabal", labelKey: "Wizard.FieldCabal", type: "text", placeholderKey: "Wizard.PlaceholderCabal" },
+        { name: "essence", labelKey: "Wizard.FieldEssence", type: "text", placeholderKey: "Wizard.PlaceholderEssence" }
+      ],
+      // Tradition affinity spheres (at least 1 point must be in an affinity sphere)
+      // Note: These are kept for backwards compatibility, but validation uses affinities.json
+      affinitySpheres: {
+        "Akashic Brotherhood": ["mind", "life"],
+        "Celestial Chorus": ["prime", "forces", "spirit"],
+        "Cult of Ecstasy": ["time", "life", "mind"],
+        "Dreamspeakers": ["spirit", "forces", "life", "matter"],
+        "Euthanatos": ["entropy", "life", "spirit"],
+        "Order of Hermes": ["forces"],
+        "Sons of Ether": ["matter", "forces", "prime"],
+        "Verbena": ["life", "forces"],
+        "Virtual Adepts": ["correspondence", "forces"]
+      }
+    },
+
+    // Step 2: Attributes
+    attributes: {
+      priorities: {
+        primary: 7,
+        secondary: 5,
+        tertiary: 3
+      },
+      categories: ["physical", "social", "mental"],
+      starting: 1,
+      maxAtCreation: 5
+    },
+
+    // Step 3: Abilities
+    abilities: {
+      priorities: {
+        primary: 13,
+        secondary: 9,
+        tertiary: 5
+      },
+      categories: ["talents", "skills", "knowledges"],
+      starting: 0,
+      maxAtCreation: 3,
+      allowSecondary: true
+    },
+
+    // Step 4: Advantages
+    advantages: {
+      backgrounds: {
+        points: 7,
+        maxPerBackground: 5,
+        available: [
+          "Allies", "Alternate Identity", "Arcane", "Avatar", "Backup", "Certification",
+          "Contacts", "Cult", "Destiny", "Device", "Dream", "Enhancement", "Fame", "Influence",
+          "Library", "Mentor", "Node", "Patron", "Rank", "Requisitions", "Resources",
+          "Retainers", "Sanctum", "Secret Weapons", "Spies", "Status", "Wonder"
+        ],
+        // Backgrounds that cost 2 points per dot instead of 1
+        doubleCost: ["Enhancement", "Device"]
+      },
+      spheres: {
+        points: 6,
+        maxAtCreation: 3,
+        available: {
+          correspondence: "Correspondence",
+          entropy: "Entropy",
+          forces: "Forces",
+          life: "Life",
+          matter: "Matter",
+          mind: "Mind",
+          prime: "Prime",
+          spirit: "Spirit",
+          time: "Time"
+        }
+      },
+      enlightenment: {
+        starting: 1,
+        cannotModify: true
+      },
+      willpower: {
+        starting: 5  // Mages start with 5 Willpower
+      }
+    },
+
+    // Step 5: Freebie Points
+    freebies: {
+      total: 15,
+      costs: {
+        attribute: 5,
+        ability: 2,
+        background: 1,
+        sphere: 7,
+        enlightenment: 4,
+        willpower: 1
+      },
+      limits: {
+        attribute: 5,
+        ability: 5,
+        sphere: 3,
+        enlightenment: 3
+      }
+    }
   }
 };
 
@@ -217,6 +350,10 @@ export const WIZARD_CONFIG = {
  * Get configuration for a specific actor type
  */
 export function getWizardConfig(actorType) {
+  // NPC types don't have wizard support
+  if (actorType && actorType.endsWith('-NPC')) {
+    return null;
+  }
   return WIZARD_CONFIG[actorType] || null;
 }
 

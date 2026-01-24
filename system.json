@@ -18,21 +18,23 @@
   "esmodules": [
     "wodsystem.js"
   ],
-  "styles": [
-    "styles/core/variables.css",
-    "styles/mortal-sheet.css",
-    "styles/themes/mortal.css",
-    "styles/themes/technocrat.css",
-    "styles/themes/equipment-effects-styles.css",
-    "styles/themes/equipment-overrides.css",
-    "styles/themes/visual-polish.css",
-    "styles/themes/foundry-dialog-override.css",
-    "styles/themes/quintessence-paradox-wheel.css",
-    "styles/character-wizard.css",
-    "styles/reference-system.css",
-    "styles/themes/equipment-effects-dialog.css",
-    "styles/themes/minimap.css"
-  ],
+    "styles": [
+        "styles/core/variables.css",
+        "styles/mortal-sheet.css",
+        "styles/themes/mortal.css",
+        "styles/themes/technocrat.css",
+        "styles/themes/mage.css",
+        "styles/themes/spirit.css",
+        "styles/themes/equipment-effects-styles.css",
+        "styles/themes/equipment-overrides.css",
+        "styles/themes/visual-polish.css",
+        "styles/themes/foundry-dialog-override.css",
+        "styles/themes/quintessence-paradox-wheel.css",
+        "styles/character-wizard.css",
+        "styles/reference-system.css",
+        "styles/themes/equipment-effects-dialog.css",
+        "styles/themes/minimap.css"
+    ],
   "languages": [
     {
       "lang": "en",
