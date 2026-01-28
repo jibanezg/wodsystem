@@ -85,7 +85,7 @@ export class WodActorSheet extends ActorSheet {
         // Wizard support: exclude NPC types (types ending with "-NPC")
         const isNPC = this.actor.type.endsWith('-NPC') || this.actor.system.miscellaneous?.isNPC === true;
         context.isNPC = isNPC;
-        context.hasWizardSupport = !isNPC && ['Mortal', 'Technocrat', 'Mage'].includes(this.actor.type);
+        context.hasWizardSupport = !isNPC && ['Mortal', 'Demon', 'Technocrat', 'Mage'].includes(this.actor.type);
         
         // Add health edit mode flag
         context.isHealthEditMode = this.actor.getFlag('wodsystem', 'healthEditMode') || false;
@@ -547,27 +547,6 @@ export class WodActorSheet extends ActorSheet {
         
         // Enhancement type change handler (show/hide genetic flaws field)
         html.on('change', 'select[name*="enhancementType"]', this._onEnhancementTypeChange.bind(this));
-        
-        // Technocrat and Mage share Quintessence/Paradox Wheel
-        if (this.actor.type === "Technocrat" || this.actor.type === "Mage") {
-            // Procedures
-
-            html.find('.delete-procedure').click(this._onDeleteProcedure.bind(this));
-            html.find('.procedures-prev-page').click(this._onProceduresPrevPage.bind(this));
-            html.find('.procedures-next-page').click(this._onProceduresNextPage.bind(this));
-            
-            // Devices
-
-            html.find('.delete-device').click(this._onDeleteDevice.bind(this));
-            html.find('.devices-prev-page').click(this._onDevicesPrevPage.bind(this));
-            html.find('.devices-next-page').click(this._onDevicesNextPage.bind(this));
-            
-            // Enhancements
-
-            html.find('.delete-enhancement').click(this._onDeleteEnhancement.bind(this));
-            html.find('.enhancements-prev-page').click(this._onEnhancementsPrevPage.bind(this));
-            html.find('.enhancements-next-page').click(this._onEnhancementsNextPage.bind(this));
-        }
     }
 
     /**
