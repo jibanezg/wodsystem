@@ -1,0 +1,19 @@
+<!-- Apocalyptic Form Section -->
+<div class="apocalyptic-form-section">
+    <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.ApocalypticForm'}}</h2>
+    <div class="apocalyptic-form-container">
+        <div class="form-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Visage'}}</label>
+            <select name="system.apocalypticForm" class="apocalyptic-form-select">
+                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.None'}}</option>
+                <!-- Options will be dynamically populated via JavaScript -->
+            </select>
+            <button type="button" class="apocalyptic-form-reference-btn" data-form-id="{{actor.system.apocalypticForm}}" title="{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.ViewDetails'}}" style="display: none;">
+                <i class="fas fa-book"></i>
+            </button>
+        </div>
+        <div class="apocalyptic-form-powers" id="apocalyptic-form-powers">
+            <!-- Powers will be displayed here when a form is selected -->
+        </div>
+    </div>
+</div>

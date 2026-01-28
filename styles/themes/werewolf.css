@@ -7,10 +7,10 @@
  */
 
 .wod.sheet.actor.werewolf {
-    /* Primary Colors - Earth browns (beast, territorial) */
+    /* Primary Colors - Earth browns (beast, territorial) - Enhanced gradient */
     --wod-primary: #6B4423;           /* Rich brown (leather/fur) */
-    --wod-primary-dark: #4A2F1A;      /* Dark brown (earth/soil) */
-    --wod-primary-light: #8B6F47;     /* Light brown (tan/pelt) */
+    --wod-primary-dark: #000000;      /* Black - deepest earth */
+    --wod-primary-light: #DEB887;     /* Bright Burlywood (tan/pelt) */
     
     /* Background Colors - Natural, earthy */
     --wod-bg-main: #FAF9F6;           /* Off-white/cream */

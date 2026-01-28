@@ -7,7 +7,7 @@
   <div class="step-body">
     <div class="form-grid">
       {{#each config.concept.fields}}
-      <div class="form-group {{#if required}}required{{/if}}">
+      <div class="form-group {{#if required}}required{{/if}} {{#if (eq name "apocalypticForm")}}apocalyptic-form-field hidden{{/if}}">
         <label for="concept-{{name}}">{{label}}</label>
         
         {{#if (eq type "text")}}

@@ -140,7 +140,6 @@ export class WodMinimapMarkerDialog extends FormApplication {
                 game.wod.minimapConfigDialog.render();
             }
         } catch (error) {
-            console.error("WoD Minimap: Error saving marker", error);
             ui.notifications.error(error.message || "Error saving marker");
         }
     }

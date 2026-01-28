@@ -1,0 +1,1157 @@
+{
+    "Actor": {
+        "types": [
+            "Mortal",
+            "Technocrat",
+            "Mage",
+            "Spirit",
+            "Demon",
+            "Demon-NPC",
+            "Earthbound",
+            "Mortal-NPC",
+            "Technocrat-NPC",
+            "Mage-NPC"
+        ],
+        "baseTraits": {
+            "identity": {
+                "name": "",
+                "concept": "",
+                "nature": "",
+                "demeanor": ""
+            },
+            "attributes": {
+                "physical": {
+                    "Strength": 1,
+                    "Dexterity": 1,
+                    "Stamina": 1
+                },
+                "social": {
+                    "Charisma": 1,
+                    "Manipulation": 1,
+                    "Appearance": 1
+                },
+                "mental": {
+                    "Perception": 1,
+                    "Intelligence": 1,
+                    "Wits": 1
+                }
+            },
+            "abilities": {
+                "skills": {
+                    "Crafts": 0,
+                    "Drive": 0,
+                    "Etiquette": 0,
+                    "Firearms": 0,
+                    "Martial Arts": 0,
+                    "Meditation": 0,
+                    "Melee": 0,
+                    "Research": 0,
+                    "Stealth": 0,
+                    "Survival": 0,
+                    "Technology": 0
+                },
+                "talents": {
+                    "Alertness": 0,
+                    "Art": 0,
+                    "Athletics": 0,
+                    "Awareness": 0,
+                    "Brawl": 0,
+                    "Empathy": 0,
+                    "Expression": 0,
+                    "Intimidation": 0,
+                    "Leadership": 0,
+                    "Streetwise": 0,
+                    "Subterfuge": 0
+                },
+                "knowledges": {
+                    "Academics": 0,
+                    "Computer": 0,
+                    "Cosmology": 0,
+                    "Enigmas": 0,
+                    "Esoterica": 0,
+                    "Investigation": 0,
+                    "Law": 0,
+                    "Medicine": 0,
+                    "Occult": 0,
+                    "Politics": 0,
+                    "Science": 0
+                }
+            },
+            "advantages": {
+                "backgrounds": [],
+                "virtues": {
+                    "Conscience": 3,
+                    "Self-Control": 3,
+                    "Courage": 3
+                },
+                "numina": {}
+            },
+            "biography": {
+                "age": "",
+                "sex": "",
+                "height": "",
+                "weight": "",
+                "eyes": "",
+                "hair": "",
+                "nationality": "",
+                "backstory": "",
+                "notes": "",
+                "image": ""
+            },
+            "secondaryAbilities": {
+                "talents": [],
+                "skills": [],
+                "knowledges": []
+            },
+            "combat": {
+                "initiativeBonus": 0
+            },
+            "experience": {
+                "total": 0,
+                "current": 0,
+                "log": []
+            },
+            "rollTemplates": [],
+            "equipment": {
+                "weapons": [],
+                "armor": [],
+                "gear": []
+            },
+            "miscellaneous": {
+                "isNPC": false,
+                "disposition": "neutral",
+                "humanity": {
+                    "current": 7,
+                    "maximum": 10
+                },
+                "torment": {
+                    "temporary": 0,
+                    "maximum": 10,
+                    "permanent": 0
+                },
+                "willpower": {
+                    "permanent": 3,
+                    "temporary": 3
+                },
+                "health": {
+                    "maximum": 7,
+                    "levels": [
+                        {
+                            "index": 0,
+                            "name": "Bruised",
+                            "penalty": 0,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 1,
+                            "name": "Hurt",
+                            "penalty": -1,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 2,
+                            "name": "Injured",
+                            "penalty": -1,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 3,
+                            "name": "Wounded",
+                            "penalty": -2,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 4,
+                            "name": "Mauled",
+                            "penalty": -2,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 5,
+                            "name": "Crippled",
+                            "penalty": -5,
+                            "damageType": null,
+                            "marked": false
+                        },
+                        {
+                            "index": 6,
+                            "name": "Incapacitated",
+                            "penalty": 0,
+                            "damageType": null,
+                            "marked": false
+                        }
+                    ],
+                    "derived": {
+                        "currentPenalty": 0,
+                        "totalDamage": 0,
+                        "bashingDamage": 0,
+                        "lethalDamage": 0,
+                        "aggravatedDamage": 0,
+                        "isIncapacitated": false
+                    }
+                },
+                "merits": [],
+                "flaws": [],
+                "backgrounds": []
+            }
+        },
+        "creatureTypes": {
+            "Mortal": {
+                "name": "Mortal",
+                "label": "Mortal",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "advantages": {
+                            "numina": {}
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 0,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Vampire": {
+                "name": "Vampire",
+                "label": "Vampire",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "abilities": {
+                            "talents": {
+                                "Animalism": 0
+                            },
+                            "skills": {
+                                "Vampiric Lore": 0
+                            }
+                        },
+                        "advantages": {
+                            "Disciplines": {
+                                "Animalism": 0,
+                                "Auspex": 0,
+                                "Celerity": 0,
+                                "Dominate": 0,
+                                "Fortitude": 0,
+                                "Obfuscate": 0,
+                                "Potence": 0,
+                                "Presence": 0,
+                                "Protean": 0
+                            }
+                        },
+                        "miscellaneous": {
+                            "blood": {
+                                "current": 10,
+                                "maximum": 10
+                            }
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": -1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Demon": {
+                "name": "Demon",
+                "label": "Demon",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "identity": {
+                            "house": ""
+                        },
+                        "advantages": {
+                            "faith": {
+                                "temporary": 1,
+                                "maximum": 10,
+                                "permanent": 1
+                            },
+                            "torment": {
+                                "temporary": 0,
+                                "maximum": 10,
+                                "permanent": 0
+                            }
+                        },
+                        "lore": {},
+                        "apocalypticForm": "",
+                        "backgroundsExpanded": [],
+                        "miscellaneous": {
+                            "isNPC": false
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": 0,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Demon-NPC": {
+                "name": "Demon-NPC",
+                "label": "Demon (NPC)",
+                "traits": {
+                    "inherit": "Demon",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": -1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Earthbound": {
+                "name": "Earthbound",
+                "label": "Earthbound",
+                "traits": {
+                    "inherit": "Demon",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": -1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Technocrat": {
+                "name": "Technocrat",
+                "label": "Technocrat",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "identity": {
+                            "convention": "",
+                            "amalgam": "",
+                            "eidolon": ""
+                        },
+                        "biography": {
+                            "focus": {
+                                "paradigm": "",
+                                "instruments": [
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    ""
+                                ],
+                                "practices": ""
+                            }
+                        },
+                        "advantages": {
+                            "enlightenment": {
+                                "current": 1,
+                                "maximum": 10
+                            },
+                            "primalEnergy": {
+                                "current": 0,
+                                "maximum": 3,
+                                "spent": 0
+                            },
+                            "paradox": {
+                                "current": 0,
+                                "maximum": 10,
+                                "permanent": 0
+                            }
+                        },
+                        "spheres": {
+                            "correspondence": {
+                                "name": "Correspondence",
+                                "technocratName": "Data",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "entropy": {
+                                "name": "Entropy",
+                                "technocratName": "Entropy",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "forces": {
+                                "name": "Forces",
+                                "technocratName": "Forces",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "life": {
+                                "name": "Life",
+                                "technocratName": "Life",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "matter": {
+                                "name": "Matter",
+                                "technocratName": "Matter",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "mind": {
+                                "name": "Mind",
+                                "technocratName": "Mind",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "prime": {
+                                "name": "Prime",
+                                "technocratName": "Primal Utility",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "spirit": {
+                                "name": "Spirit",
+                                "technocratName": "Dimensional Science",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "time": {
+                                "name": "Time",
+                                "technocratName": "Time",
+                                "rating": 0,
+                                "specialty": ""
+                            }
+                        },
+                        "procedures": [],
+                        "backgroundsExpanded": []
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Spirit": {
+                "name": "Spirit",
+                "label": "Spirit",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "replace": {
+                        "identity": {
+                            "name": "",
+                            "title": "",
+                            "spiritType": ""
+                        }
+                    },
+                    "add": {
+                        "attributes": {
+                            "willpower": {
+                                "current": 1,
+                                "maximum": 1
+                            },
+                            "rage": {
+                                "current": 1,
+                                "maximum": 1
+                            },
+                            "gnosis": {
+                                "current": 1,
+                                "maximum": 1
+                            }
+                        },
+                        "advantages": {
+                            "essence": {
+                                "current": 0,
+                                "maximum": 0,
+                                "formula": "Willpower + Rage + Gnosis"
+                            },
+                            "arete": {
+                                "current": 1,
+                                "maximum": 10
+                            },
+                            "charms": [],
+                            "sAdvantages": []
+                        },
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral",
+                            "spiritTraits": {
+                                "movementSpeed": {
+                                    "formula": "20 + Willpower",
+                                    "unit": "yards per turn"
+                                },
+                                "spiritTasks": {
+                                    "title": "Spirit Tasks",
+                                    "headers": [
+                                        "Difficulty",
+                                        "Action"
+                                    ],
+                                    "rows": [
+                                        {
+                                            "difficulty": 3,
+                                            "action": "Easy"
+                                        },
+                                        {
+                                            "difficulty": 5,
+                                            "action": "Simple"
+                                        },
+                                        {
+                                            "difficulty": 6,
+                                            "action": "Straightforward"
+                                        },
+                                        {
+                                            "difficulty": 8,
+                                            "action": "Difficult"
+                                        },
+                                        {
+                                            "difficulty": 10,
+                                            "action": "Virtually impossible"
+                                        }
+                                    ]
+                                },
+                                "materializeCosts": {},
+                                "slumber": {
+                                    "recoveryTime": "20 hours - (1 hour × Gnosis)",
+                                    "recoveryState": "Slumber"
+                                }
+                            },
+                            "optionalUmbroodMagick": true
+                        },
+                        "spheres": {
+                            "correspondence": {
+                                "name": "Correspondence",
+                                "technocratName": "Data",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "entropy": {
+                                "name": "Entropy",
+                                "technocratName": "Entropy",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "forces": {
+                                "name": "Forces",
+                                "technocratName": "Forces",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "life": {
+                                "name": "Life",
+                                "technocratName": "Life",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "matter": {
+                                "name": "Matter",
+                                "technocratName": "Matter",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "mind": {
+                                "name": "Mind",
+                                "technocratName": "Mind",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "prime": {
+                                "name": "Prime",
+                                "technocratName": "Primal Utility",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "spirit": {
+                                "name": "Spirit",
+                                "technocratName": "Dimensional Science",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "time": {
+                                "name": "Time",
+                                "technocratName": "Time",
+                                "rating": 0,
+                                "specialty": ""
+                            }
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 0,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Mage": {
+                "name": "Mage",
+                "label": "Mage",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "identity": {
+                            "tradition": "",
+                            "cabal": "",
+                            "essence": ""
+                        },
+                        "biography": {
+                            "focus": {
+                                "paradigm": "",
+                                "instruments": [
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    ""
+                                ],
+                                "practices": ""
+                            }
+                        },
+                        "advantages": {
+                            "enlightenment": {
+                                "current": 1,
+                                "maximum": 10
+                            },
+                            "primalEnergy": {
+                                "current": 0,
+                                "maximum": 3,
+                                "spent": 0
+                            },
+                            "paradox": {
+                                "current": 0,
+                                "maximum": 10,
+                                "permanent": 0
+                            }
+                        },
+                        "spheres": {
+                            "correspondence": {
+                                "name": "Correspondence",
+                                "technocratName": "Data",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "entropy": {
+                                "name": "Entropy",
+                                "technocratName": "Entropy",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "forces": {
+                                "name": "Forces",
+                                "technocratName": "Forces",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "life": {
+                                "name": "Life",
+                                "technocratName": "Life",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "matter": {
+                                "name": "Matter",
+                                "technocratName": "Matter",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "mind": {
+                                "name": "Mind",
+                                "technocratName": "Mind",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "prime": {
+                                "name": "Prime",
+                                "technocratName": "Primal Utility",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "spirit": {
+                                "name": "Spirit",
+                                "technocratName": "Dimensional Science",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "time": {
+                                "name": "Time",
+                                "technocratName": "Time",
+                                "rating": 0,
+                                "specialty": ""
+                            }
+                        },
+                        "backgroundsExpanded": []
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Mortal-NPC": {
+                "name": "Mortal-NPC",
+                "label": "Mortal (NPC)",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
+                        },
+                        "advantages": {
+                            "numina": {}
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 0,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Technocrat-NPC": {
+                "name": "Technocrat-NPC",
+                "label": "Technocrat (NPC)",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
+                        },
+                        "identity": {
+                            "convention": "",
+                            "amalgam": "",
+                            "eidolon": ""
+                        },
+                        "biography": {
+                            "focus": {
+                                "paradigm": "",
+                                "instruments": [
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    ""
+                                ],
+                                "practices": ""
+                            }
+                        },
+                        "advantages": {
+                            "enlightenment": {
+                                "current": 1,
+                                "maximum": 10
+                            },
+                            "primalEnergy": {
+                                "current": 0,
+                                "maximum": 3,
+                                "spent": 0
+                            },
+                            "paradox": {
+                                "current": 0,
+                                "maximum": 10,
+                                "permanent": 0
+                            }
+                        },
+                        "spheres": {
+                            "correspondence": {
+                                "name": "Correspondence",
+                                "technocratName": "Data",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "entropy": {
+                                "name": "Entropy",
+                                "technocratName": "Entropy",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "forces": {
+                                "name": "Forces",
+                                "technocratName": "Forces",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "life": {
+                                "name": "Life",
+                                "technocratName": "Life",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "matter": {
+                                "name": "Matter",
+                                "technocratName": "Matter",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "mind": {
+                                "name": "Mind",
+                                "technocratName": "Mind",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "prime": {
+                                "name": "Prime",
+                                "technocratName": "Primal Utility",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "spirit": {
+                                "name": "Spirit",
+                                "technocratName": "Dimensional Science",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "time": {
+                                "name": "Time",
+                                "technocratName": "Time",
+                                "rating": 0,
+                                "specialty": ""
+                            }
+                        },
+                        "procedures": [],
+                        "backgroundsExpanded": []
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Mage-NPC": {
+                "name": "Mage-NPC",
+                "label": "Mage (NPC)",
+                "traits": {
+                    "inherit": "baseTraits",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
+                        },
+                        "identity": {
+                            "tradition": "",
+                            "cabal": "",
+                            "eidolon": ""
+                        },
+                        "biography": {
+                            "focus": {
+                                "paradigm": "",
+                                "instruments": [
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    "",
+                                    ""
+                                ],
+                                "practices": ""
+                            }
+                        },
+                        "advantages": {
+                            "enlightenment": {
+                                "current": 1,
+                                "maximum": 10
+                            },
+                            "primalEnergy": {
+                                "current": 0,
+                                "maximum": 3,
+                                "spent": 0
+                            },
+                            "paradox": {
+                                "current": 0,
+                                "maximum": 10,
+                                "permanent": 0
+                            }
+                        },
+                        "spheres": {
+                            "correspondence": {
+                                "name": "Correspondence",
+                                "technocratName": "Data",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "entropy": {
+                                "name": "Entropy",
+                                "technocratName": "Entropy",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "forces": {
+                                "name": "Forces",
+                                "technocratName": "Forces",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "life": {
+                                "name": "Life",
+                                "technocratName": "Life",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "matter": {
+                                "name": "Matter",
+                                "technocratName": "Matter",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "mind": {
+                                "name": "Mind",
+                                "technocratName": "Mind",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "prime": {
+                                "name": "Prime",
+                                "technocratName": "Primal Utility",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "spirit": {
+                                "name": "Spirit",
+                                "technocratName": "Dimensional Science",
+                                "rating": 0,
+                                "specialty": ""
+                            },
+                            "time": {
+                                "name": "Time",
+                                "technocratName": "Time",
+                                "rating": 0,
+                                "specialty": ""
+                            }
+                        },
+                        "backgroundsExpanded": []
+                    }
+                },
+                "prototypeToken": {
+                    "actorLink": true,
+                    "displayName": 30,
+                    "displayBars": 20,
+                    "disposition": 1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 30,
+                        "angle": 360,
+                        "visionMode": "basic"
+                    },
+                    "detectionModes": []
+                }
+            }
+        },
+        "system": {
+            "isCreated": false
+        }
+    },
+    "Item": {
+        "types": [
+            "Trait",
+            "weapon",
+            "armor",
+            "gear"
+        ],
+        "templates": {
+            "Trait": {
+                "name": "Trait",
+                "label": "Trait",
+                "system": {
+                    "value": 0,
+                    "type": "",
+                    "category": "",
+                    "max": 0
+                }
+            },
+            "weapon": {
+                "name": "Weapon",
+                "label": "Weapon",
+                "system": {
+                    "equipped": false,
+                    "subtype": "melee",
+                    "damage": "1",
+                    "difficulty": 6,
+                    "range": "-",
+                    "rate": "1",
+                    "clip": "-",
+                    "concealment": "P",
+                    "description": "",
+                    "grantsEffects": [],
+                    "equipmentEffects": {
+                        "light": null,
+                        "visibility": null,
+                        "sound": null
+                    }
+                }
+            },
+            "armor": {
+                "name": "Armor",
+                "label": "Armor",
+                "system": {
+                    "equipped": false,
+                    "rating": 1,
+                    "penalty": 0,
+                    "description": "",
+                    "grantsEffects": [],
+                    "equipmentEffects": {
+                        "light": null,
+                        "visibility": null,
+                        "sound": null
+                    }
+                }
+            },
+            "gear": {
+                "name": "Gear",
+                "label": "Gear",
+                "system": {
+                    "equipped": false,
+                    "quantity": 1,
+                    "weight": "",
+                    "description": "",
+                    "equipmentEffects": {
+                        "light": null,
+                        "visibility": null,
+                        "sound": null
+                    }
+                }
+            }
+        }
+    }
+}

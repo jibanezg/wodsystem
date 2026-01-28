@@ -1,0 +1,72 @@
+/**
+ * Demon Actor Sheet Input Overrides
+ * This file MUST load after visual-polish.css to override base styles
+ * Forces white backgrounds and black text for demon CHARACTER SHEET inputs
+ */
+
+/* Identity fields - NAME, CONCEPT, HOUSE, VISAGE, NATURE, DEMEANOR */
+.wod.sheet.actor.demon .identity-section .identity-field input[type="text"],
+.wod.sheet.actor.demon .identity-section .identity-field input,
+.wod.sheet.actor.demon .identity-field input[type="text"],
+.wod.sheet.actor.demon .identity-field input,
+.wod.sheet.actor.demon .identity-field select {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+    box-shadow: none !important;
+}
+
+/* All text and number inputs in character sheet */
+.wod.sheet.actor.demon input[type="text"],
+.wod.sheet.actor.demon input[type="number"],
+.wod.sheet.actor.demon select,
+.wod.sheet.actor.demon textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+    box-shadow: none !important;
+}
+
+/* Placeholder text */
+.wod.sheet.actor.demon input[type="text"]::placeholder,
+.wod.sheet.actor.demon textarea::placeholder {
+    color: #999999 !important;
+    opacity: 0.7 !important;
+}
+
+/* Focus states */
+.wod.sheet.actor.demon input[type="text"]:focus,
+.wod.sheet.actor.demon input[type="number"]:focus,
+.wod.sheet.actor.demon select:focus,
+.wod.sheet.actor.demon textarea:focus {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #FF6347 !important;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2) !important;
+    outline: none !important;
+}
+
+/* Template inputs */
+.wod.sheet.actor.demon .template-input,
+.wod.sheet.actor.demon .template-input-small,
+.wod.sheet.actor.demon .template-input-number,
+.wod.sheet.actor.demon .template-input-number-tiny,
+.wod.sheet.actor.demon .template-input-tiny,
+.wod.sheet.actor.demon .template-select,
+.wod.sheet.actor.demon .template-textarea,
+.wod.sheet.actor.demon .ally-name-input,
+.wod.sheet.actor.demon .ally-input,
+.wod.sheet.actor.demon .ally-input-small,
+.wod.sheet.actor.demon .property-input,
+.wod.sheet.actor.demon .asset-input {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+}

@@ -385,8 +385,6 @@ export class WodEffectManager extends FormApplication {
         const FormDataClass = foundry.applications?.ux?.FormDataExtended || FormDataExtended;
         const formData = new FormDataClass(form).object;
         
-        console.log('WodEffectManager - Raw formData:', formData);
-        
         // Build changes array from modifiers - Handle flat structure from FormDataExtended
         const changes = [];
         
@@ -410,8 +408,6 @@ export class WodEffectManager extends FormApplication {
             }
         }
         
-        console.log('WodEffectManager - Processed changes:', changes);
-        
         // Get selected targets from checkboxes - Filter out nulls and ensure it's an array
         let conditionTargets = formData.conditionTargets || [];
         if (typeof conditionTargets === 'string') {
@@ -419,8 +415,6 @@ export class WodEffectManager extends FormApplication {
         }
         // Filter out null/undefined values
         conditionTargets = conditionTargets.filter(target => target !== null && target !== undefined && target !== '');
-        
-        console.log('WodEffectManager - Condition targets (filtered):', conditionTargets);
         
         // Prepare effect data
         const effectData = {
@@ -437,15 +431,11 @@ export class WodEffectManager extends FormApplication {
             }
         };
         
-        console.log('WodEffectManager - Final effectData:', effectData);
-        
         // Create or update effect
         if (this.effect) {
-            console.log('WodEffectManager - Updating existing effect:', this.effect.id);
             await this.effect.update(effectData);
             ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectUpdated', {name: effectData.name}));
         } else {
-            console.log('WodEffectManager - Creating new effect');
             await this.actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
             ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectCreated', {name: effectData.name}));
         }

@@ -4,21 +4,15 @@
  * @private
  */
 function sendSocketMessage(data) {
-    console.log("WoD Approval - Sending socket message:", data);
     
-    // Try multiple socket channels for compatibility
     try {
         game.socket.emit('system.wodsystem', data);
-        console.log("WoD Approval - Message sent via system.wodsystem");
     } catch (error) {
-        console.error("WoD Approval - Failed to send via system.wodsystem:", error);
     }
     
     try {
         game.socket.emit('module.wodsystem', data);
-        console.log("WoD Approval - Message sent via module.wodsystem");
     } catch (error) {
-        console.error("WoD Approval - Failed to send via module.wodsystem:", error);
     }
 }
 
@@ -28,32 +22,21 @@ function sendSocketMessage(data) {
  * @private
  */
 async function handleSocketData(data) {
-    console.log("WoD Approval - Processing data:", data);
-    console.log("WoD Approval - Data type:", data.type, "Current user isGM:", game.user.isGM);
     
-    // Only GM should handle approval requests
     if (data.type === 'requestEffectApproval') {
-        console.log("WoD Approval - Received requestEffectApproval");
         
         if (!game.user.isGM) {
-            console.log("WoD Approval - User is not GM, ignoring request");
             return;
         }
         
-        console.log("WoD Approval - GM handling request for actor:", data.actorId);
-        
-        // Try to find the actor
         let actor = game.actors.get(data.actorId);
         
         // If not found in game.actors, try to find it in all documents
         if (!actor) {
-            console.warn("WoD Approval - Actor not found in game.actors, searching all...");
             actor = game.actors.find(a => a.id === data.actorId);
         }
         
         if (!actor) {
-            console.error("WoD Approval - Actor not found:", data.actorId);
-            console.error("WoD Approval - Available actors:", game.actors.map(a => ({id: a.id, name: a.name})));
             ui.notifications.error(`Effect approval request failed: Actor not found (${data.actorId})`);
             
             // Send denial back to player
@@ -65,7 +48,6 @@ async function handleSocketData(data) {
             return;
         }
         
-        console.log("WoD Approval - Showing approval dialog for:", actor.name);
         ui.notifications.info(game.i18n.format('WODSYSTEM.Dialogs.PlayerRequestingApproval', {
             player: data.playerName || game.i18n.localize('WODSYSTEM.EffectManager.Player'),
             actor: actor.name
@@ -76,7 +58,6 @@ async function handleSocketData(data) {
     
     // Players listen for approval responses
     if (data.type === 'effectApprovalResponse') {
-        console.log("WoD Approval - Player received response:", data);
         Hooks.call('wodEffectApprovalResponse', data);
     }
 }
@@ -124,20 +105,12 @@ export class WodStApprovalDialog extends Application {
     async getData() {
         const data = await super.getData();
         
-        console.log("WoD Approval - getData called for actor:", this.actor.name);
-        console.log("WoD Approval - Effect IDs:", this.effectIds);
-        console.log("WoD Approval - Actor effects:", this.actor.effects);
-        
-        // Get effect details
         data.effects = this.effectIds.map(id => {
             const effect = this.actor.effects.get(id);
             
             if (!effect) {
-                console.error("WoD Approval - Effect not found:", id);
                 return null;
             }
-            
-            console.log("WoD Approval - Processing effect:", effect.name, effect);
             
             return {
                 id: effect.id,
@@ -149,8 +122,6 @@ export class WodStApprovalDialog extends Application {
         
         data.playerName = this.actor.name;
         data.actorName = this.actor.name;
-        
-        console.log("WoD Approval - Final data:", data);
         
         return data;
     }
@@ -218,7 +189,6 @@ export class WodStApprovalDialog extends Application {
     static async requestApproval(actor, effectIds) {
         // If current user is GM, auto-approve
         if (game.user.isGM) {
-            console.log("WoD Approval - User is GM, auto-approving");
             return true;
         }
 
@@ -226,13 +196,9 @@ export class WodStApprovalDialog extends Application {
         const gm = game.users.find(u => u.isGM && u.active);
         
         if (!gm) {
-            console.warn("WoD Approval - No GM online");
             ui.notifications.warn(game.i18n.localize('WODSYSTEM.STApproval.NoSTOnline'));
             return false;
         }
-
-        console.log("WoD Approval - Requesting approval from GM via chat:", gm.name);
-        console.log("WoD Approval - Actor:", actor.name, "Effects:", effectIds);
 
         // Create a unique request ID
         const requestId = `approval-${actor.id}-${Date.now()}`;
@@ -281,17 +247,14 @@ export class WodStApprovalDialog extends Application {
         });
 
         ui.notifications.info(game.i18n.localize('WODSYSTEM.STApproval.ApprovalRequestSent'));
-        console.log("WoD Approval - Player waiting for response for requestId:", requestId);
 
         // Wait for response via hook (will be triggered by socket OR chat message)
         return new Promise((resolve) => {
             let timeoutId;
             
             const hookId = Hooks.on('wodEffectApprovalResponse', (data) => {
-                console.log("WoD Approval - Player received response:", data);
                 
                 if (data.requestId === requestId) {
-                    console.log("WoD Approval - RequestId matches! Approved:", data.approved);
                     Hooks.off('wodEffectApprovalResponse', hookId);
                     clearTimeout(timeoutId); // Clear the timeout
                     
@@ -308,8 +271,6 @@ export class WodStApprovalDialog extends Application {
             // Timeout after 60 seconds
             timeoutId = setTimeout(() => {
                 Hooks.off('wodEffectApprovalResponse', hookId);
-                console.error("WoD Approval - Request timed out after 60 seconds");
-                console.error("WoD Approval - No response received for requestId:", requestId);
                 ui.notifications.error("ST approval request timed out. Roll cancelled.");
                 resolve(false);
             }, 60000);
@@ -323,17 +284,14 @@ export class WodStApprovalDialog extends Application {
      * @param {string} playerId
      */
     static async showApprovalDialog(actor, effectIds, playerId) {
-        console.log("WoD Approval - Creating dialog for actor:", actor.name, "effects:", effectIds);
         const dialog = new WodStApprovalDialog(actor, effectIds);
         
         return new Promise((resolve) => {
-            console.log("WoD Approval - Rendering dialog");
             dialog.render(true);
             
             // When dialog closes, send response
             Hooks.once('closeApplication', (app) => {
                 if (app === dialog) {
-                    console.log("WoD Approval - Dialog closed, approved:", dialog.approved);
                     
                     // Send response back to player
                     const responseData = {
@@ -342,7 +300,6 @@ export class WodStApprovalDialog extends Application {
                         approved: dialog.approved
                     };
                     
-                    console.log("WoD Approval - Emitting response:", responseData);
                     sendSocketMessage(responseData);
                     
                     resolve(dialog.approved);
@@ -356,12 +313,7 @@ export class WodStApprovalDialog extends Application {
  * Initialize socket listeners for approval system
  */
 export function initializeApprovalSocket() {
-    console.log("WoD Approval - Initializing socket listeners");
-    console.log("WoD Approval - Current user:", game.user.name, "isGM:", game.user.isGM);
-    console.log("WoD Approval - Socket available:", !!game.socket);
-    
     if (!game.socket) {
-        console.error("WoD Approval - game.socket is not available! Cannot initialize approval system.");
         return;
     }
     
@@ -370,17 +322,13 @@ export function initializeApprovalSocket() {
     
     // Generic listener (backwards compatibility)
     game.socket.on('system.wodsystem', async (data) => {
-        console.log("WoD Approval - Socket received (generic):", data);
         await handleSocketData(data);
     });
     
     // Specific listeners (more reliable)
     game.socket.on('module.wodsystem', async (data) => {
-        console.log("WoD Approval - Socket received (module):", data);
         await handleSocketData(data);
     });
-    
-    console.log("WoD Approval - Socket listener registered successfully");
     
     // Register chat message button handlers
     registerChatButtonHandlers();
@@ -390,7 +338,6 @@ export function initializeApprovalSocket() {
         const flags = message.flags?.wodsystem;
         
         if (flags?.approvalResponse) {
-            console.log("WoD Approval - Received approval response via chat:", flags);
             
             // Trigger the hook so the waiting promise resolves
             Hooks.callAll('wodEffectApprovalResponse', {
@@ -400,7 +347,6 @@ export function initializeApprovalSocket() {
         }
         
         if (flags?.paradoxRemovalResponse) {
-            console.log("WoD Approval - Received Paradox removal response via chat:", flags);
             
             // Trigger the hook so the waiting promise resolves
             Hooks.callAll('wodParadoxRemovalResponse', {
@@ -409,15 +355,12 @@ export function initializeApprovalSocket() {
             });
         }
     });
-    
-    console.log("WoD Approval - Chat message listener registered for responses");
 }
 
 /**
  * Register click handlers for chat message approval buttons
  */
 function registerChatButtonHandlers() {
-    console.log("WoD Approval - Registering chat button handlers");
     
     // Use event delegation on the chat log
     $(document).on('click', '.approve-effect-btn', async function(event) {
@@ -425,10 +368,8 @@ function registerChatButtonHandlers() {
         event.stopPropagation();
         
         const requestId = $(this).data('request-id');
-        console.log("WoD Approval - Approve button clicked for request:", requestId);
         
         if (!game.user.isGM) {
-            console.warn("WoD Approval - Non-GM tried to approve");
             ui.notifications.warn("Only the Storyteller can approve effects.");
             return;
         }
@@ -446,8 +387,6 @@ function registerChatButtonHandlers() {
             </p>
         `);
         
-        console.log("WoD Approval - Calling Hook with:", {requestId, approved: true});
-        
         // Try to send via sockets first (for local testing)
         try {
             sendSocketMessage({
@@ -456,7 +395,6 @@ function registerChatButtonHandlers() {
                 approved: true
             });
         } catch (error) {
-            console.warn("WoD Approval - Socket send failed:", error);
         }
         
         // Trigger response hook locally for the GM
@@ -616,10 +554,8 @@ function registerChatButtonHandlers() {
         event.stopPropagation();
         
         const requestId = $(this).data('request-id');
-        console.log("WoD Approval - Deny button clicked for request:", requestId);
         
         if (!game.user.isGM) {
-            console.warn("WoD Approval - Non-GM tried to deny");
             ui.notifications.warn("Only the Storyteller can deny effects.");
             return;
         }
@@ -637,9 +573,8 @@ function registerChatButtonHandlers() {
             </p>
         `);
         
-        console.log("WoD Approval - Calling Hook with:", {requestId, approved: false});
+        Hooks.call('wodEffectApprovalResponse', {requestId, approved: false});
         
-        // Try to send via sockets first (for local testing)
         try {
             sendSocketMessage({
                 type: 'effectApprovalResponse',
@@ -647,7 +582,6 @@ function registerChatButtonHandlers() {
                 approved: false
             });
         } catch (error) {
-            console.warn("WoD Approval - Socket send failed:", error);
         }
         
         // Trigger response hook locally for the GM
@@ -690,6 +624,5 @@ function registerChatButtonHandlers() {
         ui.notifications.info(game.i18n.localize('WODSYSTEM.STApproval.EffectDenied'));
     });
     
-    console.log("WoD Approval - Chat button handlers registered");
 }
 

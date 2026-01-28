@@ -142,11 +142,91 @@
       </div>
       {{/if}}
 
+      <!-- Lore Paths (Demon) -->
+      {{#if (eq actorType "Demon")}}
+      <div class="advantage-section">
+        <h4>{{i18n 'Advantages.Lore'}} ({{config.advantages.lore.points}} {{i18n 'Wizard.Points'}})</h4>
+        {{#if validation.lore}}
+        <div class="points-tracker">
+          <span class="spent">{{validation.lore.spent}}</span> / 
+          <span class="allowed">{{validation.lore.allowed}}</span> {{i18n 'Wizard.PointsSpent'}}
+          {{#if (gt validation.lore.remaining 0)}}
+          <span class="remaining">({{validation.lore.remaining}} {{i18n 'Wizard.Remaining'}})</span>
+          {{/if}}
+        </div>
+        {{/if}}
+        
+        <div class="spheres-list">
+          {{#each lorePathsList}}
+          <div class="sphere-item" data-lore="{{id}}">
+            <span class="sphere-name">{{name}}</span>
+            <div class="sphere-controls">
+              <button type="button" 
+                      class="lore-decrease" 
+                      data-lore="{{id}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.lore id) 0) 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="sphere-value">{{default (lookup @root.wizardData.advantages.lore id) 0}}</span>
+              <button type="button" 
+                      class="lore-increase" 
+                      data-lore="{{id}}"
+                      {{#if (or (eq (default (lookup @root.wizardData.advantages.lore id) 0) @root.config.advantages.lore.maxAtCreation) (and @root.validation.lore (lte @root.validation.lore.remaining 0)))}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="sphere-dots">
+              {{{renderDots (default (lookup @root.wizardData.advantages.lore id) 0) @root.config.advantages.lore.maxAtCreation}}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Virtues (Mortal and Demon) -->
+      {{#if (or (eq actorType "Mortal") (eq actorType "Demon"))}}
+      <div class="advantage-section">
+        <h4>{{i18n 'Advantages.Virtues'}}</h4>
+        <p class="note">{{i18n 'Wizard.VirtuesDetermineWillpower'}}</p>
+        
+        <div class="spheres-list">
+          {{#each config.advantages.virtues.available}}
+          <div class="sphere-item" data-virtue="{{this}}">
+            <span class="sphere-name">{{this}}</span>
+            <div class="sphere-controls">
+              <button type="button" 
+                      class="sphere-decrease" 
+                      data-virtue="{{this}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.virtues this) @root.config.advantages.virtues.starting) 1)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <span class="sphere-value">{{default (lookup @root.wizardData.advantages.virtues this) @root.config.advantages.virtues.starting}}</span>
+              <button type="button" 
+                      class="sphere-increase" 
+                      data-virtue="{{this}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.virtues this) @root.config.advantages.virtues.starting) 5)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+            <div class="sphere-dots">
+              {{{renderDots (default (lookup @root.wizardData.advantages.virtues this) @root.config.advantages.virtues.starting) 5}}}
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+
       <!-- Willpower -->
       <div class="advantage-section">
         <h4>{{i18n 'Advantages.Willpower'}}</h4>
         <div class="willpower-info">
+          {{#if (or (eq actorType "Mortal") (eq actorType "Demon"))}}
+          <p>{{i18n 'Wizard.WillpowerFromVirtues'}}: <strong>{{default calculatedWillpower config.advantages.willpower.starting}}</strong></p>
+          {{else}}
           <p>{{i18n 'Wizard.StartingWillpower'}}: <strong>{{config.advantages.willpower.starting}}</strong></p>
+          {{/if}}
           <p class="note">{{i18n 'Wizard.CanIncreaseWillpowerWithFreebies'}}</p>
         </div>
       </div>

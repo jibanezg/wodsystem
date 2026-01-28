@@ -8,10 +8,10 @@
 
 /* Color variables for mage actor sheets (lowercase) */
 .wod.sheet.actor.mage {
-    /* Primary Colors - Purple/Gold (mystical/arcane) */
+    /* Primary Colors - Purple/Gold (mystical/arcane) - Enhanced gradient */
     --wod-primary: #7B2CBF;           /* Deep Purple - mysticism */
-    --wod-primary-dark: #5A189A;      /* Dark purple - arcane power */
-    --wod-primary-light: #9D4EDD;      /* Light purple - awakened */
+    --wod-primary-dark: #000000;      /* Black - deepest arcane */
+    --wod-primary-light: #D4AF37;      /* Bright Gold - awakened power */
     
     /* Background Colors - Mystical/Ethereal */
     --wod-bg-main: #F8F9FA;           /* Clean white */
@@ -61,10 +61,10 @@
 
 /* Color variables for Mage dialogs (capital M - Foundry auto-capitalizes) */
 .wod.dialog.Mage {
-    /* Primary Colors - Purple/Gold (mystical/arcane) */
+    /* Primary Colors - Purple/Gold (mystical/arcane) - Enhanced gradient */
     --wod-primary: #7B2CBF;
-    --wod-primary-dark: #5A189A;
-    --wod-primary-light: #9D4EDD;
+    --wod-primary-dark: #000000;
+    --wod-primary-light: #D4AF37;
     
     /* Background Colors */
     --wod-bg-main: #F8F9FA;
@@ -1338,7 +1338,7 @@
 
 /* Equipment Header - Purple gradient for Mage */
 .wod.sheet.actor.mage .tab[data-tab="equipment"] .equipment-header-compact {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
 }
 
 /* Equipment Type Tab - Active state */
@@ -1386,7 +1386,7 @@
 
 /* Footer Add Button */
 .wod.sheet.actor.mage .tab[data-tab="equipment"] .footer-add-btn {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
 }
 
 /* ========================================
@@ -1404,7 +1404,7 @@
 .app.dialog.Mage .window-header,
 .window-app.dialog.Mage .window-header,
 .window-app.Mage .window-header {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: #fff;
     border-bottom: 2px solid var(--wod-primary);
 }
@@ -1429,7 +1429,7 @@
 .app.dialog.mage.equipment-effects-dialog .window-content h3,
 .window-app.dialog.mage.equipment-effects-dialog .window-content h3,
 .window-app.mage.equipment-effects-dialog .window-content h3 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
 }
 
@@ -1455,7 +1455,7 @@
 .app.dialog.mage form.wod-effect-manager .effect-header-section h3,
 .app.dialog.mage form.wod-effect-manager .effect-metadata-section h3,
 .app.dialog.mage form.wod-effect-manager .effect-conditions-section h3 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
     padding: 8px 12px !important;
     border-radius: 3px !important;
@@ -1665,7 +1665,7 @@ form.wod-roll-dialog.Mage .trait-chip,
 .app.dialog.Mage .trait-chip,
 .window-app.dialog.Mage .trait-chip,
 .window-app.Mage form.wod-roll-dialog .trait-chip {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
 }
 
 .wod.dialog.roll-dialog.Mage .total-pool strong,
@@ -1684,7 +1684,7 @@ form.wod-roll-dialog.Mage .total-pool strong,
 .app.dialog.mage .pool-summary h3,
 .window-app.dialog.mage .pool-summary h3,
 .window-app.mage form.wod-roll-dialog .pool-summary h3 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
     padding: 8px 12px !important;
     border-radius: 3px !important;
@@ -1704,7 +1704,7 @@ form.wod-roll-dialog.Mage .total-pool strong,
 .app.dialog.mage .roll-config h3,
 .window-app.dialog.mage .roll-config h3,
 .window-app.mage form.wod-roll-dialog .roll-config h3 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
     padding: 8px 12px !important;
     border-radius: 3px !important;
@@ -1725,7 +1725,7 @@ form.wod-roll-dialog.Mage .total-pool strong,
 .window-app.dialog.mage .active-effects-section h4,
 .window-app.mage form.wod-roll-dialog .active-effects-section h4 {
     color: var(--wod-primary) !important;
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
     padding: 8px 12px !important;
     border-radius: 3px !important;
@@ -1835,7 +1835,7 @@ form.wod-effect-manager.mage .effect-conditions-section h3,
 .app.dialog.mage .window-content form.wod-effect-manager .effect-header-section h3,
 .app.dialog.mage .window-content form.wod-effect-manager .effect-metadata-section h3,
 .app.dialog.mage .window-content form.wod-effect-manager .effect-conditions-section h3 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
     padding: 8px 12px !important;
     border-radius: 3px !important;
@@ -1881,7 +1881,7 @@ form.wod-effect-manager.mage select:focus {
 .window-app.Mage.effect-manager .window-header,
 .app.dialog.mage.effect-manager .window-header,
 .app.dialog.Mage.effect-manager .window-header {
-    background: linear-gradient(135deg, var(--wod-primary, #7B2CBF) 0%, var(--wod-primary-dark, #5A189A) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
 }
 
 .window-app.mage.effect-manager .window-title,
@@ -1897,29 +1897,275 @@ form.wod-effect-manager.mage select:focus {
 
 /* Effect type indicators - Player (green -> purple) */
 .wod.sheet.actor.mage .effect-type-indicator.player {
-    background: linear-gradient(135deg, var(--wod-primary, #7B2CBF) 0%, var(--wod-primary-dark, #5A189A) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
 }
 
 /* Effect type indicators - ST (yellow -> purple) */
 .wod.sheet.actor.mage .effect-type-indicator.st {
-    background: linear-gradient(135deg, var(--wod-primary-light, #9D4EDD) 0%, var(--wod-primary, #7B2CBF) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
 }
 
 /* Add effect button (green -> purple) */
 .wod.sheet.actor.mage .add-effect-btn {
-    background: linear-gradient(135deg, var(--wod-primary, #7B2CBF) 0%, var(--wod-primary-dark, #5A189A) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     color: white !important;
 }
 
 .wod.sheet.actor.mage .add-effect-btn:hover {
-    background: linear-gradient(135deg, var(--wod-primary-light, #9D4EDD) 0%, var(--wod-primary, #7B2CBF) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     box-shadow: 0 4px 8px rgba(123, 44, 191, 0.3) !important;
 }
 
 /* Effect icon background (gray -> purple gradient) */
 .wod.sheet.actor.mage .effect-icon-small {
-    background: linear-gradient(135deg, var(--wod-primary-light, #9D4EDD) 0%, var(--wod-primary, #7B2CBF) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
     border-color: var(--wod-primary-dark, #5A189A) !important;
+}
+
+/* ========================================
+   CHARACTER CREATION WIZARD OVERLAY
+   ======================================== */
+
+.wod.sheet.actor.mage .wizard-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.wod.sheet.actor.mage .wizard-overlay-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 3rem;
+    animation: fadeInScale 0.4s ease-out;
+}
+
+.wod.sheet.actor.mage .wizard-overlay-icon {
+    font-size: 4rem;
+    color: var(--wod-primary, #7B2CBF);
+    margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.wod.sheet.actor.mage .wizard-overlay-content h2 {
+    color: white;
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+}
+
+.wod.sheet.actor.mage .wizard-overlay-description {
+    color: #b0b0b0;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+}
+
+.wod.sheet.actor.mage button.start-character-wizard-overlay {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: var(--wod-primary, #7B2CBF);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(123, 44, 191, 0.4);
+}
+
+.wod.sheet.actor.mage button.start-character-wizard-overlay:hover {
+    background: var(--wod-primary-dark, #5A189A);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(123, 44, 191, 0.6);
+}
+
+.wod.sheet.actor.mage button.start-character-wizard-overlay i {
+    font-size: 1.25rem;
+}
+
+.wod.sheet.actor.mage .wizard-overlay-hint {
+    margin-top: 1.5rem;
+    color: #666;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* ========================================
+   BACKGROUNDS (EXPANDED) TAB - MAGE
+   ======================================== */
+
+.wod.sheet.actor.mage .backgrounds-expanded-section {
+    padding: 5px;
+}
+
+.wod.sheet.actor.mage .backgrounds-expanded-section h2 {
+    margin: 0 0 3px 0;
+    font-size: 1.1em;
+    color: var(--wod-primary, #7B2CBF);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary, #7B2CBF);
+    padding-bottom: 3px;
+}
+
+.wod.sheet.actor.mage .backgrounds-expanded-section .section-description {
+    font-size: 0.7em;
+    color: var(--wod-text-alt, #b0b0b0);
+    text-align: center;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+/* Mage Background Card Styling */
+.wod.sheet.actor.mage .mage-bg-card {
+    background: var(--wod-bg-subtle, rgba(123, 44, 191, 0.1));
+    border: 1px solid var(--wod-border-light, rgba(123, 44, 191, 0.3));
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.mage .mage-bg-card:hover {
+    background: var(--wod-bg-subtle, rgba(123, 44, 191, 0.2));
+    border-color: var(--wod-primary, #7B2CBF);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(123, 44, 191, 0.3);
+}
+
+.wod.sheet.actor.mage .bg-card-mini-header .bg-rating {
+    color: var(--wod-primary, #7B2CBF);
+    font-weight: bold;
+    font-size: 0.8em;
+    background: rgba(123, 44, 191, 0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.wod.sheet.actor.mage .bg-card-mini-actions a:hover {
+    color: var(--wod-primary, #7B2CBF);
+}
+
+/* Mage Modal Styling */
+.wod.sheet.actor.mage .mage-bg-modal {
+    background: var(--wod-bg-main, #1A0A0A);
+    border: 2px solid var(--wod-primary, #7B2CBF);
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(123, 44, 191, 0.4);
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.wod.sheet.actor.mage .mage-bg-modal .bg-modal-header {
+    background: var(--wod-primary, #7B2CBF);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod.sheet.actor.mage .mage-select-bg-category,
+.wod.sheet.actor.mage .mage-select-background {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--wod-border-light, rgba(123, 44, 191, 0.3));
+    border-radius: 4px;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.wod.sheet.actor.mage .mage-save-bg-modal {
+    background: var(--wod-primary, #7B2CBF);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+
+.wod.sheet.actor.mage .mage-save-bg-modal:hover {
+    background: var(--wod-primary-dark, #5A189A);
+}
+
+.wod.sheet.actor.mage .mage-add-bg {
+    background: var(--wod-primary, #7B2CBF);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(123, 44, 191, 0.3);
+}
+
+.wod.sheet.actor.mage .mage-add-bg:hover {
+    background: var(--wod-primary-dark, #5A189A);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(123, 44, 191, 0.4);
+}
+
+/* Mage Category Section Styling */
+.wod.sheet.actor.mage .bg-category-section {
+    margin-bottom: 12px;
+    border: 1px solid var(--wod-border-light, rgba(123, 44, 191, 0.2));
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.mage .bg-category-header {
+    background: var(--wod-bg-subtle, rgba(123, 44, 191, 0.1));
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.wod.sheet.actor.mage .bg-category-header:hover {
+    background: var(--wod-bg-subtle, rgba(123, 44, 191, 0.2));
+}
+
+.wod.sheet.actor.mage .bg-category-header h3 {
+    margin: 0;
+    color: var(--wod-text-main, white);
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.mage .bg-category-header .category-count {
+    color: var(--wod-primary, #7B2CBF);
+    font-size: 0.85em;
+    background: rgba(123, 44, 191, 0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.wod.sheet.actor.mage .bg-category-content {
+    padding: 8px;
+}
+
+.wod.sheet.actor.mage .bg-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }

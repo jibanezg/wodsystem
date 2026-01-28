@@ -46,7 +46,6 @@ export class EquipmentMigration {
                 await Item.create(itemData, { parent: actor });
                 results.weapons++;
             } catch (error) {
-                console.error(`Error migrating weapon ${weapon.name || weapon.id}:`, error);
                 results.errors.push(`Weapon ${weapon.name || weapon.id}: ${error.message}`);
             }
         }
@@ -73,7 +72,6 @@ export class EquipmentMigration {
                 await Item.create(itemData, { parent: actor });
                 results.armor++;
             } catch (error) {
-                console.error(`Error migrating armor ${armorPiece.name || armorPiece.id}:`, error);
                 results.errors.push(`Armor ${armorPiece.name || armorPiece.id}: ${error.message}`);
             }
         }
@@ -98,7 +96,6 @@ export class EquipmentMigration {
                 await Item.create(itemData, { parent: actor });
                 results.gear++;
             } catch (error) {
-                console.error(`Error migrating gear ${gearItem.name || gearItem.id}:`, error);
                 results.errors.push(`Gear ${gearItem.name || gearItem.id}: ${error.message}`);
             }
         }

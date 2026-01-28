@@ -19,6 +19,18 @@
     box-sizing: border-box !important;
 }
 
+/* Exception for character creation wizard - needs to be wider */
+.app.dialog.character-wizard,
+.window-app.dialog.character-wizard,
+.app.character-wizard.dialog,
+.window-app.character-wizard.dialog,
+.app.dialog:has(.character-wizard),
+.window-app.dialog:has(.character-wizard) {
+    max-width: 900px !important;
+    min-width: 800px !important;
+    width: 800px !important;
+}
+
 /* ====================================
    HEADER
    ==================================== */

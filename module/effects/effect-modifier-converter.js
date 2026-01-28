@@ -264,7 +264,6 @@ export class EffectModifierConverter {
         let numValue = Number(value);
         
         if (isNaN(numValue)) {
-            console.warn(`WoD | Invalid modifier value: ${value}`);
             return 0;
         }
         

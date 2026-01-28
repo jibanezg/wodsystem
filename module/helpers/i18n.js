@@ -18,7 +18,6 @@
 export function i18n(key, data = {}) {
     // Check if game.i18n is available
     if (!game?.i18n) {
-        console.warn(`WoD System: game.i18n not available yet, returning key: ${key}`);
         return key;
     }
     
@@ -26,7 +25,6 @@ export function i18n(key, data = {}) {
     
     // If translation equals the key, it wasn't found - return key as fallback
     if (translation === key) {
-        console.warn(`WoD System: Translation key not found: ${key}`);
         return key;
     }
     

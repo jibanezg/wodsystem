@@ -2,6 +2,8 @@
   "WODSYSTEM": {
     "Mortal": "Mortal",
     "Technocrat": "Technocrat",
+    "Demon": "Demon",
+    "Earthbound": "Earthbound",
     
     "Common": {
       "SystemName": "WoD System",
@@ -96,6 +98,9 @@
     
     "Advantages": {
       "Willpower": "Willpower",
+      "Faith": "Faith",
+      "Virtues": "Virtues",
+      "Virtue": "Virtue",
       "Merits": "Merits",
       "Flaws": "Flaws",
       "Backgrounds": "Backgrounds",
@@ -175,6 +180,7 @@
         "Merits": "Merits",
         "Flaws": "Flaws",
         "Backgrounds": "Backgrounds",
+        "Lore": "Lore",
         "Spheres": "Spheres",
         "EnlightenedScience": "Enlightened Science",
         "Enlightenment": "Enlightenment (Arete)",
@@ -221,6 +227,14 @@
         "AvailableXP": "Available XP"
       },
       "Willpower": {
+        "Permanent": "Permanent",
+        "Temporary": "Temporary"
+      },
+      "Faith": {
+        "Permanent": "Permanent",
+        "Temporary": "Temporary"
+      },
+      "Torment": {
         "Permanent": "Permanent",
         "Temporary": "Temporary"
       },
@@ -765,6 +779,7 @@
       "Of": "of",
       "Attributes": "Attributes",
       "DistributeAttributes": "Distribute points among Physical, Social, and Mental attributes.",
+      "RandomizeAttributes": "Randomize Attributes",
       "ChoosePriority": "Choose Priority",
       "AssignPriority": "Assign primary ({primary} points), secondary ({secondary} points), and tertiary ({tertiary} points).",
       "Select": "Select",
@@ -785,6 +800,7 @@
       "MustSpendAll": "You must spend ALL points in each category before continuing.",
       "Abilities": "Abilities",
       "DistributeAbilities": "Distribute points among Talents, Skills, and Knowledges.",
+      "RandomizeAbilities": "Randomize Abilities",
       "AbilityGuide": "Ability Guide",
       "TalentsDesc": "Intuitive abilities - no training needed",
       "SkillsDesc": "Practiced abilities - learned through practice",
@@ -808,6 +824,7 @@
       "CharacterCreationWizard": "Character Creation Wizard",
       "TechnocratCharacter": "Technocrat Character",
       "MortalCharacter": "Mortal Character",
+      "DemonCharacter": "Demon Character",
       "StepConceptIdentity": "Concept & Identity",
       "StepConcept": "Concept",
       "StepAttributes": "Attributes",
@@ -826,11 +843,14 @@
       "FieldTradition": "Tradition",
       "FieldCabal": "Cabal",
       "FieldEssence": "Essence",
+      "FieldHouse": "House",
+      "FieldApocalypticForm": "Apocalyptic Form",
       "PlaceholderConcept": "e.g., Cybernetics Specialist, Reality Engineer",
       "PlaceholderAmalgam": "e.g., BioMechanics, MECHA",
       "PlaceholderEidolon": "e.g., Primordial, Pattern, Dynamic",
       "PlaceholderCabal": "e.g., The Golden Circle, The Silver Ladder",
       "PlaceholderEssence": "e.g., Primordial, Pattern, Dynamic",
+      "PlaceholderHouse": "e.g., The House of the Rising Sun, The House of Chains",
       "IsRequired": "is required",
       "FieldIsRequired": "{field} is required",
       "NoPermissionEditCharacter": "You don't have permission to edit this character. Wizard will be read-only.",
@@ -904,6 +924,7 @@
       "PointPerDot": "point per dot",
       "Current": "Current",
       "IndividualSpheresCannotExceedEnlightenment": "Individual spheres cannot exceed your Enlightenment ({enlightenment})",
+      "IndividualLoreCannotExceed3": "Individual lore paths cannot exceed 5 dots.",
       "EnlightenmentPurchasedInAdvantages": "Enlightenment was purchased in the Advantages step.",
       "FreebiePointsGuide": "Freebie Points Guide",
       "YouHaveFreebiePoints": "You have {total} freebie points to customize your character",
@@ -1108,6 +1129,9 @@
       "Technocrat": "Technocrat",
       "Mage": "Mage",
       "Spirit": "Spirit",
+      "Demon": "Demon",
+      "Demon-NPC": "Demon NPC",
+      "Earthbound": "Earthbound",
       "Mortal-NPC": "Mortal NPC",
       "Technocrat-NPC": "Technocrat NPC",
       "Mage-NPC": "Mage NPC"

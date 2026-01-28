@@ -57,7 +57,6 @@ export class MinimapHUD {
             hud.render();
         });
 
-        console.log("WoD | Minimap HUD initialized");
     }
 
     /**
@@ -76,7 +75,6 @@ export class MinimapHUD {
         try {
             userZoom = game.settings.get("wodsystem", "minimapZoom") || 1.0;
         } catch (e) {
-            console.warn("WoD Minimap: Zoom setting not registered yet, using default 1.0");
             userZoom = 1.0;
         }
 
@@ -311,7 +309,6 @@ export class MinimapHUD {
         try {
             currentZoom = game.settings.get("wodsystem", "minimapZoom") || 1.0;
         } catch (e) {
-            console.warn("WoD Minimap: Zoom setting not registered yet, using default 1.0");
             currentZoom = 1.0;
         }
         
@@ -321,7 +318,6 @@ export class MinimapHUD {
         try {
             game.settings.set("wodsystem", "minimapZoom", newZoom);
         } catch (e) {
-            console.warn("WoD Minimap: Could not save zoom setting:", e);
         }
         
         // Re-render minimap with new zoom
@@ -379,7 +375,6 @@ export class MinimapHUD {
         try {
             zoom = game.settings.get("wodsystem", "minimapZoom") || 1.0;
         } catch (e) {
-            console.warn("WoD Minimap: Zoom setting not registered yet, using default 1.0");
             zoom = 1.0;
         }
 

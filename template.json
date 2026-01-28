@@ -5,6 +5,9 @@
             "Technocrat",
             "Mage",
             "Spirit",
+            "Demon",
+            "Demon-NPC",
+            "Earthbound",
             "Mortal-NPC",
             "Technocrat-NPC",
             "Mage-NPC"
@@ -122,8 +125,9 @@
                     "maximum": 10
                 },
                 "torment": {
-                    "current": 0,
-                    "maximum": 10
+                    "temporary": 0,
+                    "maximum": 10,
+                    "permanent": 0
                 },
                 "willpower": {
                     "permanent": 3,
@@ -286,33 +290,85 @@
                 "traits": {
                     "inherit": "baseTraits",
                     "add": {
-                        "abilities": {
-                            "talents": {
-                                "Demonic Presence": 0
-                            },
-                            "skills": {
-                                "Infernal Lore": 0,
-                                "Corruption": 0
-                            },
-                            "knowledges": {
-                                "Hellish Secrets": 0
-                            }
+                        "identity": {
+                            "house": ""
                         },
                         "advantages": {
-                            "numina": {
-                                "Powers": {
-                                    "Infernal Might": 0,
-                                    "Hellfire": 0,
-                                    "Corruption": 0,
-                                    "Summoning": 0
-                                }
+                            "faith": {
+                                "temporary": 1,
+                                "maximum": 10,
+                                "permanent": 1
+                            },
+                            "torment": {
+                                "temporary": 0,
+                                "maximum": 10,
+                                "permanent": 0
                             }
                         },
+                        "lore": {},
+                        "apocalypticForm": "",
                         "miscellaneous": {
-                            "essence": {
-                                "current": 15,
-                                "maximum": 15
-                            }
+                            "isNPC": false
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": 0,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Demon-NPC": {
+                "name": "Demon-NPC",
+                "label": "Demon (NPC)",
+                "traits": {
+                    "inherit": "Demon",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
+                        }
+                    }
+                },
+                "prototypeToken": {
+                    "displayName": 20,
+                    "displayBars": 20,
+                    "disposition": -1,
+                    "width": 1,
+                    "height": 1,
+                    "texture": {
+                        "src": "icons/svg/mystery-man.svg"
+                    },
+                    "sight": {
+                        "enabled": true,
+                        "range": 60,
+                        "angle": 360,
+                        "visionMode": "darkvision"
+                    },
+                    "detectionModes": []
+                }
+            },
+            "Earthbound": {
+                "name": "Earthbound",
+                "label": "Earthbound",
+                "traits": {
+                    "inherit": "Demon",
+                    "add": {
+                        "miscellaneous": {
+                            "isNPC": true,
+                            "disposition": "neutral"
                         }
                     }
                 },

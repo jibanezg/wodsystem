@@ -5,10 +5,10 @@
  */
 
 .wod.sheet.actor.Mortal {
-    /* Primary Colors - Green (life/nature) */
+    /* Primary Colors - Green (life/nature) - Enhanced gradient */
     --wod-primary: #2D5016;           /* Deep forest green (life) */
-    --wod-primary-dark: #1C3310;      /* Very dark green (almost black) */
-    --wod-primary-light: #4A7C0F;     /* Brighter green (vitality) */
+    --wod-primary-dark: #000000;      /* Black - deepest nature */
+    --wod-primary-light: #90EE90;     /* Bright Light Green (vitality) */
     
     /* Background Colors */
     --wod-bg-main: #ffffff;           /* Pure white main background */
@@ -366,7 +366,7 @@
 /* Initiative Roll Display - Similar style to reference cards */
 /* Note: These styles are global (not scoped to .wod.sheet.actor.Mortal) because chat messages are not within that context */
 .wod-initiative-card {
-    background: linear-gradient(135deg, #f8f8f8 0%, #e0e0e0 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #90EE90) 0%, var(--wod-primary, #2D5016) 50%, var(--wod-primary-dark, #000000) 100%);
     border: 2px solid #2D5016;
     border-left: 4px solid #2D5016;
     border-radius: 8px;
@@ -1026,4 +1026,34 @@
 .wod.sheet.actor.mortal .backgrounds-expanded-section .floating-add-bg:hover {
     background: var(--wod-primary);
     transform: scale(1.1);
+}
+
+/* ========================================
+   CHAT MESSAGE THEMING BY ACTOR TYPE
+   ======================================== */
+
+/* Demon chat messages - Fire/Infernal theme */
+.chat-message.actor-type-demon .message-content,
+.chat-message.actor-type-demon-npc .message-content {
+    background: linear-gradient(135deg, var(--wod-primary-light, #90EE90) 0%, var(--wod-primary, #2D5016) 50%, var(--wod-primary-dark, #000000) 100%);
+    border-left: 4px solid #DC143C;
+    color: #FFFFFF;
+}
+
+.chat-message.actor-type-demon .message-header,
+.chat-message.actor-type-demon-npc .message-header {
+    color: #FFB6C1;
+    border-bottom: 1px solid #DC143C;
+}
+
+/* Earthbound chat messages - Horrific/Corruption theme */
+.chat-message.actor-type-earthbound .message-content {
+    background: linear-gradient(135deg, var(--wod-primary-light, #90EE90) 0%, var(--wod-primary, #2D5016) 50%, var(--wod-primary-dark, #000000) 100%);
+    border-left: 4px solid #8B0000;
+    color: #E0E0E0;
+}
+
+.chat-message.actor-type-earthbound .message-header {
+    color: #B8860B;
+    border-bottom: 1px solid #8B0000;
 }

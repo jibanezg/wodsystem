@@ -44,6 +44,13 @@
           <li>{{i18n 'Spheres.Spheres'}}: {{config.freebies.costs.sphere}} {{i18n 'Wizard.Points'}}</li>
           <li>{{i18n 'Advantages.Enlightenment'}}: {{config.freebies.costs.enlightenment}} {{i18n 'Wizard.Points'}}</li>
           {{/if}}
+          {{#if (eq actorType "Demon")}}
+          <li>{{i18n 'Advantages.Lore'}}: {{config.freebies.costs.lore}} {{i18n 'Wizard.Points'}}</li>
+          <li>{{i18n 'Advantages.Faith'}}: {{config.freebies.costs.faith}} {{i18n 'Wizard.Points'}}</li>
+          {{/if}}
+          {{#if config.advantages.virtues}}
+          <li>{{i18n 'Advantages.Virtues'}}: {{config.freebies.costs.virtue}} {{i18n 'Wizard.Points'}}</li>
+          {{/if}}
           <li>{{i18n 'Advantages.Willpower'}}: {{config.freebies.costs.willpower}} {{i18n 'Wizard.Point'}}</li>
         </ul>
       </div>
@@ -200,6 +207,97 @@
         <div class="enlightenment-freebie">
           <p>{{i18n 'Wizard.Current'}}: <strong>{{default wizardData.advantages.enlightenment config.advantages.enlightenment.starting}}</strong></p>
           <p class="note"><i class="fas fa-info-circle"></i> {{i18n 'Wizard.EnlightenmentPurchasedInAdvantages'}}</p>
+        </div>
+      </div>
+      {{/if}}
+
+      <!-- Lore Paths (Demon only) -->
+      {{#if (eq actorType "Demon")}}
+      <div class="freebie-section">
+        <h4>{{i18n 'Advantages.Lore'}} ({{config.freebies.costs.lore}} {{i18n 'Wizard.PointsPerDot'}})</h4>
+        <p class="note"><i class="fas fa-info-circle"></i> {{i18n 'Wizard.IndividualLoreCannotExceed3'}}.</p>
+        <div class="freebie-list">
+          {{#each lorePathsList}}
+          <div class="freebie-item">
+            <span class="item-name">{{name}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{default (lookup @root.wizardData.advantages.lore id) 0}}</span>
+            <div class="freebie-controls">
+              <button type="button" 
+                      class="freebie-decrease" 
+                      data-type="lore" 
+                      data-target="{{id}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.lore id) 0) 0)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <button type="button" 
+                      class="freebie-increase" 
+                      data-type="lore" 
+                      data-target="{{id}}"
+                      {{#if (gte (default (lookup @root.wizardData.advantages.lore id) 0) @root.config.freebies.limits.lore)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+      <!-- Faith (Demon only) -->
+      <div class="freebie-section">
+        <h4>{{i18n 'Advantages.Faith'}} ({{config.freebies.costs.faith}} {{i18n 'Wizard.PointsPerDot'}})</h4>
+        <div class="freebie-list">
+          <div class="freebie-item">
+            <span class="item-name">{{i18n 'Advantages.Faith'}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{default wizardData.advantages.faith config.advantages.faith.starting}}</span>
+            <div class="freebie-controls">
+              <button type="button" 
+                      class="freebie-decrease" 
+                      data-type="faith" 
+                      data-target="faith"
+                      {{#if (eq (default wizardData.advantages.faith config.advantages.faith.starting) config.advantages.faith.starting)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <button type="button" 
+                      class="freebie-increase" 
+                      data-type="faith" 
+                      data-target="faith"
+                      {{#if (gte (default wizardData.advantages.faith config.advantages.faith.starting) 10)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{/if}}
+
+      <!-- Virtues (Mortal and Demon) -->
+      {{#if config.advantages.virtues}}
+      <div class="freebie-section">
+        <h4>{{i18n 'Advantages.Virtues'}} ({{config.freebies.costs.virtue}} {{i18n 'Wizard.PointsPerDot'}})</h4>
+        <div class="freebie-list">
+          {{#each config.advantages.virtues.available}}
+          <div class="freebie-item">
+            <span class="item-name">{{this}}</span>
+            <span class="item-current">{{i18n 'Wizard.Current'}}: {{default (lookup @root.wizardData.advantages.virtues this) config.advantages.virtues.starting}}</span>
+            <div class="freebie-controls">
+              <button type="button" 
+                      class="freebie-decrease" 
+                      data-type="virtue" 
+                      data-target="{{this}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.virtues this) config.advantages.virtues.starting) config.advantages.virtues.starting)}}disabled{{/if}}>
+                <i class="fas fa-minus"></i>
+              </button>
+              <button type="button" 
+                      class="freebie-increase" 
+                      data-type="virtue" 
+                      data-target="{{this}}"
+                      {{#if (eq (default (lookup @root.wizardData.advantages.virtues this) config.advantages.virtues.starting) 5)}}disabled{{/if}}>
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          {{/each}}
         </div>
       </div>
       {{/if}}

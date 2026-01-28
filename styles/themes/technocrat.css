@@ -8,10 +8,10 @@
 
 /* Color variables for technocrat actor sheets (lowercase) */
 .wod.sheet.actor.technocrat {
-    /* Primary Colors - Blue/Steel (technology/precision) */
+    /* Primary Colors - Blue/Steel (technology/precision) - Enhanced gradient */
     --wod-primary: #4682B4;           /* Steel Blue - technology */
-    --wod-primary-dark: #2F4F6F;      /* Dark slate - precision */
-    --wod-primary-light: #6CA6CD;     /* Sky blue - enlightenment */
+    --wod-primary-dark: #000000;      /* Black - deepest precision */
+    --wod-primary-light: #87CEEB;     /* Bright Sky Blue - enlightenment */
     
     /* Background Colors - Clinical/Sterile */
     --wod-bg-main: #F8F9FA;           /* Clean white */
@@ -60,10 +60,10 @@
 
 /* Color variables for Technocrat dialogs (capital T - Foundry auto-capitalizes) */
 .wod.dialog.Technocrat {
-    /* Primary Colors - Blue/Steel (technology/precision) */
+    /* Primary Colors - Blue/Steel (technology/precision) - Enhanced gradient */
     --wod-primary: #4682B4;
-    --wod-primary-dark: #2F4F6F;
-    --wod-primary-light: #6CA6CD;
+    --wod-primary-dark: #000000;
+    --wod-primary-light: #87CEEB;
     
     /* Background Colors */
     --wod-bg-main: #F8F9FA;

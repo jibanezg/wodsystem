@@ -1,0 +1,46 @@
+<!-- Demon/Earthbound Identity Section - Character Header -->
+<section class="sheet-header">
+    <div class="identity-section demon-identity">
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Name'}}</label>
+            <input type="text" name="system.identity.name" value="{{actor.system.identity.name}}" />
+        </div>
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Concept'}}</label>
+            <input type="text" name="system.identity.concept" value="{{actor.system.identity.concept}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.ConceptPlaceholder'}}" />
+        </div>
+        {{#if isDemon}}
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.House'}}</label>
+            <select name="system.identity.house">
+                <option value="">{{i18n 'WODSYSTEM.Common.Select'}}</option>
+                {{#each houses}}
+                <option value="{{this}}" {{#if (eq ../actor.system.identity.house this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+            </select>
+        </div>
+        {{/if}}
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Visage'}}</label>
+            <input type="text" name="system.apocalypticForm" value="{{apocalypticFormName}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.VisagePlaceholder'}}" readonly />
+        </div>
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Nature'}}</label>
+            <input type="text" name="system.identity.nature" value="{{actor.system.identity.nature}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.NaturePlaceholder'}}" />
+        </div>
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Demeanor'}}</label>
+            <input type="text" name="system.identity.demeanor" value="{{actor.system.identity.demeanor}}" placeholder="{{i18n 'WODSYSTEM.CharacterSheet.Header.DemeanorPlaceholder'}}" />
+        </div>
+        {{#if isNPC}}
+        <div class="identity-field">
+            <label>{{i18n 'WODSYSTEM.CharacterSheet.Header.Disposition'}}</label>
+            <select name="system.miscellaneous.disposition">
+                <option value="neutral" {{#if (eq actor.system.miscellaneous.disposition "neutral")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.DispositionNeutral'}}</option>
+                <option value="ally" {{#if (eq actor.system.miscellaneous.disposition "ally")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.DispositionAlly'}}</option>
+                <option value="aggressive" {{#if (eq actor.system.miscellaneous.disposition "aggressive")}}selected{{/if}}>{{i18n 'WODSYSTEM.CharacterSheet.Header.DispositionAggressive'}}</option>
+            </select>
+        </div>
+        {{/if}}
+    </div>
+</section>

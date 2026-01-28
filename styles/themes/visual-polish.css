@@ -512,43 +512,55 @@
 
 /* Tracks container - shared between willpower and paradox */
 .wod.sheet.actor .willpower-tracks,
-.wod.sheet.actor .paradox-tracks {
+.wod.sheet.actor .paradox-tracks,
+.wod.sheet.actor .faith-tracks,
+.wod.sheet.actor .torment-tracks {
     display: flex;
     flex-direction: column;
     gap: 3px;
     padding: 5px;
 }
 
-/* Permanent tracks - shared between willpower and paradox */
+/* Permanent tracks - shared between willpower, paradox, faith, and torment */
 .wod.sheet.actor .willpower-permanent,
-.wod.sheet.actor .paradox-permanent {
+.wod.sheet.actor .paradox-permanent,
+.wod.sheet.actor .faith-permanent,
+.wod.sheet.actor .torment-permanent {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.7em;
 }
 
-/* Temporary tracks - shared between willpower and paradox */
+/* Temporary tracks - shared between willpower, paradox, faith, and torment */
 .wod.sheet.actor .willpower-temporary,
-.wod.sheet.actor .paradox-temporary {
+.wod.sheet.actor .paradox-temporary,
+.wod.sheet.actor .faith-temporary,
+.wod.sheet.actor .torment-temporary {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.7em;
 }
 
-/* Labels - shared between willpower and paradox */
+/* Labels - shared between willpower, paradox, faith, and torment */
 .willpower-permanent label,
 .willpower-temporary label,
 .paradox-permanent label,
-.paradox-temporary label {
+.paradox-temporary label,
+.faith-permanent label,
+.faith-temporary label,
+.torment-permanent label,
+.torment-temporary label {
     font-weight: bold;
     margin-right: 3px;
 }
 
 /* Temporary uses SQUARES instead of circles - shared */
 .wod.sheet.actor .willpower-temporary .dot,
-.wod.sheet.actor .paradox-temporary .dot {
+.wod.sheet.actor .paradox-temporary .dot,
+.wod.sheet.actor .faith-temporary .dot,
+.wod.sheet.actor .torment-temporary .dot {
     border-radius: 0;
 }
 

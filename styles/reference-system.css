@@ -484,6 +484,46 @@ ul.bullet-section li strong {
     margin-right: 6px;
 }
 
+/* Lore tooltip styling - matching background tooltips exactly */
+.wod-reference-tooltip .type-badge.lore-house {
+    background: #9C27B0;
+    color: white;
+}
+
+.wod-reference-tooltip .lore-system {
+    margin: 8px 0;
+    padding: 6px;
+    background: rgba(156, 39, 176, 0.1);
+    border-left: 3px solid #9C27B0;
+    border-radius: 0 4px 4px 0;
+}
+
+.wod-reference-tooltip .lore-evocations {
+    margin: 8px 0;
+    padding: 6px;
+    background: rgba(70, 130, 180, 0.08);
+    border-left: 3px solid #4682B4;
+    border-radius: 0 4px 4px 0;
+}
+
+.wod-reference-tooltip .lore-evocations ul {
+    margin: 4px 0 0 0;
+    padding-left: 20px;
+    list-style: none;
+}
+
+.wod-reference-tooltip .lore-evocations li {
+    margin: 4px 0;
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: #333;
+}
+
+.wod-reference-tooltip .lore-evocations li strong {
+    color: #4682B4;
+    margin-right: 4px;
+}
+
 /* Description */
 .wod-reference-card .reference-description {
     margin-bottom: 12px;
@@ -1088,6 +1128,87 @@ div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplet
 .wod-sphere-table-tooltip .post-table-btn:hover {
     background: var(--wod-accent, #5E1B7A);
     transform: scale(1.05);
+}
+
+/* -------------------------------------------- */
+/*  Lore Chat Cards                             */
+/* -------------------------------------------- */
+
+.wod-chat-lore {
+    background: white;
+    border: 2px solid var(--wod-primary, #4682B4);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 8px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.wod-chat-lore h3 {
+    margin: 0 0 12px 0;
+    color: var(--wod-primary, #4682B4);
+    font-size: 1.3em;
+    font-weight: bold;
+    border-bottom: 2px solid var(--wod-primary, #4682B4);
+    padding-bottom: 8px;
+}
+
+.wod-chat-lore h4 {
+    margin: 16px 0 8px 0;
+    color: #333;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.wod-chat-lore h5 {
+    margin: 12px 0 6px 0;
+    color: #555;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.wod-chat-lore p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.wod-chat-lore .type-badge.lore-house {
+    background: #9C27B0;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.lore-system-chat {
+    background: rgba(156, 39, 176, 0.1);
+    border-left: 4px solid #9C27B0;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.evocation-chat {
+    background: rgba(70, 130, 180, 0.08);
+    border-left: 4px solid #4682B4;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.evocation-chat h5 {
+    color: #4682B4;
+    margin: 0 0 8px 0;
+}
+
+.evocation-chat p {
+    margin: 4px 0;
+}
+
+.evocation-chat strong {
+    color: #333;
+    font-weight: 600;
 }
 
 /* -------------------------------------------- */

@@ -1,0 +1,87 @@
+/**
+ * Demon Wizard Input Overrides
+ * This file MUST load after character-wizard.css to override base styles
+ * Forces white backgrounds and black text for demon character creation wizard inputs
+ */
+
+/* Force white backgrounds and black text for ALL demon wizard inputs */
+.app.dialog.Demon .character-wizard .form-group input[type="text"],
+.app.dialog.Demon .character-wizard .form-group select,
+.app.dialog.Demon .character-wizard .form-group textarea,
+.window-app.dialog.Demon .character-wizard .form-group input[type="text"],
+.window-app.dialog.Demon .character-wizard .form-group select,
+.window-app.dialog.Demon .character-wizard .form-group textarea,
+.app.dialog.demon .character-wizard .form-group input[type="text"],
+.app.dialog.demon .character-wizard .form-group select,
+.app.dialog.demon .character-wizard .form-group textarea,
+.window-app.dialog.demon .character-wizard .form-group input[type="text"],
+.window-app.dialog.demon .character-wizard .form-group select,
+.window-app.dialog.demon .character-wizard .form-group textarea,
+.app.character-wizard.Demon .character-wizard .form-group input[type="text"],
+.app.character-wizard.Demon .character-wizard .form-group select,
+.app.character-wizard.Demon .character-wizard .form-group textarea,
+.window-app.character-wizard.Demon .character-wizard .form-group input[type="text"],
+.window-app.character-wizard.Demon .character-wizard .form-group select,
+.window-app.character-wizard.Demon .character-wizard .form-group textarea,
+.app.character-wizard.demon .character-wizard .form-group input[type="text"],
+.app.character-wizard.demon .character-wizard .form-group select,
+.app.character-wizard.demon .character-wizard .form-group textarea,
+.window-app.character-wizard.demon .character-wizard .form-group input[type="text"],
+.window-app.character-wizard.demon .character-wizard .form-group select,
+.window-app.character-wizard.demon .character-wizard .form-group textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+}
+
+/* Fix virtue/sphere value displays - white background, black text */
+.character-wizard .sphere-value,
+.character-wizard .attr-value,
+.character-wizard .ability-value {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    padding: 4px 8px !important;
+    border-radius: 3px !important;
+    display: inline-block !important;
+    min-width: 30px !important;
+    text-align: center !important;
+}
+
+.app.dialog.Demon .character-wizard .sphere-value,
+.app.dialog.Demon .character-wizard .attr-value,
+.app.dialog.Demon .character-wizard .ability-value,
+.window-app.dialog.Demon .character-wizard .sphere-value,
+.window-app.dialog.Demon .character-wizard .attr-value,
+.window-app.dialog.Demon .character-wizard .ability-value,
+.app.dialog.demon .character-wizard .sphere-value,
+.app.dialog.demon .character-wizard .attr-value,
+.app.dialog.demon .character-wizard .ability-value,
+.window-app.dialog.demon .character-wizard .sphere-value,
+.window-app.dialog.demon .character-wizard .attr-value,
+.window-app.dialog.demon .character-wizard .ability-value,
+.app.character-wizard.Demon .character-wizard .sphere-value,
+.app.character-wizard.Demon .character-wizard .attr-value,
+.app.character-wizard.Demon .character-wizard .ability-value,
+.window-app.character-wizard.Demon .character-wizard .sphere-value,
+.window-app.character-wizard.Demon .character-wizard .attr-value,
+.window-app.character-wizard.Demon .character-wizard .ability-value,
+.app.character-wizard.demon .character-wizard .sphere-value,
+.app.character-wizard.demon .character-wizard .attr-value,
+.app.character-wizard.demon .character-wizard .ability-value,
+.window-app.character-wizard.demon .character-wizard .sphere-value,
+.window-app.character-wizard.demon .character-wizard .attr-value,
+.window-app.character-wizard.demon .character-wizard .ability-value {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    padding: 4px 8px !important;
+    border-radius: 3px !important;
+    display: inline-block !important;
+    min-width: 30px !important;
+    text-align: center !important;
+}

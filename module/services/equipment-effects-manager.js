@@ -34,13 +34,7 @@ export class EquipmentEffectsManager {
             // Check for equipment effects configuration changes (when item is already equipped)
             else if (updateData.system?.equipmentEffects !== undefined && freshItem.system?.equipped) {
                 // Item is equipped and effects configuration changed - reapply effects
-                console.log("WoD Equipment Effects: Equipment effects configuration changed, reapplying", {
-                    itemId: freshItem.id,
-                    itemName: freshItem.name,
-                    actorId: actor.id,
-                    newEffects: updateData.system.equipmentEffects
-                });
-                const effects = freshItem.system?.equipmentEffects || {};
+                                const effects = freshItem.system?.equipmentEffects || {};
                 const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
                 
                 if (hasEffects) {
@@ -138,12 +132,7 @@ export class EquipmentEffectsManager {
                     // This ensures effects work immediately when token is added to scene
                     await new Promise(resolve => setTimeout(resolve, 100));
                     
-                    console.log("WoD Equipment Effects: Token created, applying actor effects", { 
-                        actorId: actor.id, 
-                        actorName: actor.name,
-                        tokenId: token.id || token.document?.id
-                    });
-                    await manager._applyActorEffects(actor, token);
+                                        await manager._applyActorEffects(actor, token);
                 } else {
                     console.debug("WoD Equipment Effects: User does not have permission to update token location on create", {
                         userId: game.user.id,
@@ -350,12 +339,10 @@ export class EquipmentEffectsManager {
 
         if (isEquipped && hasEffects) {
             // Apply effects
-            console.log("WoD Equipment Effects: Equipping item with effects", { itemId, itemName: item.name, effects });
-            await this._applyItemEffects(actor, item, effects);
+                        await this._applyItemEffects(actor, item, effects);
         } else if (!isEquipped) {
             // Remove effects
-            console.log("WoD Equipment Effects: Unequipping item, removing effects", { itemId, itemName: item.name, effects });
-            await this._removeItemEffects(actor, itemId);
+                        await this._removeItemEffects(actor, itemId);
         }
     }
 

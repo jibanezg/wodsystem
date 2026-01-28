@@ -285,7 +285,6 @@ export class WodMinimapConfigDialog extends FormApplication {
             if (manager) {
                 await manager._precalculateWallsByLevel(this.scene, config);
             } else {
-                console.warn("WoD Minimap: Manager not available for pre-calculation");
             }
         }
 

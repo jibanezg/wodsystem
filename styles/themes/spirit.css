@@ -8,10 +8,10 @@
 
 /* Color variables for spirit actor sheets (lowercase) */
 .wod.sheet.actor.spirit {
-    /* Primary Colors - Silver/Blue (ethereal/otherworldly) */
+    /* Primary Colors - Silver/Blue (ethereal/otherworldly) - Enhanced gradient */
     --wod-primary: #4A90E2;           /* Sky Blue - ethereal */
-    --wod-primary-dark: #2E5C8A;      /* Deep Blue - spiritual */
-    --wod-primary-light: #6BA3E8;      /* Light Blue - transcendent */
+    --wod-primary-dark: #000000;      /* Black - deepest spiritual */
+    --wod-primary-light: #E0F2FF;      /* Bright White-Blue - transcendent */
     
     /* Background Colors - Ethereal/Misty */
     --wod-bg-main: #F5F7FA;           /* Misty white */
@@ -60,10 +60,10 @@
 
 /* Color variables for Spirit dialogs (capital S - Foundry auto-capitalizes) */
 .wod.dialog.Spirit {
-    /* Primary Colors - Silver/Blue (ethereal/otherworldly) */
+    /* Primary Colors - Silver/Blue (ethereal/otherworldly) - Enhanced gradient */
     --wod-primary: #4A90E2;
-    --wod-primary-dark: #2E5C8A;
-    --wod-primary-light: #6BA3E8;
+    --wod-primary-dark: #000000;
+    --wod-primary-light: #E0F2FF;
     
     /* Background Colors */
     --wod-bg-main: #F5F7FA;
@@ -196,7 +196,7 @@
 .wod.sheet.actor.spirit .willpower-section h4 {
     margin: 0 0 8px 0;
     padding: 8px 12px;
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #E0F2FF) 0%, var(--wod-primary, #4A90E2) 50%, var(--wod-primary-dark, #000000) 100%);
     color: white;
     border-radius: 4px;
     text-align: center;
@@ -253,7 +253,7 @@
 }
 
 .wod.sheet.actor.spirit .spirit-notes-section h4 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #E0F2FF) 0%, var(--wod-primary, #4A90E2) 50%, var(--wod-primary-dark, #000000) 100%);
     color: white;
     padding: 8px 12px;
     border-radius: 4px;
@@ -325,7 +325,7 @@
 }
 
 .wod.sheet.actor.spirit .essence-section h2 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #E0F2FF) 0%, var(--wod-primary, #4A90E2) 50%, var(--wod-primary-dark, #000000) 100%);
     color: white;
     padding: 10px 15px;
     border-radius: 4px;
@@ -594,7 +594,7 @@
 }
 
 .wod.sheet.actor.spirit .charms-section h2 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #E0F2FF) 0%, var(--wod-primary, #4A90E2) 50%, var(--wod-primary-dark, #000000) 100%);
     color: white;
     padding: 10px 15px;
     border-radius: 4px;
@@ -891,7 +891,7 @@
 }
 
 .wod.sheet.actor.spirit .s-advantages-section h2 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #E0F2FF) 0%, var(--wod-primary, #4A90E2) 50%, var(--wod-primary-dark, #000000) 100%);
     color: white;
     padding: 10px 15px;
     border-radius: 4px;
@@ -1216,7 +1216,7 @@
 }
 
 .wod.sheet.actor.spirit .spirit-powers-summary h3 {
-    background: linear-gradient(135deg, var(--wod-primary) 0%, var(--wod-primary-dark) 100%);
+    background: linear-gradient(135deg, var(--wod-primary-light, #E0F2FF) 0%, var(--wod-primary, #4A90E2) 50%, var(--wod-primary-dark, #000000) 100%);
     color: white;
     padding: 3px 6px !important;
     border-radius: 4px;

@@ -1,0 +1,2838 @@
+/**
+ * Demon Theme - Fire, Infernal, Wrath
+ * Color Palette: Deep Red/Orange - fire, infernal, wrathful
+ * Identity: Fallen angel, infernal power, divine wrath
+ * 
+ * Demon: The Fallen - Demons
+ */
+
+/* Color variables for demon actor sheets (lowercase) */
+.wod.sheet.actor.demon {
+    /* Primary Colors - Fire/Infernal (fire gradient: bright yellow-orange-black) */
+    --wod-primary: #FF8C00;           /* Orange - middle flame */
+    --wod-primary-dark: #000000;     /* Black - charred edges */
+    --wod-primary-light: #FFD700;     /* Bright yellow - hot center */
+    
+    /* Actor Sheet Input Variables - white backgrounds, black text */
+    --wod-input-bg: #FFFFFF;
+    --wod-input-text: #000000;
+    --wod-input-border: #FF8C00;
+    
+    /* Background Colors - Pale yellow/almost white for sections */
+    --wod-bg-main: #FFFEF0;           /* Pale yellow - almost white */
+    --wod-bg-secondary: #FFFEF0;      /* Pale yellow - almost white */
+    --wod-bg-tertiary: #FFFEF0;       /* Pale yellow - almost white */
+    --wod-bg-hover: #FFF8DC;          /* Slightly darker pale yellow for hover */
+    --wod-bg-input: #2D0F0F;          /* Dark input backgrounds (keep dark for contrast) */
+    --wod-bg-subtle: #FFFEF0;         /* Pale yellow */
+    --wod-bg-light: #FFFEF0;          /* Pale yellow */
+    --wod-bg-alt: #FFFEF0;            /* Pale yellow */
+    --wod-bg-hover-light: #FFF8DC;    /* Slightly darker pale yellow for hover */
+    --wod-bg-highlight: #FFF8DC;      /* Slightly darker pale yellow */
+    --wod-bg-info: #FFFEF0;           /* Pale yellow */
+    
+    /* Border Colors - Fiery */
+    --wod-border-main: #FF8C00;       /* Orange main borders */
+    --wod-border-dark: #000000;       /* Black borders for sections */
+    --wod-border-light: #FFD700;       /* Bright yellow for inputs */
+    --wod-border-subtle: #FF8C00;      /* Orange subtle borders */
+    --wod-border-info: #FF8C00;        /* Orange info borders */
+    
+    /* Text Colors - High Contrast */
+    --wod-text-main: #FFFFFF;          /* White primary text */
+    --wod-text-light: white;           /* White text on dark backgrounds */
+    --wod-text-alt: #FFB6C1;           /* Light pink secondary text */
+    --wod-text-inverse: #1A0A0A;       /* Dark inverse text */
+    
+    /* Status Colors */
+    --wod-success: #43A047;           /* Green for success */
+    --wod-danger: #FF8C00;             /* Orange for danger */
+    --wod-error: #FF8C00;              /* Orange for errors */
+    --wod-error-dark: #000000;         /* Black */
+    --wod-danger-dark: #000000;        /* Black danger */
+    --wod-warning: #FFD700;            /* Bright yellow warning */
+    --wod-info: #FFFEF0;               /* Pale yellow info background */
+    
+    /* Accents - Fire/Ember */
+    --wod-accent-fire: #FFD700;        /* Bright yellow fire */
+    --wod-accent-ember: #FF8C00;       /* Orange ember */
+    
+    /* Health Damage Colors - Fire theme */
+    --wod-damage-bashing: #FF8C00;     /* Orange X mark */
+    --wod-damage-lethal: #FF8C00;      /* Orange stripes */
+    --wod-damage-aggravated: #000000;  /* Black fill */
+}
+
+/* Sheet body - use pale yellow background */
+.wod.sheet.actor.demon .sheet-body {
+    background: #FFFEF0 !important;
+}
+
+/* Sheet header - pale yellow background */
+.wod.sheet.actor.demon .sheet-header {
+    background: #FFFEF0 !important;
+}
+
+/* Identity section background - pale yellow */
+.wod.sheet.actor.demon .identity-section {
+    background: #FFFEF0 !important;
+    padding: 8px !important;
+    border-radius: 3px !important;
+}
+
+/* Color variables for Demon dialogs (capital D - Foundry auto-capitalizes) */
+.wod.dialog.Demon,
+.app.dialog.Demon,
+.window-app.dialog.Demon,
+.app.dialog.demon,
+.window-app.dialog.demon,
+.app.character-wizard.Demon,
+.window-app.character-wizard.Demon,
+.app.character-wizard.demon,
+.window-app.character-wizard.demon {
+    /* Primary Colors - Fire/Infernal */
+    --wod-primary: #FF8C00;
+    --wod-primary-dark: #000000;
+    --wod-primary-light: #FFD700;
+    
+    /* Background Colors */
+    --wod-bg-main: #1A0A0A;
+    --wod-bg-secondary: #2D0F0F;
+    --wod-bg-tertiary: #3D1A1A;
+    --wod-bg-hover: #4D2A2A;
+    --wod-bg-input: #2D0F0F;
+    --wod-bg-subtle: #250D0D;
+    --wod-bg-light: #3D1A1A;
+    
+    /* Border Colors */
+    --wod-border-main: #FF8C00;
+    --wod-border-light: #FFD700;
+    --wod-border-info: #FF8C00;
+    
+    /* Text Colors */
+    --wod-text-main: #FFFFFF;
+    --wod-text-light: white;
+    --wod-text-alt: #FFB6C1;
+    
+    /* Status Colors */
+    --wod-success: #43A047;
+    --wod-danger: #FF8C00;
+    --wod-danger-dark: #000000;
+    
+    /* Character Wizard CSS Variables - Map to demon theme */
+    --text-primary: #000000;
+    --bg-input: #FFFFFF;
+    --border-input: #FF8C00;
+    --bg-primary: #1A0A0A;
+    --bg-secondary: #2D0F0F;
+    --border-primary: #FF8C00;
+}
+
+/* Input backgrounds - white with black text for readability - MUST OVERRIDE character-wizard.css */
+.character-wizard .form-group input[type="text"],
+.character-wizard .form-group select,
+.character-wizard .form-group textarea {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #FF8C00 !important;
+}
+
+.app.dialog.Demon .character-wizard .form-group input[type="text"],
+.app.dialog.Demon .character-wizard .form-group select,
+.app.dialog.Demon .character-wizard .form-group textarea,
+.app.dialog.Demon .character-wizard input[type="text"],
+.app.dialog.Demon .character-wizard select,
+.app.dialog.Demon .character-wizard textarea,
+.window-app.dialog.Demon .character-wizard .form-group input[type="text"],
+.window-app.dialog.Demon .character-wizard .form-group select,
+.window-app.dialog.Demon .character-wizard .form-group textarea,
+.window-app.dialog.Demon .character-wizard input[type="text"],
+.window-app.dialog.Demon .character-wizard select,
+.window-app.dialog.Demon .character-wizard textarea,
+.app.dialog.demon .character-wizard .form-group input[type="text"],
+.app.dialog.demon .character-wizard .form-group select,
+.app.dialog.demon .character-wizard .form-group textarea,
+.app.dialog.demon .character-wizard input[type="text"],
+.app.dialog.demon .character-wizard select,
+.app.dialog.demon .character-wizard textarea,
+.window-app.dialog.demon .character-wizard .form-group input[type="text"],
+.window-app.dialog.demon .character-wizard .form-group select,
+.window-app.dialog.demon .character-wizard .form-group textarea,
+.window-app.dialog.demon .character-wizard input[type="text"],
+.window-app.dialog.demon .character-wizard select,
+.window-app.dialog.demon .character-wizard textarea,
+.app.character-wizard.Demon .character-wizard .form-group input[type="text"],
+.app.character-wizard.Demon .character-wizard .form-group select,
+.app.character-wizard.Demon .character-wizard .form-group textarea,
+.app.character-wizard.Demon .character-wizard input[type="text"],
+.app.character-wizard.Demon .character-wizard select,
+.app.character-wizard.Demon .character-wizard textarea,
+.window-app.character-wizard.Demon .character-wizard .form-group input[type="text"],
+.window-app.character-wizard.Demon .character-wizard .form-group select,
+.window-app.character-wizard.Demon .character-wizard .form-group textarea,
+.window-app.character-wizard.Demon .character-wizard input[type="text"],
+.window-app.character-wizard.Demon .character-wizard select,
+.window-app.character-wizard.Demon .character-wizard textarea,
+.app.character-wizard.demon .character-wizard .form-group input[type="text"],
+.app.character-wizard.demon .character-wizard .form-group select,
+.app.character-wizard.demon .character-wizard .form-group textarea,
+.app.character-wizard.demon .character-wizard input[type="text"],
+.app.character-wizard.demon .character-wizard select,
+.app.character-wizard.demon .character-wizard textarea,
+.window-app.character-wizard.demon .character-wizard .form-group input[type="text"],
+.window-app.character-wizard.demon .character-wizard .form-group select,
+.window-app.character-wizard.demon .character-wizard .form-group textarea,
+.window-app.character-wizard.demon .character-wizard input[type="text"],
+.window-app.character-wizard.demon .character-wizard select,
+.window-app.character-wizard.demon .character-wizard textarea {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #FF8C00 !important;
+}
+
+/* ========================================
+   CHARACTER CREATION WIZARD DIALOG THEMING
+   ONLY override colors - structure comes from character-wizard.css
+   Using maximum specificity to override character-wizard.css
+   ======================================== */
+
+/* Window header (Foundry dialog) - like Mage/Technocrat */
+.app.dialog.Demon .window-header,
+.window-app.dialog.Demon .window-header,
+.app.dialog.demon .window-header,
+.window-app.dialog.demon .window-header,
+.app.character-wizard.Demon .window-header,
+.window-app.character-wizard.Demon .window-header,
+.app.character-wizard.demon .window-header,
+.window-app.character-wizard.demon .window-header {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+}
+
+.app.dialog.Demon .window-title,
+.window-app.dialog.Demon .window-title,
+.app.dialog.demon .window-title,
+.window-app.dialog.demon .window-title,
+.app.character-wizard.Demon .window-title,
+.window-app.character-wizard.Demon .window-title,
+.app.character-wizard.demon .window-title,
+.window-app.character-wizard.demon .window-title {
+    color: white !important;
+}
+
+/* Wizard header - override blue gradient */
+.app.dialog.Demon .character-wizard .wizard-header,
+.window-app.dialog.Demon .character-wizard .wizard-header,
+.app.dialog.demon .character-wizard .wizard-header,
+.window-app.dialog.demon .character-wizard .wizard-header,
+.app.character-wizard.Demon .character-wizard .wizard-header,
+.window-app.character-wizard.Demon .character-wizard .wizard-header,
+.app.character-wizard.demon .character-wizard .wizard-header,
+.window-app.character-wizard.demon .character-wizard .wizard-header {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+}
+
+/* Progress bar - override blue/green gradient - MAXIMUM SPECIFICITY */
+.app.dialog.Demon .character-wizard .progress-fill,
+.window-app.dialog.Demon .character-wizard .progress-fill,
+.app.dialog.demon .character-wizard .progress-fill,
+.window-app.dialog.demon .character-wizard .progress-fill,
+.app.character-wizard.Demon .character-wizard .progress-fill,
+.window-app.character-wizard.Demon .character-wizard .progress-fill,
+.app.character-wizard.demon .character-wizard .progress-fill,
+.window-app.character-wizard.demon .character-wizard .progress-fill,
+.app.dialog.Demon .wizard-progress .progress-bar .progress-fill,
+.window-app.dialog.Demon .wizard-progress .progress-bar .progress-fill,
+.app.dialog.demon .wizard-progress .progress-bar .progress-fill,
+.window-app.dialog.demon .wizard-progress .progress-bar .progress-fill {
+    background: linear-gradient(90deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 100%) !important;
+}
+
+/* Progress text - override grey */
+.app.dialog.Demon .character-wizard .progress-text,
+.window-app.dialog.Demon .character-wizard .progress-text,
+.app.dialog.demon .character-wizard .progress-text,
+.window-app.dialog.demon .character-wizard .progress-text,
+.app.character-wizard.Demon .character-wizard .progress-text,
+.window-app.character-wizard.Demon .character-wizard .progress-text,
+.app.character-wizard.demon .character-wizard .progress-text,
+.window-app.character-wizard.demon .character-wizard .progress-text {
+    color: #FFB6C1 !important;
+}
+
+/* Wizard tabs - override blue active state - MAXIMUM SPECIFICITY */
+.app.dialog.Demon .character-wizard .wizard-tab.active,
+.window-app.dialog.Demon .character-wizard .wizard-tab.active,
+.app.dialog.demon .character-wizard .wizard-tab.active,
+.window-app.dialog.demon .character-wizard .wizard-tab.active,
+.app.character-wizard.Demon .character-wizard .wizard-tab.active,
+.window-app.character-wizard.Demon .character-wizard .wizard-tab.active,
+.app.character-wizard.demon .character-wizard .wizard-tab.active,
+.window-app.character-wizard.demon .character-wizard .wizard-tab.active,
+.app.dialog.Demon .wizard-tabs .wizard-tab.active,
+.window-app.dialog.Demon .wizard-tabs .wizard-tab.active,
+.app.dialog.demon .wizard-tabs .wizard-tab.active,
+.window-app.dialog.demon .wizard-tabs .wizard-tab.active {
+    border-bottom-color: var(--wod-primary, #DC143C) !important;
+    background: rgba(255, 99, 71, 0.1) !important;
+}
+
+.app.dialog.Demon .character-wizard .wizard-tab.active i,
+.window-app.dialog.Demon .character-wizard .wizard-tab.active i,
+.app.dialog.demon .character-wizard .wizard-tab.active i,
+.window-app.dialog.demon .character-wizard .wizard-tab.active i {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+.app.dialog.Demon .character-wizard .wizard-tab.completed,
+.window-app.dialog.Demon .character-wizard .wizard-tab.completed,
+.app.dialog.demon .character-wizard .wizard-tab.completed,
+.window-app.dialog.demon .character-wizard .wizard-tab.completed,
+.app.character-wizard.Demon .character-wizard .wizard-tab.completed,
+.window-app.character-wizard.Demon .character-wizard .wizard-tab.completed,
+.app.character-wizard.demon .character-wizard .wizard-tab.completed,
+.window-app.character-wizard.demon .character-wizard .wizard-tab.completed {
+    color: var(--wod-primary-light, #FF4500) !important;
+}
+
+/* Step header icon - override blue - MAXIMUM SPECIFICITY */
+.app.dialog.Demon .character-wizard .step-header h3 i,
+.window-app.dialog.Demon .character-wizard .step-header h3 i,
+.app.dialog.demon .character-wizard .step-header h3 i,
+.window-app.dialog.demon .character-wizard .step-header h3 i,
+.app.character-wizard.Demon .character-wizard .step-header h3 i,
+.window-app.character-wizard.Demon .character-wizard .step-header h3 i,
+.app.character-wizard.demon .character-wizard .step-header h3 i,
+.window-app.character-wizard.demon .character-wizard .step-header h3 i,
+.app.dialog.Demon .wizard-step .step-header h3 i,
+.window-app.dialog.Demon .wizard-step .step-header h3 i,
+.app.dialog.demon .wizard-step .step-header h3 i,
+.window-app.dialog.demon .wizard-step .step-header h3 i {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Step header h3 - keep white */
+.app.dialog.Demon .character-wizard .step-header h3,
+.window-app.dialog.Demon .character-wizard .step-header h3,
+.app.dialog.demon .character-wizard .step-header h3,
+.window-app.dialog.demon .character-wizard .step-header h3 {
+    color: #ecf0f1 !important;
+}
+
+/* Step description - keep grey */
+.app.dialog.Demon .character-wizard .step-description,
+.window-app.dialog.Demon .character-wizard .step-description,
+.app.dialog.demon .character-wizard .step-description,
+.window-app.dialog.demon .character-wizard .step-description {
+    color: #95a5a6 !important;
+}
+
+/* Form group required asterisk - override red */
+.app.dialog.Demon .character-wizard .form-group.required label::after,
+.window-app.dialog.Demon .character-wizard .form-group.required label::after,
+.app.dialog.demon .character-wizard .form-group.required label::after,
+.window-app.dialog.demon .character-wizard .form-group.required label::after {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Input backgrounds - white with black text for readability - MAXIMUM SPECIFICITY */
+
+/* Input placeholder text - ensure it's visible but distinct */
+.app.dialog.Demon .character-wizard .form-group input[type="text"]::placeholder,
+.app.dialog.Demon .character-wizard .form-group textarea::placeholder,
+.window-app.dialog.Demon .character-wizard .form-group input[type="text"]::placeholder,
+.window-app.dialog.Demon .character-wizard .form-group textarea::placeholder,
+.app.dialog.demon .character-wizard .form-group input[type="text"]::placeholder,
+.app.dialog.demon .character-wizard .form-group textarea::placeholder,
+.window-app.dialog.demon .character-wizard .form-group input[type="text"]::placeholder,
+.window-app.dialog.demon .character-wizard .form-group textarea::placeholder,
+.app.character-wizard.Demon .character-wizard .form-group input[type="text"]::placeholder,
+.app.character-wizard.Demon .character-wizard .form-group textarea::placeholder,
+.window-app.character-wizard.Demon .character-wizard .form-group input[type="text"]::placeholder,
+.window-app.character-wizard.Demon .character-wizard .form-group textarea::placeholder,
+.app.character-wizard.demon .character-wizard .form-group input[type="text"]::placeholder,
+.app.character-wizard.demon .character-wizard .form-group textarea::placeholder,
+.window-app.character-wizard.demon .character-wizard .form-group input[type="text"]::placeholder,
+.window-app.character-wizard.demon .character-wizard .form-group textarea::placeholder {
+    color: #CCCCCC !important;
+    opacity: 0.7 !important;
+}
+
+/* Input focus - override blue */
+.app.dialog.Demon .character-wizard input[type="text"]:focus,
+.app.dialog.Demon .character-wizard select:focus,
+.app.dialog.Demon .character-wizard textarea:focus,
+.window-app.dialog.Demon .character-wizard input[type="text"]:focus,
+.window-app.dialog.Demon .character-wizard select:focus,
+.window-app.dialog.Demon .character-wizard textarea:focus,
+.app.dialog.demon .character-wizard input[type="text"]:focus,
+.app.dialog.demon .character-wizard select:focus,
+.app.dialog.demon .character-wizard textarea:focus,
+.window-app.dialog.demon .character-wizard input[type="text"]:focus,
+.window-app.dialog.demon .character-wizard select:focus,
+.window-app.dialog.demon .character-wizard textarea:focus {
+    border-color: var(--wod-primary, #FF6347) !important;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2) !important;
+}
+
+/* Priority selection - override blue */
+.app.dialog.Demon .character-wizard .priority-selection,
+.window-app.dialog.Demon .character-wizard .priority-selection,
+.app.dialog.demon .character-wizard .priority-selection,
+.window-app.dialog.demon .character-wizard .priority-selection {
+    background: rgba(255, 140, 0, 0.05) !important;
+    border-color: rgba(255, 140, 0, 0.2) !important;
+}
+
+.app.dialog.Demon .character-wizard .priority-selection h4,
+.window-app.dialog.Demon .character-wizard .priority-selection h4,
+.app.dialog.demon .character-wizard .priority-selection h4,
+.window-app.dialog.demon .character-wizard .priority-selection h4 {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Points tracker - override green */
+.app.dialog.Demon .character-wizard .points-tracker,
+.window-app.dialog.Demon .character-wizard .points-tracker,
+.app.dialog.demon .character-wizard .points-tracker,
+.window-app.dialog.demon .character-wizard .points-tracker {
+    background: rgba(255, 99, 71, 0.1) !important;
+    border-left-color: var(--wod-primary, #DC143C) !important;
+}
+
+.app.dialog.Demon .character-wizard .points-tracker .spent,
+.window-app.dialog.Demon .character-wizard .points-tracker .spent,
+.app.dialog.demon .character-wizard .points-tracker .spent,
+.window-app.dialog.demon .character-wizard .points-tracker .spent {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+.app.dialog.Demon .character-wizard .points-tracker .remaining,
+.window-app.dialog.Demon .character-wizard .points-tracker .remaining,
+.app.dialog.demon .character-wizard .points-tracker .remaining,
+.window-app.dialog.demon .character-wizard .points-tracker .remaining {
+    color: var(--wod-primary-light, #FF4500) !important;
+}
+
+/* Advantage section - override blue */
+.app.dialog.Demon .character-wizard .advantage-section,
+.window-app.dialog.Demon .character-wizard .advantage-section,
+.app.dialog.demon .character-wizard .advantage-section,
+.window-app.dialog.demon .character-wizard .advantage-section {
+    background: rgba(255, 140, 0, 0.03) !important;
+    border-color: rgba(255, 140, 0, 0.2) !important;
+}
+
+.app.dialog.Demon .character-wizard .advantage-section h4,
+.window-app.dialog.Demon .character-wizard .advantage-section h4,
+.app.dialog.demon .character-wizard .advantage-section h4,
+.window-app.dialog.demon .character-wizard .advantage-section h4 {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Attribute/Ability category - override blue */
+.app.dialog.Demon .character-wizard .attribute-category h4,
+.app.dialog.Demon .character-wizard .ability-category h4,
+.window-app.dialog.Demon .character-wizard .attribute-category h4,
+.window-app.dialog.Demon .character-wizard .ability-category h4,
+.app.dialog.demon .character-wizard .attribute-category h4,
+.app.dialog.demon .character-wizard .ability-category h4,
+.window-app.dialog.demon .character-wizard .attribute-category h4,
+.window-app.dialog.demon .character-wizard .ability-category h4 {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Attribute/Ability item hover - override blue */
+.app.dialog.Demon .character-wizard .attribute-item:hover,
+.app.dialog.Demon .character-wizard .ability-item:hover,
+.window-app.dialog.Demon .character-wizard .attribute-item:hover,
+.window-app.dialog.Demon .character-wizard .ability-item:hover,
+.app.dialog.demon .character-wizard .attribute-item:hover,
+.app.dialog.demon .character-wizard .ability-item:hover,
+.window-app.dialog.demon .character-wizard .attribute-item:hover,
+.window-app.dialog.demon .character-wizard .ability-item:hover {
+    background: rgba(255, 140, 0, 0.05) !important;
+    border-color: rgba(255, 140, 0, 0.3) !important;
+}
+
+/* Attribute/Ability value - override blue */
+.app.dialog.Demon .character-wizard .attr-value,
+.app.dialog.Demon .character-wizard .ability-value,
+.window-app.dialog.Demon .character-wizard .attr-value,
+.window-app.dialog.Demon .character-wizard .ability-value,
+.app.dialog.demon .character-wizard .attr-value,
+.app.dialog.demon .character-wizard .ability-value,
+.window-app.dialog.demon .character-wizard .attr-value,
+.window-app.dialog.demon .character-wizard .ability-value {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Dots - override blue/green - MAXIMUM SPECIFICITY */
+.app.dialog.Demon .character-wizard .dot.filled,
+.window-app.dialog.Demon .character-wizard .dot.filled,
+.app.dialog.demon .character-wizard .dot.filled,
+.window-app.dialog.demon .character-wizard .dot.filled,
+.app.character-wizard.Demon .character-wizard .dot.filled,
+.window-app.character-wizard.Demon .character-wizard .dot.filled,
+.app.character-wizard.demon .character-wizard .dot.filled,
+.window-app.character-wizard.demon .character-wizard .dot.filled {
+    background: var(--wod-primary, #DC143C) !important;
+    border-color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Increase buttons - override green - MAXIMUM SPECIFICITY */
+.app.dialog.Demon .character-wizard .attr-increase,
+.app.dialog.Demon .character-wizard .ability-increase,
+.app.dialog.Demon .character-wizard .sphere-increase,
+.app.dialog.Demon .character-wizard .bg-increase,
+.app.dialog.Demon .character-wizard .freebie-increase,
+.window-app.dialog.Demon .character-wizard .attr-increase,
+.window-app.dialog.Demon .character-wizard .ability-increase,
+.window-app.dialog.Demon .character-wizard .sphere-increase,
+.window-app.dialog.Demon .character-wizard .bg-increase,
+.window-app.dialog.Demon .character-wizard .freebie-increase,
+.app.dialog.demon .character-wizard .attr-increase,
+.app.dialog.demon .character-wizard .ability-increase,
+.app.dialog.demon .character-wizard .sphere-increase,
+.app.dialog.demon .character-wizard .bg-increase,
+.app.dialog.demon .character-wizard .freebie-increase,
+.window-app.dialog.demon .character-wizard .attr-increase,
+.window-app.dialog.demon .character-wizard .ability-increase,
+.window-app.dialog.demon .character-wizard .sphere-increase,
+.window-app.dialog.demon .character-wizard .bg-increase,
+.window-app.dialog.demon .character-wizard .freebie-increase {
+    background: var(--wod-primary, #DC143C) !important;
+    border-color: var(--wod-primary-dark, #8B0000) !important;
+    color: white !important;
+}
+
+/* Help box - override green */
+.app.dialog.Demon .character-wizard .help-box,
+.window-app.dialog.Demon .character-wizard .help-box,
+.app.dialog.demon .character-wizard .help-box,
+.window-app.dialog.demon .character-wizard .help-box {
+    background: rgba(255, 140, 0, 0.05) !important;
+    border-left-color: var(--wod-primary, #DC143C) !important;
+}
+
+.app.dialog.Demon .character-wizard .help-box h4,
+.window-app.dialog.Demon .character-wizard .help-box h4,
+.app.dialog.demon .character-wizard .help-box h4,
+.window-app.dialog.demon .character-wizard .help-box h4 {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Wizard buttons - override blue/green - MAXIMUM SPECIFICITY */
+.app.dialog.Demon .character-wizard .wizard-next,
+.window-app.dialog.Demon .character-wizard .wizard-next,
+.app.dialog.demon .character-wizard .wizard-next,
+.window-app.dialog.demon .character-wizard .wizard-next,
+.app.character-wizard.Demon .character-wizard .wizard-next,
+.window-app.character-wizard.Demon .character-wizard .wizard-next,
+.app.character-wizard.demon .character-wizard .wizard-next,
+.window-app.character-wizard.demon .character-wizard .wizard-next,
+.app.dialog.Demon .wizard-footer .wizard-buttons .wizard-next,
+.window-app.dialog.Demon .wizard-footer .wizard-buttons .wizard-next,
+.app.dialog.demon .wizard-footer .wizard-buttons .wizard-next,
+.window-app.dialog.demon .wizard-footer .wizard-buttons .wizard-next {
+    background: var(--wod-primary, #DC143C) !important;
+    color: white !important;
+}
+
+.app.dialog.Demon .character-wizard .wizard-next:hover,
+.window-app.dialog.Demon .character-wizard .wizard-next:hover,
+.app.dialog.demon .character-wizard .wizard-next:hover,
+.window-app.dialog.demon .character-wizard .wizard-next:hover,
+.app.character-wizard.Demon .character-wizard .wizard-next:hover,
+.window-app.character-wizard.Demon .character-wizard .wizard-next:hover,
+.app.character-wizard.demon .character-wizard .wizard-next:hover,
+.window-app.character-wizard.demon .character-wizard .wizard-next:hover {
+    background: var(--wod-primary-light, #FF4500) !important;
+}
+
+.app.dialog.Demon .character-wizard .wizard-finish,
+.window-app.dialog.Demon .character-wizard .wizard-finish,
+.app.dialog.demon .character-wizard .wizard-finish,
+.window-app.dialog.demon .character-wizard .wizard-finish,
+.app.character-wizard.Demon .character-wizard .wizard-finish,
+.window-app.character-wizard.Demon .character-wizard .wizard-finish,
+.app.character-wizard.demon .character-wizard .wizard-finish,
+.window-app.character-wizard.demon .character-wizard .wizard-finish {
+    background: var(--wod-primary, #DC143C) !important;
+    color: white !important;
+}
+
+.app.dialog.Demon .character-wizard .wizard-finish:hover,
+.window-app.dialog.Demon .character-wizard .wizard-finish:hover,
+.app.dialog.demon .character-wizard .wizard-finish:hover,
+.window-app.dialog.demon .character-wizard .wizard-finish:hover,
+.app.character-wizard.Demon .character-wizard .wizard-finish:hover,
+.window-app.character-wizard.Demon .character-wizard .wizard-finish:hover,
+.app.character-wizard.demon .character-wizard .wizard-finish:hover,
+.window-app.character-wizard.demon .character-wizard .wizard-finish:hover {
+    background: var(--wod-primary-light, #FF4500) !important;
+}
+
+/* Validation icons - override green/yellow */
+.app.dialog.Demon .character-wizard .wizard-validation i.fa-check-circle,
+.window-app.dialog.Demon .character-wizard .wizard-validation i.fa-check-circle,
+.app.dialog.demon .character-wizard .wizard-validation i.fa-check-circle,
+.window-app.dialog.demon .character-wizard .wizard-validation i.fa-check-circle {
+    color: var(--wod-primary-light, #FF4500) !important;
+}
+
+.app.dialog.Demon .character-wizard .wizard-validation i.fa-exclamation-triangle,
+.window-app.dialog.Demon .character-wizard .wizard-validation i.fa-exclamation-triangle,
+.app.dialog.demon .character-wizard .wizard-validation i.fa-exclamation-triangle,
+.window-app.dialog.demon .character-wizard .wizard-validation i.fa-exclamation-triangle {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Demon-Specific Component Styles */
+
+/* Demon Identity Grid */
+.wod.sheet.actor.demon .identity-section.demon-identity {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+/* Willpower, Faith, and Torment sections - all styled identically */
+.wod.sheet.actor.demon .willpower-section,
+.wod.sheet.actor.demon .faith-section,
+.wod.sheet.actor.demon .torment-section {
+    margin-bottom: 10px;
+    padding: 8px;
+    border: none;
+    border-radius: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.wod.sheet.actor.demon .willpower-section h4,
+.wod.sheet.actor.demon .faith-section h4,
+.wod.sheet.actor.demon .torment-section h4 {
+    margin: -8px -8px 8px -8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+    border: none;
+    border-radius: 8px 8px 0 0;
+}
+
+.wod.sheet.actor.demon .willpower-tracks,
+.wod.sheet.actor.demon .faith-tracks,
+.wod.sheet.actor.demon .torment-tracks {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 5px;
+    background: transparent;
+    border-radius: 0;
+}
+
+.wod.sheet.actor.demon .willpower-permanent,
+.wod.sheet.actor.demon .willpower-temporary,
+.wod.sheet.actor.demon .faith-permanent,
+.wod.sheet.actor.demon .faith-temporary,
+.wod.sheet.actor.demon .torment-permanent,
+.wod.sheet.actor.demon .torment-temporary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7em;
+}
+
+.wod.sheet.actor.demon .willpower-permanent label,
+.wod.sheet.actor.demon .willpower-temporary label,
+.wod.sheet.actor.demon .faith-permanent label,
+.wod.sheet.actor.demon .faith-temporary label,
+.wod.sheet.actor.demon .torment-permanent label,
+.wod.sheet.actor.demon .torment-temporary label {
+    font-weight: bold;
+    margin-right: 3px;
+}
+
+.wod.sheet.actor.demon .willpower-permanent .dot-container,
+.wod.sheet.actor.demon .willpower-temporary .dot-container,
+.wod.sheet.actor.demon .faith-permanent .dot-container,
+.wod.sheet.actor.demon .faith-temporary .dot-container,
+.wod.sheet.actor.demon .torment-permanent .dot-container,
+.wod.sheet.actor.demon .torment-temporary .dot-container {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    flex: 1;
+    min-width: 0;
+    margin-left: 20px;
+}
+
+.wod.sheet.actor.demon .willpower-temporary .dot,
+.wod.sheet.actor.demon .faith-temporary .dot,
+.wod.sheet.actor.demon .torment-temporary .dot {
+    border-radius: 0;
+}
+
+/* Demon Advantages: 2-column grid */
+.wod.sheet.actor.demon .advantages-bottom {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 10px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.demon .Demon-column-1,
+.wod.sheet.actor.demon .Demon-column-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* Backgrounds section - keep original styling */
+.wod.sheet.actor.demon .backgrounds-section {
+    border: 1px solid var(--wod-border-main);
+    border-radius: 2px;
+    padding: 8px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Backgrounds section - constrain dimensions */
+.wod.sheet.actor.demon .backgrounds-section {
+    max-height: 300px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Background item styling */
+.wod.sheet.actor.demon .background-item {
+    display: flex !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Constrain dropdown width */
+.wod.sheet.actor.demon .background-name-select {
+    flex: 1 1 auto;
+    min-width: 80px;
+    max-width: 150px;
+}
+
+/* Dot container - force 5 dots per row */
+.wod.sheet.actor.demon .background-item .dot-container {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 2px !important;
+    max-width: 50px !important;
+    width: 50px !important;
+}
+
+/* Smaller dots for all backgrounds to fit 10 dots in 2 rows */
+.wod.sheet.actor.demon .background-item .dot-container .dot {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+/* Disabled dots - grayed out and non-clickable */
+.wod.sheet.actor.demon .background-item .dot-container .dot.disabled {
+    opacity: 0.3 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    background-color: #ccc !important;
+    border-color: #999 !important;
+}
+
+.wod.sheet.actor.demon .background-item .dot-container .dot.disabled.filled {
+    background-color: #999 !important;
+}
+
+/* Experience Points Section */
+.wod.sheet.actor.demon .experience-section {
+    padding: 12px;
+    background: rgba(255, 140, 0, 0.1); /* Light red background */
+    border: 1px solid var(--wod-primary);
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.wod.sheet.actor.demon .experience-section h3 {
+    margin: 0 0 8px 0;
+    font-size: 0.9em;
+    text-align: center;
+    color: var(--wod-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.wod.sheet.actor.demon .xp-fields {
+    display: flex;
+    gap: 12px;
+}
+
+.wod.sheet.actor.demon .xp-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wod.sheet.actor.demon .xp-field label {
+    font-size: 0.75em;
+    font-weight: bold;
+    color: var(--wod-text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wod.sheet.actor.demon .xp-field input[type='number'] {
+    width: 100%;
+    padding: 4px 8px;
+    background: var(--wod-bg-light);
+    border: 1px solid var(--wod-primary);
+    color: var(--wod-text-main);
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.demon .xp-field input[type='number']:focus {
+    outline: none;
+    border-color: var(--wod-primary-light);
+    box-shadow: 0 0 0 2px rgba(220, 20, 60, 0.2);
+}
+
+/* Lore paths styling - card-based design matching backgrounds */
+.wod.sheet.actor.demon .tab[data-tab="lore"] {
+    padding: 5px 25px 5px 5px;
+}
+
+.wod.sheet.actor.demon .lore-section {
+    padding: 15px;
+}
+
+.wod.sheet.actor.demon .lore-category {
+    margin-bottom: 20px;
+}
+
+.wod.sheet.actor.demon .lore-category h4 {
+    color: var(--wod-primary-light);
+    border-bottom: 2px solid var(--wod-border-main);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* Three-column grid layout for lore cards */
+.wod.sheet.actor.demon .lore-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+/* Lore path items inherit card styling from .background-item in visual-polish.css */
+/* No additional styling needed - they use the established card pattern */
+
+/* Position book icon to the left of dots in lore rating section */
+.wod.sheet.actor.demon .background-item[data-lore-id] .background-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon .background-item[data-lore-id] .background-actions {
+    order: 1; /* Position before dots */
+}
+
+.wod.sheet.actor.demon .background-item[data-lore-id] .dot-container {
+    order: 2; /* Position after book icon */
+}
+
+/* Apocalyptic form section */
+.wod.sheet.actor.demon .apocalyptic-form-section {
+    padding: 15px;
+    border-top: 2px solid var(--wod-border-main);
+    margin-top: 20px;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-powers {
+    margin-top: 15px;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-powers h3 {
+    color: var(--wod-primary-light);
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-powers .form-powers ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-powers .form-powers li {
+    padding: 8px;
+    margin-bottom: 8px;
+    background: var(--wod-bg-secondary);
+    border-left: 3px solid var(--wod-border-main);
+}
+
+/* ========================================
+   DIALOG THEMING - DEMON
+   Must override hardcoded blue colors in foundry-dialog-override.css
+   ======================================== */
+
+/* Window header styling - Override hardcoded blue colors */
+.wod.dialog.roll-dialog.Demon .window-header,
+.app.dialog.Demon .window-header,
+.window-app.dialog.Demon .window-header,
+.window-app.Demon .window-header,
+.wod.dialog.roll-dialog.demon .window-header,
+.app.dialog.demon .window-header,
+.window-app.dialog.demon .window-header,
+.window-app.demon .window-header {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: #fff !important;
+    border-bottom: 2px solid var(--wod-primary) !important;
+}
+
+.wod.dialog.roll-dialog.Demon .window-title,
+.app.dialog.Demon .window-title,
+.window-app.dialog.Demon .window-title,
+.window-app.Demon .window-title,
+.wod.dialog.roll-dialog.demon .window-title,
+.app.dialog.demon .window-title,
+.window-app.dialog.demon .window-title,
+.window-app.demon .window-title {
+    color: #fff !important;
+}
+
+/* Override window-content h3 and h4 hardcoded blue colors */
+.app.dialog.Demon .window-content h3,
+.window-app.dialog.Demon .window-content h3,
+.window-app.Demon .window-content h3,
+.app.dialog.demon .window-content h3,
+.window-app.dialog.demon .window-content h3,
+.window-app.demon .window-content h3,
+.app.dialog.Demon.equipment-effects-dialog .window-content h3,
+.window-app.dialog.Demon.equipment-effects-dialog .window-content h3,
+.window-app.Demon.equipment-effects-dialog .window-content h3,
+.app.dialog.demon.equipment-effects-dialog .window-content h3,
+.window-app.dialog.demon.equipment-effects-dialog .window-content h3,
+.window-app.demon.equipment-effects-dialog .window-content h3 {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+}
+
+.app.dialog.Demon .window-content h4,
+.window-app.dialog.Demon .window-content h4,
+.window-app.Demon .window-content h4,
+.app.dialog.demon .window-content h4,
+.window-app.dialog.demon .window-content h4,
+.window-app.demon .window-content h4 {
+    color: var(--wod-primary) !important;
+}
+
+/* Override effect manager section headers */
+.app.dialog.Demon form.wod-effect-manager .effect-header-section h3,
+.app.dialog.Demon form.wod-effect-manager .effect-metadata-section h3,
+.app.dialog.Demon form.wod-effect-manager .effect-conditions-section h3,
+.window-app.Demon form.wod-effect-manager .effect-header-section h3,
+.window-app.Demon form.wod-effect-manager .effect-metadata-section h3,
+.window-app.Demon form.wod-effect-manager .effect-conditions-section h3,
+.window-app.demon form.wod-effect-manager .effect-header-section h3,
+.window-app.demon form.wod-effect-manager .effect-metadata-section h3,
+.window-app.demon form.wod-effect-manager .effect-conditions-section h3,
+.app.dialog.demon form.wod-effect-manager .effect-header-section h3,
+.app.dialog.demon form.wod-effect-manager .effect-metadata-section h3,
+.app.dialog.demon form.wod-effect-manager .effect-conditions-section h3,
+.window-app.Demon .window-content form.wod-effect-manager .effect-header-section h3,
+.window-app.Demon .window-content form.wod-effect-manager .effect-metadata-section h3,
+.window-app.Demon .window-content form.wod-effect-manager .effect-conditions-section h3,
+.window-app.demon .window-content form.wod-effect-manager .effect-header-section h3,
+.window-app.demon .window-content form.wod-effect-manager .effect-metadata-section h3,
+.window-app.demon .window-content form.wod-effect-manager .effect-conditions-section h3,
+.app.dialog.Demon .window-content form.wod-effect-manager .effect-header-section h3,
+.app.dialog.Demon .window-content form.wod-effect-manager .effect-metadata-section h3,
+.app.dialog.Demon .window-content form.wod-effect-manager .effect-conditions-section h3,
+.app.dialog.demon .window-content form.wod-effect-manager .effect-header-section h3,
+.app.dialog.demon .window-content form.wod-effect-manager .effect-metadata-section h3,
+.app.dialog.demon .window-content form.wod-effect-manager .effect-conditions-section h3 {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 3px !important;
+    margin: 0 0 12px 0 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+/* Roll Dialog - Trait chips and total pool */
+.wod.dialog.roll-dialog.Demon .trait-chip,
+form.wod-roll-dialog.Demon .trait-chip,
+.app.dialog.Demon .trait-chip,
+.window-app.dialog.Demon .trait-chip,
+.window-app.Demon form.wod-roll-dialog .trait-chip,
+.wod.dialog.roll-dialog.demon .trait-chip,
+form.wod-roll-dialog.demon .trait-chip,
+.app.dialog.demon .trait-chip,
+.window-app.dialog.demon .trait-chip,
+.window-app.demon form.wod-roll-dialog .trait-chip {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+}
+
+.wod.dialog.roll-dialog.Demon .total-pool strong,
+form.wod-roll-dialog.Demon .total-pool strong,
+.app.dialog.Demon .total-pool strong,
+.window-app.dialog.Demon .total-pool strong,
+.window-app.Demon form.wod-roll-dialog .total-pool strong,
+.wod.dialog.roll-dialog.demon .total-pool strong,
+form.wod-roll-dialog.demon .total-pool strong,
+.app.dialog.demon .total-pool strong,
+.window-app.dialog.demon .total-pool strong,
+.window-app.demon form.wod-roll-dialog .total-pool strong {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* Roll Dialog - Pool summary and roll config h3 */
+.wod.roll-dialog.Demon .pool-summary h3,
+.app.dialog.Demon .pool-summary h3,
+.window-app.dialog.Demon .pool-summary h3,
+.window-app.Demon form.wod-roll-dialog .pool-summary h3,
+.app.dialog.demon .pool-summary h3,
+.window-app.dialog.demon .pool-summary h3,
+.window-app.demon form.wod-roll-dialog .pool-summary h3 {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 3px !important;
+    margin: 0 0 12px 0 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.wod.roll-dialog.Demon .roll-config h3,
+.app.dialog.Demon .roll-config h3,
+.window-app.dialog.Demon .roll-config h3,
+.window-app.Demon form.wod-roll-dialog .roll-config h3,
+.app.dialog.demon .roll-config h3,
+.window-app.dialog.demon .roll-config h3,
+.window-app.demon form.wod-roll-dialog .roll-config h3 {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 3px !important;
+    margin: 0 0 12px 0 !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+.wod.roll-dialog.Demon .active-effects-section h4,
+.app.dialog.Demon .active-effects-section h4,
+.window-app.dialog.Demon .active-effects-section h4,
+.window-app.Demon form.wod-roll-dialog .active-effects-section h4,
+.app.dialog.demon .active-effects-section h4,
+.window-app.dialog.demon .active-effects-section h4,
+.window-app.demon form.wod-roll-dialog .active-effects-section h4 {
+    color: var(--wod-primary, #FF6347) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 3px !important;
+    margin: 0 0 12px 0 !important;
+}
+
+.app.dialog.Demon .effects-category,
+.window-app.dialog.Demon .effects-category,
+.window-app.Demon form.wod-roll-dialog .effects-category,
+.app.dialog.demon .effects-category,
+.window-app.dialog.demon .effects-category,
+.window-app.demon form.wod-roll-dialog .effects-category {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+.app.dialog.Demon .effect-item.optional,
+.window-app.dialog.Demon .effect-item.optional,
+.window-app.Demon form.wod-roll-dialog .effect-item.optional,
+.app.dialog.demon .effect-item.optional,
+.window-app.dialog.demon .effect-item.optional,
+.window-app.demon form.wod-roll-dialog .effect-item.optional {
+    border-left-color: var(--wod-primary, #DC143C) !important;
+}
+
+/* Effect Manager Dialog Buttons */
+.wod.dialog.Demon form.wod-effect-manager .save-effect,
+.window-app.Demon form.wod-effect-manager .save-effect,
+.window-app.demon form.wod-effect-manager .save-effect,
+form.wod-effect-manager.demon .save-effect,
+.wod.dialog.demon form.wod-effect-manager .save-effect {
+    background: var(--wod-primary, #DC143C) !important;
+    color: white !important;
+}
+
+.wod.dialog.Demon form.wod-effect-manager .save-effect:hover,
+.window-app.Demon form.wod-effect-manager .save-effect:hover,
+.window-app.demon form.wod-effect-manager .save-effect:hover,
+form.wod-effect-manager.demon .save-effect:hover,
+.wod.dialog.demon form.wod-effect-manager .save-effect:hover {
+    background: var(--wod-primary-dark, #8B0000) !important;
+}
+
+.wod.dialog.Demon form.wod-effect-manager .cancel-effect,
+.window-app.Demon form.wod-effect-manager .cancel-effect,
+.window-app.demon form.wod-effect-manager .cancel-effect,
+form.wod-effect-manager.demon .cancel-effect,
+.wod.dialog.demon form.wod-effect-manager .cancel-effect {
+    background: var(--wod-text-alt, #FFB6C1) !important;
+    color: white !important;
+}
+
+.wod.dialog.Demon form.wod-effect-manager .cancel-effect:hover,
+.window-app.Demon form.wod-effect-manager .cancel-effect:hover,
+.window-app.demon form.wod-effect-manager .cancel-effect:hover,
+form.wod-effect-manager.demon .cancel-effect:hover,
+.wod.dialog.demon form.wod-effect-manager .cancel-effect:hover {
+    background: var(--wod-primary-dark, #8B0000) !important;
+}
+
+.wod.dialog.Demon form.wod-effect-manager .add-modifier-row,
+.window-app.Demon form.wod-effect-manager .add-modifier-row,
+.window-app.demon form.wod-effect-manager .add-modifier-row,
+form.wod-effect-manager.demon .add-modifier-row,
+.wod.dialog.demon form.wod-effect-manager .add-modifier-row {
+    background: var(--wod-primary, #DC143C) !important;
+    color: white !important;
+}
+
+.wod.dialog.Demon form.wod-effect-manager .add-modifier-row:hover,
+.window-app.Demon form.wod-effect-manager .add-modifier-row:hover,
+.window-app.demon form.wod-effect-manager .add-modifier-row:hover,
+form.wod-effect-manager.demon .add-modifier-row:hover,
+.wod.dialog.demon form.wod-effect-manager .add-modifier-row:hover {
+    background: var(--wod-primary-dark, #8B0000) !important;
+}
+
+/* Effect Manager Input Focus */
+.wod.dialog.Demon form.wod-effect-manager input:focus,
+.wod.dialog.Demon form.wod-effect-manager select:focus,
+.window-app.Demon form.wod-effect-manager input:focus,
+.window-app.Demon form.wod-effect-manager select:focus,
+.window-app.demon form.wod-effect-manager input:focus,
+.window-app.demon form.wod-effect-manager select:focus,
+form.wod-effect-manager.demon input:focus,
+form.wod-effect-manager.demon select:focus,
+.wod.dialog.demon form.wod-effect-manager input:focus,
+.wod.dialog.demon form.wod-effect-manager select:focus {
+    border-color: var(--wod-primary, #FF6347) !important;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2) !important;
+}
+
+/* Override dialog window header for Demon effect-manager */
+.window-app.demon.effect-manager .window-header,
+.window-app.Demon.effect-manager .window-header,
+.app.dialog.demon.effect-manager .window-header,
+.app.dialog.Demon.effect-manager .window-header {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+}
+
+.window-app.demon.effect-manager .window-title,
+.window-app.Demon.effect-manager .window-title,
+.app.dialog.demon.effect-manager .window-title,
+.app.dialog.Demon.effect-manager .window-title {
+    color: white !important;
+}
+
+/* Roll Dialog Buttons */
+.wod.dialog.roll-dialog.Demon button.roll-button,
+.wod.dialog.roll-dialog.demon button.roll-button {
+    background: var(--wod-primary, #DC143C) !important;
+    color: var(--wod-text-light, white) !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-weight: bold !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.dialog.roll-dialog.Demon button.cancel-button,
+.wod.dialog.roll-dialog.demon button.cancel-button {
+    background: var(--wod-text-alt, #FFB6C1) !important;
+    color: white !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Effect Manager Section Headers Icons */
+.wod.dialog.Demon form.wod-effect-manager .effect-header-section h3 i,
+.wod.dialog.Demon form.wod-effect-manager .effect-metadata-section h3 i,
+.wod.dialog.Demon form.wod-effect-manager .effect-conditions-section h3 i,
+.window-app.Demon form.wod-effect-manager .effect-header-section h3 i,
+.window-app.Demon form.wod-effect-manager .effect-metadata-section h3 i,
+.window-app.Demon form.wod-effect-manager .effect-conditions-section h3 i,
+.window-app.demon form.wod-effect-manager .effect-header-section h3 i,
+.window-app.demon form.wod-effect-manager .effect-metadata-section h3 i,
+.window-app.demon form.wod-effect-manager .effect-conditions-section h3 i,
+form.wod-effect-manager.demon .effect-header-section h3 i,
+form.wod-effect-manager.demon .effect-metadata-section h3 i,
+form.wod-effect-manager.demon .effect-conditions-section h3 i {
+    color: var(--wod-primary, #FF6347) !important;
+}
+
+/* ========================================
+   STATUS EFFECTS - ICONS AND INDICATORS
+   ======================================== */
+
+/* Effect type indicators - Player (green -> red) */
+.wod.sheet.actor.demon .effect-type-indicator.player {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+}
+
+/* Effect type indicators - ST (yellow -> red) */
+.wod.sheet.actor.demon .effect-type-indicator.st {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+}
+
+/* Add effect button (green -> red) */
+.wod.sheet.actor.demon .add-effect-btn {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    color: white !important;
+}
+
+.wod.sheet.actor.demon .add-effect-btn:hover {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3) !important;
+}
+
+/* Effect icon background (gray -> red gradient) */
+.wod.sheet.actor.demon .effect-icon-small {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FFD700) 0%, var(--wod-primary, #FF8C00) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    border-color: var(--wod-primary-dark, #8B0000) !important;
+}
+
+/* ========================================
+   CHARACTER CREATION WIZARD OVERLAY
+   ======================================== */
+
+.wod.sheet.actor.demon .wizard-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+}
+
+.wod.sheet.actor.demon .wizard-overlay-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 3rem;
+    animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.wod.sheet.actor.demon .wizard-overlay-icon {
+    font-size: 4rem;
+    color: var(--wod-primary, #DC143C);
+    margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.wod.sheet.actor.demon .wizard-overlay-content h2 {
+    color: white;
+    font-size: 2rem;
+    margin: 0 0 1rem 0;
+    font-weight: 700;
+}
+
+.wod.sheet.actor.demon .wizard-overlay-description {
+    color: #b0b0b0;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+}
+
+.wod.sheet.actor.demon button.start-character-wizard-overlay {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+}
+
+.wod.sheet.actor.demon button.start-character-wizard-overlay:hover {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.6);
+}
+
+.wod.sheet.actor.demon button.start-character-wizard-overlay i {
+    font-size: 1.25rem;
+}
+
+.wod.sheet.actor.demon .wizard-overlay-hint {
+    margin-top: 1.5rem;
+    color: #666;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* ========================================
+   BACKGROUNDS (EXPANDED) TAB - COMPREHENSIVE STYLING
+   ======================================== */
+
+.wod.sheet.actor.demon .backgrounds-expanded-section {
+    padding: 5px;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section h2 {
+    margin: 0 0 3px 0;
+    font-size: 1.1em;
+    color: var(--wod-primary, #DC143C);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary, #DC143C);
+    padding-bottom: 3px;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .section-description {
+    font-size: 0.7em;
+    color: var(--wod-text-alt, #b0b0b0);
+    text-align: center;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+/* Background Cards - Complete Styling */
+.wod.sheet.actor.demon .bg-card-mini {
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 3px;
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+    padding: 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .bg-card-mini:hover {
+    border-color: var(--wod-primary, #DC143C);
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.demon .bg-card-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-header .bg-name {
+    font-weight: bold;
+    color: var(--wod-text-main, white);
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-header .bg-rating {
+    color: var(--wod-primary, #DC143C);
+    font-weight: bold;
+    font-size: 0.8em;
+    background: rgba(220, 20, 60, 0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-actions a {
+    color: var(--wod-text-alt, #b0b0b0);
+    font-size: 0.75em;
+    padding: 1px 3px;
+    transition: color 0.2s;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-actions a:hover {
+    color: var(--wod-primary, #DC143C);
+}
+
+/* Category Sections */
+.wod.sheet.actor.demon .bg-category-section {
+    margin-bottom: 12px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.2));
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.demon .bg-category-header {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.wod.sheet.actor.demon .bg-category-header:hover {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
+}
+
+.wod.sheet.actor.demon .bg-category-header h3 {
+    margin: 0;
+    color: var(--wod-text-main, white);
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon .bg-category-header .category-count {
+    color: var(--wod-primary, #DC143C);
+    font-size: 0.85em;
+    background: rgba(220, 20, 60, 0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.wod.sheet.actor.demon .bg-category-content {
+    padding: 8px;
+}
+
+.wod.sheet.actor.demon .bg-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Pagination Controls */
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-btn {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-info {
+    font-size: 0.8em;
+    color: var(--wod-text-alt, #b0b0b0);
+    font-weight: bold;
+}
+
+/* Floating Add Button */
+.wod.sheet.actor.demon .backgrounds-expanded-section .background-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--wod-border-main);
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .floating-add-bg {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .floating-add-bg:hover {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
+}
+
+/* Modal Styling */
+.wod.sheet.actor.demon .bg-modal-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 90; /* Reduced to avoid interfering with Foundry UI (dialogs are 100+) */
+}
+
+.wod.sheet.actor.demon .bg-modal {
+    background: var(--wod-bg-main, #1A0A0A);
+    border: 2px solid var(--wod-primary, #DC143C);
+    border-radius: 6px;
+    box-shadow: 0 8px 32px rgba(220, 20, 60, 0.5);
+    width: 60%;
+    height: 70%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.wod.sheet.actor.demon .bg-modal-header {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--wod-primary-dark, #8B0000);
+}
+
+.wod.sheet.actor.demon .bg-modal-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.wod.sheet.actor.demon .bg-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.wod.sheet.actor.demon .bg-modal-footer {
+    padding: 10px 15px;
+    border-top: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.05));
+    border-radius: 0 0 4px 4px;
+}
+
+.wod.sheet.actor.demon .bg-modal label {
+    color: var(--wod-text-main, white);
+    font-weight: bold;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.wod.sheet.actor.demon .bg-modal select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 4px;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    font-size: 0.9em;
+    margin-bottom: 12px;
+    height: 32px;
+    box-sizing: border-box;
+}
+
+.wod.sheet.actor.demon .bg-modal button {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 3px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor.demon .bg-modal .cancel-bg-modal {
+    background: var(--wod-bg-light, rgba(220, 20, 60, 0.1));
+    color: var(--wod-text-main, white);
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+}
+
+.wod.sheet.actor.demon .bg-modal .cancel-bg-modal:hover {
+    background: var(--wod-bg-dark, rgba(220, 20, 60, 0.3));
+}
+
+.wod.sheet.actor.demon .bg-modal .save-bg-modal {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+}
+
+.wod.sheet.actor.demon .bg-modal .save-bg-modal:hover {
+    background: var(--wod-primary-dark, #8B0000);
+}
+
+/* No Expanded Backgrounds Message */
+.wod.sheet.actor.demon .no-expanded-backgrounds {
+    text-align: center;
+    padding: 30px;
+    color: var(--wod-text-alt, #b0b0b0);
+    font-style: italic;
+    margin: 20px 0;
+}
+
+.wod.sheet.actor.demon .no-expanded-backgrounds p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+/* Additional Backgrounds Expanded Elements */
+.wod.sheet.actor.demon .bg-expanded-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    gap: 10px;
+}
+
+.wod.sheet.actor.demon .bg-expanded-pagination .pagination-btn {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s ease;
+    min-width: 30px;
+}
+
+.wod.sheet.actor.demon .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.demon .bg-expanded-pagination .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.demon .bg-expanded-pagination .pagination-info {
+    font-size: 0.85em;
+    color: var(--wod-text-alt, #b0b0b0);
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+/* Category Toggle Elements */
+.wod.sheet.actor.demon .category-toggle {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    color: var(--wod-text-main, white);
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85em;
+    margin-bottom: 8px;
+}
+
+.wod.sheet.actor.demon .category-toggle:hover {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
+    border-color: var(--wod-primary, #DC143C);
+}
+
+/* Backgrounds Expanded Main Container */
+.wod.sheet.actor.demon .backgrounds-expanded-section {
+    background: var(--wod-bg-main, #1A0A0A);
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.2));
+    border-radius: 6px;
+    padding: 15px;
+    margin: 5px;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section h2 {
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+    color: var(--wod-primary, #DC143C);
+    text-align: center;
+    border-bottom: 2px solid var(--wod-primary, #DC143C);
+    padding-bottom: 8px;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .section-description {
+    font-size: 0.8em;
+    color: var(--wod-text-alt, #b0b0b0);
+    text-align: center;
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+/* Modal Step Elements */
+.wod.sheet.actor.demon .bg-modal-step-category,
+.wod.sheet.actor.demon .bg-modal-step-background {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.demon .bg-modal-step-category label,
+.wod.sheet.actor.demon .bg-modal-step-background label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--wod-text-main, white);
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+/* Close Button in Modal Header */
+.wod.sheet.actor.demon .bg-modal .close-bg-modal {
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s ease;
+}
+
+.wod.sheet.actor.demon .bg-modal .close-bg-modal:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.wod.sheet.actor.demon .expanded-bg-card {
+    border: 2px solid var(--wod-primary, #DC143C);
+    border-radius: 4px;
+    background: var(--wod-bg-light, rgba(220, 20, 60, 0.05));
+    overflow: hidden;
+}
+
+.wod.sheet.actor.demon .bg-card-header {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    padding: 3px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod.sheet.actor.demon .bg-card-header h3 {
+    margin: 0;
+    font-size: 0.85em;
+}
+
+.wod.sheet.actor.demon .bg-card-header .bg-rating {
+    font-weight: normal;
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.wod.sheet.actor.demon .delete-expanded-bg {
+    color: white;
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 0 4px;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .delete-expanded-bg:hover {
+    color: var(--wod-danger, #FF6B6B);
+    transform: scale(1.2);
+}
+
+.wod.sheet.actor.demon .bg-card-body {
+    padding: 5px;
+}
+
+.wod.sheet.actor.demon .bg-template {
+    margin-bottom: 5px;
+}
+
+.wod.sheet.actor.demon .template-field {
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.demon .template-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.demon .template-field-row-thirds {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.demon .template-field-row-split {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    gap: 6px;
+    margin-bottom: 3px;
+}
+
+.wod.sheet.actor.demon .template-field label {
+    font-size: 0.65em;
+    font-weight: bold;
+    color: var(--wod-text-alt, #b0b0b0);
+    display: block;
+    margin-bottom: 1px;
+}
+
+.wod.sheet.actor.demon .template-input,
+.wod.sheet.actor.demon .template-select {
+    width: 100%;
+    padding: 2px 5px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.7em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .template-input-small {
+    width: 100%;
+    padding: 3px 6px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .template-input-number {
+    max-width: 120px;
+    width: auto;
+    padding: 3px 8px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .template-input-number-tiny {
+    max-width: 80px;
+    width: auto;
+    padding: 3px 6px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.75em;
+    text-align: center;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .template-input-tiny {
+    width: 50px;
+    padding: 3px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.7em;
+    text-align: center;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .template-textarea {
+    width: 100%;
+    padding: 3px 5px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.65em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    resize: vertical;
+    min-height: 28px;
+    font-family: inherit;
+    line-height: 1.2;
+}
+
+.wod.sheet.actor.demon .template-textarea-large {
+    width: 100%;
+    padding: 5px 8px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.65em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.wod.sheet.actor.demon .template-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.wod.sheet.actor.demon .template-field-group h4 {
+    font-size: 0.8em;
+    color: var(--wod-primary, #DC143C);
+    margin: 10px 0 5px 0;
+}
+
+/* Allies Template */
+.wod.sheet.actor.demon .allies-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.wod.sheet.actor.demon .ally-entry {
+    border: 1px solid var(--wod-border-subtle, rgba(220, 20, 60, 0.2));
+    border-radius: 3px;
+    padding: 8px;
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+}
+
+.wod.sheet.actor.demon .ally-header {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.wod.sheet.actor.demon .ally-name-input {
+    flex: 1;
+    font-weight: bold;
+    padding: 4px 8px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.8em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .delete-ally {
+    color: var(--wod-danger, #FF6B6B);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.wod.sheet.actor.demon .ally-field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.wod.sheet.actor.demon .ally-input,
+.wod.sheet.actor.demon .ally-input-small {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .ally-textarea {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    resize: vertical;
+    min-height: 40px;
+    font-family: inherit;
+}
+
+.wod.sheet.actor.demon .add-ally {
+    padding: 6px 12px;
+    background: var(--wod-success, #28a745);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.75em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .add-ally:hover {
+    background: var(--wod-primary, #DC143C);
+    transform: scale(1.05);
+}
+
+/* Resources Template */
+.wod.sheet.actor.demon .properties-list,
+.wod.sheet.actor.demon .assets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.wod.sheet.actor.demon .property-entry,
+.wod.sheet.actor.demon .asset-entry {
+    border: 1px solid var(--wod-border-subtle, rgba(220, 20, 60, 0.2));
+    border-radius: 3px;
+    padding: 6px;
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+}
+
+.wod.sheet.actor.demon .property-header,
+.wod.sheet.actor.demon .asset-header {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.wod.sheet.actor.demon .property-input,
+.wod.sheet.actor.demon .asset-input {
+    flex: 1;
+    padding: 4px 6px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 2px;
+    font-size: 0.75em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    margin-bottom: 4px;
+}
+
+.wod.sheet.actor.demon .delete-property,
+.wod.sheet.actor.demon .delete-asset {
+    color: var(--wod-danger, #FF6B6B);
+    cursor: pointer;
+    padding: 2px;
+}
+
+.wod.sheet.actor.demon .add-property,
+.wod.sheet.actor.demon .add-asset {
+    padding: 5px 10px;
+    background: var(--wod-success, #28a745);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.7em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 5px;
+}
+
+.wod.sheet.actor.demon .add-property:hover,
+.wod.sheet.actor.demon .add-asset:hover {
+    background: var(--wod-primary, #DC143C);
+}
+
+/* Familiar Template */
+.wod.sheet.actor.demon .familiar-attributes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.wod.sheet.actor.demon .familiar-attr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wod.sheet.actor.demon .familiar-attr label {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: var(--wod-text-alt, #b0b0b0);
+    margin-bottom: 3px;
+}
+
+/* Custom Fields Section */
+.wod.sheet.actor.demon .custom-fields-section {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+}
+
+.wod.sheet.actor.demon .custom-fields-section h4 {
+    font-size: 0.7em;
+    color: var(--wod-primary, #DC143C);
+    margin: 0 0 3px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod.sheet.actor.demon .add-custom-field {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .add-custom-field:hover {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: scale(1.1);
+}
+
+.wod.sheet.actor.demon .custom-fields-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.wod.sheet.actor.demon .custom-field {
+    border: 1px solid var(--wod-primary, #DC143C);
+    border-radius: 2px;
+    padding: 3px;
+    background: var(--wod-bg-info, rgba(220, 20, 60, 0.15));
+}
+
+/* Pagination Controls for Backgrounds Expanded */
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+    border-radius: 3px;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-btn {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: scale(1.05);
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wod.sheet.actor.demon .backgrounds-expanded-section .pagination-info {
+    font-size: 0.8em;
+    color: var(--wod-text-alt, #b0b0b0);
+    font-weight: bold;
+}
+
+/* Demon-specific Background Card Styling */
+.wod.sheet.actor.demon .bg-card-mini {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.demon .bg-card-mini:hover {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
+    border-color: var(--wod-primary, #DC143C);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+}
+
+.wod.sheet.actor.demon .bg-card-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-header .bg-name {
+    font-weight: bold;
+    color: var(--wod-text-main, white);
+    font-size: 0.85em;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-header .bg-rating {
+    color: var(--wod-primary, #DC143C);
+    font-weight: bold;
+    font-size: 0.8em;
+    background: rgba(220, 20, 60, 0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-actions a {
+    color: var(--wod-text-alt, #b0b0b0);
+    transition: color 0.2s ease;
+}
+
+.wod.sheet.actor.demon .bg-card-mini-actions a:hover {
+    color: var(--wod-primary, #DC143C);
+}
+
+/* Demon-specific Modal Styling */
+.wod.sheet.actor.demon .demon-bg-modal {
+    background: var(--wod-bg-main, #1A0A0A);
+    border: 2px solid var(--wod-primary, #DC143C);
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(220, 20, 60, 0.4);
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.wod.sheet.actor.demon .demon-bg-modal .bg-modal-header {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wod.sheet.actor.demon .demon-bg-modal .bg-modal-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.wod.sheet.actor.demon .demon-bg-modal .bg-modal-header a {
+    color: white;
+    transition: color 0.2s ease;
+}
+
+.wod.sheet.actor.demon .demon-bg-modal .bg-modal-header a:hover {
+    color: var(--wod-text-alt, #b0b0b0);
+}
+
+.wod.sheet.actor.demon .demon-bg-modal .bg-modal-body {
+    padding: 16px;
+}
+
+.wod.sheet.actor.demon .demon-bg-modal .bg-modal-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon .demon-select-bg-category,
+.wod.sheet.actor.demon .demon-select-background {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 4px;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+    font-size: 0.9em;
+    margin-top: 4px;
+}
+
+.wod.sheet.actor.demon .demon-save-bg-modal {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background 0.2s ease;
+}
+
+.wod.sheet.actor.demon .demon-save-bg-modal:hover {
+    background: var(--wod-primary-dark, #8B0000);
+}
+
+.wod.sheet.actor.demon .floating-add-bg {
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+}
+
+.wod.sheet.actor.demon .floating-add-bg:hover {
+    background: var(--wod-primary-dark, #8B0000);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
+}
+
+/* Category Section Styling */
+.wod.sheet.actor.demon .bg-category-section {
+    margin-bottom: 12px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.2));
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.demon .bg-category-header {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.wod.sheet.actor.demon .bg-category-header:hover {
+    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
+}
+
+.wod.sheet.actor.demon .bg-category-header h3 {
+    margin: 0;
+    color: var(--wod-text-main, white);
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon .bg-category-header .category-count {
+    color: var(--wod-primary, #DC143C);
+    font-size: 0.85em;
+    background: rgba(220, 20, 60, 0.2);
+    padding: 2px 6px;
+    border-radius: 8px;
+}
+
+.wod.sheet.actor.demon .bg-category-content {
+    padding: 8px;
+}
+
+.wod.sheet.actor.demon .bg-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wod.sheet.actor.demon .custom-field-inputs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.demon .custom-field-name {
+    flex: 1;
+    font-weight: bold;
+    padding: 2px 5px;
+    border: 1px solid var(--wod-border-info, rgba(220, 20, 60, 0.4));
+    border-radius: 2px;
+    font-size: 0.7em;
+    background: var(--wod-bg-input, #2D0F0F);
+    color: var(--wod-text-main, white);
+}
+
+.wod.sheet.actor.demon .delete-custom-field {
+    color: var(--wod-danger, #FF6B6B);
+    cursor: pointer;
+    padding: 4px;
+}
+
+/* ========================================
+   ACTOR SHEET INPUT FIELDS - WHITE BACKGROUND, BLACK TEXT
+   MUST override mortal-sheet.css which loads before this
+   CRITICAL: These are the CHARACTER SHEET inputs, not the wizard!
+   ======================================== */
+
+/* Identity fields - NAME, CONCEPT, HOUSE, etc. - MAXIMUM SPECIFICITY */
+.wod.sheet.actor.demon .identity-section .identity-field input[type="text"],
+.wod.sheet.actor.demon .identity-section .identity-field input,
+.wod.sheet.actor.demon .identity-field input[type="text"],
+.wod.sheet.actor.demon .identity-field input,
+.wod.sheet.actor.demon .identity-field select {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+}
+
+/* All text and number inputs - MUST override visual-polish.css */
+.wod.sheet.actor.demon input[type="text"],
+.wod.sheet.actor.demon input[type="number"],
+.wod.sheet.actor.demon select,
+.wod.sheet.actor.demon textarea,
+.wod.sheet.actor.demon .identity-section input[type="text"],
+.wod.sheet.actor.demon .identity-section select {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+    box-shadow: none !important;
+}
+
+/* Placeholder text */
+.wod.sheet.actor.demon input[type="text"]::placeholder,
+.wod.sheet.actor.demon textarea::placeholder {
+    color: #999999 !important;
+    opacity: 0.7 !important;
+}
+
+/* Override all template inputs too */
+.wod.sheet.actor.demon .template-input,
+.wod.sheet.actor.demon .template-input-small,
+.wod.sheet.actor.demon .template-input-number,
+.wod.sheet.actor.demon .template-input-number-tiny,
+.wod.sheet.actor.demon .template-input-tiny,
+.wod.sheet.actor.demon .template-select,
+.wod.sheet.actor.demon .template-textarea,
+.wod.sheet.actor.demon .ally-name-input,
+.wod.sheet.actor.demon .ally-input,
+.wod.sheet.actor.demon .ally-input-small,
+.wod.sheet.actor.demon .property-input,
+.wod.sheet.actor.demon .asset-input {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+}
+
+/* Focus states */
+.wod.sheet.actor.demon input[type="text"]:focus,
+.wod.sheet.actor.demon input[type="number"]:focus,
+.wod.sheet.actor.demon select:focus,
+.wod.sheet.actor.demon textarea:focus {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #FF6347 !important;
+    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.2) !important;
+    outline: none !important;
+}
+
+/* ========================================
+   CRITICAL: Input field overrides - MUST be at end to override character-wizard.css
+   These rules MUST load after character-wizard.css, so they're placed at the very end
+   ======================================== */
+
+/* Force white backgrounds and black text for ALL demon wizard inputs */
+.app.dialog.Demon .character-wizard .form-group input[type="text"],
+.app.dialog.Demon .character-wizard .form-group select,
+.app.dialog.Demon .character-wizard .form-group textarea,
+.window-app.dialog.Demon .character-wizard .form-group input[type="text"],
+.window-app.dialog.Demon .character-wizard .form-group select,
+.window-app.dialog.Demon .character-wizard .form-group textarea,
+.app.dialog.demon .character-wizard .form-group input[type="text"],
+.app.dialog.demon .character-wizard .form-group select,
+.app.dialog.demon .character-wizard .form-group textarea,
+.window-app.dialog.demon .character-wizard .form-group input[type="text"],
+.window-app.dialog.demon .character-wizard .form-group select,
+.window-app.dialog.demon .character-wizard .form-group textarea,
+.app.character-wizard.Demon .character-wizard .form-group input[type="text"],
+.app.character-wizard.Demon .character-wizard .form-group select,
+.app.character-wizard.Demon .character-wizard .form-group textarea,
+.window-app.character-wizard.Demon .character-wizard .form-group input[type="text"],
+.window-app.character-wizard.Demon .character-wizard .form-group select,
+.window-app.character-wizard.Demon .character-wizard .form-group textarea,
+.app.character-wizard.demon .character-wizard .form-group input[type="text"],
+.app.character-wizard.demon .character-wizard .form-group select,
+.app.character-wizard.demon .character-wizard .form-group textarea,
+.window-app.character-wizard.demon .character-wizard .form-group input[type="text"],
+.window-app.character-wizard.demon .character-wizard .form-group select,
+.window-app.character-wizard.demon .character-wizard .form-group textarea {
+    background: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #FF8C00 !important;
+    border-color: #FF8C00 !important;
+}
+
+/* ==============================================
+   APOCALYPTIC TAB STYLING
+   ============================================== */
+
+/* Apocalyptic Form Container - Use Same Tab Padding as Lore */
+.wod.sheet.actor.demon .tab[data-tab="apocalyptic"] {
+    padding: 5px 25px 5px 5px;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-container {
+    padding: 15px;
+}
+
+/* Visage Description */
+.wod.sheet.actor.demon .visage-description {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(220, 20, 60, 0.05);
+    border: 1px solid rgba(220, 20, 60, 0.2);
+    border-radius: 8px;
+    border-left: 4px solid var(--wod-primary, #DC143C);
+}
+
+.wod.sheet.actor.demon .visage-description-content {
+    color: var(--color-text-light, #333);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    font-style: italic;
+}
+
+.wod.sheet.actor.demon .visage-description-content p {
+    margin: 0 0 10px 0;
+}
+
+.wod.sheet.actor.demon .visage-description-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Visage Header - Match Lore Category Style */
+.wod.sheet.actor.demon .visage-header {
+    margin-bottom: 20px;
+}
+
+.wod.sheet.actor.demon .visage-header h3 {
+    color: var(--wod-primary-light);
+    border-bottom: 2px solid var(--wod-border-main);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.wod.sheet.actor.demon .visage-description {
+    color: var(--wod-text-secondary, #666666);
+    font-size: 0.9em;
+    margin: 0;
+}
+
+/* Torment Sections - Match Lore Category Style */
+.wod.sheet.actor.demon .torment-section {
+    margin-bottom: 20px;
+}
+
+.wod.sheet.actor.demon .torment-section h4 {
+    color: var(--wod-primary-light);
+    border-bottom: 2px solid var(--wod-border-main);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon .torment-section h4 i {
+    font-size: 0.9em;
+}
+
+/* Powers Grid - More columns for narrower cards */
+.wod.sheet.actor.demon .powers-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+/* Power Cards - Compact but still beautiful cards */
+.wod.sheet.actor.demon .power-card {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-left: 4px solid var(--wod-primary) !important;
+    border-radius: 4px !important;
+    padding: 3px 6px !important;
+    margin-bottom: 2px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    min-height: 26px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.wod.sheet.actor.demon .power-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.wod.sheet.actor.demon .power-card.low-torment {
+    border-left-color: #4CAF50 !important;
+}
+
+.wod.sheet.actor.demon .power-card.high-torment {
+    border-left-color: #F44336 !important;
+}
+
+/* Power Name - Match Background Item Text */
+.wod.sheet.actor.demon .power-name {
+    color: #333333 !important;
+    font-size: 0.9em !important;
+    font-weight: 500 !important;
+    flex: 1;
+    margin-right: 8px;
+    line-height: 1.2;
+}
+
+/* Power Reference Button - Match Background Reference Button Style */
+.wod.sheet.actor.demon .power-reference-btn {
+    background: none !important;
+    border: none !important;
+    padding: 2px 2px !important;
+    cursor: pointer !important;
+    color: #9C27B0 !important; /* Purple like background buttons */
+    font-size: 12px !important;
+    opacity: 0.7 !important;
+    transition: all 0.2s ease !important;
+    margin-left: 4px !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+    min-width: auto !important;
+    height: auto !important;
+    width: auto !important;
+}
+
+.wod.sheet.actor.demon .power-reference-btn:hover {
+    opacity: 1 !important;
+    color: #7B1FA2 !important; /* Darker purple on hover */
+    transform: scale(1.1) !important;
+    background: rgba(156, 39, 176, 0.1) !important;
+}
+
+.wod.sheet.actor.demon .power-reference-btn i {
+    pointer-events: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+/* Apocalyptic Form Reference Button - Simple and Clean */
+.wod.sheet.actor.demon .apocalyptic-form-reference-btn,
+.wod.sheet.actor.demon div .apocalyptic-form-reference-btn,
+.wod.sheet.actor.demon .form-field .apocalyptic-form-reference-btn {
+    background: none !important;
+    border: none !important;
+    padding: 2px !important;
+    cursor: pointer !important;
+    color: #FF8C00 !important;
+    font-size: 11px !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.2s ease !important;
+    margin-left: 6px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    min-width: auto !important;
+    height: auto !important;
+    position: static !important;
+    display: inline-block !important;
+    flex: none !important;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-reference-btn.has-reference,
+.wod.sheet.actor.demon div .apocalyptic-form-reference-btn.has-reference,
+.wod.sheet.actor.demon .form-field .apocalyptic-form-reference-btn.has-reference {
+    opacity: 0.6 !important;
+    visibility: visible !important;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-reference-btn:hover,
+.wod.sheet.actor.demon div .apocalyptic-form-reference-btn:hover,
+.wod.sheet.actor.demon .form-field .apocalyptic-form-reference-btn:hover {
+    opacity: 1 !important;
+    color: #FF6600 !important;
+    transform: scale(1.1) !important;
+    background: none !important;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-reference-btn i,
+.wod.sheet.actor.demon div .apocalyptic-form-reference-btn i,
+.wod.sheet.actor.demon .form-field .apocalyptic-form-reference-btn i {
+    pointer-events: none !important;
+    margin: 0 !important;
+}
+
+.wod.sheet.actor.demon .apocalyptic-form-reference-btn::before,
+.wod.sheet.actor.demon div .apocalyptic-form-reference-btn::before,
+.wod.sheet.actor.demon .form-field .apocalyptic-form-reference-btn::before {
+    display: none !important;
+}
+
+/* Power Tooltip */
+.wod-reference-tooltip.wod-power-tooltip {
+    border-color: var(--wod-primary, #DC143C);
+}
+
+.wod-reference-tooltip.wod-power-tooltip h4 {
+    color: var(--wod-primary, #DC143C);
+    margin: 0 0 10px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wod.sheet.actor.demon .apocalyptic-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .wod.sheet.actor.demon .powers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .wod.sheet.actor.demon .visage-info {
+        flex-direction: column;
+        gap: 5px;
+        align-items: flex-start;
+    }
+    
+    .wod.sheet.actor.demon .visage-info select {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   EQUIPMENT TAB
+   ======================================== */
+
+/* Equipment Header - Red gradient for Demon */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .equipment-header-compact {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FF6B6B) 0%, var(--wod-primary, #DC143C) 50%, var(--wod-primary-dark, #8B0000) 100%) !important;
+}
+
+/* Equipment Type Tab - Active state */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .equipment-type-tab.active {
+    color: var(--wod-primary, #DC143C) !important;
+}
+
+/* Equipment Item - Keep equipment type color scheme (red for weapons, blue for armor, green for gear) */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .weapon-item {
+    border-left-color: #E53935 !important; /* Red for weapons */
+}
+
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .armor-item {
+    border-left-color: #1E88E5 !important; /* Blue for armor */
+}
+
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .gear-item {
+    border-left-color: #43A047 !important; /* Green for gear */
+}
+
+/* Item Name Input Focus */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .item-name input:focus {
+    border-color: var(--wod-primary, #DC143C) !important;
+}
+
+/* Stat Mini Strong */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .stat-mini strong {
+    color: var(--wod-primary, #DC143C) !important;
+}
+
+/* Stat Mini Input Focus */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .stat-mini input:focus {
+    border-color: var(--wod-primary, #DC143C) !important;
+}
+
+/* Mini Button */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .mini-btn {
+    background: var(--wod-primary, #DC143C) !important;
+}
+
+/* Equipment Empty Icon */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .equipment-empty i {
+    color: var(--wod-primary, #DC143C) !important;
+}
+
+/* Footer Add Button */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .footer-add-btn {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FF6B6B) 0%, var(--wod-primary, #DC143C) 50%, var(--wod-primary-dark, #8B0000) 100%) !important;
+}
+
+/* Equipment Type Tab - Hover state */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .equipment-type-tab:hover {
+    background: rgba(220, 20, 60, 0.3) !important;
+}
+
+/* Equipment Item - Hover effects */
+.wod.sheet.actor.demon .tab[data-tab="equipment"] .equipment-item:hover {
+    background: rgba(220, 20, 60, 0.1) !important;
+}
+
+/* Equipment Dialog Headers */
+.app.dialog.demon .window-content h3,
+.window-app.dialog.demon .window-content h3,
+.window-app.demon .window-content h3,
+.app.dialog.Demon.equipment-effects-dialog .window-content h3,
+.window-app.dialog.Demon.equipment-effects-dialog .window-content h3,
+.window-app.Demon.equipment-effects-dialog .window-content h3,
+.app.dialog.demon.equipment-effects-dialog .window-content h3,
+.window-app.dialog.demon.equipment-effects-dialog .window-content h3,
+.window-app.demon.equipment-effects-dialog .window-content h3 {
+    background: linear-gradient(135deg, var(--wod-primary-light, #FF6B6B) 0%, var(--wod-primary, #DC143C) 50%, var(--wod-primary-dark, #8B0000) 100%) !important;
+    color: white !important;
+}

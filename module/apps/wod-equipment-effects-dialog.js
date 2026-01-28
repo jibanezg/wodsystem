@@ -430,29 +430,13 @@ export class WodEquipmentEffectsDialog extends FormApplication {
             const manager = game.wod.equipmentEffectsManager;
             const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
             
-            console.log("WoD Equipment Effects Dialog: Applying effects after save", {
-                itemId: updatedItem.id,
-                itemName: updatedItem.name,
-                isEquipped: updatedItem.system?.equipped,
-                hasEffects: hasEffects,
-                effects: effects,
-                lightEffect: effects.light
-            });
+            await applyEquipmentEffects(this.item);
             
             if (hasEffects) {
-                // Use the effects object we just created, which has the latest values
                 await manager._applyItemEffects(updatedItem.actor, updatedItem, effects);
             } else {
                 await manager._removeItemEffects(updatedItem.actor, updatedItem.id);
             }
-        } else {
-            console.log("WoD Equipment Effects Dialog: Item not equipped, effects will apply when equipped", {
-                itemId: updatedItem.id,
-                itemName: updatedItem.name,
-                isEquipped: updatedItem.system?.equipped,
-                hasManager: !!game.wod?.equipmentEffectsManager,
-                effects: effects
-            });
         }
     }
 }

@@ -42,21 +42,14 @@ export class WizardValidator {
     // - Freebies: Must be fully spent, so we validate it
     const steps = ['concept', 'freebies'];
     
-    console.log('🔍 validateAll - Starting validation of critical steps');
-    console.log('🔍 validateAll - wizardData:', JSON.parse(JSON.stringify(wizardData)));
-    
     for (const step of steps) {
-      console.log(`🔍 validateAll - Validating step: ${step}`);
       const validation = this.validateStep(step, wizardData);
-      console.log(`🔍 validateAll - Step ${step} result:`, validation);
       
       if (!validation.valid) {
-        console.error(`🔍 validateAll - FAILED at step ${step}:`, validation.message);
         return { valid: false, message: `Step ${step}: ${validation.message}` };
       }
     }
     
-    console.log('🔍 validateAll - ALL STEPS PASSED ✓');
     return { valid: true };
   }
 
@@ -66,19 +59,14 @@ export class WizardValidator {
   validateConcept(conceptData) {
     const fields = this.config.concept.fields;
     
-    console.log('validateConcept called with:', conceptData);
-    console.log('Required fields:', fields.filter(f => f.required).map(f => f.name));
-    
     for (const field of fields) {
       const value = conceptData[field.name];
-      console.log(`Checking field ${field.name}:`, {
-        value: value,
-        required: field.required,
-        isEmpty: !value || value.trim() === ""
-      });
+      // Convert value to string for trimming, handle null/undefined
+      const stringValue = value != null ? String(value) : "";
+      const isEmpty = !stringValue || stringValue.trim() === "";
       
       // Check if field is required and either missing or empty string
-      if (field.required && (!value || value.trim() === "")) {
+      if (field.required && isEmpty) {
         // Get translated label (either from label or labelKey)
         let fieldLabel = field.label || field.name;
         if (!fieldLabel && field.labelKey && game?.i18n) {
@@ -95,12 +83,10 @@ export class WizardValidator {
             message = `${fieldLabel || field.name} is required`;
           }
         }
-        console.log(`VALIDATION FAILED: ${fieldLabel || field.name} is required`);
         return { valid: false, message: message };
       }
     }
     
-    console.log('VALIDATION PASSED');
     return { valid: true };
   }
 
@@ -194,7 +180,20 @@ export class WizardValidator {
       if (!priority) continue;
       
       const allowedPoints = priorities[priority];
-      const spent = Object.values(abilities).reduce((sum, val) => sum + val, 0);
+      
+      // Calculate spent points - ensure we only sum numeric values
+      // Filter out non-numeric values, null, undefined, and ensure values are within reasonable bounds
+      const spent = Object.values(abilities).reduce((sum, val) => {
+        // Convert to number and validate
+        const numVal = Number(val);
+        // Only add if it's a valid number, not NaN, and within reasonable bounds (0-10)
+        if (!isNaN(numVal) && isFinite(numVal) && numVal >= 0 && numVal <= 10) {
+          return sum + numVal;
+        } else {
+          return sum;
+        }
+      }, 0);
+      
       const remaining = allowedPoints - spent;
       
       details[category] = { spent, remaining, allowed: allowedPoints };
@@ -205,14 +204,16 @@ export class WizardValidator {
       const detail = details[category];
       if (!detail) continue;
       
-      // Check for abilities over max
+      // Check for abilities over max - ensure value is numeric
       for (const [ability, value] of Object.entries(abilities)) {
-        if (value > maxAtCreation) {
+        const numValue = Number(value);
+        if (!isNaN(numValue) && isFinite(numValue) && numValue > maxAtCreation) {
           return { 
             valid: false, 
-            message: `${ability} exceeds maximum (${value}/${maxAtCreation})`,
+            message: `${ability} exceeds maximum (${numValue}/${maxAtCreation})`,
             abilities: details
           };
+        } else if (isNaN(numValue) || !isFinite(numValue)) {
         }
       }
       
@@ -366,6 +367,95 @@ export class WizardValidator {
       }
     }
     
+    // Validate lore (Demon)
+    if (this.config.advantages.lore) {
+      const loreConfig = this.config.advantages.lore;
+      const totalLorePoints = Object.values(advantagesData.lore || {}).reduce((sum, val) => sum + (val || 0), 0);
+      const loreRemaining = loreConfig.points - totalLorePoints;
+      
+      details.lore = { 
+        spent: totalLorePoints, 
+        remaining: loreRemaining, 
+        allowed: loreConfig.points 
+      };
+      
+      // Check individual lore limits
+      for (const [lorePath, value] of Object.entries(advantagesData.lore || {})) {
+        if (value > loreConfig.maxAtCreation) {
+          return { 
+            valid: false, 
+            message: `${lorePath} exceeds maximum (${value}/${loreConfig.maxAtCreation})`,
+            ...details
+          };
+        }
+      }
+      
+      if (totalLorePoints > loreConfig.points) {
+        return { 
+          valid: false, 
+          message: `Too many lore points spent (${totalLorePoints}/${loreConfig.points})`,
+          ...details
+        };
+      }
+      
+      if (loreRemaining > 0) {
+        return { 
+          valid: false, 
+          message: `Please spend all lore points (${loreRemaining} remaining)`,
+          ...details
+        };
+      }
+    }
+    
+    // Validate virtues (Mortal and Demon)
+    if (this.config.advantages.virtues && this.config.advantages.virtues.points) {
+      const virtuesConfig = this.config.advantages.virtues;
+      const startingValue = virtuesConfig.starting || 1;
+      const virtues = advantagesData.virtues || {};
+      
+      // Calculate total points spent on virtues (above starting value)
+      const totalVirtuePoints = Object.values(virtues).reduce((sum, val) => {
+        const numVal = Number(val) || startingValue;
+        return sum + Math.max(0, numVal - startingValue);
+      }, 0);
+      
+      const virtueRemaining = virtuesConfig.points - totalVirtuePoints;
+      
+      details.virtues = { 
+        spent: totalVirtuePoints, 
+        remaining: virtueRemaining, 
+        allowed: virtuesConfig.points 
+      };
+      
+      // Check individual virtue limits (max 5)
+      for (const [virtueName, value] of Object.entries(virtues)) {
+        const numValue = Number(value) || startingValue;
+        if (numValue > 5) {
+          return { 
+            valid: false, 
+            message: `${virtueName} exceeds maximum (${numValue}/5)`,
+            ...details
+          };
+        }
+      }
+      
+      if (totalVirtuePoints > virtuesConfig.points) {
+        return { 
+          valid: false, 
+          message: `Too many virtue points spent (${totalVirtuePoints}/${virtuesConfig.points})`,
+          ...details
+        };
+      }
+      
+      if (virtueRemaining > 0) {
+        return { 
+          valid: false, 
+          message: `Please spend all virtue points (${virtueRemaining} remaining)`,
+          ...details
+        };
+      }
+    }
+    
     return { valid: true, ...details };
   }
 
@@ -437,14 +527,47 @@ export class WizardValidator {
     
     // Check if overspent (should never happen if buttons are properly disabled)
     if (remaining < 0) {
-      console.error('BUG: Freebies remaining is negative! This should not be possible.', {
-        remaining: freebiesData.remaining,
-        freebiesData
-      });
       return { 
         valid: false, 
         message: `System error: Freebie calculation issue. Please report this bug.` 
       };
+    }
+    
+    // Validate lore limits (Demon)
+    if (this.config.freebies.limits?.lore && advantagesData.lore) {
+      const loreMax = this.config.freebies.limits.lore;
+      for (const [lorePathId, value] of Object.entries(advantagesData.lore)) {
+        if (value > loreMax) {
+          return {
+            valid: false,
+            message: `Lore path "${lorePathId}" exceeds maximum (${value}/${loreMax})`
+          };
+        }
+      }
+    }
+    
+    // Validate faith limits (Demon)
+    if (this.config.freebies.costs?.faith && advantagesData.faith) {
+      const faithMax = 10;
+      if (advantagesData.faith > faithMax) {
+        return {
+          valid: false,
+          message: `Faith exceeds maximum (${advantagesData.faith}/${faithMax})`
+        };
+      }
+    }
+    
+    // Validate virtue limits (Demon/Mortal)
+    if (this.config.freebies.costs?.virtue && advantagesData.virtues) {
+      const virtueMax = 5;
+      for (const [virtueName, value] of Object.entries(advantagesData.virtues)) {
+        if (value > virtueMax) {
+          return {
+            valid: false,
+            message: `Virtue "${virtueName}" exceeds maximum (${value}/${virtueMax})`
+          };
+        }
+      }
     }
     
     // Check if all points are spent (required)

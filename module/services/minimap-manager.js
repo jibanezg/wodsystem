@@ -247,7 +247,6 @@ export class MinimapManager {
                 const buttonExists = $html.find('.wod-minimap-config-btn').length > 0;
                 
                 if (!buttonExists) {
-                    console.error("WoD Minimap: FAILED to create button!");
                 }
             }, 200);
         });
@@ -306,7 +305,6 @@ export class MinimapManager {
                         type: Object
                     });
                 } catch (e2) {
-                    console.warn("WoD Minimap: Could not register zoom/pan settings:", e2);
                 }
             });
         }
@@ -340,7 +338,6 @@ export class MinimapManager {
             }
         });
 
-        console.log("WoD | Minimap Manager initialized");
     }
 
     /**
@@ -589,7 +586,6 @@ export class MinimapManager {
                     detectedLevel = canvas.levels.getCurrentLevel();
                     detectionMethod = "canvas.levels.getCurrentLevel()";
                 } catch (e) {
-                    console.warn("WoD Minimap: Error calling getCurrentLevel:", e);
                 }
             }
         }
@@ -608,7 +604,6 @@ export class MinimapManager {
                     detectedLevel = game.levels.getCurrentLevel();
                     detectionMethod = "game.levels.getCurrentLevel()";
                 } catch (e) {
-                    console.warn("WoD Minimap: Error calling game.levels.getCurrentLevel:", e);
                 }
             }
         }
@@ -684,19 +679,12 @@ export class MinimapManager {
                 walls = wallIds.map(id => {
                     const wall = scene.walls.get(id);
                     if (!wall) {
-                        console.warn("WoD Minimap: Wall not found in scene", { id });
                     }
                     return wall;
                 }).filter(Boolean);
                 
             } else {
-                // If no pre-calculated walls, return empty (GM needs to configure minimap first)
-                console.warn("WoD Minimap: No pre-calculated walls for level, GM needs to configure minimap", {
-                    level: currentLevel,
-                    hasWallsByLevel: !!wallsByLevel,
-                    availableLevels: wallsByLevel ? Object.keys(wallsByLevel).map(Number) : []
-                });
-                walls = [];
+                return [];
             }
         } else {
             // For GM or when Levels is not active: use scene.walls
@@ -812,7 +800,6 @@ export class MinimapManager {
             // Handle both wall documents and wall objects
             const wallData = wall.document || wall;
             if (!wallData) {
-                console.warn("WoD Minimap: Wall has no document or data", wall);
                 return;
             }
             
@@ -1309,7 +1296,6 @@ export class MinimapManager {
      */
     _openConfigDialog(scene) {
         if (!game.wod?.MinimapConfigDialog) {
-            console.error("WoD Minimap: MinimapConfigDialog not loaded");
             return;
         }
 

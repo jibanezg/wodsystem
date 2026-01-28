@@ -2,6 +2,34 @@
    CHARACTER CREATION WIZARD
    ================================ */
 
+/* Hide apocalyptic form field by default (shown only when house is selected) */
+/* Use maximum specificity to override any other form-group rules */
+.character-wizard .form-grid .form-group.apocalyptic-form-field.hidden,
+.wizard-step .form-grid .form-group.apocalyptic-form-field.hidden,
+.form-grid .form-group.apocalyptic-form-field.hidden,
+.character-wizard .form-group.apocalyptic-form-field.hidden,
+.wizard-step .form-group.apocalyptic-form-field.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Show when hidden class is removed - but only if explicitly shown */
+.character-wizard .form-grid .form-group.apocalyptic-form-field:not(.hidden).apocalyptic-form-visible,
+.wizard-step .form-grid .form-group.apocalyptic-form-field:not(.hidden).apocalyptic-form-visible,
+.form-grid .form-group.apocalyptic-form-field:not(.hidden).apocalyptic-form-visible {
+  display: flex !important;
+  visibility: visible !important;
+  height: auto !important;
+  overflow: visible !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .character-wizard {
   display: flex;
   flex-direction: column;
@@ -230,6 +258,40 @@
   margin: 0;
   color: #95a5a6;
   font-size: 0.875rem;
+}
+
+.randomize-attributes-btn {
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.6rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  line-height: 1;
+  width: auto;
+  max-width: fit-content;
+}
+
+.randomize-attributes-btn:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.randomize-attributes-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(102, 126, 234, 0.2);
+}
+
+.randomize-attributes-btn i {
+  font-size: 0.65rem;
 }
 
 .step-body {
@@ -464,6 +526,8 @@
 .ability-remove,
 .sphere-decrease,
 .sphere-increase,
+.lore-decrease,
+.lore-increase,
 .bg-decrease,
 .bg-increase,
 .freebie-decrease,
@@ -486,6 +550,7 @@
 .attr-increase,
 .ability-increase,
 .sphere-increase,
+.lore-increase,
 .bg-increase,
 .freebie-increase {
   background: #27ae60;
@@ -495,6 +560,7 @@
 .attr-decrease,
 .ability-decrease,
 .sphere-decrease,
+.lore-decrease,
 .bg-decrease,
 .freebie-decrease {
   background: #c0392b;
@@ -504,6 +570,7 @@
 .attr-increase:hover,
 .ability-increase:hover,
 .sphere-increase:hover,
+.lore-increase:hover,
 .bg-increase:hover,
 .freebie-increase:hover {
   background: #2ecc71;
@@ -513,6 +580,7 @@
 .attr-decrease:hover,
 .ability-decrease:hover,
 .sphere-decrease:hover,
+.lore-decrease:hover,
 .bg-decrease:hover,
 .freebie-decrease:hover {
   background: #e74c3c;

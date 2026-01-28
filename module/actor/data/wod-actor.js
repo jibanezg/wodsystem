@@ -130,14 +130,12 @@ export class WodActor extends Actor {
                                      Object.keys(newBackgrounds).length > 0;
                 
                 if (!isPlainObject) {
-                    console.warn(`Actor ${this.name} (${this.id}): Attempted to update backgrounds to invalid type (${typeof newBackgrounds}), preserving current backgrounds`);
                 }
                 // Silently fix it regardless of source
                 changed.system.miscellaneous.backgrounds = currentBackgrounds;
             }
             // If the update is trying to clear all backgrounds without explicit intent, log it
             else if (newBackgrounds.length === 0 && currentBackgrounds.length > 0) {
-                console.warn(`Actor ${this.name} (${this.id}): Backgrounds being cleared (had ${currentBackgrounds.length} entries). If this was unintentional, check for pagination or form submission issues.`);
             }
         }
     }
@@ -271,7 +269,6 @@ export class WodActor extends Actor {
         // Ensure it's an array (for brand new actors)
         // CRITICAL: Never allow backgrounds to be null or undefined - always default to empty array
         if (!Array.isArray(this.system.miscellaneous.backgrounds)) {
-            console.warn(`Actor ${this.name} (${this.id}): backgrounds was not an array (was ${typeof this.system.miscellaneous.backgrounds}), resetting to empty array`);
             this.system.miscellaneous.backgrounds = [];
         }
         
@@ -416,14 +413,12 @@ export class WodActor extends Actor {
                     updates[from][abilityName] = null; // null means delete
                     
                     hasChanges = true;
-                    console.log(`WoD System | Migrated ability "${abilityName}" from ${from} to ${to} (value: ${value})`);
                 } else {
                     if (!updates[from]) {
                         updates[from] = {};
                     }
                     updates[from][abilityName] = null;
                     hasChanges = true;
-                    console.log(`WoD System | Removed ability "${abilityName}" from ${from} (already exists in ${to})`);
                 }
             }
         }
@@ -438,7 +433,6 @@ export class WodActor extends Actor {
                         }
                         updates[category][abilityName] = null;
                         hasChanges = true;
-                        console.log(`WoD System | Removed obsolete ability "${abilityName}" from ${category}`);
                     }
                 }
             }
@@ -514,7 +508,6 @@ export class WodActor extends Actor {
                 if (JSON.stringify(currentKeys) !== JSON.stringify(reorderedKeys)) {
                     this.system.abilities[category] = reordered;
                     hasChanges = true;
-                    console.log(`WoD System | Reordered abilities in ${category} to match template.json`);
                 }
             }
         }

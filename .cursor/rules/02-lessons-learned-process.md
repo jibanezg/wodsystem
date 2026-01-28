@@ -10,6 +10,7 @@ Document lessons learned **immediately after**:
 - ✅ Solving a problem that required a different approach than initially attempted
 - ✅ Discovering a pattern that could prevent similar issues in the future
 - ✅ Finding a solution that required checking something that wasn't obvious initially
+- ✅ **Encountering ANY issue that isn't already documented** - Add it immediately to prevent recurrence
 
 ## What Makes a Good Lesson Learned
 
@@ -145,3 +146,5 @@ After successfully implementing a feature or fixing a bug:
 - **Actionable steps = Preventable mistakes**
 - **Document immediately = Fresh context**
 - **Update checklists = Built-in reminders**
+- **If it's not documented, it will happen again** - Always add issues to lessons learned/checklist
+- **Until code is pushed, document everything** - Issues found during development should be captured immediately

@@ -2,6 +2,8 @@
   "WODSYSTEM": {
     "Mortal": "Mortal",
     "Technocrat": "Tecnócrata",
+    "Demon": "Demonio",
+    "Earthbound": "Atado a la Tierra",
     
     "Common": {
       "SystemName": "Sistema WoD",
@@ -171,6 +173,7 @@
         "Flaws": "Defectos",
         "Backgrounds": "Trasfondos",
         "Spheres": "Esferas",
+        "Lore": "Lore",
         "EnlightenedScience": "Ciencia Iluminada",
         "Enlightenment": "Iluminación (Arete)",
         "Enhancements": "Mejoras Corporales",
@@ -800,6 +803,7 @@
       "CharacterCreationWizard": "Asistente de Creación de Personaje",
       "TechnocratCharacter": "Personaje Tecnócrata",
       "MortalCharacter": "Personaje Mortal",
+      "DemonCharacter": "Personaje Demonio",
       "StepConceptIdentity": "Concepto e Identidad",
       "StepConcept": "Concepto",
       "StepAttributes": "Atributos",
@@ -815,9 +819,12 @@
       "FieldConvention": "Convención",
       "FieldAmalgam": "Amalgama",
       "FieldEidolon": "Eidolon",
+      "FieldHouse": "Casa",
+      "FieldApocalypticForm": "Forma Apocalíptica",
       "PlaceholderConcept": "ej: Especialista en Cibernética, Ingeniero de la Realidad",
       "PlaceholderAmalgam": "ej: BioMecánica, MECHA",
       "PlaceholderEidolon": "ej., Primordial, Pattern, Dynamic",
+      "PlaceholderHouse": "ej: La Casa del Sol Naciente, La Casa de las Cadenas",
       "IsRequired": "es requerido",
       "FieldIsRequired": "{field} es requerido",
       "NoPermissionEditCharacter": "No tienes permiso para editar este personaje. El asistente será de solo lectura.",
@@ -1133,6 +1140,9 @@
       "Technocrat": "Tecnócrata",
       "Mage": "Mago",
       "Spirit": "Espíritu",
+      "Demon": "Demonio",
+      "Demon-NPC": "Demonio PNJ",
+      "Earthbound": "Atado a la Tierra",
       "Mortal-NPC": "Mortal PNJ",
       "Technocrat-NPC": "Tecnócrata PNJ",
       "Mage-NPC": "Mago PNJ"

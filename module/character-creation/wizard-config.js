@@ -16,6 +16,44 @@ export const ARCHETYPES = [
   "Vigilante", "Visionary", "Zealot"
 ].sort(); // Sort alphabetically for easier selection
 
+/**
+ * Banned archetypes for Earthbound (from earthbound-banned-archtypes.md)
+ * Note: "Child" in the file maps to "Kid" in ARCHETYPES
+ * "Gallant", "Penitent", "Thrill-Seeker" are not in ARCHETYPES list
+ */
+export const EARTHBOUND_BANNED_ARCHETYPES = [
+  "Bon Vivant",
+  "Caregiver",
+  "Kid", // File says "Child" but ARCHETYPES has "Kid"
+  "Conformist",
+  "Martyr"
+];
+
+/**
+ * Demon Houses (from houses.md)
+ */
+export const HOUSES = [
+  "Devil",
+  "Fiend",
+  "Devourer",
+  "Malefactor",
+  "Scourge",
+  "Slayer",
+  "Defiler"
+].sort(); // Sort alphabetically for easier selection
+
+/**
+ * Get archetypes filtered by actor type
+ * @param {string} actorType - Actor type to get archetypes for
+ * @returns {Array} Filtered array of archetype names
+ */
+export function getArchetypesForActorType(actorType) {
+  if (actorType === "Earthbound") {
+    return ARCHETYPES.filter(arch => !EARTHBOUND_BANNED_ARCHETYPES.includes(arch));
+  }
+  return ARCHETYPES;
+}
+
 export const WIZARD_CONFIG = {
   // Technocrat Configuration
   Technocrat: {
@@ -186,12 +224,16 @@ export const WIZARD_CONFIG = {
           "Allies", "Contacts", "Fame", "Influence", "Mentor", "Resources", "Status"
         ]
       },
+      virtues: {
+        starting: 1,  // All virtues start at 1 (like attributes), willpower = sum of virtues
+        available: ["Conscience", "Self-Control", "Courage"]
+      },
       numina: {
         points: 5,
         maxAtCreation: 3
       },
       willpower: {
-        starting: 3
+        starting: 1  // Equals Courage virtue (starts at 1)
       }
     },
 
@@ -341,6 +383,115 @@ export const WIZARD_CONFIG = {
         ability: 5,
         sphere: 3,
         enlightenment: 3
+      }
+    }
+  },
+
+  // Demon Configuration
+  Demon: {
+    name: "Demon",
+    labelKey: "Wizard.DemonCharacter",
+    steps: [
+      { id: "concept", labelKey: "Wizard.StepConceptIdentity", icon: "fa-user" },
+      { id: "attributes", labelKey: "Wizard.StepAttributes", icon: "fa-dumbbell" },
+      { id: "abilities", labelKey: "Wizard.StepAbilities", icon: "fa-brain" },
+      { id: "advantages", labelKey: "Wizard.StepAdvantages", icon: "fa-star" },
+      { id: "merits-flaws", labelKey: "Wizard.StepMeritsFlaws", icon: "fa-balance-scale" },
+      { id: "freebies", labelKey: "Wizard.StepFreebies", icon: "fa-coins" },
+      { id: "review", labelKey: "Wizard.StepReview", icon: "fa-check-circle" }
+    ],
+    
+    // Step 1: Concept
+    concept: {
+      fields: [
+        { name: "name", labelKey: "Wizard.FieldName", type: "text", required: true },
+        { name: "concept", labelKey: "Wizard.FieldConcept", type: "text", required: true, placeholderKey: "Wizard.PlaceholderConcept" },
+        { name: "nature", labelKey: "Wizard.FieldNature", type: "select", required: true, options: getArchetypesForActorType("Demon") },
+        { name: "demeanor", labelKey: "Wizard.FieldDemeanor", type: "select", required: true, options: getArchetypesForActorType("Demon") },
+        { name: "house", labelKey: "Wizard.FieldHouse", type: "select", required: false, options: HOUSES },
+        { name: "apocalypticForm", labelKey: "Wizard.FieldApocalypticForm", type: "select", required: false, options: [], visible: false } // Hidden by default, shown only when house is selected
+      ]
+    },
+
+    // Step 2: Attributes
+    attributes: {
+      priorities: {
+        primary: 7,
+        secondary: 5,
+        tertiary: 3
+      },
+      categories: ["physical", "social", "mental"],
+      starting: 1,
+      maxAtCreation: 5
+    },
+
+    // Step 3: Abilities
+    abilities: {
+      priorities: {
+        primary: 13,
+        secondary: 9,
+        tertiary: 5
+      },
+      categories: ["talents", "skills", "knowledges"],
+      starting: 0,
+      maxAtCreation: 3,
+      allowSecondary: true
+    },
+
+    // Step 4: Advantages
+    advantages: {
+      backgrounds: {
+        points: 5,  // Demon: 5 background points (not 7)
+        maxPerBackground: 5,
+        available: [
+          "Allies", "Contacts", "Eminence", "Fame", "Followers", 
+          "Influence", "Legacy", "Mentor", "Pacts", "Paragon", "Resources"
+        ]
+        // Note: Demon backgrounds do NOT have double cost (unlike Mage/Technocrat)
+        // Demon backgrounds from creation_rules.md: Allies, Contacts, Eminence, Fame, Followers, Influence, Legacy, Mentor, Pacts, Paragon, Resources
+      },
+      virtues: {
+        starting: 1,  // All virtues start at 1 (like attributes)
+        points: 3,    // 3 points to distribute among virtues (in addition to starting 1)
+        available: ["Conscience", "Self-Control", "Courage"]
+      },
+      lore: {
+        points: 3,  // Demon: 3 lore points (not 6)
+        maxAtCreation: 3,
+        available: {} // Will be populated dynamically from D20 lore paths
+      },
+      faith: {
+        starting: 3,  // Demon: starting Faith is 3 (not 1)
+        permanent: 3,
+        cannotModify: false  // Faith CAN be modified with freebies
+      },
+      torment: {
+        starting: 0,  // Torment is based on demonic House (set during finishing touches)
+        cannotModify: true
+      },
+      willpower: {
+        starting: 0  // Willpower = sum of two highest Virtues (calculated, not fixed)
+      }
+    },
+
+    // Step 5: Freebie Points
+    freebies: {
+      total: 15,
+      costs: {
+        attribute: 5,
+        ability: 2,
+        background: 1,
+        lore: 7,     // Lore costs 7 per dot
+        faith: 6,    // Demon: Faith costs 6 per dot (not 4)
+        virtue: 2,   // Demon: Virtue costs 2 per dot
+        willpower: 1
+      },
+      limits: {
+        attribute: 5,
+        ability: 5,
+        lore: 5,  // Lore paths can go up to 5 dots (normal maximum), not limited to 3 during freebies
+        faith: 10,  // Faith can be increased up to 10 dots with freebies
+        virtue: 5    // Virtues can be increased up to 5
       }
     }
   }
