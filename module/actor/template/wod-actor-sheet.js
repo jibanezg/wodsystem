@@ -548,37 +548,22 @@ export class WodActorSheet extends ActorSheet {
         // Enhancement type change handler (show/hide genetic flaws field)
         html.on('change', 'select[name*="enhancementType"]', this._onEnhancementTypeChange.bind(this));
         
-        // Technocrat-specific handlers
-        if (this.actor.type === "Technocrat") {
-            html.find('.primal-box').click(this._onPrimalEnergyClick.bind(this));
-        }
-        
-        // Technocrat and Mage share Spheres
-        if (this.actor.type === "Technocrat" || this.actor.type === "Mage") {
-            // Spheres - use event delegation to avoid conflicts
-            html.find('[data-sphere] .dot').click(this._onSphereClick.bind(this));
-        }
-        
         // Technocrat and Mage share Quintessence/Paradox Wheel
         if (this.actor.type === "Technocrat" || this.actor.type === "Mage") {
-            // Quintessence/Paradox Wheel
-            html.find('.wheel-box').click(this._onWheelBoxClick.bind(this));
-            html.find('.wheel-box').contextmenu(this._onWheelBoxRightClick.bind(this));
-            
             // Procedures
-            html.find('.add-procedure').click(this._onAddProcedure.bind(this));
+
             html.find('.delete-procedure').click(this._onDeleteProcedure.bind(this));
             html.find('.procedures-prev-page').click(this._onProceduresPrevPage.bind(this));
             html.find('.procedures-next-page').click(this._onProceduresNextPage.bind(this));
             
             // Devices
-            html.find('.add-device').click(this._onAddDevice.bind(this));
+
             html.find('.delete-device').click(this._onDeleteDevice.bind(this));
             html.find('.devices-prev-page').click(this._onDevicesPrevPage.bind(this));
             html.find('.devices-next-page').click(this._onDevicesNextPage.bind(this));
             
             // Enhancements
-            html.find('.add-enhancement').click(this._onAddEnhancement.bind(this));
+
             html.find('.delete-enhancement').click(this._onDeleteEnhancement.bind(this));
             html.find('.enhancements-prev-page').click(this._onEnhancementsPrevPage.bind(this));
             html.find('.enhancements-next-page').click(this._onEnhancementsNextPage.bind(this));
@@ -593,11 +578,6 @@ export class WodActorSheet extends ActorSheet {
         
         const dot = event.currentTarget;
         const container = dot.closest('.dot-container');
-        
-        // Skip if this is a sphere dot (handled by _onSphereClick)
-        if (container.dataset.sphere) {
-            return;
-        }
         
         // Skip if this dot is disabled (beyond maxRating)
         if (dot.dataset.disabled === "true" || dot.classList.contains('disabled')) {
@@ -642,12 +622,6 @@ export class WodActorSheet extends ActorSheet {
             updatePromise = this._updateVirtue(container.dataset.virtue, newValue);
         } else if (container.dataset.humanity) {
             updatePromise = this._updateHumanity(newValue);
-        } else if (container.dataset.torment) {
-            updatePromise = this._updateTorment(newValue);
-        } else if (container.dataset.enlightenment) {
-            updatePromise = this._updateEnlightenment(newValue);
-        } else if (container.dataset.paradox) {
-            updatePromise = this._updateParadox(container.dataset.paradox, newValue);
         }
         
         // Wait for the data update to complete, THEN update visuals
@@ -2989,94 +2963,6 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Update torment value (for Demons)
-     * @param {number} value
-     * @private
-     */
-    async _updateTorment(value) {
-        const updateData = {};
-        updateData[`system.miscellaneous.torment.current`] = Math.min(Math.max(value, 0), 10);
-        await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
-    }
-
-    /**
-     * Update Enlightenment value (for Technocrats)
-     * @param {number} value
-     * @private
-     */
-    async _updateEnlightenment(value) {
-        const updateData = {};
-        const newValue = Math.min(Math.max(value, 0), 10);
-        updateData[`system.advantages.enlightenment.current`] = newValue;
-        
-        await this.actor.update(updateData, { render: false });
-        
-        // Update visual dots
-        const container = this.element.find(`.dot-container[data-enlightenment="current"]`)[0];
-        if (container) {
-            this._updateDotVisuals(container, newValue);
-        }
-        
-        // Update the enlightenment label's data-value
-        const label = this.element.find(`.trait-label[data-category="enlightenment"]`)[0];
-        if (label) {
-            label.setAttribute('data-value', newValue);
-        }
-    }
-
-    /**
-     * Update Paradox value (for Technocrats)
-     * @param {string} type - "current" or "permanent"
-     * @param {number} value
-     * @private
-     */
-    async _updateParadox(type, value) {
-        const updateData = {};
-        updateData[`system.advantages.paradox.${type}`] = Math.min(Math.max(value, 0), 10);
-        await this.actor.update(updateData, { render: false });
-        this._syncVisualStateWithData();
-    }
-
-    /**
-     * Handle clicking on Primal Energy asterisks (for Technocrats)
-     * Toggles between spent and available
-     * @param {Event} event
-     * @private
-     */
-    async _onPrimalEnergyClick(event) {
-        event.preventDefault();
-        const box = event.currentTarget;
-        const index = parseInt(box.dataset.index);
-        const currentSpent = this.actor.system.advantages.primalEnergy.spent || 0;
-        
-        // Toggle: if this box is spent, unspend it (and all after it)
-        // If not spent, spend it (and all before it)
-        let newSpent;
-        if (index < currentSpent) {
-            // Clicking a spent box - unspend from this point
-            newSpent = index;
-        } else {
-            // Clicking an unspent box - spend up to this point
-            newSpent = index + 1;
-        }
-        
-        const updateData = {};
-        updateData[`system.advantages.primalEnergy.spent`] = Math.min(Math.max(newSpent, 0), this.actor.system.advantages.primalEnergy.maximum);
-        await this.actor.update(updateData, { render: false });
-        
-        // Update visual state
-        const boxes = this.element.find('.primal-box');
-        boxes.each((i, el) => {
-            if (i < newSpent) {
-                el.classList.add('spent');
-            } else {
-                el.classList.remove('spent');
-            }
-        });
-    }
-
-    /**
      * Handle clicking on wheel boxes (unified Quintessence/Paradox handler)
      * NEW SIMPLIFIED LOGIC:
      * - First click determines type based on position (left=Q, right=P)
@@ -4864,30 +4750,6 @@ export class WodActorSheet extends ActorSheet {
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
         formContainer.html(formHTML);
-    }
-
-    /**
-     * Handle sphere dot click
-     */
-    async _onSphereClick(event) {
-        event.preventDefault();
-        const dot = event.currentTarget;
-        const container = dot.closest('.dot-container');
-        const sphereKey = container.dataset.sphere;
-        const index = parseInt(dot.dataset.index);
-        const currentValue = this.actor.system.spheres[sphereKey].rating;
-        
-        let newValue;
-        if (index + 1 === currentValue) {
-            newValue = Math.max(currentValue - 1, 0);
-        } else {
-            newValue = index + 1;
-        }
-
-        const updateData = {};
-        updateData[`system.spheres.${sphereKey}.rating`] = Math.min(Math.max(newValue, 0), 5);
-        await this.actor.update(updateData, { render: false });
-        this._updateDotVisuals(container, newValue);
     }
 
     /**
