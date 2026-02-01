@@ -724,6 +724,15 @@
     max-width: 150px;
 }
 
+.wod.sheet.actor.demon .background-name {
+    color: var(--wod-primary) !important;
+    font-weight: bold !important;
+    font-size: 0.85em !important;
+    margin: 0 !important;
+    line-height: 1.1 !important;
+    text-decoration: none !important;
+}
+
 /* Dot container - force 5 dots per row */
 .wod.sheet.actor.demon .background-item .dot-container {
     flex-shrink: 0 !important;
@@ -810,10 +819,12 @@
 /* Lore paths styling - card-based design matching backgrounds */
 .wod.sheet.actor.demon .tab[data-tab="lore"] {
     padding: 5px 25px 5px 5px;
+    background: #f8f8f8 !important;
 }
 
 .wod.sheet.actor.demon .lore-section {
     padding: 15px;
+    background: #f8f8f8 !important;
 }
 
 .wod.sheet.actor.demon .lore-category {
@@ -822,7 +833,6 @@
 
 .wod.sheet.actor.demon .lore-category h4 {
     color: var(--wod-primary-light);
-    border-bottom: 2px solid var(--wod-border-main);
     padding-bottom: 5px;
     margin-bottom: 10px;
 }

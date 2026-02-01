@@ -127,11 +127,62 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         // Cancel button
         html.find('.cancel-effect').click(() => this.close());
         
+        // Save button - explicitly handle form submission
+        html.find('.save-effect').click(this._onSave.bind(this));
+        
         // Initialize tab display
         this._showTab(this.activeTab, html);
         
         // Initialize vision mode angle visibility
         this._updateVisionModeAngleVisibility(html);
+    }
+
+    /**
+     * Handle save button click
+     */
+    async _onSave(event) {
+        event.preventDefault();
+        console.log('Equipment Effects: Save button clicked');
+        
+        try {
+            // Get form data
+            const formData = new FormData(this.element[0].querySelector('form'));
+            const formDataObj = {};
+            
+            // Convert FormData to plain object
+            for (let [key, value] of formData.entries()) {
+                // Handle checkboxes properly
+                if (this.element.find(`input[name="${key}"]`).attr('type') === 'checkbox') {
+                    formDataObj[key] = this.element.find(`input[name="${key}"]`).prop('checked');
+                } else {
+                    formDataObj[key] = value;
+                }
+            }
+            
+            // Merge with temporary data from interactive elements
+            if (this._tempData) {
+                // Merge temporary data with form data
+                if (this._tempData.light) {
+                    Object.assign(formDataObj, this._tempData.light);
+                }
+                if (this._tempData.sound) {
+                    Object.assign(formDataObj, this._tempData.sound);
+                }
+            }
+            
+            console.log('Equipment Effects: Saving data:', formDataObj);
+            
+            // Call the update method
+            await this._updateObject(event, formDataObj);
+            console.log('Equipment Effects: Save completed');
+            
+            // Close the dialog
+            this.close();
+            console.log('Equipment Effects: Dialog close called');
+        } catch (error) {
+            console.error('Equipment Effects: Error during save:', error);
+            ui.notifications.error('Failed to save equipment effects: ' + error.message);
+        }
     }
 
     /**
@@ -168,10 +219,13 @@ export class WodEquipmentEffectsDialog extends FormApplication {
             type: "audio",
             current: currentFile,
             callback: (path) => {
-                const sound = this.item.system?.equipmentEffects?.sound || { file: "", volume: 0.5, loop: false };
-                sound.file = path;
-                this._updateEffectData("sound", sound);
+                // Update the input field
                 $(event.currentTarget).siblings('input').val(path);
+                
+                // Store in temporary data instead of updating the item
+                if (!this._tempData) this._tempData = {};
+                if (!this._tempData.sound) this._tempData.sound = {};
+                this._tempData.sound.file = path;
             }
         });
         fp.render(true);
@@ -185,16 +239,11 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         // Update the text display field
         $(event.currentTarget).siblings('.color-value-display').val(color);
         
-        const light = this.item.system?.equipmentEffects?.light || {
-            dim: 0,
-            bright: 0,
-            intensity: 0,
-            angle: 360,
-            color: "#ffffff",
-            alpha: 0.5
-        };
-        light.color = color;
-        this._updateEffectData("light", light);
+        // Don't update the item data here - wait for save
+        // Store in temporary data instead
+        if (!this._tempData) this._tempData = {};
+        if (!this._tempData.light) this._tempData.light = {};
+        this._tempData.light.color = color;
     }
 
     /**
@@ -222,26 +271,12 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         html.find('.light-dim-input').val(dim);
         html.find('.light-bright-input').val(bright);
         
-        // Get existing light effect to preserve other properties
-        const existingLight = this.item.system?.equipmentEffects?.light || {
-            dim: 0,
-            bright: 0,
-            intensity: 0,
-            angle: 360,
-            color: "#ffffff",
-            alpha: 0.5,
-            animation: null,
-            darkness: { min: 0, max: 1 }
-        };
-        
-        // Update effect data
-        const light = {
-            ...existingLight,
-            intensity: intensity,
-            dim: dim,
-            bright: bright
-        };
-        this._updateEffectData("light", light);
+        // Store in temporary data instead of updating the item
+        if (!this._tempData) this._tempData = {};
+        if (!this._tempData.light) this._tempData.light = {};
+        this._tempData.light.intensity = intensity;
+        this._tempData.light.dim = dim;
+        this._tempData.light.bright = bright;
     }
 
     /**
@@ -260,19 +295,12 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         html.find('.light-intensity-slider').val(intensity);
         html.find('.intensity-value-display').text(intensity);
         
-        // Update effect data
-        const light = this.item.system?.equipmentEffects?.light || {
-            dim: 0,
-            bright: 0,
-            intensity: 0,
-            angle: 360,
-            color: "#ffffff",
-            alpha: 0.5
-        };
-        light.intensity = intensity;
-        light.dim = dim;
-        light.bright = bright;
-        this._updateEffectData("light", light);
+        // Store in temporary data instead of updating the item
+        if (!this._tempData) this._tempData = {};
+        if (!this._tempData.light) this._tempData.light = {};
+        this._tempData.light.intensity = intensity;
+        this._tempData.light.dim = dim;
+        this._tempData.light.bright = bright;
     }
 
     /**
@@ -429,8 +457,6 @@ export class WodEquipmentEffectsDialog extends FormApplication {
         if (updatedItem.system?.equipped && game.wod?.equipmentEffectsManager) {
             const manager = game.wod.equipmentEffectsManager;
             const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
-            
-            await applyEquipmentEffects(this.item);
             
             if (hasEffects) {
                 await manager._applyItemEffects(updatedItem.actor, updatedItem, effects);

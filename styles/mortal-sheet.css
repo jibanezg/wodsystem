@@ -1815,3 +1815,215 @@ button.add-secondary-knowledge:hover {
 .wod-image-picker-save:hover {
     background: #218838;
 }
+
+/* Backgrounds Expanded Modal - General Styles for All Sheet Types */
+.bg-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 1000 !important; /* High enough to appear above all Foundry UI */
+}
+
+.bg-modal {
+    width: 60% !important;
+    height: 70% !important;
+    max-width: 900px !important;
+    max-height: 800px !important;
+    background: var(--wod-bg-main, #2a2a2a) !important;
+    border: 2px solid var(--wod-primary, #4a90e2) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.bg-modal-header {
+    background: var(--wod-primary, #4a90e2);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--wod-primary-dark, #357abd);
+    flex-shrink: 0;
+}
+
+.bg-modal-title {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.close-bg-modal {
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-bg-modal:hover {
+    opacity: 0.7;
+}
+
+.bg-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bg-modal-step-category,
+.bg-modal-step-background {
+    margin-bottom: 15px;
+}
+
+.bg-modal-step-category label,
+.bg-modal-step-background label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--wod-text-main, #ffffff);
+}
+
+.select-bg-category,
+.bg-modal-step-background select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--wod-border-light, #555);
+    border-radius: 3px;
+    background: var(--wod-bg-input, #3a3a3a);
+    color: var(--wod-text-main, #ffffff);
+    font-size: 0.9em;
+    box-sizing: border-box;
+}
+
+.bg-modal-form {
+    margin-top: 15px;
+    flex: 1;
+}
+
+.bg-modal-footer {
+    padding: 10px 15px;
+    border-top: 1px solid var(--wod-border-light, #555);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cancel-bg-modal,
+.save-bg-modal {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+}
+
+.cancel-bg-modal {
+    background: var(--wod-bg-light, #555);
+    color: var(--wod-text-main, #ffffff);
+    border: 1px solid var(--wod-border-light, #777);
+}
+
+.cancel-bg-modal:hover {
+    background: var(--wod-bg-dark, #444);
+}
+
+.save-bg-modal {
+    background: var(--wod-primary, #4a90e2);
+    color: white;
+}
+
+.save-bg-modal:hover {
+    background: var(--wod-primary-dark, #357abd);
+}
+
+.wod.dialog.bg-expanded-dialog {
+    background: var(--wod-bg-main, #2a2a2a);
+    color: var(--wod-text-main, #ffffff);
+}
+
+.wod.dialog.bg-expanded-dialog .window-header {
+    background: var(--wod-primary, #4a90e2);
+    color: var(--wod-text-light, #ffffff);
+    border-bottom: 2px solid var(--wod-primary-dark, #357abd);
+}
+
+.wod.dialog.bg-expanded-dialog .window-title {
+    color: var(--wod-text-light, #ffffff);
+}
+
+.wod.dialog.bg-expanded-dialog .window-content {
+    background: var(--wod-bg-main, #2a2a2a);
+    color: var(--wod-text-main, #ffffff);
+    padding: 0;
+}
+
+.wod.dialog.bg-expanded-dialog form.wod-bg-expanded-dialog {
+    padding: 15px;
+}
+
+.wod.dialog.bg-expanded-dialog form.wod-bg-expanded-dialog label {
+    color: var(--wod-text-main, #ffffff);
+}
+
+.wod.dialog.bg-expanded-dialog form.wod-bg-expanded-dialog select,
+.wod.dialog.bg-expanded-dialog form.wod-bg-expanded-dialog input,
+.wod.dialog.bg-expanded-dialog form.wod-bg-expanded-dialog textarea {
+    background: var(--wod-bg-input, #3a3a3a);
+    color: var(--wod-text-main, #ffffff);
+    border: 1px solid var(--wod-border-light, #555);
+}
+
+.wod.dialog.bg-expanded-dialog .dialog-buttons {
+    border-top: 1px solid var(--wod-border-light, #555);
+    padding: 10px 15px;
+    background: var(--wod-bg-secondary, #1f1f1f);
+}
+
+.wod.dialog.bg-expanded-dialog .dialog-buttons button {
+    border-radius: 3px;
+    border: 1px solid var(--wod-border-light, #777);
+    font-weight: 600;
+}
+
+.wod.dialog.bg-expanded-dialog .dialog-buttons button.default,
+.wod.dialog.bg-expanded-dialog .dialog-buttons button[data-button="save"] {
+    background: var(--wod-primary, #4a90e2);
+    color: var(--wod-text-light, #ffffff);
+    border: none;
+}
+
+.wod.dialog.bg-expanded-dialog .dialog-buttons button.default:hover,
+.wod.dialog.bg-expanded-dialog .dialog-buttons button[data-button="save"]:hover {
+    background: var(--wod-primary-dark, #357abd);
+}
+
+.wod.dialog.bg-expanded-dialog .dialog-buttons button[data-button="cancel"] {
+    background: var(--wod-bg-light, #555);
+    color: var(--wod-text-main, #ffffff);
+}
+
+.wod.dialog.bg-expanded-dialog .dialog-buttons button[data-button="cancel"]:hover {
+    background: var(--wod-bg-dark, #444);
+}

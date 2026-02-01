@@ -25,9 +25,9 @@ export class DemonSheet extends WodActorSheet {
     async getData() {
         const context = await super.getData();
         
-        // Set Demon/Earthbound flags for template conditionals
+        // Set Demon flags for template conditionals
         const actorType = this.actor.type;
-        context.isEarthbound = actorType === "Earthbound";
+        context.isEarthbound = false;
         context.isDemon = actorType === "Demon" || actorType === "Demon-NPC";
         context.isNPC = actorType.includes("-NPC");
         
@@ -519,9 +519,7 @@ export class DemonSheet extends WodActorSheet {
                     <div class="background-item" data-lore-id="${lore.id}">
                         <div class="background-header">
                             <div class="background-info">
-                                <select name="system.lore.${lore.id}.name" class="background-name-select trait-label" data-selected-value="${lore.name}" readonly>
-                                    <option value="${lore.name}" selected>${lore.name}</option>
-                                </select>
+                                <h4 class="background-name">${lore.name}</h4>
                             </div>
                         </div>
                         <div class="background-rating">

@@ -7,6 +7,7 @@ import { TechnocratSheet } from "./module/actor/template/technocrat-sheet.js";
 import { MageSheet } from "./module/actor/template/mage-sheet.js";
 import { SpiritSheet } from "./module/actor/template/spirit-sheet.js";
 import { DemonSheet } from "./module/actor/template/demon-sheet.js";
+import { EarthboundSheet } from "./module/actor/template/earthbound-sheet.js";
 import { WodDicePool } from "./module/dice/wod-dice-pool.js";
 import { WodRollDialog } from "./module/apps/wod-roll-dialog.js";
 import { initializeApprovalSocket } from "./module/apps/wod-st-approval-dialog.js";
@@ -71,7 +72,12 @@ Hooks.once("init", async function() {
     });
     
     Actors.registerSheet("wodsystem", DemonSheet, {
-        types: ["Demon", "Demon-NPC", "Earthbound"],
+        types: ["Demon", "Demon-NPC"],
+        makeDefault: true
+    });
+    
+    Actors.registerSheet("wodsystem", EarthboundSheet, {
+        types: ["Earthbound"],
         makeDefault: true
     });
     
@@ -117,15 +123,20 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/actor/partials/mage-header.html",
         "systems/wodsystem/templates/actor/partials/spirit-header.html",
         "systems/wodsystem/templates/actor/partials/demon-header.html",
+        "systems/wodsystem/templates/actor/partials/earthbound-header.html",
         "systems/wodsystem/templates/actor/partials/demon-advantages.html",
+        "systems/wodsystem/templates/actor/partials/earthbound-advantages.html",
         "systems/wodsystem/templates/actor/partials/demon-lore.html",
         "systems/wodsystem/templates/actor/partials/demon-apocalyptic-form.html",
+        "systems/wodsystem/templates/actor/partials/earthbound-apocalyptic-form.html",
         "systems/wodsystem/templates/actor/partials/technocrat-advantages.html",
         "systems/wodsystem/templates/actor/partials/mage-advantages.html",
         "systems/wodsystem/templates/actor/partials/technocrat-spheres.html",
         "systems/wodsystem/templates/actor/partials/mage-spheres.html",
         "systems/wodsystem/templates/actor/partials/spirit-spheres.html",
         "systems/wodsystem/templates/actor/partials/technocrat-backgrounds-expanded.html",
+        "systems/wodsystem/templates/actor/partials/mage-backgrounds-expanded.html",
+        "systems/wodsystem/templates/actor/partials/demon-backgrounds-expanded.html",
         "systems/wodsystem/templates/actor/partials/spirit-attributes.html",
         "systems/wodsystem/templates/actor/partials/spirit-essence.html",
         "systems/wodsystem/templates/actor/partials/spirit-charms.html",

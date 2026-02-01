@@ -432,12 +432,12 @@ export class MageWizard extends MortalWizard {
       if (btnType === 'attribute') {
         const [cat, attr] = btnTarget.split('.');
         const currentValue = this.wizardData.attributes.values[cat][attr];
-        const baselineValue = baselines.attributes[cat][attr];
+        const baselineValue = baselines.attributes?.[cat]?.[attr] ?? 1;
         atBaseline = currentValue <= baselineValue;
       } else if (btnType === 'ability') {
         const [cat, ability] = btnTarget.split('.');
         const currentValue = this.wizardData.abilities.values[cat][ability] || 0;
-        const baselineValue = baselines.abilities[cat][ability] || 0;
+        const baselineValue = baselines.abilities?.[cat]?.[ability] ?? 0;
         atBaseline = currentValue <= baselineValue;
       } else if (btnType === 'background') {
         const bgIndex = parseInt(btnTarget);
@@ -452,7 +452,7 @@ export class MageWizard extends MortalWizard {
         }
       } else if (btnType === 'sphere') {
         const currentValue = this.wizardData.advantages.spheres[btnTarget] || 0;
-        const baselineValue = baselines.spheres[btnTarget] || 0;
+        const baselineValue = baselines.spheres?.[btnTarget] ?? 0;
         atBaseline = currentValue <= baselineValue;
       } else if (btnType === 'willpower') {
         const currentSpent = this.wizardData.freebies.spent.willpower || 0;
@@ -480,7 +480,7 @@ export class MageWizard extends MortalWizard {
     // Calculate spent on attributes
     for (const [cat, attrs] of Object.entries(this.wizardData.attributes.values)) {
       for (const [attrName, currentValue] of Object.entries(attrs)) {
-        const baselineValue = baselines.attributes[cat][attrName] || 1;
+        const baselineValue = baselines.attributes?.[cat]?.[attrName] ?? 1;
         const spent = Math.max(0, currentValue - baselineValue);
         if (spent > 0) {
           totalSpent += spent * this.config.freebies.costs.attribute;
@@ -491,7 +491,7 @@ export class MageWizard extends MortalWizard {
     // Calculate spent on abilities
     for (const [cat, abilities] of Object.entries(this.wizardData.abilities.values)) {
       for (const [abilityName, currentValue] of Object.entries(abilities)) {
-        const baselineValue = baselines.abilities[cat][abilityName] || 0;
+        const baselineValue = baselines.abilities?.[cat]?.[abilityName] ?? 0;
         const spent = Math.max(0, currentValue - baselineValue);
         if (spent > 0) {
           totalSpent += spent * this.config.freebies.costs.ability;
@@ -516,11 +516,13 @@ export class MageWizard extends MortalWizard {
     }
     
     // Calculate spent on spheres
-    for (const [sphereKey, currentValue] of Object.entries(this.wizardData.advantages.spheres || {})) {
-      const baselineValue = baselines.spheres[sphereKey] || 0;
-      const spent = Math.max(0, currentValue - baselineValue);
-      if (spent > 0) {
-        totalSpent += spent * this.config.freebies.costs.sphere;
+    if (baselines.spheres) {
+      for (const [sphereKey, currentValue] of Object.entries(this.wizardData.advantages.spheres || {})) {
+        const baselineValue = baselines.spheres?.[sphereKey] ?? 0;
+        const spent = Math.max(0, currentValue - baselineValue);
+        if (spent > 0) {
+          totalSpent += spent * this.config.freebies.costs.sphere;
+        }
       }
     }
     

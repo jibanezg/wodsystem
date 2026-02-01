@@ -361,6 +361,13 @@ export class WodActorSheet extends ActorSheet {
     activateListeners(html) {
         super.activateListeners(html);
 
+        // Force all expanded background modals to be hidden immediately
+        $('.bg-modal-overlay').hide();
+        html.find('.bg-modal-overlay').hide();
+        // Also force via inline styles to override any CSS
+        $('.bg-modal-overlay').attr('style', 'display: none !important;');
+        html.find('.bg-modal-overlay').attr('style', 'display: none !important;');
+
         // Character Creation Wizard
         html.find('.start-character-wizard-overlay').click(this._onStartCharacterWizard.bind(this));
 
@@ -514,14 +521,17 @@ export class WodActorSheet extends ActorSheet {
         
         // Backgrounds Expanded - Available to ALL creature types
         html.find('.category-toggle').click(this._onToggleCategory.bind(this));
-        html.find('.floating-add-bg').click(this._onOpenAddModal.bind(this));
-        html.find('.close-bg-modal').click(this._onCloseModal.bind(this));
-        html.find('.cancel-bg-modal').click(this._onCloseModal.bind(this));
-        html.find('.save-bg-modal').click(this._onSaveModalBackground.bind(this));
-        html.find('.select-bg-category').change(this._onModalCategorySelect.bind(this));
-        html.find('.select-background-to-expand').change(this._onModalBackgroundSelect.bind(this));
+        html.find('.floating-add-bg').off('click').on('click', this._onOpenAddModal.bind(this));
+        html.find('.close-bg-modal').off('click').on('click', this._onCloseModal.bind(this));
+        html.find('.cancel-bg-modal').off('click').on('click', this._onCloseModal.bind(this));
+        html.find('.save-bg-modal').off('click').on('click', this._onSaveModalBackground.bind(this));
+        html.find('.select-bg-category').off('change').on('change', this._onModalCategorySelect.bind(this));
+        html.find('.select-background-to-expand').off('change').on('change', this._onModalBackgroundSelect.bind(this));
         html.find('.edit-bg-expanded').click(this._onEditBgExpanded.bind(this));
         html.find('.delete-expanded-bg').click(this._onDeleteExpandedBackground.bind(this));
+        
+        // Force modal to be hidden on sheet render
+        html.find('.bg-modal-overlay').hide();
         
         // Backgrounds Expanded pagination
         html.find('.bg-expanded-prev-page').click(this._onBgExpandedPrevPage.bind(this));
@@ -597,6 +607,8 @@ export class WodActorSheet extends ActorSheet {
             updatePromise = this._updateFlaw(container.dataset.flaw, newValue);
         } else if (container.dataset.background !== undefined) {
             updatePromise = this._updateBackground(parseInt(container.dataset.background), newValue);
+        } else if (container.dataset.faith) {
+            updatePromise = this._updateFaith(container.dataset.faith, newValue);
         } else if (container.dataset.virtue) {
             updatePromise = this._updateVirtue(container.dataset.virtue, newValue);
         } else if (container.dataset.humanity) {
@@ -2942,6 +2954,27 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
+     * Update faith value
+     */
+    async _updateFaith(type, value) {
+        // Store scroll position BEFORE update (faith dots trigger re-render)
+        const sheetBody = this.element.find('.sheet-body');
+        const scrollPos = sheetBody.length ? sheetBody.scrollTop() : 0;
+        
+        const updateData = {};
+        updateData[`system.miscellaneous.faith.${type}`] = Math.min(Math.max(value, 0), 10);
+        await this.actor.update(updateData); // Allow re-render for faith dots
+        
+        // Restore scroll position after re-render completes
+        setTimeout(() => {
+            const newSheetBody = this.element.find('.sheet-body');
+            if (newSheetBody.length) {
+                newSheetBody.scrollTop(scrollPos);
+            }
+        }, 50);
+    }
+
+    /**
      * Handle clicking on wheel boxes (unified Quintessence/Paradox handler)
      * NEW SIMPLIFIED LOGIC:
      * - First click determines type based on position (left=Q, right=P)
@@ -3881,8 +3914,18 @@ export class WodActorSheet extends ActorSheet {
      * Open modal for adding new expanded background
      */
     _onOpenAddModal(event) {
+        if (!event || !event.currentTarget || !$(event.currentTarget).hasClass('floating-add-bg')) {
+            return;
+        }
         event.preventDefault();
-        const modal = this.element.find('.bg-modal-overlay');
+        event.stopPropagation();
+        const modal = $('.bg-modal-overlay');
+        
+        // Prevent opening if already visible
+        if (modal.is(':visible')) {
+            return;
+        }
+        
         const modalTitle = modal.find('.bg-modal-title');
         
         // Clear edit index data
@@ -3939,6 +3982,7 @@ export class WodActorSheet extends ActorSheet {
         bgSelect.val('');
         
         // Show modal
+        this._lastModalOpenTime = Date.now();
         modal.fadeIn(200);
     }
 
@@ -3946,12 +3990,26 @@ export class WodActorSheet extends ActorSheet {
      * Close modal
      */
     _onCloseModal(event) {
+        if (!event) {
+            return;
+        }
         event.preventDefault();
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
+        
+        // Prevent closing if modal was just opened (within 100ms)
+        const now = Date.now();
+        if (this._lastModalOpenTime && (now - this._lastModalOpenTime < 100)) {
+            return;
+        }
         
         // Clear edit index data
         modal.removeData('editIndex');
         
+        // Force hide with multiple methods to bypass CSS conflicts
+        modal.hide();
+        modal.attr('style', 'display: none !important;');
+        $('.bg-modal-overlay').hide();
+        $('.bg-modal-overlay').attr('style', 'display: none !important;');
         modal.fadeOut(200);
     }
 
@@ -3963,7 +4021,7 @@ export class WodActorSheet extends ActorSheet {
         event.stopPropagation();
         
         const category = event.currentTarget.value;
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const bgSelect = modal.find('.select-background-to-expand');
         const bgStep = modal.find('.bg-modal-step-background');
         
@@ -4003,7 +4061,7 @@ export class WodActorSheet extends ActorSheet {
         const select = event.currentTarget;
         const backgroundName = select.value;
         const backgroundRating = parseInt(select.selectedOptions[0]?.dataset.rating || 0);
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         
         if (!backgroundName) {
@@ -4077,7 +4135,7 @@ export class WodActorSheet extends ActorSheet {
      */
     async _onSaveModalBackground(event) {
         event.preventDefault();
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const selectedBg = modal.data('selectedBackground');
         const editIndex = modal.data('editIndex');
         
@@ -4207,7 +4265,7 @@ export class WodActorSheet extends ActorSheet {
             }
         }
         
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const modalTitle = modal.find('.bg-modal-title');
         const formContainer = modal.find('.bg-modal-form');
         
@@ -4462,7 +4520,7 @@ export class WodActorSheet extends ActorSheet {
     _onEnhancementTypeChange(event) {
         const select = event.currentTarget;
         const selectedType = select.value;
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const permanentParadoxField = modal.find('.permanent-paradox-field');
         const geneticFlawsField = modal.find('.genetic-flaws-field');
         
@@ -4482,7 +4540,7 @@ export class WodActorSheet extends ActorSheet {
      * Initialize paradox and genetic flaws field visibility based on current enhancement type
      */
     _initializeGeneticFlawsVisibility() {
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const enhancementTypeSelect = modal.find('select[name*="enhancementType"]');
         const permanentParadoxField = modal.find('.permanent-paradox-field');
         const geneticFlawsField = modal.find('.genetic-flaws-field');
@@ -4527,7 +4585,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4553,7 +4611,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4584,7 +4642,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4610,7 +4668,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4641,7 +4699,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4667,7 +4725,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4698,7 +4756,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);
@@ -4724,7 +4782,7 @@ export class WodActorSheet extends ActorSheet {
         await this.actor.update({ "system.backgroundsExpanded": backgroundsExpanded }, { render: false });
         
         // Manually refresh the form in the modal
-        const modal = this.element.find('.bg-modal-overlay');
+        const modal = $('.bg-modal-overlay');
         const formContainer = modal.find('.bg-modal-form');
         const bg = this.actor.system.backgroundsExpanded[bgIndex];
         const formHTML = await this._renderBackgroundForm(bg.template, bg.templateData, bgIndex);

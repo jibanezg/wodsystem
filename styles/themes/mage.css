@@ -2003,10 +2003,6 @@ form.wod-effect-manager.mage select:focus {
     font-style: italic;
 }
 
-/* ========================================
-   BACKGROUNDS (EXPANDED) TAB - MAGE
-   ======================================== */
-
 .wod.sheet.actor.mage .backgrounds-expanded-section {
     padding: 5px;
 }
@@ -2014,9 +2010,9 @@ form.wod-effect-manager.mage select:focus {
 .wod.sheet.actor.mage .backgrounds-expanded-section h2 {
     margin: 0 0 3px 0;
     font-size: 1.1em;
-    color: var(--wod-primary, #7B2CBF);
+    color: var(--wod-text-main, white);
     text-align: center;
-    border-bottom: 2px solid var(--wod-primary, #7B2CBF);
+    border-bottom: 2px solid var(--wod-border-light, rgba(123, 44, 191, 0.3));
     padding-bottom: 3px;
 }
 
@@ -2026,96 +2022,6 @@ form.wod-effect-manager.mage select:focus {
     text-align: center;
     margin-bottom: 8px;
     font-style: italic;
-}
-
-/* Mage Background Card Styling */
-.wod.sheet.actor.mage .mage-bg-card {
-    background: var(--wod-bg-subtle, rgba(123, 44, 191, 0.1));
-    border: 1px solid var(--wod-border-light, rgba(123, 44, 191, 0.3));
-    border-radius: 4px;
-    padding: 8px;
-    margin-bottom: 6px;
-    transition: all 0.2s ease;
-}
-
-.wod.sheet.actor.mage .mage-bg-card:hover {
-    background: var(--wod-bg-subtle, rgba(123, 44, 191, 0.2));
-    border-color: var(--wod-primary, #7B2CBF);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(123, 44, 191, 0.3);
-}
-
-.wod.sheet.actor.mage .bg-card-mini-header .bg-rating {
-    color: var(--wod-primary, #7B2CBF);
-    font-weight: bold;
-    font-size: 0.8em;
-    background: rgba(123, 44, 191, 0.2);
-    padding: 2px 6px;
-    border-radius: 8px;
-}
-
-.wod.sheet.actor.mage .bg-card-mini-actions a:hover {
-    color: var(--wod-primary, #7B2CBF);
-}
-
-/* Mage Modal Styling */
-.wod.sheet.actor.mage .mage-bg-modal {
-    background: var(--wod-bg-main, #1A0A0A);
-    border: 2px solid var(--wod-primary, #7B2CBF);
-    border-radius: 6px;
-    box-shadow: 0 4px 20px rgba(123, 44, 191, 0.4);
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.wod.sheet.actor.mage .mage-bg-modal .bg-modal-header {
-    background: var(--wod-primary, #7B2CBF);
-    color: white;
-    padding: 12px 16px;
-    border-radius: 4px 4px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.wod.sheet.actor.mage .mage-select-bg-category,
-.wod.sheet.actor.mage .mage-select-background {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid var(--wod-border-light, rgba(123, 44, 191, 0.3));
-    border-radius: 4px;
-    background: var(--wod-bg-input, #2D0F0F);
-    color: var(--wod-text-main, white);
-    font-size: 0.9em;
-    margin-top: 4px;
-}
-
-.wod.sheet.actor.mage .mage-save-bg-modal {
-    background: var(--wod-primary, #7B2CBF);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: background 0.2s ease;
-}
-
-.wod.sheet.actor.mage .mage-save-bg-modal:hover {
-    background: var(--wod-primary-dark, #5A189A);
-}
-
-.wod.sheet.actor.mage .mage-add-bg {
-    background: var(--wod-primary, #7B2CBF);
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 1.2em;
-    font-weight: bold;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(123, 44, 191, 0.3);
 }
 
 .wod.sheet.actor.mage .mage-add-bg:hover {

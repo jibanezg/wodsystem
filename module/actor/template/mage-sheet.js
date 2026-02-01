@@ -31,7 +31,9 @@ export class MageSheet extends WodActorSheet {
         // Calculate Enhancement Paradox (permanent Paradox from Enhancement expanded backgrounds)
         const backgroundsExpanded = Array.isArray(this.actor.system.backgroundsExpanded) 
             ? this.actor.system.backgroundsExpanded 
-            : [];
+            : (Array.isArray(this.actor.getFlag('wodsystem', 'backgroundsExpanded')) 
+                ? this.actor.getFlag('wodsystem', 'backgroundsExpanded') 
+                : []);
         const enhancementExpanded = backgroundsExpanded.filter(bg => 
             bg && (bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder')
         );
@@ -241,7 +243,9 @@ export class MageSheet extends WodActorSheet {
     _getEnhancementParadox() {
         const backgroundsExpanded = Array.isArray(this.actor.system.backgroundsExpanded) 
             ? this.actor.system.backgroundsExpanded 
-            : [];
+            : (Array.isArray(this.actor.getFlag('wodsystem', 'backgroundsExpanded')) 
+                ? this.actor.getFlag('wodsystem', 'backgroundsExpanded') 
+                : []);
         const enhancementExpanded = backgroundsExpanded.filter(bg => 
             bg && (bg.backgroundName === 'Enhancement' || bg.backgroundName === 'Enhancement/ Wonder')
         );

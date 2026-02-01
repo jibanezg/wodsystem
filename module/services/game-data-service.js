@@ -424,13 +424,19 @@ export class GameDataService {
         try {
             const response = await fetch('systems/wodsystem/datasource/D20/lore.json');
             if (!response.ok) {
-                throw new Error(`Failed to load D20 lore.json: ${response.statusText}`);
+                throw new Error(`Failed to load lore paths: ${response.status}`);
             }
             
             const data = await response.json();
-            this.data.d20.lorePaths = Array.isArray(data && data.lorePaths) ? data.lorePaths : [];
+            const lorePaths = Array.isArray(data && data.lorePaths) ? data.lorePaths : [];
+            const blackKnowledge = Array.isArray(data && data.blackKnowledge) ? data.blackKnowledge : [];
+            
+            // Keep them separate - don't combine
+            this.data.d20.lorePaths = lorePaths;
+            this.data.d20.blackKnowledge = blackKnowledge;
             
         } catch (error) {
+            console.error('WoD | Error loading D20 lore paths:', error);
             this.data.d20.lorePaths = [];
         }
     }
