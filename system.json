@@ -37,7 +37,8 @@
         "styles/themes/demon-wizard-overrides.css",
         "styles/reference-system.css",
         "styles/themes/equipment-effects-dialog.css",
-        "styles/themes/minimap.css"
+        "styles/themes/minimap.css",
+        "styles/themes/status-effect-manager.css"
     ],
   "languages": [
     {

@@ -1,0 +1,261 @@
+<form class="flexcol">
+    <section class="trigger-basics">
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" name="name" value="{{trigger.name}}" placeholder="Trigger name" />
+        </div>
+
+        <div class="form-group">
+            <label>Enabled</label>
+            <input type="checkbox" name="enabled" {{#if trigger.enabled}}checked{{/if}} />
+        </div>
+
+        <div class="form-group">
+            <label>Event</label>
+            <select name="trigger.eventType">
+                <option value="onEnter" {{#if (eq trigger.trigger.eventType "onEnter")}}selected{{/if}}>Token Enters</option>
+                <option value="onExit" {{#if (eq trigger.trigger.eventType "onExit")}}selected{{/if}}>Token Exits</option>
+                <option value="onDoorOpened" {{#if (eq trigger.trigger.eventType "onDoorOpened")}}selected{{/if}}>Door Opened</option>
+                <option value="onDoorClosed" {{#if (eq trigger.trigger.eventType "onDoorClosed")}}selected{{/if}}>Door Closed</option>
+                <option value="onEffect" {{#if (eq trigger.trigger.eventType "onEffect")}}selected{{/if}}>Effect Applied</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="effect-config-group" style="display: none;">
+            <label>Effect Name</label>
+            <select name="trigger.effectName">
+                <option value="">-- Select an Effect --</option>
+                {{#each availableEffects}}
+                <option value="{{this}}" {{#if (eq ../trigger.trigger.effectName this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+            </select>
+            <p class="hint">Select the effect that will trigger this action</p>
+        </div>
+
+        <div class="form-group">
+            <label>Actor Types</label>
+            <input type="text" name="actorTypesCsv" value="{{actorTypesCsv}}" placeholder="Leave empty for all, or: character, npc" />
+        </div>
+    </section>
+
+    <hr />
+
+    <section class="trigger-roll">
+        <div class="form-group">
+            <label>Require Roll</label>
+            <input type="checkbox" name="roll.enabled" data-action="toggle-roll" {{#if trigger.roll.enabled}}checked{{/if}} />
+        </div>
+
+        <div class="roll-config" {{#unless trigger.roll.enabled}}style="display:none"{{/unless}}>
+            <div class="form-group">
+                <label>Roll Type</label>
+                <select name="roll.type" data-action="change-roll-type">
+                    <option value="attribute+ability" {{#if (eq trigger.roll.type "attribute+ability")}}selected{{/if}}>Attribute + Ability</option>
+                    <option value="single" {{#if (eq trigger.roll.type "single")}}selected{{/if}}>Single Pool (Arete, Faith, Torment, etc.)</option>
+                </select>
+            </div>
+
+            <div class="roll-attribute-ability" {{#if (eq trigger.roll.type "single")}}style="display:none"{{/if}}>
+                <div class="form-group">
+                    <label>Attribute</label>
+                    <input type="text" name="roll.attribute" value="{{trigger.roll.attribute}}" placeholder="e.g. Perception" />
+                </div>
+                <div class="form-group">
+                    <label>Ability</label>
+                    <input type="text" name="roll.ability" value="{{trigger.roll.ability}}" placeholder="e.g. Alertness" />
+                </div>
+            </div>
+
+            <div class="roll-single" {{#unless (eq trigger.roll.type "single")}}style="display:none"{{/unless}}>
+                <div class="form-group">
+                    <label>Pool Name</label>
+                    <input type="text" name="roll.poolName" value="{{trigger.roll.poolName}}" placeholder="e.g. Arete, Faith, Torment" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Difficulty</label>
+                <input type="number" name="roll.difficulty" value="{{trigger.roll.difficulty}}" min="2" max="10" />
+            </div>
+
+            <div class="form-group">
+                <label>Successes Needed</label>
+                <input type="number" name="roll.successThreshold" value="{{trigger.roll.successThreshold}}" min="1" />
+            </div>
+        </div>
+    </section>
+
+    <hr />
+
+    <section class="trigger-actions">
+        <h3>Actions</h3>
+        <p class="notes">Actions execute based on roll outcome. Use "Always" for no-roll triggers or actions that always happen.</p>
+
+        <fieldset>
+            <legend>Always (No Roll / Before Roll)</legend>
+            <div class="action-list" data-outcome="always">
+                {{#each trigger.actions.always}}
+                <div class="action-row flexrow" data-index="{{@index}}">
+                    <input type="hidden" name="actions.always.{{@index}}.type" value="{{this.type}}" />
+                    {{#if (eq this.type "door")}}
+                    <span class="action-type-label">Door:</span>
+                    <input type="text" name="actions.always.{{@index}}.target" value="{{this.target}}" placeholder="Wall ID" class="target-input" />
+                    <button type="button" class="pick-target" data-action="pick-target" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                    <div class="form-group">
+                        <label>Door State</label>
+                        <select name="actions.always.{{@index}}.state">
+                            <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
+                            <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Closed</option>
+                            <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Locked</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Delay (seconds)</label>
+                        <input type="number" name="actions.always.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="0 for immediate" />
+                    </div>
+                    {{else}}
+                    <span class="action-type-label">Effect:</span>
+                    <select name="actions.always.{{@index}}.type" class="effect-action-type">
+                        <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
+                        <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
+                        <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
+                        <option value="changeTileAsset" {{#if (eq this.type "changeTileAsset")}}selected{{/if}}>Change Tile Asset</option>
+                    </select>
+                    <input type="text" name="actions.always.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
+                    <div class="tile-image-input" style="display:none;">
+                        <input type="text" name="actions.always.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
+                        <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="always" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                    </div>
+                    <div class="tile-target-section" style="display:none;">
+                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                            <input type="checkbox" name="actions.always.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
+                            Use current tile
+                        </label>
+                        <div class="tile-picker-section">
+                            <input type="text" name="actions.always.{{@index}}.tileId" value="{{this.tileId}}" placeholder="Tile ID" class="target-input" />
+                            <button type="button" class="pick-target" data-action="pick-target" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                        </div>
+                    </div>
+                    {{/if}}
+                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+                {{/each}}
+            </div>
+            <div class="action-buttons">
+                <button type="button" data-action="add-action" data-outcome="always" data-type="door"><i class="fas fa-door-open"></i> Door</button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="coreEffect"><i class="fas fa-magic"></i> Effect</button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="tileAsset"><i class="fas fa-image"></i> Tile Asset</button>
+            </div>
+        </fieldset>
+
+        <fieldset class="roll-dependent" {{#unless trigger.roll.enabled}}style="display:none"{{/unless}}>
+            <legend>On Success</legend>
+            <div class="action-list" data-outcome="success">
+                {{#each trigger.actions.success}}
+                <div class="action-row flexrow" data-index="{{@index}}">
+                    <input type="hidden" name="actions.success.{{@index}}.type" value="{{this.type}}" />
+                    {{#if (eq this.type "door")}}
+                    <span class="action-type-label">Door:</span>
+                    <input type="text" name="actions.success.{{@index}}.target" value="{{this.target}}" placeholder="Wall ID" class="target-input" />
+                    <button type="button" class="pick-target" data-action="pick-target" data-outcome="success" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                    <select name="actions.success.{{@index}}.state">
+                        <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
+                        <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
+                        <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
+                    </select>
+                    <input type="number" name="actions.success.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="Delay (s)" title="Delay in seconds" style="width: 60px;" />
+                    {{else}}
+                    <span class="action-type-label">Effect:</span>
+                    <select name="actions.success.{{@index}}.type" class="effect-action-type">
+                        <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
+                        <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
+                        <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
+                        <option value="changeTileAsset" {{#if (eq this.type "changeTileAsset")}}selected{{/if}}>Change Tile Asset</option>
+                    </select>
+                    <input type="text" name="actions.success.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
+                    <div class="tile-image-input" style="display:none;">
+                        <input type="text" name="actions.success.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
+                        <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="success" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                    </div>
+                    <div class="tile-target-section" style="display:none;">
+                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                            <input type="checkbox" name="actions.success.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
+                            Use current tile
+                        </label>
+                        <div class="tile-picker-section">
+                            <input type="text" name="actions.success.{{@index}}.tileId" value="{{this.tileId}}" placeholder="Tile ID" class="target-input" />
+                            <button type="button" class="pick-target" data-action="pick-target" data-outcome="success" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                        </div>
+                    </div>
+                    {{/if}}
+                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+                {{/each}}
+            </div>
+            <div class="action-buttons">
+                <button type="button" data-action="add-action" data-outcome="success" data-type="door"><i class="fas fa-door-open"></i> Door</button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="coreEffect"><i class="fas fa-magic"></i> Effect</button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="tileAsset"><i class="fas fa-image"></i> Tile Asset</button>
+            </div>
+        </fieldset>
+
+        <fieldset class="roll-dependent" {{#unless trigger.roll.enabled}}style="display:none"{{/unless}}>
+            <legend>On Failure</legend>
+            <div class="action-list" data-outcome="failure">
+                {{#each trigger.actions.failure}}
+                <div class="action-row flexrow" data-index="{{@index}}">
+                    <input type="hidden" name="actions.failure.{{@index}}.type" value="{{this.type}}" />
+                    {{#if (eq this.type "door")}}
+                    <span class="action-type-label">Door:</span>
+                    <input type="text" name="actions.failure.{{@index}}.target" value="{{this.target}}" placeholder="Wall ID" class="target-input" />
+                    <button type="button" class="pick-target" data-action="pick-target" data-outcome="failure" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                    <select name="actions.failure.{{@index}}.state">
+                        <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
+                        <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
+                        <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
+                    </select>
+                    <input type="number" name="actions.failure.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="Delay (s)" title="Delay in seconds" style="width: 60px;" />
+                    {{else}}
+                    <span class="action-type-label">Effect:</span>
+                    <select name="actions.failure.{{@index}}.type" class="effect-action-type">
+                        <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
+                        <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
+                        <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
+                        <option value="changeTileAsset" {{#if (eq this.type "changeTileAsset")}}selected{{/if}}>Change Tile Asset</option>
+                    </select>
+                    <input type="text" name="actions.failure.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
+                    <div class="tile-image-input" style="display:none;">
+                        <input type="text" name="actions.failure.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
+                        <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="failure" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                    </div>
+                    <div class="tile-target-section" style="display:none;">
+                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
+                            <input type="checkbox" name="actions.failure.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
+                            Use current tile
+                        </label>
+                        <div class="tile-picker-section">
+                            <input type="text" name="actions.failure.{{@index}}.tileId" value="{{this.tileId}}" placeholder="Tile ID" class="target-input" />
+                            <button type="button" class="pick-target" data-action="pick-target" data-outcome="failure" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                        </div>
+                    </div>
+                    {{/if}}
+                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+                {{/each}}
+            </div>
+            <div class="action-buttons">
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="door"><i class="fas fa-door-open"></i> Door</button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="coreEffect"><i class="fas fa-magic"></i> Effect</button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="tileAsset"><i class="fas fa-image"></i> Tile Asset</button>
+            </div>
+        </fieldset>
+    </section>
+
+    <input type="hidden" name="id" value="{{trigger.id}}" />
+    <input type="hidden" name="priority" value="{{trigger.priority}}" />
+
+    <footer class="sheet-footer flexrow">
+        <button type="submit"><i class="fas fa-save"></i> Save</button>
+        <button type="button" data-action="cancel"><i class="fas fa-times"></i> Cancel</button>
+    </footer>
+</form>

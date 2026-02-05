@@ -772,6 +772,12 @@ export class WodActor extends Actor {
         health.derived = this._calculateDerivedHealth(health);
         
         await this.update({ "system.miscellaneous.health": health }, { render: false });
+        
+        // Check and apply core effects after health change
+        if (game.wod?.coreEffectsManager) {
+            await game.wod.coreEffectsManager.checkAndApplyCoreEffects(this);
+        }
+        
         return health;
     }
 
@@ -801,6 +807,12 @@ export class WodActor extends Actor {
         
         health.derived = this._calculateDerivedHealth(health);
         await this.update({ "system.miscellaneous.health": health }, { render: false });
+        
+        // Check and apply core effects after health change
+        if (game.wod?.coreEffectsManager) {
+            await game.wod.coreEffectsManager.checkAndApplyCoreEffects(this);
+        }
+        
         return health;
     }
 
@@ -811,6 +823,7 @@ export class WodActor extends Actor {
     async resetHealth() {
         const health = foundry.utils.duplicate(this.system.miscellaneous.health);
         
+        // Clear all damage
         health.levels.forEach(level => {
             level.marked = false;
             level.damageType = null;
@@ -819,6 +832,12 @@ export class WodActor extends Actor {
         health.derived = this._calculateDerivedHealth(health);
         
         await this.update({ "system.miscellaneous.health": health }, { render: false });
+        
+        // Check and apply core effects after health change
+        if (game.wod?.coreEffectsManager) {
+            await game.wod.coreEffectsManager.checkAndApplyCoreEffects(this);
+        }
+        
         return health;
     }
 

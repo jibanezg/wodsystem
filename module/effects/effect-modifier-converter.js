@@ -174,6 +174,49 @@ export class EffectModifierConverter {
                     return false;
                 });
                 
+            case 'exclude':
+                // Apply to all rolls except those with specific traits
+                if (!rollContext.traits || rollContext.traits.length === 0) {
+                    return true; // No traits specified, apply
+                }
+                
+                // Check if any rolled trait is in the exclusion list
+                const hasExcludedTrait = rollContext.traits.some(t => {
+                    // Check attribute exclusions
+                    if (t.type === 'attribute' && targets.includes(t.name)) {
+                        return true;
+                    }
+                    // Check ability exclusions
+                    if (t.type === 'ability' && targets.includes(t.name)) {
+                        return true;
+                    }
+                    // Check advantage exclusions (special cases)
+                    if (targets.includes('Willpower') && 
+                        (t.category === 'willpower' || t.name === 'Willpower')) {
+                        return true;
+                    }
+                    if (targets.includes('Enlightenment') && 
+                        (t.category === 'enlightenment' || t.name === 'Enlightenment')) {
+                        return true;
+                    }
+                    if (targets.includes('Torment') && 
+                        (t.category === 'torment' || t.name === 'Torment')) {
+                        return true;
+                    }
+                    if (targets.includes('Arete') && 
+                        (t.category === 'arete' || t.name === 'Arete')) {
+                        return true;
+                    }
+                    if (targets.includes('Faith') && 
+                        (t.category === 'faith' || t.name === 'Faith')) {
+                        return true;
+                    }
+                    return false;
+                });
+                
+                // Apply effect if no excluded traits are found
+                return !hasExcludedTrait;
+                
             // FUTURE: Add cases for 'soak', 'damage', 'combat', etc.
             // case 'soak':
             //     return rollContext.action === 'soak';

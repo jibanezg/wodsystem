@@ -1,0 +1,1390 @@
+/**
+ * Status Effect Manager Styles
+ * Neutral gray color scheme - not creature-specific
+ * Designed for efficient, compact layout with icon buttons
+ */
+
+/* ==================== CSS Variables ==================== */
+.wod-status-effect-library,
+.wod-effect-assignment,
+.effect-editor-form {
+    --sem-primary: #6b7280;
+    --sem-primary-dark: #4b5563;
+    --sem-primary-light: #9ca3af;
+    --sem-bg: #ffffff;
+    --sem-bg-alt: #f9fafb;
+    --sem-bg-hover: #f3f4f6;
+    --sem-border: #e5e7eb;
+    --sem-border-dark: #6b7280;
+    --sem-text: #111827;
+    --sem-text-muted: #6b7280;
+    --sem-success: #10b981;
+    --sem-danger: #ef4444;
+}
+
+/* ==================== Effect Library ==================== */
+.wod-status-effect-library {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--sem-bg);
+}
+
+.wod-status-effect-library .library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px 8px 16px;
+    border-bottom: 1px solid var(--sem-border);
+    background: var(--sem-bg-alt);
+}
+
+.wod-status-effect-library .header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod-status-effect-library .header-title h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sem-text);
+}
+
+.wod-status-effect-library .header-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.wod-status-effect-library .toolbar-section {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--sem-border);
+    background: var(--sem-bg);
+}
+
+.wod-status-effect-library .toolbar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.wod-status-effect-library .toolbar-row:last-child {
+    margin-bottom: 0;
+}
+
+.wod-status-effect-library .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod-status-effect-library .toolbar-group label {
+    font-size: 11px;
+    color: var(--sem-text-muted);
+    font-weight: 500;
+    min-width: 60px;
+}
+
+/* Icon buttons - compact style */
+.wod-status-effect-library .icon-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--sem-border);
+    background: var(--sem-bg);
+    color: var(--sem-primary);
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s ease;
+}
+
+.wod-status-effect-library .icon-btn:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+.wod-status-effect-library .icon-btn.danger {
+    color: var(--sem-danger);
+}
+
+.wod-status-effect-library .icon-btn.danger:hover {
+    background: var(--sem-danger);
+    border-color: var(--sem-danger);
+}
+
+.wod-status-effect-library .search-input {
+    width: 90px !important;
+    padding: 3px 6px !important;
+    border: 1px solid var(--sem-border);
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.wod-status-effect-library .library-filters {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    padding: 2px 0;
+    flex-wrap: wrap;
+}
+
+.wod-status-effect-library .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.wod-status-effect-library .filter-group label {
+    font-size: 10px;
+    color: var(--sem-text-muted);
+}
+
+.wod-status-effect-library .filter-group select {
+    padding: 2px 4px !important;
+    font-size: 11px !important;
+    border: 1px solid var(--sem-border);
+    border-radius: 2px;
+    width: 80px !important;
+    height: 24px !important;
+    line-height: 1.2;
+}
+
+.wod-status-effect-library .clear-filters-btn {
+    font-size: 10px;
+    padding: 2px 6px;
+    border: 1px solid var(--sem-border);
+    background: transparent;
+    color: var(--sem-text-muted);
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.wod-status-effect-library .clear-filters-btn:hover {
+    background: var(--sem-bg-alt);
+}
+
+.wod-status-effect-library .library-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.wod-status-effect-library .content-main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.wod-status-effect-library .main-sidebar {
+    width: 60px;
+    background: var(--sem-bg-alt);
+    border-right: 1px solid var(--sem-border);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+}
+
+.wod-status-effect-library .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.wod-status-effect-library .content-sidebar {
+    width: 320px;
+    background: linear-gradient(to right, var(--sem-bg-alt) 0%, var(--sem-bg) 8px);
+    overflow: hidden;
+    position: relative;
+    display: none;
+}
+
+.wod-status-effect-library .content-sidebar:not(.empty) {
+    display: block;
+}
+
+.wod-status-effect-library .content-sidebar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--sem-primary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.wod-status-effect-library .content-sidebar.has-selection::before {
+    opacity: 1;
+}
+
+.wod-status-effect-library .effect-list-container {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--sem-bg);
+    border: none;
+}
+
+.wod-status-effect-library .effect-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.wod-status-effect-library .effect-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--sem-border);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.wod-status-effect-library .effect-item:hover {
+    background: var(--sem-bg-hover);
+}
+
+.wod-status-effect-library .effect-item.selected {
+    background: var(--sem-bg-hover);
+    border-left: 3px solid var(--sem-primary);
+}
+
+.wod-status-effect-library .effect-item.selected::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--sem-primary);
+    box-shadow: 0 0 8px rgba(107, 114, 128, 0.3);
+}
+
+.wod-status-effect-library .effect-icon {
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--sem-border);
+    border-radius: 2px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.wod-status-effect-library .effect-info {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.wod-status-effect-library .effect-name {
+    font-weight: bold;
+    font-size: 11px;
+    color: var(--sem-text);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wod-status-effect-library .effect-category {
+    font-size: 9px;
+    color: var(--sem-text-muted);
+}
+
+.wod-status-effect-library .effect-tags {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.wod-status-effect-library .tag-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+    background: var(--sem-bg-alt);
+    border-radius: 6px;
+    color: var(--sem-text-muted);
+}
+
+.wod-status-effect-library .no-effects {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 20px;
+    color: var(--sem-text-muted);
+}
+
+.wod-status-effect-library .no-effects i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+}
+
+.wod-status-effect-library .no-effects .hint {
+    font-size: 10px;
+}
+
+/* Effect Details Panel */
+.wod-status-effect-library .effect-details-panel {
+    height: 100%;
+    overflow-y: auto;
+    background: var(--sem-bg);
+    display: flex;
+    flex-direction: column;
+}
+
+.wod-status-effect-library .effect-details-panel.empty {
+    display: none;
+}
+
+.wod-status-effect-library .effect-details-content {
+    padding: 20px;
+    flex: 1;
+    background: var(--sem-bg);
+    margin: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--sem-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.wod-status-effect-library .effect-details-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--sem-border);
+}
+
+.wod-status-effect-library .effect-icon-large {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--sem-border);
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.wod-status-effect-library .effect-details-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sem-text);
+    line-height: 1.2;
+}
+
+.wod-status-effect-library .effect-description {
+    margin-bottom: 6px;
+    font-size: 10px;
+    line-height: 1.3;
+    color: var(--sem-text-muted);
+}
+
+.wod-status-effect-library .effect-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 6px;
+    font-size: 10px;
+}
+
+.wod-status-effect-library .meta-item {
+    display: flex;
+    gap: 4px;
+}
+
+.wod-status-effect-library .meta-item label {
+    color: var(--sem-text-muted);
+    min-width: 55px;
+}
+
+.wod-status-effect-library .meta-item span {
+    color: var(--sem-text);
+}
+
+.wod-status-effect-library .effect-modifiers h4 {
+    margin: 0 0 4px 0;
+    font-size: 10px;
+    color: var(--sem-primary);
+    border-bottom: 1px solid var(--sem-border);
+    padding-bottom: 2px;
+}
+
+.wod-status-effect-library .effect-modifiers ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 10px;
+}
+
+.wod-status-effect-library .effect-modifiers li {
+    padding: 1px 0;
+}
+
+.wod-status-effect-library .modifier-value.positive {
+    color: var(--sem-success);
+}
+
+.wod-status-effect-library .modifier-value.negative {
+    color: var(--sem-danger);
+}
+
+.wod-status-effect-library .effect-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--sem-border);
+}
+
+.wod-status-effect-library .effect-actions .icon-btn {
+    flex: 1;
+    justify-content: center;
+    height: 32px;
+    width: auto;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 0 8px;
+}
+
+.wod-status-effect-library .effect-actions .icon-btn i {
+    margin-right: 4px;
+}
+
+.wod-status-effect-library .effect-actions .icon-btn span {
+    display: none;
+}
+
+.wod-status-effect-library .effect-actions .icon-btn:hover span {
+    display: inline;
+}
+
+/* ==================== Effect Assignment Wizard ==================== */
+.wod-effect-assignment {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 0;
+}
+
+/* Wizard Header */
+.wod-effect-assignment .wizard-header {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--sem-border);
+    background: var(--sem-bg-alt);
+}
+
+.wod-effect-assignment .header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.wod-effect-assignment .header-title h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sem-text);
+}
+
+/* Wizard Steps Indicator */
+.wod-effect-assignment .wizard-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+}
+
+.wod-effect-assignment .wizard-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wod-effect-assignment .wizard-step:hover {
+    background: var(--sem-bg-hover);
+}
+
+.wod-effect-assignment .wizard-step .step-number {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--sem-border);
+    color: var(--sem-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.wod-effect-assignment .wizard-step .step-label {
+    font-size: 11px;
+    color: var(--sem-text-muted);
+}
+
+.wod-effect-assignment .wizard-step.active .step-number {
+    background: var(--sem-primary);
+    color: white;
+}
+
+.wod-effect-assignment .wizard-step.active .step-label {
+    color: var(--sem-text);
+    font-weight: 500;
+}
+
+.wod-effect-assignment .wizard-step.completed .step-number {
+    background: var(--sem-success);
+    color: white;
+}
+
+.wod-effect-assignment .wizard-step.completed .step-label {
+    color: var(--sem-text);
+}
+
+.wod-effect-assignment .wizard-step-connector {
+    width: 40px;
+    height: 2px;
+    background: var(--sem-border);
+    margin: 0 4px;
+}
+
+.wod-effect-assignment .wizard-step-connector.completed {
+    background: var(--sem-success);
+}
+
+/* Wizard Content */
+.wod-effect-assignment .wizard-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+    padding: 10px 0; /* 10px top and bottom */
+    box-sizing: border-box;
+}
+
+.wod-effect-assignment .wizard-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+}
+
+.wod-effect-assignment .wizard-page.hidden {
+    display: none;
+}
+
+/* Panel Headers - Generic neutral styling */
+.wod-effect-assignment .panel-header {
+    margin: 0 0 12px 0;
+}
+
+.wod-effect-assignment .panel-header h3 {
+    background: linear-gradient(135deg, var(--sem-primary) 0%, var(--sem-primary-dark) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 0 8px 0 !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+/* Override foundry-dialog-override blue h3 styling for our wizard - FORCE OVERRIDE */
+.app.dialog .wod-effect-assignment .panel-header h3,
+.window-app.dialog .wod-effect-assignment .panel-header h3,
+.app.dialog:has(.wod-effect-assignment) .window-content h3,
+.window-app.dialog:has(.wod-effect-assignment) .window-content h3,
+.wod-effect-assignment .panel-header h3,
+.wod-effect-assignment.wizard .window-content h3,
+.app.dialog .wod-effect-assignment .window-content h3,
+.window-app.dialog .wod-effect-assignment .window-content h3,
+.app.dialog.wod-effect-assignment .window-content h3,
+.window-app.dialog.wod-effect-assignment .window-content h3 {
+    background: linear-gradient(135deg, var(--sem-primary) 0%, var(--sem-primary-dark) 100%) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    margin: 0 0 8px 0 !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+/* Force disable blue styling for any h3 in effect assignment */
+.app.dialog .wod-effect-assignment h3,
+.window-app.dialog .wod-effect-assignment h3,
+.app.dialog:has(.wod-effect-assignment) h3,
+.window-app.dialog:has(.wod-effect-assignment) h3 {
+    background: linear-gradient(135deg, var(--sem-primary) 0%, var(--sem-primary-dark) 100%) !important;
+    color: white !important;
+}
+
+.wod-effect-assignment .panel-header h3 i {
+    margin: 0 !important;
+    font-size: 10px !important;
+}
+
+.wod-effect-assignment .panel-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-start;
+    margin-bottom: 8px;
+    margin-top: 4px;
+}
+
+.wod-effect-assignment .panel-actions .icon-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--sem-border);
+    background: var(--sem-bg);
+    color: var(--sem-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.15s ease;
+}
+
+.wod-effect-assignment .panel-actions .icon-btn:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+/* Effects List - single column for wizard */
+.wod-effect-assignment .effects-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--sem-bg);
+    border: none;
+}
+
+.wod-effect-assignment .effect-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--sem-bg);
+    transition: all 0.15s ease;
+}
+
+.wod-effect-assignment .effect-item:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+.wod-effect-assignment .effect-item.selected {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+    box-shadow: 0 0 0 1px var(--sem-primary);
+}
+
+.wod-effect-assignment .effect-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--sem-border);
+    flex-shrink: 0;
+}
+
+.wod-effect-assignment .effect-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wod-effect-assignment .effect-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--sem-text);
+}
+
+.wod-effect-assignment .effect-category {
+    font-size: 9px;
+    color: var(--sem-text-muted);
+}
+
+/* Toolbar Section - compact and clean */
+.wod-effect-assignment .toolbar-section {
+    padding: 4px 12px;
+    border-bottom: 1px solid var(--sem-border);
+    background: var(--sem-bg-alt);
+    margin: 0;
+}
+
+.wod-effect-assignment .toolbar-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wod-effect-assignment .toolbar-row + .toolbar-row {
+    margin-top: 8px;
+}
+
+.wod-effect-assignment .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wod-effect-assignment .toolbar-group.search-group-full {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wod-effect-assignment .toolbar-group.search-group-full input {
+    flex: 0.5;
+    min-width: 150px;
+    max-width: 300px;
+}
+
+.wod-effect-assignment .toolbar-group label {
+    font-size: 9px;
+    color: var(--sem-text-muted);
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.wod-effect-assignment .toolbar-group input,
+.wod-effect-assignment .toolbar-group select {
+    padding: 2px 6px !important;
+    font-size: 9px !important;
+    border: 1px solid var(--sem-border);
+    border-radius: 2px;
+    background: var(--sem-bg);
+    height: 20px !important;
+    line-height: 1.2;
+}
+
+.wod-effect-assignment .clear-filters-label {
+    font-size: 9px;
+    color: var(--sem-primary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.wod-effect-assignment .clear-filters-label:hover {
+    color: var(--sem-primary-dark);
+    text-decoration-style: solid;
+}
+
+.wod-effect-assignment .filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--sem-text);
+    cursor: pointer;
+}
+
+/* Actors List - matches library effect list */
+.wod-effect-assignment .actors-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--sem-bg);
+}
+
+.wod-effect-assignment .actor-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--sem-bg);
+    transition: all 0.15s ease;
+}
+
+.wod-effect-assignment .actor-item:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+.wod-effect-assignment .actor-item.selected {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+    box-shadow: 0 0 0 1px var(--sem-primary);
+}
+
+.wod-effect-assignment .actor-item.has-effects {
+    border-left: 3px solid var(--sem-success);
+}
+
+.wod-effect-assignment .actor-img {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.wod-effect-assignment .actor-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wod-effect-assignment .actor-name {
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--sem-text);
+}
+
+.wod-effect-assignment .actor-type {
+    font-size: 9px;
+    color: var(--sem-text-muted);
+}
+
+.wod-effect-assignment .has-effect-badge {
+    color: var(--sem-success);
+    font-size: 12px;
+}
+
+.wod-effect-assignment .no-effects,
+.wod-effect-assignment .no-actors {
+    padding: 30px;
+    text-align: center;
+    color: var(--sem-text-muted);
+    background: var(--sem-bg);
+    margin: 8px;
+    border-radius: 4px;
+}
+
+.wod-effect-assignment .no-effects i,
+.wod-effect-assignment .no-actors i {
+    font-size: 24px;
+    margin-bottom: 8px;
+    display: block;
+    opacity: 0.5;
+}
+
+.wod-effect-assignment .no-effects p,
+.wod-effect-assignment .no-actors p {
+    font-size: 11px;
+    margin: 0;
+}
+
+/* Selected Effects Summary (Step 2) - compact */
+.wod-effect-assignment .selected-effects-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: var(--sem-bg-alt);
+    border-bottom: 1px solid var(--sem-border);
+}
+
+.wod-effect-assignment .selected-effects-summary .summary-label {
+    font-size: 9px;
+    color: var(--sem-text-muted);
+    margin-right: 4px;
+    font-weight: 500;
+}
+
+.wod-effect-assignment .selected-effect-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    background: var(--sem-primary);
+    color: white;
+    border-radius: 8px;
+    font-size: 8px;
+    font-weight: 500;
+}
+
+.wod-effect-assignment .selected-effect-badge img {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* Wizard Footer */
+.wod-effect-assignment .wizard-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border-top: 1px solid var(--sem-border);
+    background: var(--sem-bg-alt);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.wod-effect-assignment .selection-summary {
+    display: flex;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--sem-text-muted);
+}
+
+.wod-effect-assignment .summary-item i {
+    margin-right: 4px;
+    color: var(--sem-primary);
+}
+
+.wod-effect-assignment .wizard-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--sem-border);
+    background: var(--sem-bg);
+    color: var(--sem-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.15s ease;
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn.primary {
+    background: var(--sem-primary);
+    color: white;
+    border-color: var(--sem-primary);
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn.primary:hover {
+    background: var(--sem-primary-dark);
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn.danger:hover {
+    background: var(--sem-danger);
+    color: white;
+    border-color: var(--sem-danger);
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wod-effect-assignment .wizard-buttons .icon-btn:disabled:hover {
+    background: var(--sem-bg);
+    border-color: var(--sem-border);
+}
+
+/* ==================== Effect Editor Dialog ==================== */
+.effect-editor-form .form-group {
+    margin-bottom: 6px;
+}
+
+.effect-editor-form .form-group label {
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    color: var(--sem-primary);
+    margin-bottom: 2px;
+}
+
+.effect-editor-form .form-group input,
+.effect-editor-form .form-group select,
+.effect-editor-form .form-group textarea {
+    width: 100%;
+    padding: 4px 6px;
+    font-size: 11px;
+    border: 1px solid var(--sem-border);
+    border-radius: 2px;
+}
+
+.effect-editor-form .icon-picker {
+    display: flex;
+    gap: 4px;
+}
+
+.effect-editor-form .icon-picker input {
+    flex: 1;
+}
+
+.effect-editor-form .icon-picker button {
+    padding: 4px 8px;
+    font-size: 10px;
+    border: 1px solid var(--sem-border);
+    background: var(--sem-bg-alt);
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.effect-editor-form .tags-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.effect-editor-form .tag-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    border: 1px solid var(--sem-border);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    background: var(--sem-bg);
+}
+
+.effect-editor-form .tag-checkbox:hover {
+    background: var(--sem-bg-hover);
+}
+
+.effect-editor-form .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.effect-editor-form .checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: normal;
+    font-size: 11px;
+}
+
+.effect-editor-form .checkbox-group small {
+    font-size: 9px;
+    color: var(--sem-text-muted);
+}
+
+.effect-editor-form .modifiers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.effect-editor-form .modifier-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.effect-editor-form .modifier-row select {
+    flex: 1;
+    padding: 3px 4px;
+    font-size: 10px;
+}
+
+.effect-editor-form .modifier-row input[type="number"] {
+    width: 50px;
+    padding: 3px 4px;
+    font-size: 10px;
+    text-align: center;
+}
+
+.effect-editor-form .modifier-row .remove-modifier {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1px solid var(--sem-danger);
+    background: transparent;
+    color: var(--sem-danger);
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 10px;
+}
+
+.effect-editor-form .modifier-row .remove-modifier:hover {
+    background: var(--sem-danger);
+    color: white;
+}
+
+.effect-editor-form .add-modifier-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+    border: 1px dashed var(--sem-primary);
+    background: transparent;
+    color: var(--sem-primary);
+    cursor: pointer;
+    border-radius: 2px;
+    width: 100%;
+}
+
+.effect-editor-form .add-modifier-btn:hover {
+    background: var(--sem-bg-hover);
+}
+
+/* ==================== Tag/Category Management ==================== */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    background: var(--sem-bg-alt);
+    border: 1px solid var(--sem-border);
+    border-radius: 8px;
+    font-size: 10px;
+    margin: 2px;
+}
+
+.tag-chip button {
+    background: none;
+    border: none;
+    color: var(--sem-danger);
+    cursor: pointer;
+    padding: 0;
+    font-size: 11px;
+    line-height: 1;
+    margin-left: 2px;
+}
+
+.tag-chip button:hover {
+    color: var(--sem-danger);
+}
+
+.category-list,
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    min-height: 24px;
+    padding: 4px;
+    border: 1px solid var(--sem-border);
+    border-radius: 3px;
+    background: var(--sem-bg);
+}
+
+/* Override Foundry dialog window header for neutral theme */
+.window-app.wod-status-effect-library .window-header,
+.window-app.wod-effect-assignment .window-header,
+.app.dialog.wod-status-effect-library .window-header,
+.app.dialog.wod-effect-assignment .window-header,
+.window-app.dialog:has(.wod-status-effect-library) .window-header,
+.window-app.dialog:has(.wod-effect-assignment) .window-header,
+.app.dialog:has(.wod-status-effect-library) .window-header,
+.app.dialog:has(.wod-effect-assignment) .window-header {
+    background: #374151 !important;
+    color: white !important;
+    border-bottom: 1px solid var(--sem-primary-dark) !important;
+}
+
+.window-app.wod-status-effect-library .window-header .window-close,
+.window-app.wod-effect-assignment .window-header .window-close,
+.app.dialog.wod-status-effect-library .window-header .window-close,
+.app.dialog.wod-effect-assignment .window-header .window-close {
+    background: var(--sem-primary-dark) !important;
+    border: 1px solid var(--sem-border) !important;
+    color: white !important;
+}
+
+.window-app.wod-status-effect-library .window-header .window-close:hover,
+.window-app.wod-effect-assignment .window-header .window-close:hover,
+.app.dialog.wod-status-effect-library .window-header .window-close:hover,
+.app.dialog.wod-effect-assignment .window-header .window-close:hover {
+    background: var(--sem-danger) !important;
+    border-color: var(--sem-danger) !important;
+}
+
+/* Override window border for neutral theme */
+.window-app.wod-status-effect-library,
+.window-app.wod-effect-assignment,
+.app.dialog.wod-status-effect-library,
+.app.dialog.wod-effect-assignment,
+.window-app.dialog:has(.wod-status-effect-library),
+.window-app.dialog:has(.wod-effect-assignment),
+.app.dialog:has(.wod-status-effect-library),
+.app.dialog:has(.wod-effect-assignment) {
+    border-color: var(--sem-primary) !important;
+}
+
+/* Override foundry-dialog-override select styles */
+.window-app.dialog:has(.wod-status-effect-library) select,
+.window-app.dialog:has(.wod-effect-assignment) select,
+.app.dialog:has(.wod-status-effect-library) select,
+.app.dialog:has(.wod-effect-assignment) select,
+.wod-status-effect-library select,
+.wod-effect-assignment select {
+    width: auto !important;
+    padding: 2px 4px !important;
+    height: 24px !important;
+    border-radius: 2px !important;
+    font-size: 11px !important;
+    box-sizing: border-box !important;
+}
+
+/* Override foundry-dialog-override input styles */
+.window-app.dialog:has(.wod-status-effect-library) input[type="text"],
+.window-app.dialog:has(.wod-effect-assignment) input[type="text"],
+.app.dialog:has(.wod-status-effect-library) input[type="text"],
+.app.dialog:has(.wod-effect-assignment) input[type="text"],
+.wod-status-effect-library input[type="text"],
+.wod-effect-assignment input[type="text"] {
+    width: auto !important;
+    padding: 3px 6px !important;
+    border-radius: 3px !important;
+    font-size: 11px !important;
+    box-sizing: border-box !important;
+}
+
+/* Core Effect Tooltip */
+.wod-effect-tooltip {
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.wod-effect-tooltip h4 {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #111827;
+    border-bottom: 1px solid var(--sem-border);
+    padding-bottom: 4px;
+}
+
+.wod-effect-tooltip p {
+    margin: 0 0 6px 0;
+    color: #374151;
+}
+
+.wod-effect-tooltip .effect-changes {
+    margin: 6px 0;
+}
+
+.wod-effect-tooltip .effect-changes strong {
+    color: var(--sem-text-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wod-effect-tooltip ul {
+    margin: 4px 0 0 0;
+    padding-left: 16px;
+    color: #374151;
+}
+
+.wod-effect-tooltip li {
+    margin: 2px 0;
+    font-family: monospace;
+    font-size: 10px;
+}
+
+.wod-effect-tooltip .effect-tags {
+    margin: 6px 0;
+}
+
+.wod-effect-tooltip .effect-tags strong {
+    color: var(--sem-text-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wod-effect-tooltip .effect-actions {
+    margin: 8px 0;
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+}
+
+.wod-effect-tooltip .tooltip-edit-btn,
+.wod-effect-tooltip .tooltip-delete-btn {
+    padding: 4px 8px;
+    font-size: 9px;
+    border: 1px solid var(--sem-border);
+    border-radius: 3px;
+    background: var(--sem-bg);
+    color: var(--sem-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wod-effect-tooltip .tooltip-edit-btn:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+    color: var(--sem-primary);
+}
+
+.wod-effect-tooltip .tooltip-delete-btn:hover {
+    background: #fef2f2;
+    border-color: var(--sem-danger);
+    color: var(--sem-danger);
+}
+
+.wod-effect-tooltip .effect-note {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid var(--sem-border);
+    color: #6b7280;
+    font-size: 9px;
+}

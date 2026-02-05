@@ -1,0 +1,35 @@
+<div class="wod-triggers-list">
+    <div class="form-group">
+        <button type="button" data-action="add-trigger"><i class="fas fa-plus"></i> Add Trigger</button>
+    </div>
+
+    {{#if triggers.length}}
+    <table class="triggers-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Event</th>
+                <th>Roll</th>
+                <th>Active</th>
+                <th style="width: 80px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each triggers}}
+            <tr data-trigger-id="{{this.id}}">
+                <td>{{#if this.name}}{{this.name}}{{else}}<em>Unnamed</em>{{/if}}</td>
+                <td>{{this.trigger.eventType}}</td>
+                <td>{{#if this.roll.enabled}}<i class="fas fa-dice" title="Roll required"></i>{{else}}<i class="fas fa-minus" title="No roll"></i>{{/if}}</td>
+                <td>{{#if this.enabled}}<i class="fas fa-check" style="color: green;" title="Enabled"></i>{{else}}<i class="fas fa-times" style="color: red;" title="Disabled"></i>{{/if}}</td>
+                <td class="trigger-controls">
+                    <button type="button" class="trigger-edit" data-action="edit-trigger" data-trigger-id="{{this.id}}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="trigger-delete" data-action="delete-trigger" data-trigger-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{else}}
+    <p class="notes">No triggers configured. Click "Add Trigger" to create one.</p>
+    {{/if}}
+</div>

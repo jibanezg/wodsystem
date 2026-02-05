@@ -98,17 +98,560 @@ export class EarthboundSheet extends DemonSheet {
     }
     
     /** @override */
-    activateListeners(html) {
+    async activateListeners(html) {
         super.activateListeners(html);
         
-        // Apocalyptic form reference button
-        html.find('.apocalyptic-form-reference-btn').click(this._onApocalypticFormReferenceClick.bind(this));
+        // Earthbound Apocalyptic Form Builder Handlers
+        await this._initializeEarthboundApocalypticFormBuilder(html);
         
-        // Apocalyptic form dropdown change
-        html.find('.apocalyptic-form-select').change(this._onApocalypticFormChange.bind(this));
+        // Dropdown filters
+        html.find('#category-filter').change(this._onCategoryFilterChange.bind(this));
+        html.find('#point-filter').change(this._onPointFilterChange.bind(this));
+        
+        // Form actions
+        html.find('#reset-form-btn').click(this._onResetForm.bind(this));
+        html.find('#save-form-btn').click(this._onSaveForm.bind(this));
+        html.find('#create-custom-feature-btn').click(this._onCreateCustomFeature.bind(this));
+        
+        // Custom feature modal
+        html.find('#modal-close').click(this._onCloseCustomFeatureModal.bind(this));
+        html.find('#cancel-custom-feature').click(this._onCloseCustomFeatureModal.bind(this));
+        html.find('#submit-custom-feature').click(this._onSubmitCustomFeature.bind(this));
         
         // Initialize apocalyptic tab
         this._initializeApocalypticTab();
+    }
+    
+    /**
+     * Initialize Earthbound Apocalyptic Form Builder
+     */
+    async _initializeEarthboundApocalypticFormBuilder(html) {
+        // Load apocalyptic powers data first
+        await this._loadApocalypticPowers();
+        
+        // Initialize form state
+        this._initializeFormState();
+        
+        // Render features list
+        this._renderFeaturesList();
+        
+        // Load existing form if any
+        this._loadExistingForm();
+    }
+    
+    /**
+     * Load apocalyptic powers from JSON
+     */
+    async _loadApocalypticPowers() {
+        try {
+            const response = await fetch('systems/wodsystem/datasource/D20/apocalyptic_powers.json');
+            const data = await response.json();
+            this.apocalypticPowers = data.apocalypticPowers || [];
+        } catch (error) {
+            console.error('Error loading apocalyptic powers:', error);
+            this.apocalypticPowers = [];
+        }
+    }
+    
+    /**
+     * Initialize form state
+     */
+    _initializeFormState() {
+        this.formState = {
+            selectedFeatures: [],
+            pointsRemaining: 16,
+            featuresSelected: 0,
+            currentCategory: 'all',
+            currentPointFilter: 'all'
+        };
+    }
+    
+    /**
+     * Handle form type change (custom vs preset) - now always custom
+     */
+    _onFormTypeChange(event) {
+        // Since we removed the radio buttons, this is always custom form
+        // The preset functionality can be re-enabled later if needed
+        console.log('Custom form mode active');
+    }
+    
+    /**
+     * Handle category filter change
+     */
+    _onCategoryFilterChange(event) {
+        const category = event.target.value;
+        
+        // Update filter
+        this.formState.currentCategory = category;
+        this._renderFeaturesList();
+    }
+    
+    /**
+     * Handle point filter change
+     */
+    _onPointFilterChange(event) {
+        const pointCost = event.target.value;
+        
+        // Update filter
+        this.formState.currentPointFilter = pointCost;
+        this._renderFeaturesList();
+    }
+    
+    /**
+     * Render features list
+     */
+    _renderFeaturesList() {
+        const powersList = this.element.find('#powers-list');
+        
+        // Check if apocalyptic powers are loaded
+        if (!this.apocalypticPowers || !Array.isArray(this.apocalypticPowers)) {
+            powersList.html('<p>Error loading apocalyptic powers. Please refresh the page.</p>');
+            return;
+        }
+        
+        let filteredFeatures = this.apocalypticPowers;
+        
+        // Filter by category
+        if (this.formState.currentCategory !== 'all') {
+            filteredFeatures = filteredFeatures.filter(f => f.category === this.formState.currentCategory);
+        }
+        
+        // Filter by point cost
+        if (this.formState.currentPointFilter !== 'all') {
+            const cost = parseInt(this.formState.currentPointFilter);
+            filteredFeatures = filteredFeatures.filter(f => f.pointCost === cost);
+        }
+        
+        // Render HTML
+        let html = '';
+        filteredFeatures.forEach(feature => {
+            const isSelected = this.formState.selectedFeatures.some(f => f.id === feature.id);
+            const canSelect = !isSelected && this._canSelectFeature(feature);
+            
+            html += `
+                <div class="power-item ${isSelected ? 'selected' : ''}" 
+                     data-feature-id="${feature.id}">
+                    <div class="power-header">
+                        <div class="power-title">${feature.name}</div>
+                        <div class="power-meta">
+                            <span class="power-cost">${feature.pointCost}</span>
+                            <span class="power-category">${feature.category}</span>
+                        </div>
+                    </div>
+                    <div class="power-description">${feature.description}</div>
+                    <div class="power-actions">
+                        <button class="power-select-btn" data-feature-id="${feature.id}" 
+                                ${isSelected || !canSelect ? 'disabled' : ''}>
+                            ${isSelected ? 'Selected' : 'Select'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        powersList.html(html);
+        
+        // Add click handlers
+        powersList.find('.power-select-btn').click(this._onSelectFeature.bind(this));
+    }
+    
+    /**
+     * Handle feature selection
+     */
+    _onSelectFeature(event) {
+        const featureId = event.currentTarget.dataset.featureId;
+        const feature = this.apocalypticPowers.find(f => f.id === featureId);
+        
+        if (!feature) return;
+        
+        const isSelected = this.formState.selectedFeatures.some(f => f.id === featureId);
+        
+        if (isSelected) {
+            // Deselect feature (can't deselect Face of Terror)
+            if (feature.id !== 'face_of_terror') {
+                this.formState.selectedFeatures = this.formState.selectedFeatures.filter(f => f.id !== featureId);
+                this.formState.pointsRemaining += feature.pointCost;
+                // Don't decrement featuresSelected as it's calculated dynamically
+            }
+        } else {
+            // Select feature
+            if (this._canSelectFeature(feature)) {
+                this.formState.selectedFeatures.push(feature);
+                // Face of Terror is free, others cost points
+                const pointsCost = feature.id === 'face_of_terror' ? 0 : feature.pointCost;
+                this.formState.pointsRemaining -= pointsCost;
+                // Don't increment featuresSelected as it's calculated dynamically
+            }
+        }
+        
+        // Update UI
+        this._updatePointsDisplay();
+        this._renderSelectedFeatures();
+        this._renderFeaturesList();
+    }
+    
+    /**
+     * Check if feature can be selected
+     */
+    _canSelectFeature(feature) {
+        // Check if already selected
+        if (this.formState.selectedFeatures.some(f => f.id === feature.id)) {
+            return false;
+        }
+        
+        // Check if enough points remaining (Face of Terror is free)
+        const pointsNeeded = feature.id === 'face_of_terror' ? 0 : feature.pointCost;
+        if (this.formState.pointsRemaining < pointsNeeded) {
+            return false;
+        }
+        
+        // Check if at feature limit (excluding Face of Terror)
+        const nonFaceOfTerrorFeatures = this.formState.selectedFeatures.filter(f => f.id !== 'face_of_terror');
+        if (nonFaceOfTerrorFeatures.length >= 8) {
+            return false;
+        }
+        
+        // Face of Terror is always selectable (free and mandatory)
+        if (feature.id === 'face_of_terror') {
+            return !this.formState.selectedFeatures.some(f => f.id === 'face_of_terror');
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Update points display
+     */
+    _updatePointsDisplay() {
+        this.element.find('#points-remaining').text(this.formState.pointsRemaining);
+        
+        // Count selected features excluding Face of Terror
+        const nonFaceOfTerrorFeatures = this.formState.selectedFeatures.filter(f => f.id !== 'face_of_terror');
+        const selectableCount = nonFaceOfTerrorFeatures.length;
+        
+        this.element.find('#features-selected').text(selectableCount);
+        
+        // Update save button state (need 8 non-Face of Terror features)
+        const saveBtn = this.element.find('#save-form-btn');
+        const isValid = selectableCount === 8;
+        saveBtn.prop('disabled', !isValid);
+        
+        if (isValid) {
+            saveBtn.addClass('valid');
+        } else {
+            saveBtn.removeClass('valid');
+        }
+    }
+    
+    /**
+     * Render selected features
+     */
+    _renderSelectedFeatures() {
+        const selectedStack = this.element.find('#selected-features-stack');
+        
+        let html = '';
+        this.formState.selectedFeatures.forEach(feature => {
+            html += `
+                <div class="selected-feature-item" data-feature-id="${feature.id}">
+                    <div class="selected-feature-name">${feature.name}</div>
+                    <div class="selected-feature-info">
+                        <span class="selected-feature-cost">${feature.pointCost}</span>
+                        <i class="fas fa-book selected-feature-icon" data-feature-id="${feature.id}"></i>
+                    </div>
+                </div>
+            `;
+        });
+        
+        selectedStack.html(html);
+        
+        // Add click handlers for removal (on the item itself)
+        selectedStack.find('.selected-feature-item').click((event) => {
+            // Don't remove if clicking on the book icon
+            if ($(event.target).hasClass('selected-feature-icon')) {
+                return;
+            }
+            const featureId = event.currentTarget.dataset.featureId;
+            this._onRemoveFeature({ currentTarget: event.currentTarget });
+        });
+        
+        // Add click handlers for tooltips (on the book icon)
+        selectedStack.find('.selected-feature-icon').click((event) => {
+            event.stopPropagation();
+            const featureId = event.currentTarget.dataset.featureId;
+            const feature = this.formState.selectedFeatures.find(f => f.id === featureId);
+            if (feature) {
+                this._showApocalypticPowerTooltip(event, feature);
+            }
+        });
+    }
+    
+    /**
+     * Show tooltip for apocalyptic power reference
+     */
+    _showApocalypticPowerTooltip(event, power) {
+        this._hideReferenceTooltip(); // Remove any existing tooltip
+        
+        // Create tooltip element
+        const tooltip = $('<div class="wod-reference-tooltip"></div>');
+        
+        // Generate tooltip HTML
+        const tooltipHTML = `
+            <div class="tooltip-header">
+                <h4>${power.name}</h4>
+                <div class="tooltip-meta">
+                    <span class="type-badge apocalyptic-power">${power.category}</span>
+                    <span class="cost-badge">${power.pointCost} ${power.pointCost === 1 ? 'Point' : 'Points'}</span>
+                </div>
+            </div>
+            <div class="tooltip-description">
+                ${power.description}
+            </div>
+        `;
+        
+        tooltip.html(tooltipHTML);
+        
+        // Add to body with visibility hidden to measure
+        tooltip.css({ 
+            visibility: 'hidden', 
+            display: 'block',
+            position: 'fixed'
+        });
+        $('body').append(tooltip);
+        
+        // Get dimensions
+        const rect = event.currentTarget.getBoundingClientRect();
+        const tooltipWidth = tooltip.outerWidth();
+        const tooltipHeight = tooltip.outerHeight();
+        const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
+        
+        // Calculate left position (prevent overflow)
+        let left = rect.left;
+        if (left + tooltipWidth > windowWidth - 10) {
+            left = windowWidth - tooltipWidth - 10;
+        }
+        if (left < 10) {
+            left = 10;
+        }
+        
+        // Calculate top position - show above the element
+        let top = rect.top - tooltipHeight - 10;
+        
+        // If it goes off the top of the screen, position below instead
+        if (top < 10) {
+            top = rect.bottom + 10;
+            // If it goes off the bottom too, just clamp to top
+            if (top + tooltipHeight > windowHeight - 10) {
+                top = 10;
+            }
+        }
+        
+        // Apply final position and make visible
+        tooltip.css({
+            position: 'fixed',
+            top: top + 'px',
+            left: left + 'px',
+            maxWidth: '400px',
+            maxHeight: '300px',
+            overflowY: 'auto',
+            visibility: 'visible',
+            display: 'none',
+            pointerEvents: 'auto'
+        });
+        
+        // Fade in
+        tooltip.fadeIn(200);
+        
+        // Prevent tooltip from closing when clicking inside it
+        tooltip.on('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Close tooltip when clicking outside (use setTimeout to prevent immediate closure)
+        setTimeout(() => {
+            $(document).one('click', () => {
+                this._hideReferenceTooltip();
+            });
+        }, 100);
+    }
+
+    /**
+     * Handle feature removal
+     */
+    _onRemoveFeature(event) {
+        const featureId = event.currentTarget.dataset.featureId;
+        const feature = this.formState.selectedFeatures.find(f => f.id === featureId);
+        
+        if (feature && feature.id !== 'face_of_terror') { // Can't remove Face of Terror
+            this.formState.selectedFeatures = this.formState.selectedFeatures.filter(f => f.id !== featureId);
+            this.formState.pointsRemaining += feature.pointCost;
+            // Don't decrement featuresSelected as it's calculated dynamically
+            
+            this._updatePointsDisplay();
+            this._renderSelectedFeatures();
+            this._renderFeaturesList();
+        }
+    }
+    
+    /**
+     * Handle form reset
+     */
+    _onResetForm() {
+        this._initializeFormState();
+        
+        // Always add Face of Terror (free and mandatory)
+        const faceOfTerror = this.apocalypticPowers.find(f => f.id === 'face_of_terror');
+        if (faceOfTerror) {
+            this.formState.selectedFeatures.push(faceOfTerror);
+            // Don't set featuresSelected as it's calculated dynamically
+        }
+        
+        this._updatePointsDisplay();
+        this._renderSelectedFeatures();
+        this._renderFeaturesList();
+    }
+    
+    /**
+     * Handle form save
+     */
+    async _onSaveForm() {
+        // Count selected features excluding Face of Terror
+        const nonFaceOfTerrorFeatures = this.formState.selectedFeatures.filter(f => f.id !== 'face_of_terror');
+        
+        if (nonFaceOfTerrorFeatures.length !== 8) {
+            ui.notifications.warn('You must select exactly 8 additional features (Face of Terror is automatically included).');
+            return;
+        }
+        
+        const formData = {
+            type: 'earthbound_custom',
+            name: 'Custom Earthbound Form',
+            features: this.formState.selectedFeatures,
+            totalPoints: 16,
+            featureCount: 9 // 8 selected + Face of Terror
+        };
+        
+        await this.actor.update({
+            'system.apocalypticForm': formData
+        });
+        
+        ui.notifications.info('Apocalyptic form saved successfully!');
+        this._renderCurrentForm();
+    }
+    
+    /**
+     * Load existing form
+     */
+    _loadExistingForm() {
+        const existingForm = this.actor.system.apocalypticForm;
+        
+        if (existingForm && existingForm.type === 'earthbound_custom' && existingForm.features) {
+            this.formState.selectedFeatures = existingForm.features;
+            this.formState.pointsRemaining = 16 - existingForm.features.reduce((sum, f) => sum + (f.pointCost || 0), 0);
+            this.formState.featuresSelected = existingForm.features.length;
+            
+            this._updatePointsDisplay();
+            this._renderSelectedFeatures();
+            this._renderFeaturesList();
+        } else {
+            // Initialize with Face of Terror
+            this._onResetForm();
+        }
+        
+        // Render current form display
+        this._renderCurrentForm();
+    }
+    
+    /**
+     * Render current form display
+     */
+    _renderCurrentForm() {
+        const formDisplay = this.element.find('#form-powers-cards');
+        const existingForm = this.actor.system.apocalypticForm;
+        
+        if (!existingForm || !existingForm.features) {
+            formDisplay.html('<p>No apocalyptic form selected.</p>');
+            return;
+        }
+        
+        let html = '<div class="power-cards">';
+        existingForm.features.forEach(feature => {
+            html += `
+                <div class="power-card">
+                    <div class="power-card-header">
+                        <h4>${feature.name}</h4>
+                        <span class="power-cost">${feature.pointCost} ${feature.pointCost === 1 ? 'point' : 'points'}</span>
+                    </div>
+                    <div class="power-card-description">${feature.description}</div>
+                    <div class="power-card-category">${feature.category}</div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        formDisplay.html(html);
+    }
+    
+    /**
+     * Handle custom feature creation
+     */
+    _onCreateCustomFeature() {
+        this.element.find('#custom-feature-modal').show();
+    }
+    
+    /**
+     * Handle custom feature modal close
+     */
+    _onCloseCustomFeatureModal() {
+        this.element.find('#custom-feature-modal').hide();
+        this._clearCustomFeatureForm();
+    }
+    
+    /**
+     * Handle custom feature submission
+     */
+    async _onSubmitCustomFeature() {
+        const name = this.element.find('#custom-feature-name').val().trim();
+        const cost = parseInt(this.element.find('#custom-feature-cost').val());
+        const category = this.element.find('#custom-feature-category').val();
+        const description = this.element.find('#custom-feature-description').val().trim();
+        
+        if (!name || !description) {
+            ui.notifications.warn('Please fill in all required fields.');
+            return;
+        }
+        
+        const customFeature = {
+            id: `custom_${Date.now()}`,
+            name: name,
+            description: description,
+            pointCost: cost,
+            category: category,
+            type: ['earthbound'],
+            custom: true,
+            approved: false,
+            createdBy: game.user.id,
+            createdAt: new Date().toISOString()
+        };
+        
+        // Add to apocalyptic powers list
+        this.apocalypticPowers.push(customFeature);
+        
+        // Close modal and refresh
+        this._onCloseCustomFeatureModal();
+        this._renderFeaturesList();
+        
+        ui.notifications.info('Custom feature created! It will require Storyteller approval before use.');
+    }
+    
+    /**
+     * Clear custom feature form
+     */
+    _clearCustomFeatureForm() {
+        this.element.find('#custom-feature-name').val('');
+        this.element.find('#custom-feature-cost').val('1');
+        this.element.find('#custom-feature-category').val('physical');
+        this.element.find('#custom-feature-description').val('');
     }
 
     _onBackgroundReferenceClick(event) {

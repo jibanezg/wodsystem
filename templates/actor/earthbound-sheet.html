@@ -46,23 +46,12 @@
 
         <!-- Apocalyptic Tab -->
         <div class="tab" data-group="primary" data-tab="apocalyptic">
-            <div class="apocalyptic-form-container">
-                <div class="apocalyptic-header">
-                    <h3>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Title'}}</h3>
-                    <div class="apocalyptic-info">
-                        <label>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.CurrentForm'}}</label>
-                        <input type="text" name="system.apocalypticForm" value="{{apocalypticFormName}}" readonly />
-                    </div>
-                </div>
-                <div class="apocalyptic-attributes">
-                    {{> "systems/wodsystem/templates/actor/partials/demon-apocalyptic-form.html"}}
-                </div>
-            </div>
+            {{> "systems/wodsystem/templates/actor/partials/earthbound-apocalyptic-form.html"}}
         </div>
 
         <!-- Backgrounds Expanded Tab -->
         <div class="tab" data-group="primary" data-tab="backgrounds-expanded">
-            {{> "systems/wodsystem/templates/actor/partials/demon-backgrounds-expanded.html"}}
+            {{> "systems/wodsystem/templates/actor/partials/earthbound-backgrounds-expanded.html"}}
         </div>
 
         <!-- Traits Tab -->
@@ -82,7 +71,7 @@
 
         <!-- Equipment Tab -->
         <div class="tab" data-group="primary" data-tab="equipment">
-            {{> "systems/wodsystem/templates/actor/partials/equipment.html"}}
+            {{> "systems/wodsystem/templates/actor/partials/earthbound-equipment.html"}}
         </div>
 
         <!-- Effects Tab -->

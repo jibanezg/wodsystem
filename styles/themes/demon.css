@@ -1368,17 +1368,15 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
 .wod.sheet.actor.demon .bg-card-mini {
     border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
     border-radius: 3px;
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
-    padding: 8px;
-    margin-bottom: 6px;
+    background: white;
+    padding: 4px;
+    transition: all 0.2s;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .wod.sheet.actor.demon .bg-card-mini:hover {
     border-color: var(--wod-primary, #DC143C);
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
-    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     transform: translateY(-1px);
 }
 
@@ -1386,22 +1384,24 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.2));
 }
 
 .wod.sheet.actor.demon .bg-card-mini-header .bg-name {
     font-weight: bold;
-    color: var(--wod-text-main, white);
-    font-size: 0.9em;
+    font-size: 0.75em;
+    color: var(--wod-primary, #DC143C);
 }
 
 .wod.sheet.actor.demon .bg-card-mini-header .bg-rating {
-    color: var(--wod-primary, #DC143C);
-    font-weight: bold;
-    font-size: 0.8em;
-    background: rgba(220, 20, 60, 0.2);
-    padding: 2px 6px;
-    border-radius: 8px;
+    font-size: 0.7em;
+    color: var(--wod-primary-dark, #8B0000);
+    font-weight: normal;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
 }
 
 .wod.sheet.actor.demon .bg-card-mini-actions {
@@ -1423,48 +1423,47 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
 
 /* Category Sections */
 .wod.sheet.actor.demon .bg-category-section {
-    margin-bottom: 12px;
-    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.2));
-    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
+    border-radius: 4px;
     overflow: hidden;
 }
 
 .wod.sheet.actor.demon .bg-category-header {
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
-    padding: 8px 12px;
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    padding: 4px 8px;
     cursor: pointer;
-    transition: background 0.2s ease;
+    user-select: none;
+    transition: background 0.2s;
 }
 
 .wod.sheet.actor.demon .bg-category-header:hover {
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
+    background: var(--wod-primary-dark, #8B0000);
 }
 
 .wod.sheet.actor.demon .bg-category-header h3 {
     margin: 0;
-    color: var(--wod-text-main, white);
-    font-size: 0.95em;
+    font-size: 0.85em;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .wod.sheet.actor.demon .bg-category-header .category-count {
-    color: var(--wod-primary, #DC143C);
     font-size: 0.85em;
-    background: rgba(220, 20, 60, 0.2);
-    padding: 2px 6px;
-    border-radius: 8px;
+    opacity: 0.9;
 }
 
 .wod.sheet.actor.demon .bg-category-content {
-    padding: 8px;
+    padding: 6px;
+    background: var(--wod-bg-light);
 }
 
 .wod.sheet.actor.demon .bg-cards-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
 }
 
 /* Pagination Controls */
@@ -1508,42 +1507,43 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 10px;
-    padding-top: 8px;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 10px;
     border-top: 1px solid var(--wod-border-main);
 }
 
 .wod.sheet.actor.demon .backgrounds-expanded-section .floating-add-bg {
-    background: var(--wod-primary, #DC143C);
+    background: var(--wod-success, #28a745);
     color: white;
     border: none;
-    width: 40px;
-    height: 40px;
     border-radius: 50%;
-    font-size: 1.2em;
-    font-weight: bold;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
+    box-shadow: none;
 }
 
+
 .wod.sheet.actor.demon .backgrounds-expanded-section .floating-add-bg:hover {
-    background: var(--wod-primary-dark, #8B0000);
+    background: var(--wod-success, #28a745);
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(220, 20, 60, 0.4);
+    box-shadow: none;
 }
 
 /* Modal Styling */
 .wod.sheet.actor.demon .bg-modal-overlay {
-    background: rgba(0, 0, 0, 0.7);
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1551,23 +1551,22 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
 }
 
 .wod.sheet.actor.demon .bg-modal {
-    background: var(--wod-bg-main, #1A0A0A);
-    border: 2px solid var(--wod-primary, #DC143C);
-    border-radius: 6px;
-    box-shadow: 0 8px 32px rgba(220, 20, 60, 0.5);
     width: 60%;
     height: 70%;
     max-width: 900px;
+    max-height: 800px;
+    background: var(--wod-bg-main, #1A0A0A);
+    border: 2px solid var(--wod-primary, #DC143C);
+    border-radius: 4px;
     display: flex;
     flex-direction: column;
-    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 
 .wod.sheet.actor.demon .bg-modal-header {
     background: var(--wod-primary, #DC143C);
     color: white;
     padding: 10px 15px;
-    border-radius: 4px 4px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1592,176 +1591,35 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.05));
-    border-radius: 0 0 4px 4px;
+}
+
+/* Demon modal cancel button - orange color */
+.wod.sheet.actor.demon .bg-modal-footer button.cancel-button,
+.wod.sheet.actor.demon .bg-modal button.cancel-button {
+    background: var(--wod-text-alt, #FF8C00) !important;
+    color: white !important;
+    border: 1px solid var(--wod-text-alt, #FF8C00) !important;
+}
+
+.wod.sheet.actor.demon .bg-modal-footer button.cancel-button:hover,
+.wod.sheet.actor.demon .bg-modal button.cancel-button:hover {
+    background: #FFA500 !important;
+    border-color: #FFA500 !important;
 }
 
 .wod.sheet.actor.demon .bg-modal label {
-    color: var(--wod-text-main, white);
-    font-weight: bold;
-    margin-bottom: 4px;
     display: block;
-}
-
-.wod.sheet.actor.demon .bg-modal select {
-    width: 100%;
-    padding: 6px 10px;
-    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
-    border-radius: 4px;
-    background: var(--wod-bg-input, #2D0F0F);
-    color: var(--wod-text-main, white);
-    font-size: 0.9em;
-    margin-bottom: 12px;
-    height: 32px;
-    box-sizing: border-box;
-}
-
-.wod.sheet.actor.demon .bg-modal button {
-    padding: 6px 16px;
-    border: none;
-    border-radius: 3px;
     font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.wod.sheet.actor.demon .bg-modal .cancel-bg-modal {
-    background: var(--wod-bg-light, rgba(220, 20, 60, 0.1));
-    color: var(--wod-text-main, white);
-    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
-}
-
-.wod.sheet.actor.demon .bg-modal .cancel-bg-modal:hover {
-    background: var(--wod-bg-dark, rgba(220, 20, 60, 0.3));
-}
-
-.wod.sheet.actor.demon .bg-modal .save-bg-modal {
-    background: var(--wod-primary, #DC143C);
-    color: white;
-}
-
-.wod.sheet.actor.demon .bg-modal .save-bg-modal:hover {
-    background: var(--wod-primary-dark, #8B0000);
-}
-
-/* No Expanded Backgrounds Message */
-.wod.sheet.actor.demon .no-expanded-backgrounds {
-    text-align: center;
-    padding: 30px;
-    color: var(--wod-text-alt, #b0b0b0);
-    font-style: italic;
-    margin: 20px 0;
-}
-
-.wod.sheet.actor.demon .no-expanded-backgrounds p {
-    margin: 0;
-    font-size: 0.9em;
-}
-
-/* Additional Backgrounds Expanded Elements */
-.wod.sheet.actor.demon .bg-expanded-pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 15px;
-    gap: 10px;
-}
-
-.wod.sheet.actor.demon .bg-expanded-pagination .pagination-btn {
-    background: var(--wod-primary, #DC143C);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85em;
-    transition: all 0.2s ease;
-    min-width: 30px;
-}
-
-.wod.sheet.actor.demon .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
-    background: var(--wod-primary-dark, #8B0000);
-    transform: scale(1.05);
-}
-
-.wod.sheet.actor.demon .bg-expanded-pagination .pagination-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.wod.sheet.actor.demon .bg-expanded-pagination .pagination-info {
-    font-size: 0.85em;
-    color: var(--wod-text-alt, #b0b0b0);
-    font-weight: bold;
-    padding: 0 10px;
-}
-
-/* Category Toggle Elements */
-.wod.sheet.actor.demon .category-toggle {
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.1));
-    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.3));
-    color: var(--wod-text-main, white);
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.85em;
-    margin-bottom: 8px;
-}
-
-.wod.sheet.actor.demon .category-toggle:hover {
-    background: var(--wod-bg-subtle, rgba(220, 20, 60, 0.2));
-    border-color: var(--wod-primary, #DC143C);
-}
-
-/* Backgrounds Expanded Main Container */
-.wod.sheet.actor.demon .backgrounds-expanded-section {
-    background: var(--wod-bg-main, #1A0A0A);
-    border: 1px solid var(--wod-border-light, rgba(220, 20, 60, 0.2));
-    border-radius: 6px;
-    padding: 15px;
-    margin: 5px;
-}
-
-.wod.sheet.actor.demon .backgrounds-expanded-section h2 {
-    margin: 0 0 15px 0;
-    font-size: 1.2em;
+    margin-bottom: 5px;
     color: var(--wod-primary, #DC143C);
-    text-align: center;
-    border-bottom: 2px solid var(--wod-primary, #DC143C);
-    padding-bottom: 8px;
-}
-
-.wod.sheet.actor.demon .backgrounds-expanded-section .section-description {
-    font-size: 0.8em;
-    color: var(--wod-text-alt, #b0b0b0);
-    text-align: center;
-    margin-bottom: 15px;
-    font-style: italic;
-}
-
-/* Modal Step Elements */
-.wod.sheet.actor.demon .bg-modal-step-category,
-.wod.sheet.actor.demon .bg-modal-step-background {
-    margin-bottom: 15px;
 }
 
 .wod.sheet.actor.demon .bg-modal-step-category label,
 .wod.sheet.actor.demon .bg-modal-step-background label {
     display: block;
-    margin-bottom: 8px;
-    color: var(--wod-text-main, white);
     font-weight: bold;
-    font-size: 0.9em;
-}
-
-/* Close Button in Modal Header */
-.wod.sheet.actor.demon .bg-modal .close-bg-modal {
-    color: white;
-    font-size: 1.2em;
-    cursor: pointer;
-    padding: 4px;
-    transition: color 0.2s ease;
+    margin-bottom: 5px;
+    color: var(--wod-primary, #DC143C);
 }
 
 .wod.sheet.actor.demon .bg-modal .close-bg-modal:hover {
@@ -2014,20 +1872,31 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     font-family: inherit;
 }
 
+/* Allies Template - Add Ally Button - MAXIMUM SPECIFICITY */
+.wod.sheet.actor.demon .bg-template.allies-template .add-ally,
+.wod.sheet.actor.demon .allies-template .add-ally,
 .wod.sheet.actor.demon .add-ally {
-    padding: 6px 12px;
-    background: var(--wod-success, #28a745);
-    color: white;
-    border: none;
-    border-radius: 3px;
-    font-size: 0.75em;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    background: var(--wod-success, #28a745) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
 }
 
+.wod.sheet.actor.demon .bg-template.allies-template .add-ally:hover,
+.wod.sheet.actor.demon .allies-template .add-ally:hover,
 .wod.sheet.actor.demon .add-ally:hover {
-    background: var(--wod-primary, #DC143C);
-    transform: scale(1.05);
+    background: var(--wod-success, #28a745) !important;
+    transform: scale(1.1) !important;
+    box-shadow: none !important;
 }
 
 /* Resources Template */
@@ -2225,8 +2094,8 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
 
 .wod.sheet.actor.demon .bg-card-mini-header .bg-name {
     font-weight: bold;
-    color: var(--wod-text-main, white);
-    font-size: 0.85em;
+    color: var(--wod-primary, #DC143C);
+    font-size: 0.75em;
 }
 
 .wod.sheet.actor.demon .bg-card-mini-header .bg-rating {
@@ -2259,8 +2128,8 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     border: 2px solid var(--wod-primary, #DC143C);
     border-radius: 6px;
     box-shadow: 0 4px 20px rgba(220, 20, 60, 0.4);
-    max-width: 600px;
-    max-height: 80vh;
+    max-width: 100%;
+    max-height: 100%;
     overflow-y: auto;
 }
 
@@ -2327,19 +2196,6 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     background: var(--wod-primary-dark, #8B0000);
 }
 
-.wod.sheet.actor.demon .floating-add-bg {
-    background: var(--wod-primary, #DC143C);
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 1.2em;
-    font-weight: bold;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(220, 20, 60, 0.3);
-}
-
 .wod.sheet.actor.demon .floating-add-bg:hover {
     background: var(--wod-primary-dark, #8B0000);
     transform: scale(1.1);
@@ -2386,11 +2242,6 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
     padding: 8px;
 }
 
-.wod.sheet.actor.demon .bg-cards-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
 
 .wod.sheet.actor.demon .custom-field-inputs {
     display: flex;
@@ -2731,6 +2582,22 @@ form.wod-effect-manager.demon .effect-conditions-section h3 i {
 .wod.sheet.actor.demon div .apocalyptic-form-reference-btn::before,
 .wod.sheet.actor.demon .form-field .apocalyptic-form-reference-btn::before {
     display: none !important;
+}
+
+/* Hover Preview Tooltip */
+.wod.sheet.actor.demon .bg-preview-tooltip {
+    position: absolute;
+    background: var(--wod-primary, #DC143C);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 2px solid var(--wod-primary-dark, #8B0000);
+    font-size: 0.8em;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 280px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    line-height: 1.4;
 }
 
 /* Power Tooltip */

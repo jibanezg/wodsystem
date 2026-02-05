@@ -3856,7 +3856,13 @@ export class WodActorSheet extends ActorSheet {
             "Enhancement": "enhancement",
             "Enhancements": "enhancement",
             "Wonder": "device",
-            "Wonder (Device/ Fetish/ Talisman, etc.)": "device"
+            "Wonder (Device/ Fetish/ Talisman, etc.)": "device",
+            // Earthbound-specific backgrounds
+            "Hoard": "resources",
+            "Worship": "contacts",
+            "Mastery": "mentor",
+            "Thralls": "allies",
+            "Cult": "contacts"
         };
         return templates[backgroundName] || "custom";
     }
@@ -3873,9 +3879,9 @@ export class WodActorSheet extends ActorSheet {
             case "mentor":
                 return { mentorName: "", convention: "", relationshipLevel: 3, contactFrequency: "monthly", teachings: "", notes: "" };
             case "allies":
-                return { npcs: [] };
+                return { npcs: [{ name: "", role: "", influence: 3, reliability: 3, notes: "" }] };
             case "contacts":
-                return { npcs: [] };
+                return { npcs: [{ name: "", role: "", influence: 3, reliability: 3, notes: "" }] };
             case "resources":
                 return { incomeLevel: "comfortable", liquidCash: "", properties: [], assets: [] };
             case "familiar":
@@ -4199,7 +4205,16 @@ export class WodActorSheet extends ActorSheet {
                 if (!name || !name.includes('templateData.')) return;
                 
                 const value = element.type === 'checkbox' ? element.checked : element.value;
-                const fieldPath = name.substring(name.indexOf('templateData.') + 'templateData.'.length);
+                
+                // Extract templateData path more robustly
+                let fieldPath;
+                if (name.includes('system.backgroundsExpanded.')) {
+                    // Full path like system.backgroundsExpanded.-1.templateData.npcs.0.name
+                    fieldPath = name.replace(/^.*?templateData\./, '');
+                } else {
+                    // Already relative path
+                    fieldPath = name.substring(name.indexOf('templateData.') + 'templateData.'.length);
+                }
                 
                 console.log(`WoD | Extracting field: ${fieldPath} = "${value}"`);
                 
@@ -4305,116 +4320,339 @@ export class WodActorSheet extends ActorSheet {
         const bg = backgroundsExpanded[index];
         const tooltip = this.element.find('.bg-preview-tooltip');
         
-        // Generate summary
-        let summary = `<strong>${bg.backgroundName}</strong> (${bg.backgroundRating} ${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Dots')})<br/>`;
-        summary += `<em>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Type')}: ${bg.template}</em><br/>`;
-        
-        // Special handling for Wonder template (now uses "device" template but with wonder data)
-        const isWonder = bg.backgroundName === "Wonder" || bg.backgroundName === "Wonder (Device/ Fetish/ Talisman, etc.)" || (bg.templateData && bg.templateData.paradoxType !== undefined);
-        if (isWonder && bg.templateData) {
-            console.log("WoD | Wonder tooltip data:", JSON.stringify(bg.templateData, null, 2));
-            console.log("WoD | Has spheres?", !!bg.templateData.spheres, bg.templateData.spheres);
-            console.log("WoD | Has powers?", !!bg.templateData.powers, bg.templateData.powers);
-            console.log("WoD | Has gameMechanics?", !!bg.templateData.gameMechanics, bg.templateData.gameMechanics);
-            summary += `<br/>`; // Add spacing
-            
-            if (bg.templateData.name && bg.templateData.name.trim()) {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Name')}:</strong> ${bg.templateData.name}<br/>`;
-            }
-            if (bg.templateData.arete !== null && bg.templateData.arete !== undefined && bg.templateData.arete !== "") {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Arete')}:</strong> ${bg.templateData.arete}<br/>`;
-            }
-            if (bg.templateData.paradoxType && bg.templateData.paradoxType !== "none") {
-                const paradoxLabel = bg.templateData.paradoxType === "permanent" ? i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.PermanentParadox') : i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.ParadoxPerUse');
-                const paradoxValue = bg.templateData.paradoxValue !== null && bg.templateData.paradoxValue !== undefined ? bg.templateData.paradoxValue : 0;
-                summary += `<strong>${paradoxLabel}:</strong> ${paradoxValue}<br/>`;
-            }
-            if (bg.templateData.quintessenceStorage !== null && bg.templateData.quintessenceStorage !== undefined && bg.templateData.quintessenceStorage !== "") {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.QuintessenceStorage')}:</strong> ${bg.templateData.quintessenceStorage}<br/>`;
-            }
-            if (bg.templateData.quintessenceBurnedPerUse !== null && bg.templateData.quintessenceBurnedPerUse !== undefined && bg.templateData.quintessenceBurnedPerUse !== "") {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.QuintessencePerUse')}:</strong> ${bg.templateData.quintessenceBurnedPerUse}<br/>`;
-            }
-            if (bg.templateData.spheres && bg.templateData.spheres.trim()) {
-                const truncatedSpheres = bg.templateData.spheres.length > 50 ? bg.templateData.spheres.substring(0, 47) + '...' : bg.templateData.spheres;
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Spheres')}:</strong> ${truncatedSpheres}<br/>`;
-            }
-            if (bg.templateData.description && bg.templateData.description.trim()) {
-                const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
-                summary += `<br/><em>${truncatedDesc}</em><br/>`;
-            }
-            if (bg.templateData.powers && bg.templateData.powers.trim()) {
-                const truncatedPowers = bg.templateData.powers.length > 80 ? bg.templateData.powers.substring(0, 77) + '...' : bg.templateData.powers;
-                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Powers')}:</strong> ${truncatedPowers}<br/>`;
-            }
-            if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
-                const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
-                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.GameMechanics')}:</strong><br/>${truncatedMechanics}`;
-            }
-        } else if (bg.template === "enhancement" && bg.templateData) {
-            // Special handling for Enhancement template
-            summary += `<br/>`; // Add spacing
-            
-            if (bg.templateData.name && bg.templateData.name.trim()) {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Name')}:</strong> ${bg.templateData.name}<br/>`;
-            }
-            if (bg.templateData.location && bg.templateData.location.trim()) {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Location')}:</strong> ${bg.templateData.location}<br/>`;
-            }
-            if (bg.templateData.enhancementType) {
-                const typeLabel = bg.templateData.enhancementType === "cybernetic" ? i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Cybernetic') : 
-                                 bg.templateData.enhancementType === "biomod" ? i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Biomod') : i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Genengineered');
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Type')}:</strong> ${typeLabel}<br/>`;
-            }
-            if (bg.templateData.permanentParadox !== null && bg.templateData.permanentParadox !== undefined && bg.templateData.permanentParadox !== "" && bg.templateData.permanentParadox != 0) {
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.PermanentParadox')}:</strong> ${bg.templateData.permanentParadox}<br/>`;
-            }
-            if (bg.templateData.geneticFlaws && bg.templateData.geneticFlaws.trim()) {
-                const truncatedFlaws = bg.templateData.geneticFlaws.length > 60 ? bg.templateData.geneticFlaws.substring(0, 57) + '...' : bg.templateData.geneticFlaws;
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.GeneticFlaws')}:</strong> ${truncatedFlaws}<br/>`;
-            }
-            if (bg.templateData.description && bg.templateData.description.trim()) {
-                const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
-                summary += `<br/><em>${truncatedDesc}</em><br/>`;
-            }
-            if (bg.templateData.effects && bg.templateData.effects.trim()) {
-                const truncatedEffects = bg.templateData.effects.length > 80 ? bg.templateData.effects.substring(0, 77) + '...' : bg.templateData.effects;
-                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.Effects')}:</strong> ${truncatedEffects}<br/>`;
-            }
-            if (bg.templateData.sideEffects && bg.templateData.sideEffects.trim()) {
-                const truncatedSide = bg.templateData.sideEffects.length > 60 ? bg.templateData.sideEffects.substring(0, 57) + '...' : bg.templateData.sideEffects;
-                summary += `<strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.SideEffects')}:</strong> ${truncatedSide}<br/>`;
-            }
-            if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
-                const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
-                summary += `<br/><strong>${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.Tooltip.GameMechanics')}:</strong><br/>${truncatedMechanics}`;
-            }
-        } else {
-            // Add first non-empty template field for other templates
-            if (bg.templateData) {
-                for (const [key, value] of Object.entries(bg.templateData)) {
-                    if (value && typeof value === 'string' && value.trim().length > 0) {
-                        const truncated = value.length > 50 ? value.substring(0, 47) + '...' : value;
-                        summary += truncated;
-                        break;
-                    }
-                }
-            }
-        }
+        // Generate summary using dynamic tooltip system
+        let summary = this._generateBackgroundTooltip(bg);
         
         tooltip.html(summary);
         
         // Position tooltip BELOW the card
         const rect = card.getBoundingClientRect();
-        const sheetRect = this.element[0].getBoundingClientRect();
+        const tooltipElement = tooltip[0];
         
-        tooltip.css({
-            top: rect.bottom - sheetRect.top + 5, // 5px below the card
-            left: rect.left - sheetRect.left + (rect.width / 2) - (tooltip.outerWidth() / 2),
-            display: 'block'
-        });
+        tooltipElement.style.display = 'block';
+        tooltipElement.style.position = 'fixed';
+        tooltipElement.style.left = rect.left + 'px';
+        tooltipElement.style.top = (rect.bottom + 5) + 'px';
+        tooltipElement.style.width = Math.min(rect.width, 280) + 'px';
+        tooltipElement.style.zIndex = '1000';
         
         tooltip.fadeIn(150);
+    }
+
+    /**
+     * Generate background tooltip content using dynamic system
+     */
+    _generateBackgroundTooltip(bg) {
+        // Start with basic info
+        let summary = `<strong>${bg.backgroundName}</strong> (${bg.backgroundRating} ${i18n('WODSYSTEM.CharacterSheet.BackgroundsExpanded.Dots')})<br/>`;
+        summary += `<em>Type: ${bg.template}</em><br/>`;
+        
+        // Check if this sheet has custom tooltip generator
+        if (this._generateCustomBackgroundTooltip) {
+            const customTooltip = this._generateCustomBackgroundTooltip(bg);
+            if (customTooltip) {
+                summary += customTooltip;
+                return summary;
+            }
+        }
+        
+        // Use common tooltip generators
+        const commonGenerator = this._getCommonTooltipGenerator(bg.template);
+        if (commonGenerator) {
+            summary += commonGenerator(bg);
+        } else {
+            // Fallback: show first few meaningful fields
+            summary += this._generateFallbackTooltip(bg);
+        }
+        
+        return summary;
+    }
+
+    /**
+     * Get common tooltip generator for template type
+     */
+    _getCommonTooltipGenerator(template) {
+        const generators = {
+            'allies': this._generateAlliesTooltip.bind(this),
+            'contacts': this._generateContactsTooltip.bind(this),
+            'resources': this._generateResourcesTooltip.bind(this),
+            'mentor': this._generateMentorTooltip.bind(this),
+            'device': this._generateDeviceTooltip.bind(this),
+            'enhancement': this._generateEnhancementTooltip.bind(this),
+            'sanctum': this._generateSanctumTooltip.bind(this),
+            'construct': this._generateConstructTooltip.bind(this),
+            'familiar': this._generateFamiliarTooltip.bind(this),
+            'custom': this._generateCustomTooltip.bind(this)
+        };
+        
+        return generators[template] || null;
+    }
+
+    /**
+     * Fallback tooltip generator for unknown templates
+     */
+    _generateFallbackTooltip(bg) {
+        let summary = '<br/>';
+        if (bg.templateData) {
+            const fields = [];
+            for (const [key, value] of Object.entries(bg.templateData)) {
+                if (value && typeof value === 'string' && value.trim().length > 0 && !key.includes('system')) {
+                    const truncated = value.length > 50 ? value.substring(0, 47) + '...' : value;
+                    fields.push(`<strong>${key}:</strong> ${truncated}`);
+                    if (fields.length >= 3) break; // Limit to 3 fields
+                }
+            }
+            if (fields.length > 0) {
+                summary += fields.join('<br/>');
+            } else {
+                summary += '<em>No data available</em>';
+            }
+        } else {
+            summary += '<em>No data available</em>';
+        }
+        return summary;
+    }
+
+    /**
+     * Common tooltip generators - can be reused by all creatures
+     */
+    _generateAlliesTooltip(bg) {
+        if (!bg.templateData || !bg.templateData.npcs) return '';
+        
+        let summary = '<br/>';
+        const npcs = bg.templateData.npcs;
+        const validNpcs = npcs.filter(npc => npc.name && npc.name.trim());
+        
+        if (validNpcs.length > 0) {
+            // Only add "Allies:" header if background name doesn't already indicate it's allies
+            if (!bg.backgroundName.toLowerCase().includes('allie')) {
+                summary += '<strong>Allies:</strong><br/>';
+            }
+            validNpcs.slice(0, 2).forEach((npc, index) => {
+                summary += `<br/><strong>${index + 1}. ${npc.name}</strong><br/>`;
+                if (npc.role && npc.role.trim()) {
+                    summary += `   <em>Role:</em> ${npc.role}<br/>`;
+                }
+                if (npc.influence !== undefined && npc.influence !== null && npc.influence !== '') {
+                    summary += `   <em>Influence:</em> ${npc.influence}/5<br/>`;
+                }
+                if (npc.reliability !== undefined && npc.reliability !== null && npc.reliability !== '') {
+                    summary += `   <em>Reliability:</em> ${npc.reliability}/5<br/>`;
+                }
+                if (npc.notes && npc.notes.trim()) {
+                    const truncatedNotes = npc.notes.length > 60 ? npc.notes.substring(0, 57) + '...' : npc.notes;
+                    summary += `   <em>Notes:</em> ${truncatedNotes}<br/>`;
+                }
+            });
+            if (validNpcs.length > 2) {
+                summary += `<br/><em>...and ${validNpcs.length - 2} more allies</em><br/>`;
+            }
+        }
+        return summary;
+    }
+
+    _generateContactsTooltip(bg) {
+        if (!bg.templateData || !bg.templateData.npcs) return '';
+        
+        let summary = '<br/>';
+        const npcs = bg.templateData.npcs;
+        const validNpcs = npcs.filter(npc => npc.name && npc.name.trim());
+        
+        if (validNpcs.length > 0) {
+            // Only add "Contacts:" header if background name doesn't already indicate it's contacts
+            if (!bg.backgroundName.toLowerCase().includes('contact')) {
+                summary += '<strong>Contacts:</strong><br/>';
+            }
+            validNpcs.slice(0, 2).forEach((npc, index) => {
+                summary += `<br/><strong>${index + 1}. ${npc.name}</strong><br/>`;
+                if (npc.role && npc.role.trim()) {
+                    summary += `   <em>Role:</em> ${npc.role}<br/>`;
+                }
+                if (npc.influence !== undefined && npc.influence !== null && npc.influence !== '') {
+                    summary += `   <em>Influence:</em> ${npc.influence}/5<br/>`;
+                }
+                if (npc.reliability !== undefined && npc.reliability !== null && npc.reliability !== '') {
+                    summary += `   <em>Reliability:</em> ${npc.reliability}/5<br/>`;
+                }
+                if (npc.notes && npc.notes.trim()) {
+                    const truncatedNotes = npc.notes.length > 60 ? npc.notes.substring(0, 57) + '...' : npc.notes;
+                    summary += `   <em>Notes:</em> ${truncatedNotes}<br/>`;
+                }
+            });
+            if (validNpcs.length > 2) {
+                summary += `<br/><em>...and ${validNpcs.length - 2} more contacts</em><br/>`;
+            }
+        }
+        return summary;
+    }
+
+    _generateResourcesTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        if (bg.templateData.type && bg.templateData.type.trim()) {
+            summary += `<strong>Type:</strong> ${bg.templateData.type}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<em>${truncatedDesc}</em><br/>`;
+        }
+        return summary;
+    }
+
+    _generateMentorTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Mentor:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.abilities && bg.templateData.abilities.trim()) {
+            const truncatedAbilities = bg.templateData.abilities.length > 60 ? bg.templateData.abilities.substring(0, 57) + '...' : bg.templateData.abilities;
+            summary += `<strong>Abilities:</strong> ${truncatedAbilities}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<em>${truncatedDesc}</em><br/>`;
+        }
+        return summary;
+    }
+
+    _generateDeviceTooltip(bg) {
+        // Special handling for Wonder/Device template
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.arete !== null && bg.templateData.arete !== undefined && bg.templateData.arete !== "") {
+            summary += `<strong>Arete:</strong> ${bg.templateData.arete}<br/>`;
+        }
+        if (bg.templateData.paradoxType && bg.templateData.paradoxType !== "none") {
+            const paradoxLabel = bg.templateData.paradoxType === "permanent" ? 'Permanent Paradox' : 'Paradox Per Use';
+            const paradoxValue = bg.templateData.paradoxValue !== null && bg.templateData.paradoxValue !== undefined ? bg.templateData.paradoxValue : 0;
+            summary += `<strong>${paradoxLabel}:</strong> ${paradoxValue}<br/>`;
+        }
+        if (bg.templateData.quintessenceStorage !== null && bg.templateData.quintessenceStorage !== undefined && bg.templateData.quintessenceStorage !== "") {
+            summary += `<strong>Quintessence Storage:</strong> ${bg.templateData.quintessenceStorage}<br/>`;
+        }
+        if (bg.templateData.spheres && bg.templateData.spheres.trim()) {
+            const truncatedSpheres = bg.templateData.spheres.length > 50 ? bg.templateData.spheres.substring(0, 47) + '...' : bg.templateData.spheres;
+            summary += `<strong>Spheres:</strong> ${truncatedSpheres}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<br/><em>${truncatedDesc}</em><br/>`;
+        }
+        if (bg.templateData.powers && bg.templateData.powers.trim()) {
+            const truncatedPowers = bg.templateData.powers.length > 80 ? bg.templateData.powers.substring(0, 77) + '...' : bg.templateData.powers;
+            summary += `<br/><strong>Powers:</strong> ${truncatedPowers}<br/>`;
+        }
+        if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
+            const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
+            summary += `<br/><strong>Game Mechanics:</strong><br/>${truncatedMechanics}`;
+        }
+        return summary;
+    }
+
+    _generateEnhancementTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.location && bg.templateData.location.trim()) {
+            summary += `<strong>Location:</strong> ${bg.templateData.location}<br/>`;
+        }
+        if (bg.templateData.enhancementType) {
+            const typeLabel = bg.templateData.enhancementType === "cybernetic" ? 'Cybernetic' : 
+                             bg.templateData.enhancementType === "biomod" ? 'Biomod' : 'Genengineered';
+            summary += `<strong>Type:</strong> ${typeLabel}<br/>`;
+        }
+        if (bg.templateData.permanentParadox !== null && bg.templateData.permanentParadox !== undefined && bg.templateData.permanentParadox !== "" && bg.templateData.permanentParadox != 0) {
+            summary += `<strong>Permanent Paradox:</strong> ${bg.templateData.permanentParadox}<br/>`;
+        }
+        if (bg.templateData.geneticFlaws && bg.templateData.geneticFlaws.trim()) {
+            const truncatedFlaws = bg.templateData.geneticFlaws.length > 60 ? bg.templateData.geneticFlaws.substring(0, 57) + '...' : bg.templateData.geneticFlaws;
+            summary += `<strong>Genetic Flaws:</strong> ${truncatedFlaws}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<br/><em>${truncatedDesc}</em><br/>`;
+        }
+        if (bg.templateData.effects && bg.templateData.effects.trim()) {
+            const truncatedEffects = bg.templateData.effects.length > 80 ? bg.templateData.effects.substring(0, 77) + '...' : bg.templateData.effects;
+            summary += `<br/><strong>Effects:</strong> ${truncatedEffects}<br/>`;
+        }
+        if (bg.templateData.sideEffects && bg.templateData.sideEffects.trim()) {
+            const truncatedSide = bg.templateData.sideEffects.length > 60 ? bg.templateData.sideEffects.substring(0, 57) + '...' : bg.templateData.sideEffects;
+            summary += `<strong>Side Effects:</strong> ${truncatedSide}<br/>`;
+        }
+        if (bg.templateData.gameMechanics && bg.templateData.gameMechanics.trim()) {
+            const truncatedMechanics = bg.templateData.gameMechanics.length > 100 ? bg.templateData.gameMechanics.substring(0, 97) + '...' : bg.templateData.gameMechanics;
+            summary += `<br/><strong>Game Mechanics:</strong><br/>${truncatedMechanics}`;
+        }
+        return summary;
+    }
+
+    _generateSanctumTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<em>${truncatedDesc}</em><br/>`;
+        }
+        return summary;
+    }
+
+    _generateConstructTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<em>${truncatedDesc}</em><br/>`;
+        }
+        return summary;
+    }
+
+    _generateFamiliarTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<em>${truncatedDesc}</em><br/>`;
+        }
+        return summary;
+    }
+
+    _generateCustomTooltip(bg) {
+        if (!bg.templateData) return '';
+        
+        let summary = '<br/>';
+        if (bg.templateData.name && bg.templateData.name.trim()) {
+            summary += `<strong>Name:</strong> ${bg.templateData.name}<br/>`;
+        }
+        if (bg.templateData.description && bg.templateData.description.trim()) {
+            const truncatedDesc = bg.templateData.description.length > 80 ? bg.templateData.description.substring(0, 77) + '...' : bg.templateData.description;
+            summary += `<em>${truncatedDesc}</em><br/>`;
+        }
+        return summary;
     }
 
     /**

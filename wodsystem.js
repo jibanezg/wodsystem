@@ -18,6 +18,10 @@ import { WodCharacterWizard } from "./module/character-creation/wod-character-wi
 import { GameDataService } from "./module/services/game-data-service.js"; // Game data by source (M20, D20)
 import { EquipmentEffectsManager } from "./module/services/equipment-effects-manager.js"; // Equipment UI/token effects
 import { MinimapManager } from "./module/services/minimap-manager.js"; // Minimap feature
+import { coreEffectsManager } from "./module/services/core-effects-manager.js"; // Core effects system
+import { TriggerManager } from "./module/services/trigger-manager.js"; // Tile/Region trigger system
+import { registerWodTriggerTabs } from "./module/ui/wod-trigger-tabs.js"; // Tile/Region config UI tabs
+import { StatusEffectManager } from "./module/services/status-effect-manager.js"; // Status effect management
 
 // Import Item Classes
 import { WodItem, WodWeapon, WodArmor, WodGear } from "./module/items/wod-item.js";
@@ -94,6 +98,12 @@ Hooks.once("init", async function() {
         game.wod = game.wod || {};
         game.wod.referenceDataService = new GameDataService();
         game.wod.gameDataService = game.wod.referenceDataService;
+        game.wod.coreEffectsManager = coreEffectsManager; // Add core effects manager
+        game.wod.triggerManager = new TriggerManager();
+        game.wod.triggerManager.initialize();
+        game.wod.statusEffectManager = new StatusEffectManager();
+        await game.wod.statusEffectManager.initialize();
+        registerWodTriggerTabs();
         console.log("🎬 [SYSTEM INIT] Initializing GameDataService...");
         await game.wod.referenceDataService.initialize();
         console.log("🎬 [SYSTEM INIT] GameDataService initialized successfully");
@@ -111,6 +121,12 @@ Hooks.once("init", async function() {
             getArchetypes: () => []
         };
         game.wod.gameDataService = game.wod.referenceDataService;
+        game.wod.coreEffectsManager = coreEffectsManager; // Add core effects manager even on error
+        game.wod.triggerManager = new TriggerManager();
+        game.wod.triggerManager.initialize();
+        game.wod.statusEffectManager = new StatusEffectManager();
+        game.wod.statusEffectManager.initialize();
+        registerWodTriggerTabs();
     }
     
     // Register Handlebars helpers
@@ -137,6 +153,7 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/actor/partials/technocrat-backgrounds-expanded.html",
         "systems/wodsystem/templates/actor/partials/mage-backgrounds-expanded.html",
         "systems/wodsystem/templates/actor/partials/demon-backgrounds-expanded.html",
+        "systems/wodsystem/templates/actor/partials/earthbound-backgrounds-expanded.html",
         "systems/wodsystem/templates/actor/partials/spirit-attributes.html",
         "systems/wodsystem/templates/actor/partials/spirit-essence.html",
         "systems/wodsystem/templates/actor/partials/spirit-charms.html",
@@ -162,13 +179,18 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/actor/partials/mortal-numina.html",
         "systems/wodsystem/templates/actor/partials/experience.html",
         "systems/wodsystem/templates/actor/partials/equipment.html",
+        "systems/wodsystem/templates/actor/partials/earthbound-equipment.html",
         "systems/wodsystem/templates/actor/partials/active-effects.html",
         "systems/wodsystem/templates/apps/roll-dialog.html",
         "systems/wodsystem/templates/apps/effect-manager.html",
         "systems/wodsystem/templates/apps/st-approval-dialog.html",
         "systems/wodsystem/templates/apps/equipment-effects-dialog.html",
+        "systems/wodsystem/templates/apps/wod-triggers-tab.html",
+        "systems/wodsystem/templates/apps/wod-trigger-config-dialog.html",
         "systems/wodsystem/templates/apps/minimap-config-dialog.html",
         "systems/wodsystem/templates/apps/minimap-marker-dialog.html",
+        "systems/wodsystem/templates/apps/status-effect-library.html",
+        "systems/wodsystem/templates/apps/effect-assignment.html",
         "systems/wodsystem/templates/dice/roll-card.html",
         "systems/wodsystem/templates/chat/reference-card.html",
         "systems/wodsystem/templates/chat/background-reference-card.html",
@@ -224,39 +246,23 @@ Hooks.on("updateActor", async (actor, updateData, options, userId) => {
     // Only process for Spirit actors and skip if this update already includes essence changes (to avoid loops)
     if (actor.type === "Spirit" && 
         !updateData.system?.advantages?.essence && // Skip if essence is already being updated
-        updateData.system?.attributes &&
-        (updateData.system.attributes.willpower?.current !== undefined ||
-         updateData.system.attributes.rage?.current !== undefined ||
-         updateData.system.attributes.gnosis?.current !== undefined)) {
+        !updateData.system?.advantages?.willpower) { // Skip if willpower is already being updated
         
-        // Wait a tick to ensure the update has been applied
-        await new Promise(resolve => setTimeout(resolve, 50));
+        const newEssence = actor._calculateEssence();
+        const currentEssence = actor.system.advantages?.essence?.max || 0;
         
-        // Get the fresh actor data
-        const freshActor = game.actors.get(actor.id);
-        if (!freshActor) return;
-        
-        // Calculate essence from current permanent values
-        const willpowerCurrent = Number(freshActor.system.attributes?.willpower?.current ?? 1);
-        const rageCurrent = Number(freshActor.system.attributes?.rage?.current ?? 1);
-        const gnosisCurrent = Number(freshActor.system.attributes?.gnosis?.current ?? 1);
-        const newEssenceMax = willpowerCurrent + rageCurrent + gnosisCurrent;
-        
-        // Only update if the essence maximum needs to change
-        const currentEssenceMax = Number(freshActor.system.advantages?.essence?.maximum ?? 0);
-        if (currentEssenceMax !== newEssenceMax) {
-            const updatePayload = {
-                "system.advantages.essence.maximum": newEssenceMax
-            };
-            
-            // Also cap current essence if it exceeds the new maximum
-            const currentEssence = Number(freshActor.system.advantages?.essence?.current ?? 0);
-            if (currentEssence > newEssenceMax) {
-                updatePayload["system.advantages.essence.current"] = newEssenceMax;
-            }
-            
-            await freshActor.update(updatePayload, { render: true });
+        if (newEssence !== currentEssence) {
+            console.log(`Recalculating essence for ${actor.name}: ${currentEssence} -> ${newEssence}`);
+            await actor.update({ 
+                "system.advantages.essence.max": newEssence,
+                "system.advantages.essence.value": Math.min(actor.system.advantages?.essence?.value || 0, newEssence)
+            });
         }
+    }
+    
+    // Check if health was updated and apply core effects for ALL creature types
+    if (updateData.system?.miscellaneous?.health && game.wod?.coreEffectsManager) {
+        await game.wod.coreEffectsManager.checkAndApplyCoreEffects(actor);
     }
 });
 
@@ -837,4 +843,21 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 Hooks.on("renderChatMessage", (message, html, data) => {
     // Intentionally empty - renderChatMessageHTML does all the work
     // Calling it here would cause double-processing
+});
+
+Hooks.on("createActor", async (actor, options, userId) => {
+    // Check core effects when a new actor is created
+    if (game.wod?.coreEffectsManager) {
+        await game.wod.coreEffectsManager.checkAndApplyCoreEffects(actor);
+    }
+});
+
+// Also check when an actor is loaded (ready hook)
+Hooks.on("ready", async () => {
+    if (game.wod?.coreEffectsManager) {
+        // Check ALL actors for core effects (players, NPCs, creatures, etc.)
+        for (const actor of game.actors) {
+            await game.wod.coreEffectsManager.checkAndApplyCoreEffects(actor);
+        }
+    }
 });

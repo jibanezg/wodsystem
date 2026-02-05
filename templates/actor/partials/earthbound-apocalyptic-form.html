@@ -1,19 +1,139 @@
 <!-- Earthbound Apocalyptic Form Section -->
 <div class="earthbound-apocalyptic-form-section">
     <h2>{{i18n 'WODSYSTEM.CharacterSheet.Sections.ApocalypticForm'}}</h2>
-    <div class="earthbound-apocalyptic-form-container">
-        <div class="form-field">
-            <label>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Visage'}}</label>
-            <select name="system.apocalypticForm" class="earthbound-apocalyptic-form-select">
-                <option value="">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.None'}}</option>
-                <!-- Options will be dynamically populated via JavaScript -->
-            </select>
-            <button type="button" class="earthbound-apocalyptic-form-reference-btn" data-form-id="{{actor.system.apocalypticForm}}" title="{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.ViewDetails'}}" style="display: none;">
-                <i class="fas fa-book"></i>
-            </button>
+    
+    <!-- Main Layout: Left Panel + Right Panel -->
+    <div class="apocalyptic-form-layout">
+        
+        <!-- Left Panel: Controls & Selections -->
+        <div class="left-panel">
+            
+            <!-- Form Header Section -->
+            <div class="panel-section form-header">
+                <div class="points-display">
+                    <span class="points-remaining" id="points-remaining">16</span> / 16 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.PointsRemaining'}}
+                    <span class="features-selected" id="features-selected">0</span> / 8 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.FeaturesSelected'}}
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="panel-section filters-section">
+                <h4>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Filters'}}</h4>
+                <div class="filter-controls">
+                    <div class="filter-field">
+                        <label for="category-filter">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Category'}}:</label>
+                        <select id="category-filter" name="category-filter">
+                            <option value="all">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.AllFeatures'}}</option>
+                            <option value="physical">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Physical'}}</option>
+                            <option value="combat">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Combat'}}</option>
+                            <option value="mental">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Mental'}}</option>
+                            <option value="sensory">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Sensory'}}</option>
+                            <option value="defensive">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Defensive'}}</option>
+                            <option value="special">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Special'}}</option>
+                        </select>
+                    </div>
+                    <div class="filter-field">
+                        <label for="point-filter">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.PointCost'}}:</label>
+                        <select id="point-filter" name="point-filter">
+                            <option value="all">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.AllPoints'}}</option>
+                            <option value="0">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Free'}}</option>
+                            <option value="1">1 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Point'}}</option>
+                            <option value="2">2 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Points'}}</option>
+                            <option value="3">3 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Points'}}</option>
+                            <option value="4">4 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Points'}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Features Stack -->
+            <div class="panel-section selected-features-section">
+                <h4>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.SelectedFeatures'}}</h4>
+                <div class="selected-features-stack" id="selected-features-stack">
+                    <!-- Selected features will be displayed here as a vertical stack -->
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="panel-section actions-section">
+                <button type="button" class="reset-form-btn" id="reset-form-btn" title="{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.ResetForm'}}">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button type="button" class="save-form-btn" id="save-form-btn" disabled title="{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.SaveForm'}}">
+                    <i class="fas fa-save"></i>
+                </button>
+                <button type="button" class="create-custom-feature-btn" id="create-custom-feature-btn" title="{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.CreateCustomForm'}}">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
         </div>
-        <div class="earthbound-apocalyptic-form-powers" id="earthbound-apocalyptic-form-powers">
-            <!-- Powers will be displayed here when a form is selected -->
+
+        <!-- Right Panel: Available Powers -->
+        <div class="right-panel">
+            <div class="panel-header">
+                <h4>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.AvailablePowers'}}</h4>
+            </div>
+            <div class="powers-list" id="powers-list">
+                <!-- Available powers will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Form Display (Hidden until form is completed) -->
+    <div class="current-form-display" id="current-form-display" style="display: none;">
+        <h3>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.CurrentForm'}}</h3>
+        <div class="form-powers-cards" id="form-powers-cards">
+            <!-- Current form powers will be displayed as cards when completed -->
+        </div>
+    </div>
+</div>
+
+<!-- Custom Feature Creation Modal -->
+<div class="custom-feature-modal" id="custom-feature-modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.CreateCustomFeature'}}</h3>
+            <button type="button" class="modal-close" id="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-field">
+                <label for="custom-feature-name">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.FeatureName'}}</label>
+                <input type="text" id="custom-feature-name" maxlength="100">
+            </div>
+            <div class="form-field">
+                <label for="custom-feature-cost">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.PointCost'}}</label>
+                <select id="custom-feature-cost">
+                    <option value="1">1 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Point'}}</option>
+                    <option value="2">2 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Points'}}</option>
+                    <option value="3">3 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Points'}}</option>
+                    <option value="4">4 {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Points'}}</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="custom-feature-category">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Category'}}</label>
+                <select id="custom-feature-category">
+                    <option value="physical">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Physical'}}</option>
+                    <option value="combat">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Combat'}}</option>
+                    <option value="mental">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Mental'}}</option>
+                    <option value="sensory">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Sensory'}}</option>
+                    <option value="defensive">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Defensive'}}</option>
+                    <option value="special">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Special'}}</option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="custom-feature-description">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Description'}}</label>
+                <textarea id="custom-feature-description" rows="4" maxlength="500"></textarea>
+            </div>
+            <div class="form-field">
+                <label>
+                    <input type="checkbox" id="custom-feature-approval" disabled>
+                    {{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.RequiresStorytellerApproval'}}
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="cancel-btn" id="cancel-custom-feature">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Cancel'}}</button>
+            <button type="button" class="submit-btn" id="submit-custom-feature">{{i18n 'WODSYSTEM.CharacterSheet.ApocalypticForm.Submit'}}</button>
         </div>
     </div>
 </div>

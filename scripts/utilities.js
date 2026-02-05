@@ -97,6 +97,23 @@ export function registerHandlebarsHelpers() {
     });
 
     /**
+     * Includes helper - checks if array includes a value
+     * Usage: {{#if (includes array value)}}
+     */
+    Handlebars.registerHelper('includes', function(array, value) {
+        if (!Array.isArray(array)) return false;
+        return array.includes(value);
+    });
+
+    /**
+     * Greater than helper
+     * Usage: {{#if (gt value1 value2)}}
+     */
+    Handlebars.registerHelper('gt', function(a, b) {
+        return a > b;
+    });
+
+    /**
      * Subtract helper
      * Usage: {{subtract value1 value2}} or {{sub value1 value2}}
      */
@@ -279,10 +296,46 @@ export function registerHandlebarsHelpers() {
     Handlebars.registerHelper('i18n', function(key, options) {
         // Check if game.i18n is available
         if (!game || !game.i18n) {
-            console.warn('WoD System: game.i18n not available');
+            console.warn('WoD System: game.i18n not available, using fallback');
             // Return a cleaned version of the key for better UX
             const keyParts = key.split('.');
-            return keyParts[keyParts.length - 1];
+            const lastPart = keyParts[keyParts.length - 1];
+            
+            // Provide better fallbacks for common keys
+            const fallbacks = {
+                'ResetForm': 'Reset Form',
+                'SaveForm': 'Save Form', 
+                'CreateCustomFeature': 'Create Custom Feature',
+                'CreateCustomForm': 'Create Custom Form',
+                'CustomForm': 'Custom Form',
+                'PresetForm': 'Preset Form',
+                'PointsRemaining': 'Points Remaining',
+                'FeaturesSelected': 'Features Selected',
+                'SelectedFeatures': 'Selected Features',
+                'CurrentForm': 'Current Form',
+                'FeatureName': 'Feature Name',
+                'PointCost': 'Point Cost',
+                'Category': 'Category',
+                'Description': 'Description',
+                'Cancel': 'Cancel',
+                'Submit': 'Submit',
+                'None': 'None',
+                'Physical': 'Physical',
+                'Combat': 'Combat',
+                'Mental': 'Mental',
+                'Sensory': 'Sensory',
+                'Defensive': 'Defensive',
+                'Special': 'Special',
+                'AllFeatures': 'All Categories',
+                'AllPoints': 'All Costs',
+                'Free': 'Free',
+                'Point': 'Point',
+                'Points': 'Points',
+                'ApocalypticForm': 'Apocalyptic Form',
+                'Visage': 'Form'
+            };
+            
+            return fallbacks[lastPart] || lastPart.replace(/([A-Z])/g, ' $1').trim();
         }
         
         // Build the full key
@@ -293,11 +346,45 @@ export function registerHandlebarsHelpers() {
         
         // If translation equals the key, it wasn't found
         if (translation === fullKey) {
-            // Last resort: return a cleaned version (just the last part of the key)
+            // Last resort: return a cleaned version with proper fallbacks
             const keyParts = fullKey.split('.');
-            // Return the last meaningful part (skip empty strings)
-            const meaningfulParts = keyParts.filter(part => part.length > 0);
-            return meaningfulParts[meaningfulParts.length - 1] || key;
+            const lastPart = keyParts[keyParts.length - 1];
+            
+            // Provide better fallbacks for common keys
+            const fallbacks = {
+                'ResetForm': 'Reset Form',
+                'SaveForm': 'Save Form', 
+                'CreateCustomFeature': 'Create Custom Feature',
+                'CreateCustomForm': 'Create Custom Form',
+                'CustomForm': 'Custom Form',
+                'PresetForm': 'Preset Form',
+                'PointsRemaining': 'Points Remaining',
+                'FeaturesSelected': 'Features Selected',
+                'SelectedFeatures': 'Selected Features',
+                'CurrentForm': 'Current Form',
+                'FeatureName': 'Feature Name',
+                'PointCost': 'Point Cost',
+                'Category': 'Category',
+                'Description': 'Description',
+                'Cancel': 'Cancel',
+                'Submit': 'Submit',
+                'None': 'None',
+                'Physical': 'Physical',
+                'Combat': 'Combat',
+                'Mental': 'Mental',
+                'Sensory': 'Sensory',
+                'Defensive': 'Defensive',
+                'Special': 'Special',
+                'AllFeatures': 'All Categories',
+                'AllPoints': 'All Costs',
+                'Free': 'Free',
+                'Point': 'Point',
+                'Points': 'Points',
+                'ApocalypticForm': 'Apocalyptic Form',
+                'Visage': 'Form'
+            };
+            
+            return fallbacks[lastPart] || lastPart.replace(/([A-Z])/g, ' $1').trim();
         }
         
         // Replace placeholders if options.hash exists (e.g., {primary: 5, secondary: 4})

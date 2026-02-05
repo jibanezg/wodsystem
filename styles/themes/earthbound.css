@@ -8,36 +8,42 @@
 
 /* Color variables for earthbound actor sheets (lowercase) */
 .wod.sheet.actor.earthbound {
+    /* Input Colors - White backgrounds with theme accents */
+    --wod-input-bg: #FFFFFF;
+    --wod-input-text: #000000;
+    --wod-input-border: #2F5F3F;
+    
     /* Primary Colors - Phantasmagorical/Corruption (subtle ethereal green/corrupted black) - Enhanced gradient */
     --wod-primary: #2F5F3F !important;            /* Slightly brighter phantasmagorical green */
     --wod-primary-dark: #000000 !important;       /* Black - deepest corruption */
     --wod-primary-light: #3F7F5F !important;      /* Slightly brighter ethereal green */
     
-    /* Background Colors - Very Dark/Corrupted */
-    --wod-bg-main: #FFFEF0 !important;            /* Very dark - corruption */
-    --wod-bg-secondary: #1A1A1A !important;       /* Dark gray - decay */
-    --wod-bg-tertiary: #1A2A1A !important;        /* Dark green-gray - corruption */
-    --wod-bg-hover: #2A3A2A !important;           /* Dark green hover */
-    --wod-bg-input: #2A2A2A !important;           /* Lighter input backgrounds for contrast */
-    --wod-bg-subtle: #0F0F0F !important;          /* Subtle dark background */
-    --wod-bg-light: #3A2A2A !important;           /* Lighter dark for elements */
-    --wod-bg-alt: #1A1A1A !important;             /* Alternate background */
-    --wod-bg-hover-light: #4A3A2A !important;     /* Light dark hover */
-    --wod-bg-highlight: #4A3A2A !important;       /* Highlight color */
-    --wod-bg-info: #2A1A1A !important;            /* Dark info background */
+    /* Background Colors - Light Theme */
+    --wod-bg-main: #F5F5F5 !important;            /* Light gray main background */
+    --wod-bg-secondary: #E8E8E8 !important;       /* Lighter gray secondary background */
+    --wod-bg-tertiary: #FFFFFF !important;        /* White tertiary background */
+    --wod-bg-hover: #E0E0E0 !important;           /* Light hover background */
+    --wod-bg-input: #ffffff !important;           /* White input backgrounds */
+    --wod-bg-subtle: #F0F0F0 !important;          /* Subtle light background */
+    --wod-bg-light: #FAFAFA !important;           /* Very light background */
+    --wod-bg-alt: #F8F8F8 !important;             /* Alternate light background */
+    --wod-bg-hover-light: #F2F2F2 !important;     /* Light hover background */
+    --wod-bg-highlight: #E8E8E8 !important;       /* Light highlight background */
+    --wod-bg-info: #F0F0F0 !important;            /* Light info background */
     
-    /* Border Colors - Phantasmagorical/Corruption */
-    --wod-border-main: #2F5F3F !important;        /* Slightly brighter phantasmagorical green main borders */
-    --wod-border-dark: #1A0000 !important;         /* Almost black borders for sections */
-    --wod-border-light: #3F7F5F !important;       /* Slightly brighter ethereal green for inputs */
-    --wod-border-subtle: #3A4A1A !important;      /* Subtle dark borders */
-    --wod-border-info: #4A5016 !important;        /* Dark green info borders */
+    /* Border Colors - Light Theme */
+    --wod-border-main: #2F5F3F !important;        /* Earthbound green main borders */
+    --wod-border-dark: #1A3A1A !important;         /* Dark green borders for sections */
+    --wod-border-light: #3F7F5F !important;       /* Lighter green for inputs */
+    --wod-border-subtle: #D0D0D0 !important;      /* Light subtle borders */
+    --wod-border-info: #4A5016 !important;        /* Green info borders */
     
-    /* Text Colors - Better Contrast */
-    --wod-text-main: #F0F0F0 !important;          /* Lighter gray primary text */
-    --wod-text-light: #FFFFFF !important;          /* White text on dark backgrounds */
-    --wod-text-alt: #2F5F3F !important;           /* Slightly brighter phantasmagorical green secondary text */
-    --wod-text-inverse: #0D0D0D !important;       /* Dark inverse text */
+    /* Text Colors - Light Theme */
+    --wod-text-main: #1A1A1A !important;          /* Dark gray primary text */
+    --wod-text-light: #000000 !important;          /* Black text for emphasis */
+    --wod-text-alt: #666666 !important;           /* Gray secondary text */
+    --wod-text-inverse: #FFFFFF !important;       /* White inverse text */
+    --wod-text-dark: #1A1A1A !important;         /* Dark text for labels */
     
     /* Status Colors */
     --wod-success: #2D5016 !important;           /* Corruption green for success */
@@ -68,7 +74,7 @@
 .app.dialog.earthbound .window-header,
 .window-app.dialog.earthbound .window-header,
 .window-app.earthbound .window-header {
-    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #1A3A1A) 100%) !important;
     color: #ffffff !important;
     border-bottom: 2px solid var(--wod-primary) !important;
 }
@@ -199,7 +205,7 @@
 .wod.sheet.actor.earthbound .faith-section h4 {
     margin: -8px -8px 8px -8px;
     padding: 8px 12px;
-    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #1A3A1A) 100%) !important;
     color: white !important;
     font-size: 0.75em;
     font-weight: 600;
@@ -248,7 +254,7 @@
 .wod.sheet.actor.earthbound .torment-section h4 {
     margin: -8px -8px 8px -8px;
     padding: 8px 12px;
-    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #1A3A1A) 100%) !important;
     color: white !important;
     font-size: 0.75em;
     font-weight: 600;
@@ -306,7 +312,7 @@
 .wod.sheet.actor.earthbound .torment-section h4 {
     margin: -8px -8px 8px -8px;
     padding: 8px 12px;
-    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #000000) 100%) !important;
+    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #1A3A1A) 100%) !important;
     color: white !important;
     font-size: 0.75em;
     font-weight: 600;
@@ -322,9 +328,11 @@
     border: 1px solid #ffffff !important;
 }
 
-/* Override dots in abilities and attributes to have green borders */
+/* Override dots in abilities and attributes to have green borders - higher specificity */
 .wod.sheet.actor.earthbound .abilities .dot,
-.wod.sheet.actor.earthbound .attributes .dot {
+.wod.sheet.actor.earthbound .attributes .dot,
+.app.window-app.wod.sheet.actor.earthbound .abilities .dot,
+.app.window-app.wod.sheet.actor.earthbound .attributes .dot {
     border: 1px solid var(--wod-primary, #2F5F3F) !important;
 }
 
@@ -372,7 +380,1054 @@
 .wod.sheet.actor.earthbound select:focus,
 .wod.sheet.actor.earthbound textarea:focus {
     border-color: var(--wod-primary) !important;
-    box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2) !important;
+    box-shadow: 0 0 0 2px rgba(47, 95, 63, 0.2) !important;
+}
+
+/* Background Template Form Fields */
+.wod.sheet.actor.earthbound .template-input,
+.wod.sheet.actor.earthbound .template-select {
+    width: 100% !important;
+    padding: 2px 5px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.7em !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .template-input-small {
+    width: 100% !important;
+    padding: 3px 6px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.75em !important;
+    text-align: center !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .template-input-number {
+    max-width: 120px !important;
+    width: auto !important;
+    padding: 3px 8px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.75em !important;
+    text-align: center !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .template-input-number-tiny {
+    max-width: 80px !important;
+    width: auto !important;
+    padding: 3px 6px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.75em !important;
+    text-align: center !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .template-input-tiny {
+    width: 50px !important;
+    padding: 3px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.7em !important;
+    text-align: center !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .template-textarea {
+    width: 100% !important;
+    padding: 3px 5px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.65em !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+    resize: vertical !important;
+    min-height: 28px !important;
+    font-family: inherit !important;
+    line-height: 1.2 !important;
+}
+
+.wod.sheet.actor.earthbound .template-textarea-large {
+    width: 100% !important;
+    padding: 5px 8px !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    border-radius: 2px !important;
+    font-size: 0.65em !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    color: var(--wod-input-text, #000000) !important;
+    resize: vertical !important;
+    min-height: 80px !important;
+    font-family: inherit !important;
+    line-height: 1.4 !important;
+}
+
+/* Allies/Contacts specific styling */
+.wod.sheet.actor.earthbound .ally-name-input,
+.wod.sheet.actor.earthbound .ally-input {
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .ally-input-small {
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, var(--wod-border-light, rgba(47, 95, 63, 0.3))) !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+/* Template field labels */
+.wod.sheet.actor.earthbound .template-field label {
+    font-size: 0.65em !important;
+    font-weight: bold !important;
+    color: var(--wod-primary, #2F5F3F) !important;
+    display: block !important;
+    margin-bottom: 1px !important;
+}
+
+/* Allies Template */
+.wod.sheet.actor.earthbound .allies-list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+}
+
+/* Allies Template - Add Ally Button */
+.wod.sheet.actor.earthbound .add-ally {
+    background: var(--wod-success, #28a745) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.wod.sheet.actor.earthbound .add-ally:hover {
+    background: var(--wod-success, #28a745) !important;
+    transform: scale(1.1) !important;
+    box-shadow: none !important;
+}
+
+/* Backgrounds Expanded - Floating Add Button */
+.wod.sheet.actor.earthbound .backgrounds-expanded-section .floating-add-bg,
+.wod.sheet.actor.demon.earthbound .backgrounds-expanded-section .floating-add-bg {
+    background: var(--wod-success, #28a745) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.wod.sheet.actor.earthbound .backgrounds-expanded-section .floating-add-bg:hover,
+.wod.sheet.actor.demon.earthbound .backgrounds-expanded-section .floating-add-bg:hover {
+    background: var(--wod-success, #28a745) !important;
+    transform: scale(1.1) !important;
+    box-shadow: none !important;
+}
+
+/* Autocomplete Dropdown - Earthbound Theme */
+div.wod-autocomplete-dropdown {
+    background: #ffffff !important;
+    border: 2px solid var(--wod-primary, #2F5F3F) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 12px rgba(47, 95, 63, 0.15) !important;
+    font-family: var(--wod-font-family, "Palatino Linotype", "Book Antiqua", Palatino, serif) !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item {
+    padding: 10px 14px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 1px solid rgba(47, 95, 63, 0.1) !important;
+    background: #ffffff !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item:last-child {
+    border-bottom: none !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item:hover,
+div.wod-autocomplete-dropdown div.autocomplete-item.highlighted {
+    background: linear-gradient(135deg, var(--wod-primary, #2F5F3F) 0%, var(--wod-primary-light, #3F7F5F) 100%) !important;
+    color: #ffffff !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item span.autocomplete-name {
+    font-weight: 600 !important;
+    flex: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 1em !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item span.autocomplete-meta {
+    font-size: 0.85em !important;
+    opacity: 0.8 !important;
+    margin-left: 12px !important;
+    white-space: nowrap !important;
+}
+
+/* Ensure good contrast on hover */
+div.wod-autocomplete-dropdown div.autocomplete-item:hover span.autocomplete-name,
+div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplete-name {
+    color: #ffffff !important;
+}
+
+div.wod-autocomplete-dropdown div.autocomplete-item:hover span.autocomplete-meta,
+div.wod-autocomplete-dropdown div.autocomplete-item.highlighted span.autocomplete-meta {
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+}
+
+/* Earthbound Equipment Tab Styling */
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .equipment-tab {
+    padding: 8px 16px 8px 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    overflow-x: hidden !important;
+    background: transparent !important;
+    border: none !important;
+    margin: 0 !important;
+}
+
+/* Compact Header with Tabs - Earthbound Green Theme */
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .equipment-header-compact {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+    padding: 6px !important;
+    background: linear-gradient(135deg, var(--wod-primary, #2F5F3F) 0%, var(--wod-primary-dark, #1A2A1A) 100%) !important;
+    border-radius: 4px !important;
+}
+
+/* Type Tabs - Earthbound Theme */
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .equipment-type-tabs {
+    display: flex !important;
+    gap: 4px !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .equipment-type-tab {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    border: none !important;
+    padding: 4px 8px !important;
+    border-radius: 3px !important;
+    font-size: 0.7em !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .equipment-type-tab:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .equipment-type-tab.active {
+    background: var(--wod-success, #28a745) !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* Equipment Items - Earthbound Theme */
+.wod.sheet.actor.earthbound .equipment-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    margin-bottom: 4px !important;
+    background: var(--wod-bg-input, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, #2F5F3F) !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .equipment-item:hover {
+    border-color: var(--wod-primary, #2F5F3F) !important;
+    box-shadow: 0 2px 8px rgba(47, 95, 63, 0.1) !important;
+}
+
+/* Item Type Badges - Earthbound Theme - MAXIMUM SPECIFICITY */
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .item-type-badge,
+.wod.sheet.actor.earthbound .item-type-badge {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    font-size: 0.7em !important;
+    color: white !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .weapon-badge,
+.wod.sheet.actor.earthbound .weapon-badge {
+    background: var(--wod-danger, #dc3545) !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .armor-badge,
+.wod.sheet.actor.earthbound .armor-badge {
+    background: var(--wod-primary, #2F5F3F) !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="equipment"] .gear-badge,
+.wod.sheet.actor.earthbound .gear-badge {
+    background: var(--wod-success, #28a745) !important;
+}
+
+/* Item Inputs - Earthbound Theme */
+.wod.sheet.actor.earthbound .equipment-item input[type="text"],
+.wod.sheet.actor.earthbound .equipment-item input[type="number"] {
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, #2F5F3F) !important;
+    color: var(--wod-input-text, #000000) !important;
+    border-radius: 2px !important;
+    padding: 2px 4px !important;
+    font-size: 0.7em !important;
+}
+
+.wod.sheet.actor.earthbound .equipment-item input:focus {
+    border-color: var(--wod-primary, #2F5F3F) !important;
+    box-shadow: 0 0 0 2px rgba(47, 95, 63, 0.2) !important;
+}
+
+/* Item Name - Earthbound Theme */
+.wod.sheet.actor.earthbound .item-name {
+    flex: 1 !important;
+}
+
+.wod.sheet.actor.earthbound .item-name input {
+    width: 100% !important;
+    font-weight: 500 !important;
+}
+
+/* Item Stats - Earthbound Theme */
+.wod.sheet.actor.earthbound .item-stats {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+}
+
+.wod.sheet.actor.earthbound .stat-mini {
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    font-size: 0.65em !important;
+    color: var(--wod-input-text, #000000) !important;
+}
+
+.wod.sheet.actor.earthbound .stat-mini strong {
+    color: var(--wod-primary, #2F5F3F) !important;
+    font-weight: 600 !important;
+}
+
+.wod.sheet.actor.earthbound .stat-mini input {
+    width: 40px !important;
+    text-align: center !important;
+}
+
+.wod.sheet.actor.earthbound .stat-desc input {
+    width: 120px !important;
+}
+
+/* Item Actions - Earthbound Theme */
+.wod.sheet.actor.earthbound .item-actions {
+    display: flex !important;
+    gap: 4px !important;
+}
+
+.wod.sheet.actor.earthbound .mini-btn {
+    background: var(--wod-primary, #2F5F3F) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 3px !important;
+    padding: 4px 6px !important;
+    font-size: 0.6em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .mini-btn:hover {
+    background: var(--wod-primary-light, #3F7F5F) !important;
+    transform: scale(1.05) !important;
+}
+
+.wod.sheet.actor.earthbound .mini-btn.danger {
+    background: var(--wod-danger, #dc3545) !important;
+}
+
+.wod.sheet.actor.earthbound .mini-btn.danger:hover {
+    background: #c82333 !important;
+}
+
+/* Footer Add Buttons - Earthbound Theme */
+.wod.sheet.actor.earthbound .equipment-footer {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    margin-top: 12px !important;
+    padding-top: 8px !important;
+    border-top: 1px solid var(--wod-border-light, rgba(47, 95, 63, 0.3)) !important;
+}
+
+.wod.sheet.actor.earthbound .footer-add-btn {
+    background: linear-gradient(135deg, var(--wod-primary, #2F5F3F) 0%, var(--wod-primary-light, #3F7F5F) 50%, var(--wod-primary-dark, #1A2A1A) 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 0.8em !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 8px rgba(47, 95, 63, 0.3) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wod.sheet.actor.earthbound .footer-add-btn:hover {
+    background: linear-gradient(135deg, var(--wod-primary-light, #3F7F5F) 0%, var(--wod-primary, #2F5F3F) 50%, var(--wod-primary-dark, #1A2A1A) 100%) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(47, 95, 63, 0.4) !important;
+}
+
+/* Biography Tab - Earthbound Theme */
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] input[type="text"],
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] textarea {
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, #2F5F3F) !important;
+    color: var(--wod-input-text, #000000) !important;
+    border-radius: 2px !important;
+    padding: 4px 8px !important;
+    font-family: inherit !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] input[type="text"]:focus,
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] textarea:focus {
+    border-color: var(--wod-primary, #2F5F3F) !important;
+    box-shadow: 0 0 0 2px rgba(47, 95, 63, 0.2) !important;
+    outline: none !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] .bio-field label {
+    color: var(--wod-text-alt) !important;
+    font-weight: 600 !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] .backstory-section label,
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] .notes-section label {
+    color: var(--wod-text-main, #FFFFFF) !important;
+    font-weight: 600 !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+.wod.sheet.actor.earthbound .tab[data-tab="biography"] h3 {
+    color: var(--wod-primary, #2F5F3F) !important;
+    border-bottom: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    padding-bottom: 4px !important;
+    margin-bottom: 12px !important;
+}
+
+/* Equipment Checkbox - Earthbound Theme */
+.wod.sheet.actor.earthbound .item-equipped input[type="checkbox"] {
+    accent-color: var(--wod-primary, #2F5F3F) !important;
+}
+
+.wod.sheet.actor.earthbound .item-equipped label {
+    color: var(--wod-primary, #2F5F3F) !important;
+    cursor: pointer !important;
+}
+
+.wod.sheet.actor.earthbound .item-equipped label i.fa-check-circle {
+    color: var(--wod-success, #28a745) !important;
+}
+
+/* Earthbound Apocalyptic Form Builder - Compact */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section {
+    background: var(--wod-bg-main, #F5F5F5) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    border-radius: 4px !important;
+    padding: 12px !important;
+    margin-bottom: 8px !important;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section h2 {
+    color: var(--wod-primary-dark, #1A3A1A) !important;
+    border-bottom: 2px solid var(--wod-primary, #2F5F3F) !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 12px !important;
+    font-size: 1.2em !important;
+}
+
+/* Form Header Section - Compact Layout */
+.wod.sheet.actor.earthbound .form-header-section {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 10px !important;
+}
+
+.wod.sheet.actor.earthbound .form-type-row {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.wod.sheet.actor.earthbound .form-type-selector {
+    display: flex !important;
+    gap: 15px !important;
+}
+
+.wod.sheet.actor.earthbound .form-type-selector label {
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    font-size: 0.9em !important;
+    font-weight: 600 !important;
+}
+
+.wod.sheet.actor.earthbound .form-type-selector input[type="radio"] {
+    accent-color: var(--wod-primary, #2F5F3F) !important;
+}
+
+.wod.sheet.actor.earthbound .form-points-compact {
+    display: flex !important;
+    gap: 15px !important;
+    align-items: center !important;
+}
+
+.wod.sheet.actor.earthbound .form-points-compact .points-display,
+.wod.sheet.actor.earthbound .form-points-compact .features-count {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.wod.sheet.actor.earthbound .form-points-compact .points-display label,
+.wod.sheet.actor.earthbound .form-points-compact .features-count label {
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    font-size: 0.8em !important;
+    font-weight: 600 !important;
+}
+
+.wod.sheet.actor.earthbound .form-points-compact .points-remaining,
+.wod.sheet.actor.earthbound .form-points-compact .features-selected {
+    font-size: 1em !important;
+    font-weight: bold !important;
+    color: var(--wod-success, #28a745) !important;
+    min-width: 20px !important;
+    text-align: center !important;
+}
+
+/* Form Filters - Compact */
+.wod.sheet.actor.earthbound .form-filters {
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.wod.sheet.actor.earthbound .filter-row {
+    display: flex !important;
+    gap: 15px !important;
+    align-items: end !important;
+}
+
+.wod.sheet.actor.earthbound .filter-field {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    flex: 1 !important;
+}
+
+.wod.sheet.actor.earthbound .filter-field label {
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    font-weight: 600 !important;
+    font-size: 0.8em !important;
+}
+
+.wod.sheet.actor.earthbound .filter-field select {
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, #2F5F3F) !important;
+    color: var(--wod-input-text, #1A1A1A) !important;
+    border-radius: 3px !important;
+    padding: 4px 6px !important;
+    font-size: 0.85em !important;
+    font-family: inherit !important;
+}
+
+.wod.sheet.actor.earthbound .filter-field select:focus {
+    outline: 2px solid var(--wod-primary, #2F5F3F) !important;
+    outline-offset: 1px !important;
+}
+
+/* Features List - Compact */
+.wod.sheet.actor.earthbound .features-list {
+    max-height: 350px !important;
+    overflow-y: auto !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    border-radius: 4px !important;
+    background: var(--wod-bg-main, #F5F5F5) !important;
+}
+
+.wod.sheet.actor.earthbound .feature-item {
+    border-bottom: 1px solid var(--wod-border-subtle, #D0D0D0) !important;
+    padding: 8px !important;
+    position: relative !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .feature-item:last-child {
+    border-bottom: none !important;
+}
+
+.wod.sheet.actor.earthbound .feature-item:hover {
+    background: var(--wod-bg-hover, #E0E0E0) !important;
+}
+
+.wod.sheet.actor.earthbound .feature-item.selected {
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    border-left: 3px solid var(--wod-success, #28a745) !important;
+}
+
+.wod.sheet.actor.earthbound .feature-item.disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+}
+
+.wod.sheet.actor.earthbound .feature-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 4px !important;
+}
+
+.wod.sheet.actor.earthbound .feature-name {
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    font-weight: 600 !important;
+    font-size: 0.9em !important;
+}
+
+.wod.sheet.actor.earthbound .feature-cost {
+    color: var(--wod-success, #28a745) !important;
+    font-weight: bold !important;
+    font-size: 0.8em !important;
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    padding: 1px 4px !important;
+    border-radius: 2px !important;
+}
+
+.wod.sheet.actor.earthbound .feature-description {
+    color: var(--wod-text-alt, #666666) !important;
+    font-size: 0.8em !important;
+    line-height: 1.3 !important;
+    margin-bottom: 6px !important;
+}
+
+.wod.sheet.actor.earthbound .feature-category {
+    color: var(--wod-primary, #2F5F3F) !important;
+    font-size: 0.7em !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    margin-bottom: 6px !important;
+}
+
+.wod.sheet.actor.earthbound .select-feature-btn {
+    background: var(--wod-primary, #2F5F3F) !important;
+    border: 1px solid var(--wod-primary, #2F5F3F) !important;
+    color: var(--wod-text-main, #FFFFFF) !important;
+    padding: 4px 8px !important;
+    border-radius: 2px !important;
+    cursor: pointer !important;
+    font-size: 0.8em !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .select-feature-btn:hover:not(:disabled) {
+    background: var(--wod-success, #28a745) !important;
+    border-color: var(--wod-success, #28a745) !important;
+}
+
+.wod.sheet.actor.earthbound .select-feature-btn:disabled {
+    background: var(--wod-bg-input, #FFFFFF) !important;
+    color: var(--wod-text-alt, #666666) !important;
+    border-color: var(--wod-border-subtle, #D0D0D0) !important;
+    cursor: not-allowed !important;
+}
+
+/* Selected Features - Compact */
+.wod.sheet.actor.earthbound .selected-features {
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+    margin-bottom: 15px !important;
+}
+
+.wod.sheet.actor.earthbound .selected-features h3 {
+    color: var(--wod-primary-dark, #1A3A1A) !important;
+    margin: 0 0 10px 0 !important;
+    font-size: 1em !important;
+}
+
+.wod.sheet.actor.earthbound .selected-feature {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background: var(--wod-bg-main, #F5F5F5) !important;
+    border: 1px solid var(--wod-border-subtle, #D0D0D0) !important;
+    border-radius: 3px !important;
+    padding: 6px 8px !important;
+    margin-bottom: 4px !important;
+}
+
+.wod.sheet.actor.earthbound .selected-feature:last-child {
+    margin-bottom: 0 !important;
+}
+
+.wod.sheet.actor.earthbound .selected-feature-info {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+}
+
+.wod.sheet.actor.earthbound .selected-feature-name {
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    font-weight: 600 !important;
+    font-size: 0.9em !important;
+}
+
+.wod.sheet.actor.earthbound .selected-feature-cost {
+    color: var(--wod-success, #28a745) !important;
+    font-size: 0.8em !important;
+    font-weight: bold !important;
+}
+
+.wod.sheet.actor.earthbound .remove-feature-btn {
+    background: var(--wod-danger, #dc3545) !important;
+    border: 1px solid var(--wod-danger, #dc3545) !important;
+    color: var(--wod-text-main, #FFFFFF) !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.8em !important;
+}
+
+.wod.sheet.actor.earthbound .remove-feature-btn:hover {
+    background: #c82333 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Form Actions - Compact */
+.wod.sheet.actor.earthbound .form-actions {
+    display: flex !important;
+    gap: 8px !important;
+    justify-content: center !important;
+    margin-top: 15px !important;
+}
+
+.wod.sheet.actor.earthbound .reset-form-btn,
+.wod.sheet.actor.earthbound .save-form-btn,
+.wod.sheet.actor.earthbound .create-custom-feature-btn {
+    background: var(--wod-bg-input, #FFFFFF) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    color: var(--wod-primary, #2F5F3F) !important;
+    padding: 6px 12px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    transition: all 0.2s ease !important;
+    font-size: 0.9em !important;
+}
+
+.wod.sheet.actor.earthbound .reset-form-btn:hover,
+.wod.sheet.actor.earthbound .create-custom-feature-btn:hover {
+    background: var(--wod-bg-hover, #E0E0E0) !important;
+}
+
+.wod.sheet.actor.earthbound .save-form-btn {
+    background: var(--wod-primary, #2F5F3F) !important;
+    color: var(--wod-text-main, #FFFFFF) !important;
+}
+
+.wod.sheet.actor.earthbound .save-form-btn:hover:not(:disabled) {
+    background: var(--wod-success, #28a745) !important;
+}
+
+.wod.sheet.actor.earthbound .save-form-btn.valid {
+    background: var(--wod-success, #28a745) !important;
+    border-color: var(--wod-success, #28a745) !important;
+}
+
+.wod.sheet.actor.earthbound .save-form-btn:disabled {
+    background: var(--wod-bg-input, #FFFFFF) !important;
+    color: var(--wod-text-alt, #666666) !important;
+    border-color: var(--wod-border-subtle, #D0D0D0) !important;
+    cursor: not-allowed !important;
+}
+
+/* Custom Feature Modal */
+.wod.sheet.actor.earthbound .custom-feature-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    display: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 1000 !important;
+}
+
+/* Show modal when active */
+.wod.sheet.actor.earthbound .custom-feature-modal[style*="display: block"],
+.wod.sheet.actor.earthbound .custom-feature-modal.show {
+    display: flex !important;
+}
+
+.wod.sheet.actor.earthbound .modal-content {
+    background: var(--wod-bg-main, #F5F5F5) !important;
+    border: 2px solid var(--wod-primary, #2F5F3F) !important;
+    border-radius: 8px !important;
+    width: 500px !important;
+    max-width: 90% !important;
+    max-height: 90% !important;
+    overflow-y: auto !important;
+}
+
+.wod.sheet.actor.earthbound .modal-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 15px !important;
+    border-bottom: 1px solid var(--wod-border-main, #2F5F3F) !important;
+}
+
+.wod.sheet.actor.earthbound .modal-header h3 {
+    color: var(--wod-primary-dark, #1A3A1A) !important;
+    margin: 0 !important;
+}
+
+.wod.sheet.actor.earthbound .modal-close {
+    background: none !important;
+    border: none !important;
+    color: var(--wod-text-alt, #666666) !important;
+    font-size: 1.5em !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    width: 30px !important;
+    height: 30px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wod.sheet.actor.earthbound .modal-close:hover {
+    color: var(--wod-danger, #dc3545) !important;
+}
+
+.wod.sheet.actor.earthbound .modal-body {
+    padding: 20px !important;
+}
+
+.wod.sheet.actor.earthbound .modal-body .form-field {
+    margin-bottom: 15px !important;
+}
+
+.wod.sheet.actor.earthbound .modal-body label {
+    display: block !important;
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    margin-bottom: 5px !important;
+    font-weight: 600 !important;
+}
+
+.wod.sheet.actor.earthbound .modal-body input,
+.wod.sheet.actor.earthbound .modal-body select,
+.wod.sheet.actor.earthbound .modal-body textarea {
+    width: 100% !important;
+    background: var(--wod-input-bg, #FFFFFF) !important;
+    border: 1px solid var(--wod-input-border, #2F5F3F) !important;
+    color: var(--wod-input-text, #1A1A1A) !important;
+    border-radius: 4px !important;
+    padding: 8px !important;
+    font-family: inherit !important;
+}
+
+.wod.sheet.actor.earthbound .modal-footer {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    padding: 15px !important;
+    border-top: 1px solid var(--wod-border-main, #2F5F3F) !important;
+}
+
+.wod.sheet.actor.earthbound .cancel-btn,
+.wod.sheet.actor.earthbound .submit-btn {
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .cancel-btn {
+    background: var(--wod-bg-input, #FFFFFF) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    color: var(--wod-primary, #2F5F3F) !important;
+}
+
+.wod.sheet.actor.earthbound .cancel-btn:hover {
+    background: var(--wod-bg-hover, #E0E0E0) !important;
+}
+
+.wod.sheet.actor.earthbound .submit-btn {
+    background: var(--wod-primary, #2F5F3F) !important;
+    border: 1px solid var(--wod-primary, #2F5F3F) !important;
+    color: var(--wod-text-main, #FFFFFF) !important;
+}
+
+.wod.sheet.actor.earthbound .submit-btn:hover {
+    background: var(--wod-success, #28a745) !important;
+}
+
+/* Current Form Display - Power Cards */
+.wod.sheet.actor.earthbound .current-form-display {
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    border: 1px solid var(--wod-border-main, #2F5F3F) !important;
+    border-radius: 4px !important;
+    padding: 15px !important;
+    margin-top: 20px !important;
+}
+
+.wod.sheet.actor.earthbound .current-form-display h3 {
+    color: var(--wod-primary-dark, #1A3A1A) !important;
+    margin: 0 0 15px 0 !important;
+}
+
+.wod.sheet.actor.earthbound .power-cards {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important;
+    gap: 15px !important;
+}
+
+.wod.sheet.actor.earthbound .power-card {
+    background: var(--wod-bg-main, #F5F5F5) !important;
+    border: 1px solid var(--wod-border-subtle, #D0D0D0) !important;
+    border-radius: 6px !important;
+    padding: 15px !important;
+    transition: all 0.2s ease !important;
+}
+
+.wod.sheet.actor.earthbound .power-card:hover {
+    border-color: var(--wod-primary, #2F5F3F) !important;
+    box-shadow: 0 2px 8px rgba(47, 95, 63, 0.2) !important;
+}
+
+.wod.sheet.actor.earthbound .power-card-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+}
+
+.wod.sheet.actor.earthbound .power-card-header h4 {
+    color: var(--wod-text-dark, #1A1A1A) !important;
+    margin: 0 !important;
+    font-size: 1.1em !important;
+}
+
+.wod.sheet.actor.earthbound .power-cost {
+    color: var(--wod-success, #28a745) !important;
+    font-weight: bold !important;
+    font-size: 0.9em !important;
+    background: var(--wod-bg-secondary, #E8E8E8) !important;
+    padding: 2px 6px !important;
+    border-radius: 3px !important;
+}
+
+.wod.sheet.actor.earthbound .power-card-description {
+    color: var(--wod-text-alt, #666666) !important;
+    font-size: 0.9em !important;
+    line-height: 1.4 !important;
+    margin-bottom: 10px !important;
+}
+
+.wod.sheet.actor.earthbound .power-card-category {
+    color: var(--wod-primary-dark, #1A3A1A) !important;
+    font-size: 0.8em !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wod.sheet.actor.earthbound .form-type-selector {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .wod.sheet.actor.earthbound .category-tabs,
+    .wod.sheet.actor.earthbound .point-filters {
+        justify-content: center !important;
+    }
+    
+    .wod.sheet.actor.earthbound .form-actions {
+        flex-direction: column !important;
+    }
+    
+    .wod.sheet.actor.earthbound .power-cards {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .wod.sheet.actor.earthbound .modal-content {
+        width: 95% !important;
+    }
 }
 
 /* Buttons - White background with green borders like Demon/Technocrat */
@@ -476,15 +1531,37 @@
 }
 
 .wod.sheet.actor.earthbound .background-item.earthbound-background-item.locked {
-    border-left-color: #43A047 !important;
+border-left-color: #43A047 !important;
+}
+
+/* Hover Preview Tooltip */
+.wod.sheet.actor.demon.earthbound .bg-preview-tooltip,
+.wod.sheet.actor.earthbound .bg-preview-tooltip {
+    position: absolute;
+    background: var(--wod-primary, #2F5F3F);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 2px solid var(--wod-primary-dark, #1F3F2F);
+    font-size: 0.8em;
+    z-index: 1000;
+    pointer-events: none;
+    max-width: 280px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    line-height: 1.4;
 }
 
 /* Earthbound background dropdown */
 .wod.sheet.actor.earthbound .earthbound-background-name-select {
-    background: var(--wod-bg-input) !important;
-    border: 1px solid var(--wod-border-light) !important;
-    color: var(--wod-text-main) !important;
-    flex: 0 0 auto !important;
+background: var(--wod-bg-input) !important;
+border: 1px solid var(--wod-border-light) !important;
+color: var(--wod-text-main) !important;
+flex: 0 0 auto !important;
+min-width: 80px !important;
+max-width: 100px !important;
+padding: 4px 6px !important;
+border-radius: 3px !important;
+font-size: 0.85em !important;
     min-width: 80px !important;
     max-width: 100px !important;
     padding: 4px 6px !important;
@@ -810,7 +1887,7 @@
     --wod-bg-hover: #2A3A2A;
     --wod-bg-input: #2A2A2A;
     --wod-bg-subtle: #0F0F0F;
-    --wod-bg-light: #3A2A2A;
+    --wod-bg-light: #FFFEF0;
     
     /* Border Colors */
     --wod-border-main: #2F5F3F;
@@ -1917,9 +2994,9 @@ form.wod-effect-manager.earthbound .effect-conditions-section h3 i {
 .wod.sheet.actor.earthbound .backgrounds-expanded-section h2 {
     margin: 0 0 3px 0;
     font-size: 1.1em;
-    color: var(--wod-primary, #8B0000);
+    color: var(--wod-primary, #2F5F3F);
     text-align: center;
-    border-bottom: 2px solid var(--wod-primary, #8B0000);
+    border-bottom: 2px solid var(--wod-primary, #2F5F3F);
     padding-bottom: 3px;
 }
 
@@ -1932,107 +3009,709 @@ form.wod-effect-manager.earthbound .effect-conditions-section h3 i {
     font-style: italic;
 }
 
-/* Earthbound Background Card Styling */
-.wod.sheet.actor.demon.earthbound .demon-bg-card,
-.wod.sheet.actor.earthbound .demon-bg-card {
-    background: var(--wod-bg-subtle, rgba(139, 0, 0, 0.1));
-    border: 1px solid var(--wod-border-light, rgba(139, 0, 0, 0.3));
+.wod.sheet.actor.demon.earthbound .bg-category-section,
+.wod.sheet.actor.earthbound .bg-category-section {
+    margin-bottom: 8px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-category-header,
+.wod.sheet.actor.earthbound .bg-category-header {
+    background: var(--wod-primary, #2F5F3F);
+    color: white;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-category-header:hover,
+.wod.sheet.actor.earthbound .bg-category-header:hover {
+    background: var(--wod-primary-dark, #1F3F2F);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-category-header h3,
+.wod.sheet.actor.earthbound .bg-category-header h3 {
+    margin: 0;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod.sheet.actor.demon.earthbound .category-toggle,
+.wod.sheet.actor.earthbound .category-toggle {
+    transition: transform 0.2s;
+    font-size: 0.8em;
+}
+
+.wod.sheet.actor.demon.earthbound .category-count,
+.wod.sheet.actor.earthbound .category-count {
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-category-content,
+.wod.sheet.actor.earthbound .bg-category-content {
+    padding: 6px;
+    background: var(--wod-bg-light);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-cards-grid,
+.wod.sheet.actor.earthbound .bg-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-card-mini,
+.wod.sheet.actor.earthbound .bg-card-mini {
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    background: white;
+    padding: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-card-mini:hover,
+.wod.sheet.actor.earthbound .bg-card-mini:hover {
+    border-color: var(--wod-primary, #2F5F3F);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-card-mini-header,
+.wod.sheet.actor.earthbound .bg-card-mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-name,
+.wod.sheet.actor.earthbound .bg-name {
+    font-weight: bold;
+    font-size: 0.75em;
+    color: var(--wod-primary, #2F5F3F);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-rating,
+.wod.sheet.actor.earthbound .bg-rating {
+    font-size: 0.7em;
+    color: var(--wod-primary-dark, #1F3F2F);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-card-mini-actions,
+.wod.sheet.actor.earthbound .bg-card-mini-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-card-mini-actions a,
+.wod.sheet.actor.earthbound .bg-card-mini-actions a {
+    color: var(--wod-text-alt);
+    font-size: 0.75em;
+    padding: 1px 3px;
+    transition: color 0.2s;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-card-mini-actions a:hover,
+.wod.sheet.actor.earthbound .bg-card-mini-actions a:hover {
+    color: var(--wod-primary, #2F5F3F);
+}
+
+.wod.sheet.actor.demon.earthbound .backgrounds-expanded-section .background-controls,
+.wod.sheet.actor.earthbound .backgrounds-expanded-section .background-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--wod-border-main);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal-overlay,
+.wod.sheet.actor.earthbound .bg-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 90;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal,
+.wod.sheet.actor.earthbound .bg-modal {
+    width: 60%;
+    height: 70%;
+    max-width: 900px;
+    max-height: 800px;
+    background: var(--wod-bg-main);
+    border: 2px solid var(--wod-primary, #2F5F3F);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal-header,
+.wod.sheet.actor.earthbound .bg-modal-header {
+    background: var(--wod-primary, #2F5F3F);
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--wod-primary-dark, #1F3F2F);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal-body,
+.wod.sheet.actor.earthbound .bg-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal-step-category,
+.wod.sheet.actor.earthbound .bg-modal-step-category,
+.wod.sheet.actor.demon.earthbound .bg-modal-step-background,
+.wod.sheet.actor.earthbound .bg-modal-step-background {
+    margin-bottom: 15px;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal-step-category label,
+.wod.sheet.actor.earthbound .bg-modal-step-category label,
+.wod.sheet.actor.demon.earthbound .bg-modal-step-background label,
+.wod.sheet.actor.earthbound .bg-modal-step-background label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--wod-primary, #2F5F3F);
+}
+
+.wod.sheet.actor.demon.earthbound .select-bg-category,
+.wod.sheet.actor.earthbound .select-bg-category,
+.wod.sheet.actor.demon.earthbound .bg-modal-step-background select,
+.wod.sheet.actor.earthbound .bg-modal-step-background select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-modal-footer,
+.wod.sheet.actor.earthbound .bg-modal-footer {
+    padding: 10px 15px;
+    border-top: 1px solid var(--wod-border-light);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.wod.sheet.actor.demon.earthbound .cancel-bg-modal,
+.wod.sheet.actor.earthbound .cancel-bg-modal,
+.wod.sheet.actor.demon.earthbound .save-bg-modal,
+.wod.sheet.actor.earthbound .save-bg-modal {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 3px;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor.demon.earthbound .cancel-bg-modal,
+.wod.sheet.actor.earthbound .cancel-bg-modal {
+    background: var(--wod-bg-light);
+    color: var(--wod-text-main);
+    border: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.demon.earthbound .cancel-bg-modal:hover,
+.wod.sheet.actor.earthbound .cancel-bg-modal:hover {
+    background: var(--wod-bg-hover);
+}
+
+.wod.sheet.actor.demon.earthbound .save-bg-modal,
+.wod.sheet.actor.earthbound .save-bg-modal {
+    background: var(--wod-primary, #2F5F3F);
+    color: white;
+}
+
+.wod.sheet.actor.demon.earthbound .save-bg-modal:hover,
+.wod.sheet.actor.earthbound .save-bg-modal:hover {
+    background: var(--wod-primary-dark, #1F3F2F);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-expanded-pagination,
+.wod.sheet.actor.earthbound .bg-expanded-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    gap: 12px;
+    border-top: 1px solid var(--wod-border-light);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-expanded-pagination .pagination-btn,
+.wod.sheet.actor.earthbound .bg-expanded-pagination .pagination-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--wod-border-light);
+    border-radius: 3px;
+    background: var(--wod-bg-light);
+    color: var(--wod-text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.wod.sheet.actor.demon.earthbound .bg-expanded-pagination .pagination-btn:hover:not(:disabled),
+.wod.sheet.actor.earthbound .bg-expanded-pagination .pagination-btn:hover:not(:disabled) {
+    background: var(--wod-primary, #2F5F3F);
+    color: white;
+    border-color: var(--wod-primary, #2F5F3F);
+}
+
+.wod.sheet.actor.demon.earthbound .bg-expanded-pagination .pagination-btn:disabled,
+.wod.sheet.actor.earthbound .bg-expanded-pagination .pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Earthbound Apocalyptic Form Section Headers */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section h2 {
+    color: white !important;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    border-bottom: 2px solid var(--wod-primary, #2d5016);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+/* Earthbound Apocalyptic Form - New Panel Layout */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .apocalyptic-form-layout {
+    display: flex;
+    gap: 12px;
+    height: 70%;
+}
+
+/* Left Panel - Controls & Selections */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .left-panel {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .panel-section {
+    background: var(--wod-bg-light, #F8F8F8);
+    border: 1px solid var(--wod-primary, #2d5016);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .panel-section h4 {
+    color: var(--wod-primary, #2d5016);
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 0 8px 0;
+    border-bottom: 1px solid var(--wod-border-subtle, #d4d4aa);
+    padding-bottom: 4px;
+}
+
+/* Form Header Section */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .form-header {
+    background: var(--wod-bg-main, #F0F0F0);
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .form-type-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .form-type-selector label {
+    color: var(--wod-primary, #2d5016);
+    font-size: 11px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .points-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--wod-bg-subtle, #E8E8E8);
+    padding: 6px;
+    border-radius: 3px;
+    font-size: 10px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .points-remaining,
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .features-selected {
+    color: var(--wod-primary, #2d5016);
+    font-weight: bold;
+}
+
+/* Filters Section */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .filter-controls {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .filter-field label {
+    color: var(--wod-primary, #2d5016);
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .filter-field select {
+    background: white;
+    border: 1px solid var(--wod-primary, #2d5016);
+    border-radius: 3px;
+    padding: 4px;
+    font-size: 10px;
+    color: black;
+}
+
+/* Selected Features Stack */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-features-section {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-features-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-feature-item {
+    background: var(--wod-bg-success, #E8F4E8);
+    border: 1px solid var(--wod-primary, #2d5016);
+    border-radius: 3px;
+    padding: 6px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-feature-item:hover {
+    background: var(--wod-bg-success-hover, #d4e8d4);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-feature-name {
+    color: var(--wod-primary, #2d5016);
+    font-size: 11px;
+    font-weight: bold;
+    flex: 1;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-feature-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-feature-cost {
+    background: var(--wod-bg-light, #F8F8F8);
+    color: var(--wod-primary, #2d5016);
+    border: 1px solid var(--wod-primary, #2d5016);
+    font-size: 10px;
+    padding: 3px 5px;
+    border-radius: 3px;
+    font-weight: bold;
+    min-width: 18px;
+    text-align: center;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .selected-feature-icon {
+    color: var(--wod-primary, #2d5016);
+    font-size: 11px;
+    cursor: help;
+}
+
+/* Actions Section */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .actions-section {
+    display: flex;
+    flex-direction: row;
+    gap: 4px;
+    justify-content: space-between;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .actions-section button {
+    background: var(--wod-primary, #2d5016);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .actions-section button:hover {
+    background: var(--wod-primary-hover, #3a6b1f);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .actions-section button:disabled {
+    background: var(--wod-text-disabled, #999);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .create-custom-feature-btn {
+    background: var(--wod-success, #4a7c2f);
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .create-custom-feature-btn:hover {
+    background: var(--wod-success-hover, #5a8f3f);
+}
+
+/* Right Panel - Available Powers */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 380px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .panel-header {
+    background: var(--wod-bg-main, #F0F0F0);
+    border: 1px solid var(--wod-primary, #2d5016);
+    border-radius: 4px 4px 0 0;
+    padding: 8px 12px;
+    margin-bottom: 0;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .panel-header h4 {
+    color: var(--wod-primary, #2d5016);
+    font-size: 13px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .powers-list {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--wod-primary, #2d5016);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-item {
+    background: var(--wod-bg-light, #F8F8F8);
+    border: 1px solid var(--wod-border-subtle, #d4d4aa);
     border-radius: 4px;
     padding: 8px;
     margin-bottom: 6px;
     transition: all 0.2s ease;
 }
 
-.wod.sheet.actor.demon.earthbound .demon-bg-card:hover,
-.wod.sheet.actor.earthbound .demon-bg-card:hover {
-    background: var(--wod-bg-subtle, rgba(139, 0, 0, 0.2));
-    border-color: var(--wod-primary, #8B0000);
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-item:hover {
+    background: var(--wod-bg-success, #F0F8F0);
+    border-color: var(--wod-primary, #2d5016);
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(139, 0, 0, 0.3);
 }
 
-.wod.sheet.actor.demon.earthbound .bg-card-mini-header .bg-rating,
-.wod.sheet.actor.earthbound .bg-card-mini-header .bg-rating {
-    color: var(--wod-primary, #8B0000);
-    background: rgba(139, 0, 0, 0.2);
-}
-
-.wod.sheet.actor.demon.earthbound .bg-card-mini-actions a:hover,
-.wod.sheet.actor.earthbound .bg-card-mini-actions a:hover {
-    color: var(--wod-primary, #8B0000);
-}
-
-/* Earthbound Modal Styling */
-.wod.sheet.actor.demon.earthbound .demon-bg-modal,
-.wod.sheet.actor.earthbound .demon-bg-modal {
-    background: var(--wod-bg-main, #1A0A0A);
-    border: 2px solid var(--wod-primary, #8B0000);
-    border-radius: 6px;
-    box-shadow: 0 4px 20px rgba(139, 0, 0, 0.4);
-    max-width: 100%;
-    max-height: 100%;
-    overflow-y: auto;
-}
-
-.wod.sheet.actor.demon.earthbound .demon-bg-modal .bg-modal-header,
-.wod.sheet.actor.earthbound .demon-bg-modal .bg-modal-header {
-    background: var(--wod-primary, #8B0000);
-    color: white;
-    padding: 12px 16px;
-    border-radius: 4px 4px 0 0;
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-header {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-title {
+    color: var(--wod-primary, #2d5016);
+    font-size: 12px;
+    font-weight: bold;
+    flex: 1;
+    margin-right: 8px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-cost {
+    background: var(--wod-primary, #2d5016);
+    color: white;
+    font-size: 9px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-category {
+    background: var(--wod-border-subtle, #d4d4aa);
+    color: var(--wod-primary, #2d5016);
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-description {
+    color: var(--wod-text-dark, #333);
+    font-size: 10px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    max-height: 30px;
+    overflow: hidden;
+    position: relative;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-description::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: linear-gradient(transparent, var(--wod-bg-light, #F8F8F8));
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-select-btn {
+    background: var(--wod-primary, #2d5016);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-select-btn:hover {
+    background: var(--wod-primary-hover, #3a6b1f);
+    transform: translateY(-1px);
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .power-select-btn:disabled {
+    background: var(--wod-text-disabled, #999);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Tooltip for selected features */
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .feature-tooltip {
+    position: absolute;
+    background: var(--wod-primary, #2d5016);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 10px;
+    line-height: 1.3;
+    max-width: 200px;
+    z-index: 1000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .feature-tooltip .tooltip-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    border-bottom: 1px solid var(--wod-success, #4a7c2f);
+    padding-bottom: 2px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .feature-tooltip .tooltip-cost {
+    color: var(--wod-border-subtle, #d4d4aa);
+    font-size: 9px;
+    margin-bottom: 2px;
+}
+
+.wod.sheet.actor.earthbound .earthbound-apocalyptic-form-section .feature-tooltip .tooltip-description {
+    font-size: 9px;
+    line-height: 1.2;
+}
+
+/* Apocalyptic Power Tooltip Styling */
+.wod-reference-tooltip .type-badge.apocalyptic-power {
+    background: var(--wod-primary, #2d5016);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.wod-reference-tooltip .cost-badge {
+    background: var(--wod-bg-success, #E8F4E8);
+    color: var(--wod-primary, #2d5016);
+    border: 1px solid var(--wod-primary, #2d5016);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.wod-reference-tooltip .tooltip-header {
+    border-bottom: 2px solid var(--wod-primary, #2d5016);
+    padding: 12px;
+    padding-bottom: 8px;
+    margin-bottom: 0;
+}
+
+.wod-reference-tooltip .tooltip-header h4 {
+    color: var(--wod-primary, #2d5016);
+    margin: 0 0 6px 0;
+    font-size: 14px;
+}
+
+.wod-reference-tooltip .tooltip-meta {
+    display: flex;
+    gap: 8px;
     align-items: center;
 }
 
-.wod.sheet.actor.demon.earthbound .demon-select-bg-category,
-.wod.sheet.actor.demon.earthbound .demon-select-background,
-.wod.sheet.actor.earthbound .demon-select-bg-category,
-.wod.sheet.actor.earthbound .demon-select-background {
-    border: 1px solid var(--wod-border-light, rgba(139, 0, 0, 0.3));
-    background: var(--wod-bg-input, #2D0F0F);
-}
-
-.wod.sheet.actor.demon.earthbound .demon-save-bg-modal,
-.wod.sheet.actor.earthbound .demon-save-bg-modal {
-    background: var(--wod-primary, #8B0000);
-}
-
-.wod.sheet.actor.demon.earthbound .demon-save-bg-modal:hover,
-.wod.sheet.actor.earthbound .demon-save-bg-modal:hover {
-    background: var(--wod-primary-dark, #1A0000);
-}
-
-.wod.sheet.actor.demon.earthbound .demon-add-bg,
-.wod.sheet.actor.earthbound .demon-add-bg {
-    background: var(--wod-primary, #8B0000);
-    box-shadow: 0 2px 8px rgba(139, 0, 0, 0.3);
-}
-
-.wod.sheet.actor.demon.earthbound .demon-add-bg:hover,
-.wod.sheet.actor.earthbound .demon-add-bg:hover {
-    background: var(--wod-primary-dark, #1A0000);
-    box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
-}
-
-/* Earthbound Category Section Styling */
-.wod.sheet.actor.demon.earthbound .bg-category-section,
-.wod.sheet.actor.earthbound .bg-category-section {
-    border: 1px solid var(--wod-border-light, rgba(139, 0, 0, 0.2));
-}
-
-.wod.sheet.actor.demon.earthbound .bg-category-header,
-.wod.sheet.actor.earthbound .bg-category-header {
-    background: var(--wod-bg-subtle, rgba(139, 0, 0, 0.1));
-}
-
-.wod.sheet.actor.demon.earthbound .bg-category-header:hover,
-.wod.sheet.actor.earthbound .bg-category-header:hover {
-    background: var(--wod-bg-subtle, rgba(139, 0, 0, 0.2));
-}
-
-.wod.sheet.actor.demon.earthbound .bg-category-header .category-count,
-.wod.sheet.actor.earthbound .bg-category-header .category-count {
-    color: var(--wod-primary, #8B0000);
-    background: rgba(139, 0, 0, 0.2);
+.wod-reference-tooltip .tooltip-description {
+    color: var(--wod-text-dark, #333);
+    line-height: 1.4;
+    padding: 12px;
 }

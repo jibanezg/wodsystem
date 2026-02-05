@@ -310,6 +310,11 @@
   display: none !important;
 }
 
+/* Always show empty state regardless of filter */
+.wod.sheet.actor .tab[data-tab="equipment"] .equipment-list .equipment-empty {
+  display: block !important;
+}
+
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] .weapon-item,
 .wod.sheet.actor .tab[data-tab="equipment"] .equipment-list[data-filter="armor"] .gear-item {
   display: none !important;

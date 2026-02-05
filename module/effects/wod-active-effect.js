@@ -8,7 +8,8 @@ export class WodActiveEffect extends ActiveEffect {
         CREATED_BY: "wodsystem.createdBy",        // "player" or "storyteller"
         MANDATORY: "wodsystem.mandatory",         // true for ST effects (auto-applied)
         CONDITION_SCOPE: "wodsystem.conditionScope", // "always", "attribute", "ability", "advantage", etc. (EXTENSIBLE)
-        CONDITION_TARGETS: "wodsystem.conditionTargets" // Array of specific targets (e.g., ["Dexterity", "Strength"], ["Firearms", "Melee"])
+        CONDITION_TARGETS: "wodsystem.conditionTargets", // Array of specific targets (e.g., ["Dexterity", "Strength"], ["Firearms", "Melee"])
+        SOURCE_TEMPLATE_ID: "wodsystem.sourceTemplateId" // Links to global effect template for sync
     };
     
     // Modifier types for dice pool system
@@ -35,6 +36,21 @@ export class WodActiveEffect extends ActiveEffect {
         return this.getFlag('wodsystem', 'createdBy') || 'storyteller';
     }
 
+    /**
+     * Get the source template ID (for effects created from global templates)
+     * @returns {string|null}
+     */
+    get sourceTemplateId() {
+        return this.getFlag('wodsystem', 'sourceTemplateId') || null;
+    }
+
+    /**
+     * Check if this effect is linked to a global template
+     * @returns {boolean}
+     */
+    get isFromTemplate() {
+        return !!this.sourceTemplateId;
+    }
 
     /**
      * Create a new WoD Active Effect with standard flags

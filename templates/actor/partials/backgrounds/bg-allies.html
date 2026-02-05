@@ -4,11 +4,14 @@
         {{#each data.npcs as |npc npcIndex|}}
         <div class="ally-entry">
             <div class="ally-header">
-                <input type="text" 
-                       name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.name" 
-                       value="{{npc.name}}" 
-                       placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactName'}}" 
-                       class="ally-name-input" />
+                <div class="ally-field">
+                    <label>{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactName'}}</label>
+                    <input type="text" 
+                           name="system.backgroundsExpanded.{{../index}}.templateData.npcs.{{npcIndex}}.name" 
+                           value="{{npc.name}}" 
+                           placeholder="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.ContactName'}}" 
+                           class="ally-name-input" />
+                </div>
                 <a class="delete-ally" data-bg-index="{{../index}}" data-npc-index="{{npcIndex}}" title="{{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.RemoveContact'}}">
                     <i class="fas fa-times"></i>
                 </a>
@@ -58,7 +61,7 @@
     </div>
     
     {{#if isEditMode}}
-    <button class="add-ally" data-bg-index="{{index}}" type="button">+ {{i18n 'WODSYSTEM.CharacterSheet.BackgroundsExpanded.Fields.AddAlly'}}</button>
+    <button class="add-ally" data-bg-index="{{index}}" type="button">+</button>
     {{/if}}
 </div>
 
