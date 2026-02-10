@@ -93,6 +93,41 @@ export function registerWodTriggerTabs() {
         const SceneDirectory = game.scenes?.directory?.constructor;
         if (SceneDirectory) {
             console.log('WoD Trigger Tabs | SceneDirectory methods:', Object.getOwnPropertyNames(SceneDirectory.prototype));
+            console.log('WoD Trigger Tabs | SceneDirectory static methods:', Object.getOwnPropertyNames(SceneDirectory));
+        }
+        
+        // Try to hook directly into the SceneDirectory instance
+        if (game.scenes?.directory) {
+            const originalGetContextOptions = game.scenes.directory.getContextOptions;
+            if (originalGetContextOptions) {
+                console.log('WoD Trigger Tabs | Found original getContextOptions method');
+                game.scenes.directory.getContextOptions = function() {
+                    console.log('WoD Trigger Tabs | SceneDirectory getContextOptions called');
+                    const options = originalGetContextOptions.call(this);
+                    
+                    // Add our WoD Triggers option
+                    options.push({
+                        name: "WoD Triggers",
+                        icon: '<i class="fa-solid fa-shield-halved"></i>',
+                        condition: (li) => {
+                            return game.user.isGM;
+                        },
+                        callback: (li) => {
+                            const sceneId = li.data('entryId');
+                            const scene = game.scenes.get(sceneId);
+                            if (scene) {
+                                _showSceneTriggersDialog(scene);
+                            }
+                        }
+                    });
+                    
+                    console.log('WoD Trigger Tabs | Added WoD Triggers to context options');
+                    return options;
+                };
+                console.log('WoD Trigger Tabs | Hooked into SceneDirectory.getContextOptions');
+            } else {
+                console.log('WoD Trigger Tabs | getContextOptions method not found');
+            }
         }
     });
     
