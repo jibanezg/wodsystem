@@ -215,14 +215,20 @@ export class WodUnifiedTriggersDialog extends Dialog {
         // Target the beautiful circular green button
         const $button = contentElement.find('.wod-add-trigger-btn');
         
+        console.log('WoD Unified Triggers Dialog | Document type:', this.documentType);
+        console.log('WoD Unified Triggers Dialog | Found add trigger buttons:', $button.length);
+        
         if ($button.length) {
             $button.off('click.unifiedTrigger').on('click.unifiedTrigger', (event) => {
+                console.log('WoD Unified Triggers Dialog | Add trigger button clicked for:', this.documentType);
                 event.preventDefault();
                 event.stopPropagation();
 
                 // Open the trigger config dialog for this document
                 this._openTriggerConfigDialog();
             });
+        } else {
+            console.warn('WoD Unified Triggers Dialog | Could not find add trigger button for:', this.documentType);
         }
 
         // Add click listeners for trigger edit and delete buttons

@@ -2030,7 +2030,6 @@ function _showSceneTriggersContent(scene) {
                 }
             </style>
             <div class="wod-triggers-dialog">
-                <h2>WoD Triggers - ${scene.name}</h2>
                 <div class="trigger-list">
                     ${rendered}
                 </div>
