@@ -182,13 +182,28 @@ export class WodUnifiedTriggersDialog extends Dialog {
     }
     
     /**
-     * Initialize the dialog content
+     * Initialize the dialog content using the working scene dialog structure
      */
     async _initializeContent() {
         try {
             const data = await this.getData();
+            const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
             
-            // Create the styled dialog content like the original dialogs
+            // Render the triggers list using the same template as the original dialogs
+            const rendered = await renderFn(
+                'systems/wodsystem/templates/apps/wod-triggers-tab.html',
+                {
+                    triggers: Array.isArray(data.triggers) ? data.triggers : [],
+                    documentType: this.documentType,
+                    docTypeInfo: data.docTypeInfo,
+                    documentName: data.documentName,
+                    documentId: data.documentId,
+                    isGM: game.user.isGM,
+                    context: this.context
+                }
+            );
+            
+            // Create the styled dialog content exactly like the working scene dialog
             const dialogContent = `
                 <style>
                     .wod-triggers-dialog .trigger-list {
@@ -233,7 +248,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 <div class="wod-triggers-dialog">
                     <h2>WoD Triggers - ${data.documentTitle}</h2>
                     <div class="trigger-list">
-                        ${data.renderedContent}
+                        ${rendered}
                     </div>
                     <button type="button" class="add-trigger-btn" title="Add Trigger">
                         <i class="fas fa-plus"></i>
@@ -246,13 +261,49 @@ export class WodUnifiedTriggersDialog extends Dialog {
             if (dialogElement.length) {
                 dialogElement.find('.dialog-content').html(dialogContent);
                 
-                // Attach event listeners
-                this._attachEventListeners();
+                // Attach event listeners using the same pattern as the working scene dialog
+                this._attachWorkingEventListeners();
             }
         } catch (error) {
             console.error('WoD Unified Triggers Dialog | Error initializing content:', error);
             ui.notifications.error('Could not load trigger content');
         }
+    }
+    
+    /**
+     * Attach event listeners using the same pattern as the working scene dialog
+     */
+    _attachWorkingEventListeners() {
+        const dialogElement = $(this.element);
+        
+        // Add click listener for add trigger button using the same system as actors/doors
+        const $button = dialogElement.find('.add-trigger-btn');
+        
+        if ($button.length) {
+            console.log('WoD Unified Triggers Dialog | Found add trigger button');
+            
+            $button.off('click.unifiedTrigger').on('click.unifiedTrigger', (event) => {
+                console.log('WoD Unified Triggers Dialog | Add trigger button clicked');
+                event.preventDefault();
+                event.stopPropagation();
+
+                // Open the trigger config dialog for this document
+                this._openTriggerConfigDialog();
+            });
+        } else {
+            console.warn('WoD Unified Triggers Dialog | Could not find add trigger button');
+        }
+
+        // Add click listeners for trigger actions
+        dialogElement.find('.trigger-action').off('click.unifiedAction').on('click.unifiedAction', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const action = $(event.currentTarget).data('action');
+            const triggerId = $(event.currentTarget).data('triggerId');
+            
+            this._handleTriggerAction(action, triggerId);
+        });
     }
     
     /**
