@@ -284,6 +284,57 @@ export class WodTriggerConfigDialog extends FormApplication {
         return data;
     }
 
+    /**
+     * Update event dropdown when target changes
+     * @private
+     */
+    _updateEventDropdown() {
+        const targetSelect = this.form?.find('select[name="targetCsv"]');
+        const eventSelect = this.form?.find('select[name="trigger.eventType"]');
+        
+        if (!targetSelect || !eventSelect) return;
+        
+        const currentEvent = eventSelect.val();
+        const availableEvents = this._getAvailableEvents();
+        
+        // Clear and repopulate event dropdown
+        eventSelect.empty();
+        
+        // Add default option
+        eventSelect.append('<option value="">-- Select Event --</option>');
+        
+        // Group events by category
+        const eventsByCategory = {};
+        availableEvents.forEach(event => {
+            const category = event.category || 'general';
+            if (!eventsByCategory[category]) {
+                eventsByCategory[category] = [];
+            }
+            eventsByCategory[category].push(event);
+        });
+        
+        // Add events grouped by category
+        Object.entries(eventsByCategory).forEach(([category, events]) => {
+            const optgroup = $(`<optgroup label="${category.charAt(0).toUpperCase() + category.slice(1)} Events">`);
+            
+            events.forEach(event => {
+                const option = $(`<option value="${event.id}">${event.label}</option>`)
+                    .attr('title', event.description || '');
+                if (event.id === currentEvent) {
+                    option.prop('selected', true);
+                }
+                optgroup.append(option);
+            });
+            
+            eventSelect.append(optgroup);
+        });
+        
+        // If current event is not in the new list, select the first available
+        if (!eventSelect.find(`option[value="${currentEvent}"]`).length && availableEvents.length > 0) {
+            eventSelect.val(availableEvents[0].id);
+        }
+    }
+
     activateListeners(html) {
         super.activateListeners(html);
 
