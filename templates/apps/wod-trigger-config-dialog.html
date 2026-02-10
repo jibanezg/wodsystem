@@ -202,15 +202,7 @@
                                 <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All in Scene</option>
                             </select>
                         </div>
-                        <div class="grid-cell target-type-cell">
-                            <label>Element Type</label>
-                            <select name="actions.always.{{@index}}.target.elementType" class="target-element-type">
-                                <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door/Wall</option>
-                                <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
-                                <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
-                                <option value="tile" {{#if (eq this.target.elementType "tile")}}selected{{/if}}>Tile</option>
-                            </select>
-                        </div>
+                        <!-- Door Action - Element Type removed (auto-resolved as doors) -->
                         <div class="grid-cell target-id-cell" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
                             <label>Element ID</label>
                             <div class="field-row">
