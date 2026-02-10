@@ -41,10 +41,10 @@ export class TriggerManager {
         // Update debug mode from settings now that they're available
         // Use try-catch to handle case where settings aren't registered yet
         try {
-            this._debugMode = false; // Disabled debug mode to reduce console spam
+            this._debugMode = true; // Temporarily enable debug mode for troubleshooting
         } catch (error) {
             console.warn('WoD TriggerManager | Debug mode setting not available, using default:', error);
-            this._debugMode = false;
+            this._debugMode = true; // Enable debug mode by default for troubleshooting
         }
         this._conditionEvaluator.setDebugMode(this._debugMode);
         this._actionExecutor.setDebugMode(this._debugMode);
