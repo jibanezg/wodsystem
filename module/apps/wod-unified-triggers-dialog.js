@@ -21,7 +21,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
     constructor(document, options = {}) {
         super({
             title: options.title || 'WoD Triggers',
-            content: '',
+            content: '<div class="dialog-content">Loading...</div>',
             buttons: {
                 close: {
                     label: "Close",
@@ -179,6 +179,27 @@ export class WodUnifiedTriggersDialog extends Dialog {
             
             this._handleTriggerAction(action, triggerId);
         });
+    }
+    
+    /**
+     * Initialize the dialog content
+     */
+    async _initializeContent() {
+        try {
+            const data = await this.getData();
+            
+            // Update dialog content
+            const dialogElement = $(this.element);
+            if (dialogElement.length) {
+                dialogElement.find('.dialog-content').html(data.renderedContent);
+                
+                // Attach event listeners
+                this._attachEventListeners();
+            }
+        } catch (error) {
+            console.error('WoD Unified Triggers Dialog | Error initializing content:', error);
+            ui.notifications.error('Could not load trigger content');
+        }
     }
     
     /**
