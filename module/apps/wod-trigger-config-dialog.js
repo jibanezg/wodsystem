@@ -8,6 +8,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         this.document = document;
         this.triggerId = triggerId || foundry.utils.randomID();
         this.documentType = options.documentType || 'actor'; // Store document type
+        this._currentTriggerData = null; // Store in-memory trigger data
         this._onCloseCb = options?.onClose || null;
         this._closeCallbackCalled = false; // Track if callback was already called
         
@@ -44,6 +45,12 @@ export class WodTriggerConfigDialog extends FormApplication {
         const flagPath = this._getFlagPath();
         const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const existing = Array.isArray(triggers) ? triggers.find(t => t?.id === this.triggerId) : null;
+        
+        console.log('WoD Trigger Config Dialog | getData - existing trigger:', existing);
+        console.log('WoD Trigger Config Dialog | getData - in-memory data:', this._currentTriggerData);
+        
+        // Use in-memory data if available, otherwise use existing trigger data
+        const triggerData = this._currentTriggerData || existing;
         
         // Default trigger structure (clean format)
         const defaultTrigger = {
@@ -85,7 +92,7 @@ export class WodTriggerConfigDialog extends FormApplication {
             }
         };
         
-        const trigger = foundry.utils.duplicate(existing || defaultTrigger);
+        const trigger = foundry.utils.duplicate(triggerData || defaultTrigger);
         
                 
         // Ensure new format fields exist
@@ -684,6 +691,11 @@ export class WodTriggerConfigDialog extends FormApplication {
                 value: '',
                 logic: 'none'
             });
+            
+            // Store the updated data in memory
+            this._currentTriggerData = currentData;
+            console.log('WoD Trigger Config Dialog | Add condition - stored in-memory data with conditions:', currentData.trigger.trigger.conditions.length);
+            
             this.render(false);
             return;
         }
