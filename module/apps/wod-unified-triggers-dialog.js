@@ -216,8 +216,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
             });
         }
 
-        // Add click listeners for trigger actions
-        contentElement.find('.trigger-action').off('click.unifiedAction').on('click.unifiedAction', (event) => {
+        // Add click listeners for trigger edit and delete buttons
+        contentElement.find('.trigger-edit, .trigger-delete').off('click.unifiedAction').on('click.unifiedAction', (event) => {
             event.preventDefault();
             event.stopPropagation();
             
