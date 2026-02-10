@@ -200,8 +200,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
         const dialogElement = $(this.element);
         
         // Add click listener for add trigger button using the same system as actors/doors
-        // Only target the nice circular green button
-        const $button = dialogElement.find('.wod-add-trigger-btn');
+        // Target the rectangular button from the original scene dialog
+        const $button = dialogElement.find('.add-trigger-btn');
         
         if ($button.length) {
             console.log('WoD Unified Triggers Dialog | Found add trigger button');
