@@ -6,7 +6,7 @@ const _processedApps = new WeakSet();
 
 export function registerWodTriggerTabs() {
     
-    // Hook into Foundry's context menu system - this is the proper way
+    // Try multiple possible context menu hooks for scenes
     Hooks.on('getSceneContextOptions', (context, html) => {
         console.log('WoD Trigger Tabs | getSceneContextOptions hook triggered');
         
@@ -30,6 +30,70 @@ export function registerWodTriggerTabs() {
         
         console.log('WoD Trigger Tabs | Added WoD Triggers to scene context menu');
         return context;
+    });
+    
+    // Try alternative context menu hooks
+    Hooks.on('getDirectoryContextOptions', (context, html) => {
+        console.log('WoD Trigger Tabs | getDirectoryContextOptions hook triggered');
+        
+        // Check if this is for scenes
+        if (html.closest('[data-tab="scenes"]').length > 0) {
+            console.log('WoD Trigger Tabs | Adding to scenes directory context menu');
+            
+            context.push({
+                name: "WoD Triggers",
+                icon: '<i class="fa-solid fa-shield-halved"></i>',
+                condition: (li) => {
+                    return game.user.isGM && li.hasClass('scene');
+                },
+                callback: (li) => {
+                    const sceneId = li.data('entryId');
+                    const scene = game.scenes.get(sceneId);
+                    if (scene) {
+                        _showSceneTriggersDialog(scene);
+                    }
+                }
+            });
+        }
+        
+        return context;
+    });
+    
+    // Try the SceneDirectory specific hook
+    Hooks.on('getSceneDirectoryContextOptions', (context, html) => {
+        console.log('WoD Trigger Tabs | getSceneDirectoryContextOptions hook triggered');
+        
+        context.push({
+            name: "WoD Triggers",
+            icon: '<i class="fa-solid fa-shield-halved"></i>',
+            condition: (li) => {
+                return game.user.isGM;
+            },
+            callback: (li) => {
+                const sceneId = li.data('entryId');
+                const scene = game.scenes.get(sceneId);
+                if (scene) {
+                    _showSceneTriggersDialog(scene);
+                }
+            }
+        });
+        
+        return context;
+    });
+    
+    // Debug: Log all available hooks that might be related
+    Hooks.on('ready', () => {
+        console.log('WoD Trigger Tabs | Checking for SceneDirectory class...');
+        if (game.scenes?.directory) {
+            console.log('WoD Trigger Tabs | Found SceneDirectory:', game.scenes.directory);
+            console.log('WoD Trigger Tabs | SceneDirectory constructor:', game.scenes.directory.constructor.name);
+        }
+        
+        // Try to find the actual context menu hook by checking the SceneDirectory class
+        const SceneDirectory = game.scenes?.directory?.constructor;
+        if (SceneDirectory) {
+            console.log('WoD Trigger Tabs | SceneDirectory methods:', Object.getOwnPropertyNames(SceneDirectory.prototype));
+        }
     });
     
     // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
