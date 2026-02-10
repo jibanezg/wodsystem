@@ -116,13 +116,16 @@ export class WodTriggerConfigDialog extends FormApplication {
         if (!registry) return this._getDefaultEvents();
         
         const allEvents = registry.getAllEvents();
+        console.log(`WoD TriggerConfig | All events available:`, allEvents.map(e => e.id));
         
         switch (targetType) {
             case 'actor':
                 // Actor events: onEffectApplied, onEffectRemoved, onHealthChanged, onAttributeChanged
-                return allEvents.filter(event => 
+                const actorEvents = allEvents.filter(event => 
                     event.documentTypes?.includes('actor')
                 );
+                console.log(`WoD TriggerConfig | Actor events filtered:`, actorEvents.map(e => e.id));
+                return actorEvents;
                 
             case 'doors':
             case 'walls':
