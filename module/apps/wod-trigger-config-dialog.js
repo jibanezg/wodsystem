@@ -198,7 +198,17 @@ export class WodTriggerConfigDialog extends FormApplication {
             const executionMode = ev.currentTarget.value;
             const eventField = html.find('select[name="trigger.eventType"]').closest('.form-group');
             eventField.toggle(executionMode === 'event');
+            
+            console.log('WoD Trigger Config Dialog | Execution mode changed to:', executionMode);
+            console.log('WoD Trigger Config Dialog | Event field found:', eventField.length > 0);
         });
+
+        // Initialize event field visibility based on current mode
+        const currentMode = html.find('select[name="trigger.execution.mode"]').val();
+        const eventField = html.find('select[name="trigger.eventType"]').closest('.form-group');
+        eventField.toggle(currentMode === 'event');
+        console.log('WoD Trigger Config Dialog | Initial execution mode:', currentMode);
+        console.log('WoD Trigger Config Dialog | Initial event field visibility:', currentMode === 'event');
 
         // Add condition button
         const addConditionBtn = html.find('button[data-action="add-condition"]');
