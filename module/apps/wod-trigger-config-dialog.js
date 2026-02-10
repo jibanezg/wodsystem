@@ -49,7 +49,9 @@ export class WodTriggerConfigDialog extends FormApplication {
     _getAvailableEvents() {
         // If form exists (after render), use the current target selection
         if (this.form) {
-            const targetCsv = this.form.find('select[name="targetCsv"]').val() || '';
+            // this.form is a DOM element, so use jQuery to find elements
+            const $form = $(this.form);
+            const targetCsv = $form.find('select[name="targetCsv"]').val() || '';
             const targetType = this._determineTargetType(targetCsv);
             return this._getEventsForTargetType(targetType);
         }
