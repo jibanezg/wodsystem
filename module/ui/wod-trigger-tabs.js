@@ -277,18 +277,20 @@ export function registerWodTriggerTabs() {
             const originalGetContextOptions = game.scenes.directory.getContextOptions;
             if (originalGetContextOptions) {
                 console.log('WoD Trigger Tabs | Found original getContextOptions method');
-                game.scenes.directory.getContextOptions = function() {
+                game.scenes.directory.getContextOptions = function(li) {
                     console.log('WoD Trigger Tabs | SceneDirectory getContextOptions called');
-                    const options = originalGetContextOptions.call(this);
+                    const options = originalGetContextOptions.call(this, li);
                     
                     // Add our WoD Triggers option
                     options.push({
                         name: "WoD Triggers",
                         icon: '<i class="fa-solid fa-shield-halved"></i>',
-                        condition: (li) => {
+                        condition: () => {
+                            // Only show for GMs
                             return game.user.isGM;
                         },
-                        callback: (li) => {
+                        callback: () => {
+                            // Get the scene from the list item
                             const sceneId = li.data('entryId');
                             const scene = game.scenes.get(sceneId);
                             if (scene) {
