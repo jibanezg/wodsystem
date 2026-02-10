@@ -1,62 +1,132 @@
+import { TriggerAPI } from './trigger-api.js';
+import { TriggerEventRegistry } from './trigger-event-registry.js';
+import { ConditionEvaluator } from './condition-evaluator.js';
+import { TriggerActionExecutor } from './trigger-action-executor.js';
+
+/**
+ * TriggerManager v2 - Core trigger event detection and execution
+ * 
+ * Architecture:
+ * - Detects events from multiple document types (tile, region, wall, actor, scene)
+ * - Routes events to appropriate triggers based on document type
+ * - Evaluates conditions and executes actions
+ * - Supports proximity detection as a modifier
+ */
 export class TriggerManager {
     constructor() {
+        // Token state tracking for movement detection
         this._tokenState = new Map(); // tokenUuid -> {x,y,width,height, sceneId, tiles:Set, regions:Set}
         this._movementMonitors = new Map(); // tokenUuid -> animationFrame
+        
+        // Rate limiting
+        this._processingQueue = new Set();
+        this._lastProcessTime = new Map();
+        this._PROCESS_COOLDOWN = 50;
+        
+        // Active timing intervals
+        this._activeIntervals = new Map();
+        
+        // Debug mode - default to false during early initialization
+        this._debugMode = false;
+        
+        // Initialize services
+        this._triggerAPI = TriggerAPI.getInstance();
+        this._registry = TriggerEventRegistry.getInstance();
+        this._conditionEvaluator = new ConditionEvaluator();
+        this._conditionEvaluator.setDebugMode(this._debugMode);
+        this._actionExecutor = TriggerActionExecutor.getInstance();
     }
 
     initialize() {
-        // Listen for token updates
-        Hooks.on('updateToken', (token, changes, options, userId) => {
-            try {
-                // Only process movement updates
-                if (changes.x !== undefined || changes.y !== undefined) {
-                    this._onTokenUpdated(token, changes);
-                }
-                // Check if effects were modified
-                if (changes.effects !== undefined) {
-                    this._onTokenEffectsChanged(token, changes.effects);
-                }
-            } catch (error) {
-                console.error('WoD TriggerManager | Error processing token update:', error);
-            }
-        });
-
-        // Listen for door state changes
-        Hooks.on('updateWall', (wall, changes, options, userId) => {
-            try {
-                this._onDoorUpdated(wall, changes);
-            } catch (error) {
-                console.error('WoD TriggerManager | Failed processing updateWall', error);
-            }
-        });
-
-        // Listen for actor effect changes (for tokens that inherit from actors)
+        // Update debug mode from settings now that they're available
+        // Use try-catch to handle case where settings aren't registered yet
+        try {
+            this._debugMode = game.settings?.get?.('wodsystem', 'debugMode') ?? false;
+        } catch (error) {
+            console.warn('WoD TriggerManager | Debug mode setting not available, using default:', error);
+            this._debugMode = false;
+        }
+        this._conditionEvaluator.setDebugMode(this._debugMode);
+        this._actionExecutor.setDebugMode(this._debugMode);
+        
+        if (this._debugMode) {
+            console.log('WoD TriggerManager v2 | Initializing...');
+        }
+        
+        // ==================== Actor Events (Global) ====================
         Hooks.on('updateActor', (actor, changes, options, userId) => {
             try {
-                // Check if effects were modified
+                // Handle actor effect changes
                 if (changes.effects !== undefined) {
                     this._onActorEffectsChanged(actor, changes.effects);
                 }
+                // Handle actor attribute changes (health, etc.)
+                if (changes.system !== undefined) {
+                    this._onActorAttributesChanged(actor, changes.system);
+                }
             } catch (error) {
-                console.error('WoD TriggerManager | Error processing actor effects change:', error);
+                console.error('WoD TriggerManager | Error processing actor changes:', error);
             }
         });
 
+        // ==================== Wall/Door Events ====================
+        Hooks.on('updateWall', (wall, changes, options, userId) => {
+            try {
+                // Check if this is a door state change
+                if (changes.ds !== undefined) {
+                    this._onDoorStateChanged(wall, changes);
+                }
+            } catch (error) {
+                console.error('WoD TriggerManager | Error processing door update:', error);
+            }
+        });
+
+        // ==================== Combat Events ====================
+        Hooks.on('combatStart', (combat, updateData) => {
+            try {
+                this._onCombatEvent('onCombatStart', combat);
+            } catch (error) {
+                console.error('WoD TriggerManager | Error processing combat start:', error);
+            }
+        });
+        
+        Hooks.on('deleteCombat', (combat, options, userId) => {
+            try {
+                this._onCombatEvent('onCombatEnd', combat);
+            } catch (error) {
+                console.error('WoD TriggerManager | Error processing combat end:', error);
+            }
+        });
+        
+        Hooks.on('combatRound', (combat, updateData, updateOptions) => {
+            try {
+                this._onCombatEvent('onRoundStart', combat);
+            } catch (error) {
+                console.error('WoD TriggerManager | Error processing round start:', error);
+            }
+        });
+
+        // ==================== Canvas/Scene Events ====================
         Hooks.on('canvasReady', () => {
             try {
                 this._primeInitialTokenState();
             } catch (error) {
-                console.error('WoD TriggerManager | Failed priming token state', error);
+                console.error('WoD TriggerManager | Error priming token state:', error);
             }
         });
 
         Hooks.on('ready', () => {
             try {
                 this._primeInitialTokenState();
+                this._startSceneTriggerMonitoring();
             } catch (error) {
-                console.error('WoD TriggerManager | Failed priming token state (ready)', error);
+                console.error('WoD TriggerManager | Error on ready:', error);
             }
         });
+        
+        if (this._debugMode) {
+            console.log('WoD TriggerManager v2 | Initialization complete');
+        }
     }
 
     _primeInitialTokenState() {
@@ -67,13 +137,33 @@ export class TriggerManager {
         }
     }
 
-    _onTokenUpdated(tokenDoc, changes) {
+    // ==================== Token Movement Handler ====================
+    
+    /**
+     * Handle token movement - fires onEnter, onExit, onProximity events
+     * @param {TokenDocument} tokenDoc - The token document
+     * @param {Object} changes - The changes object
+     */
+    _onTokenMovement(tokenDoc, changes) {
         if (!canvas?.scene) return;
 
         // Only care about movement
         if (changes.x === undefined && changes.y === undefined) return;
 
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Token movement: ${tokenDoc.name}`);
+        }
+
         const tokenUuid = tokenDoc.uuid;
+        const now = Date.now();
+        const lastProcess = this._lastProcessTime.get(tokenUuid) || 0;
+        
+        // Rate limit
+        if (now - lastProcess < this._PROCESS_COOLDOWN) {
+            return;
+        }
+        this._lastProcessTime.set(tokenUuid, now);
+
         const prevState = this._tokenState.get(tokenUuid);
         const nextState = this._computeTokenState(tokenDoc);
 
@@ -99,8 +189,10 @@ export class TriggerManager {
         const enteredRegions = this._setDiff(nextState.regions, actualPrevState.regions);
         const exitedRegions = this._setDiff(actualPrevState.regions, nextState.regions);
 
-        console.log(`WoD TriggerManager | MOVEMENT: from (${actualPrevState.rect.x}, ${actualPrevState.rect.y}) to (${nextState.rect.x}, ${nextState.rect.y})`);
-        console.log(`WoD TriggerManager | TILES: entered=[${Array.from(enteredTiles).join(', ')}] exited=[${Array.from(exitedTiles).join(', ')}]`);
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | MOVEMENT: from (${actualPrevState.rect.x}, ${actualPrevState.rect.y}) to (${nextState.rect.x}, ${nextState.rect.y})`);
+            console.log(`WoD TriggerManager | TILES: entered=[${Array.from(enteredTiles).join(', ')}] exited=[${Array.from(exitedTiles).join(', ')}]`);
+        }
 
         
         for (const tileId of enteredTiles) {
@@ -128,6 +220,323 @@ export class TriggerManager {
                 if (regionDoc) this._fireDocumentTriggers('region', regionDoc, tokenDoc, 'onExit');
             }
         }
+
+        // Check for effects on token and trigger onEffect for nearby tiles
+        if (tokenDoc.actor && tokenDoc.actor.effects) {
+            const effects = tokenDoc.actor.effects;
+            if (effects.size > 0) {
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Token has ${effects.size} effects, checking nearby tiles`);
+                }
+                
+                // Get all tiles the token is currently on/near
+                const currentTiles = this._computeTokenState(tokenDoc).tiles;
+                
+                for (const effect of effects) {
+                    if (!effect) continue;
+                    
+                    for (const tileId of currentTiles) {
+                        const tileDoc = canvas.scene.tiles.get(tileId);
+                        if (tileDoc) {
+                            if (this._debugMode) {
+                                console.log(`WoD TriggerManager | Checking onEffect trigger for tile ${tileId} with effect ${effect.name}`);
+                            }
+                            this._fireDocumentTriggers('tile', tileDoc, tokenDoc, 'onEffect', tileDoc, effect);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Check proximity-based triggers
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Checking proximity triggers for token ${tokenDoc.name}`);
+        }
+        this._checkProximityTriggers(tokenDoc);
+    }
+    
+    /**
+     * Check all proximity-based triggers for the given token
+     * @param {TokenDocument} tokenDoc - The token to check
+     */
+    _checkProximityTriggers(tokenDoc) {
+        if (!canvas?.scene) return;
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | _checkProximityTriggers called for token ${tokenDoc.name}`);
+        }
+        
+        const tokenRect = this._getTokenRect(tokenDoc);
+        const tokenCenter = {
+            x: tokenRect.x + tokenRect.width / 2,
+            y: tokenRect.y + tokenRect.height / 2
+        };
+        
+        // Check all tiles for proximity triggers
+        let totalTilesChecked = 0;
+        let tilesWithTriggers = 0;
+        
+        for (const tile of canvas.scene.tiles) {
+            totalTilesChecked++;
+            const triggers = tile.getFlag('wodsystem', 'triggers') || [];
+            if (!Array.isArray(triggers) || triggers.length === 0) continue;
+            
+            tilesWithTriggers++;
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Found ${triggers.length} triggers on tile ${tile.id}`);
+            }
+            
+            for (const trigger of triggers) {
+                if (!trigger || trigger.enabled === false) continue;
+                
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Checking trigger:`, {
+                        id: trigger.id,
+                        name: trigger.name,
+                        enabled: trigger.enabled,
+                        scopeType: trigger.trigger?.scope?.type,
+                        executionMode: trigger.trigger?.execution?.mode,
+                        conditions: trigger.trigger?.conditions
+                    });
+                }
+                
+                // Check if this is a proximity scope trigger
+                const scopeType = trigger.trigger?.scope?.type;
+                if (scopeType !== 'proximity') continue;
+                
+                const proximityConfig = trigger.trigger?.scope?.proximity || {};
+                const distance = proximityConfig.distance || 5;
+                const unit = proximityConfig.unit || 'grid';
+                const shape = proximityConfig.shape || 'circle';
+                
+                // Check if token is within proximity and get actual distance
+                const proximityResult = this._isTokenWithinProximity(
+                    tokenCenter, tile, distance, unit, shape
+                );
+                const isWithinProximity = proximityResult.isWithin;
+                const actualDistance = proximityResult.distance;
+                
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Proximity check:`, {
+                        tokenId: trigger.id,
+                        triggerName: trigger.name,
+                        tokenCenter,
+                        tilePosition: { x: tile.x, y: tile.y },
+                        distance,
+                        unit,
+                        shape,
+                        actualDistance,
+                        isWithinProximity
+                    });
+                }
+                
+                if (isWithinProximity) {
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | Token within proximity of tile ${tile.id} at distance ${actualDistance} ${unit}`);
+                    }
+                    
+                    // Get execution mode to determine how to handle the trigger
+                    const execution = trigger.trigger?.execution || {};
+                    const executionMode = execution.mode || 'event';
+                    
+                    if (executionMode === 'event') {
+                        // Event mode: fire with 'onProximity' event type and distance context
+                        this._fireDocumentTriggers('tile', tile, tokenDoc, 'onProximity', null, null, {
+                            distance: actualDistance,
+                            distanceUnit: unit
+                        });
+                    } else {
+                        // State/Continuous mode: fire with 'onProximity' event type but let execution mode handle timing
+                        this._fireDocumentTriggers('tile', tile, tokenDoc, 'onProximity', null, null, {
+                            distance: actualDistance,
+                            distanceUnit: unit
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Check all regions for proximity triggers
+        if (canvas.scene.regions) {
+            for (const region of canvas.scene.regions) {
+                const triggers = region.getFlag('wodsystem', 'triggers') || [];
+                if (!Array.isArray(triggers) || triggers.length === 0) continue;
+                
+                for (const trigger of triggers) {
+                    if (!trigger || trigger.enabled === false) continue;
+                    
+                    const scopeType = trigger.trigger?.scope?.type;
+                    if (scopeType !== 'proximity') continue;
+                    
+                    const proximityConfig = trigger.trigger?.scope?.proximity || {};
+                    const distance = proximityConfig.distance || 5;
+                    const unit = proximityConfig.unit || 'grid';
+                    const shape = proximityConfig.shape || 'circle';
+                    
+                    // Check if token is within proximity and get actual distance
+                    const proximityResult = this._isTokenWithinProximityOfRegion(
+                        tokenCenter, region, distance, unit, shape
+                    );
+                    const isWithinProximity = proximityResult.isWithin;
+                    const actualDistance = proximityResult.distance;
+                    
+                    if (isWithinProximity) {
+                        if (this._debugMode) {
+                            console.log(`WoD TriggerManager | Token within proximity of region ${region.id}`);
+                        }
+                        
+                        // Get execution mode to determine how to handle the trigger
+                        const execution = trigger.trigger?.execution || {};
+                        const executionMode = execution.mode || 'event';
+                        
+                        if (executionMode === 'event') {
+                            // Event mode: fire with 'onProximity' event type and distance context
+                            this._fireDocumentTriggers('region', region, tokenDoc, 'onProximity', null, null, {
+                                distance: actualDistance,
+                                distanceUnit: unit
+                            });
+                        } else {
+                            // State/Continuous mode: fire with 'onProximity' event type but let execution mode handle timing
+                            this._fireDocumentTriggers('region', region, tokenDoc, 'onProximity', null, null, {
+                                distance: actualDistance,
+                                distanceUnit: unit
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Proximity check complete: ${totalTilesChecked} tiles checked, ${tilesWithTriggers} with triggers`);
+        }
+    }
+    
+    /**
+     * Get token rectangle from token document
+     * @private
+     */
+    _getTokenRect(tokenDoc) {
+        const gridSize = canvas?.grid?.size || 100;
+        const widthPx = (tokenDoc.width || 1) * gridSize;
+        const heightPx = (tokenDoc.height || 1) * gridSize;
+        
+        return {
+            x: tokenDoc.x ?? 0,
+            y: tokenDoc.y ?? 0,
+            width: widthPx,
+            height: heightPx
+        };
+    }
+    
+    /**
+     * Check if token center is within proximity of a tile
+     * @private
+     */
+    _isTokenWithinProximity(tokenCenter, tile, distance, unit, shape) {
+        const gridSize = canvas?.grid?.size || 100;
+        const distancePx = unit === 'grid' ? distance * gridSize : distance;
+        
+        // Get tile bounds
+        const tileRect = {
+            x: tile.x,
+            y: tile.y,
+            width: tile.width,
+            height: tile.height
+        };
+        
+        // Expand tile bounds by proximity distance
+        const expandedRect = {
+            x: tileRect.x - distancePx,
+            y: tileRect.y - distancePx,
+            width: tileRect.width + distancePx * 2,
+            height: tileRect.height + distancePx * 2
+        };
+        
+        if (shape === 'square' || shape === 'rectangle') {
+            // Simple rectangle check - calculate distance to rectangle
+            const dx = Math.max(0, Math.max(tileRect.x - tokenCenter.x, tokenCenter.x - (tileRect.x + tileRect.width)));
+            const dy = Math.max(0, Math.max(tileRect.y - tokenCenter.y, tokenCenter.y - (tileRect.y + tileRect.height)));
+            const distanceToTile = Math.sqrt(dx * dx + dy * dy);
+            
+            return {
+                isWithin: distanceToTile <= distancePx,
+                distance: unit === 'grid' ? distanceToTile / gridSize : distanceToTile
+            };
+        } else {
+            // Circle check - distance from token center to nearest point on tile
+            const tileCenter = {
+                x: tileRect.x + tileRect.width / 2,
+                y: tileRect.y + tileRect.height / 2
+            };
+            
+            // Find nearest point on tile to token center
+            const nearestX = Math.max(tileRect.x, Math.min(tokenCenter.x, tileRect.x + tileRect.width));
+            const nearestY = Math.max(tileRect.y, Math.min(tokenCenter.y, tileRect.y + tileRect.height));
+            
+            // Calculate distance from token center to nearest point
+            const dx = tokenCenter.x - nearestX;
+            const dy = tokenCenter.y - nearestY;
+            const distanceToTile = Math.sqrt(dx * dx + dy * dy);
+            
+            return {
+                isWithin: distanceToTile <= distancePx,
+                distance: unit === 'grid' ? distanceToTile / gridSize : distanceToTile
+            };
+        }
+    }
+    
+    /**
+     * Check if token center is within proximity of a region
+     * @private
+     */
+    _isTokenWithinProximityOfRegion(tokenCenter, region, distance, unit, shape) {
+        const gridSize = canvas?.grid?.size || 100;
+        const distancePx = unit === 'grid' ? distance * gridSize : distance;
+        
+        // Get region bounds
+        const bounds = region.bounds || region.document?.bounds;
+        if (!bounds) return false;
+        
+        const regionRect = {
+            x: bounds.x,
+            y: bounds.y,
+            width: bounds.width,
+            height: bounds.height
+        };
+        
+        // Expand region bounds by proximity distance
+        const expandedRect = {
+            x: regionRect.x - distancePx,
+            y: regionRect.y - distancePx,
+            width: regionRect.width + distancePx * 2,
+            height: regionRect.height + distancePx * 2
+        };
+        
+        if (shape === 'square' || shape === 'rectangle') {
+            // Calculate distance to rectangle
+            const dx = Math.max(0, Math.max(regionRect.x - tokenCenter.x, tokenCenter.x - (regionRect.x + regionRect.width)));
+            const dy = Math.max(0, Math.max(regionRect.y - tokenCenter.y, tokenCenter.y - (regionRect.y + regionRect.height)));
+            const distanceToRegion = Math.sqrt(dx * dx + dy * dy);
+            
+            return {
+                isWithin: distanceToRegion <= distancePx,
+                distance: unit === 'grid' ? distanceToRegion / gridSize : distanceToRegion
+            };
+        } else {
+            // Circle check
+            const nearestX = Math.max(regionRect.x, Math.min(tokenCenter.x, regionRect.x + regionRect.width));
+            const nearestY = Math.max(regionRect.y, Math.min(tokenCenter.y, regionRect.y + regionRect.height));
+            
+            const dx = tokenCenter.x - nearestX;
+            const dy = tokenCenter.y - nearestY;
+            const distanceToRegion = Math.sqrt(dx * dx + dy * dy);
+            
+            return {
+                isWithin: distanceToRegion <= distancePx,
+                distance: unit === 'grid' ? distanceToRegion / gridSize : distanceToRegion
+            };
+        }
     }
 
     _computeTokenState(tokenDoc) {
@@ -142,40 +551,56 @@ export class TriggerManager {
             height: heightPx
         };
 
+        // Use Foundry's spatial indexing for tiles - much faster than iterating all tiles
         const tiles = new Set();
-        for (const tile of canvas.scene.tiles) {
-            const tokenElevation = tokenDoc.elevation ?? 0;
-            const tileElevation = tile.elevation ?? 0;
-            
-            // Check both 2D intersection and elevation
-            if (this._rectIntersects(tokenRect, tile) && Math.abs(tokenElevation - tileElevation) < 1) {
-                tiles.add(tile.id);
-                console.log(`WoD TriggerManager | Tile ${tile.id} at (${tile.x}, ${tile.y}) elevation=${tileElevation} intersects token at (${tokenRect.x}, ${tokenRect.y}) elevation=${tokenElevation}`);
-            }
+        const tokenElevation = tokenDoc.elevation ?? 0;
+        
+        // Get tiles in the token's vicinity using quadtree if available
+        let nearbyTiles = [];
+        if (canvas.scene.tiles.quadtree) {
+            // Use quadtree for spatial lookup
+            nearbyTiles = canvas.scene.tiles.quadtree.getObjects(tokenRect);
+        } else {
+            // Fallback to checking only tiles that could possibly intersect
+            nearbyTiles = canvas.scene.tiles.filter(tile => {
+                // Quick bounding box check before expensive intersection
+                return (tile.x < tokenRect.x + tokenRect.width &&
+                        tile.x + tile.width > tokenRect.x &&
+                        tile.y < tokenRect.y + tokenRect.height &&
+                        tile.y + tile.height > tokenRect.y);
+            });
         }
         
-        // Also check specifically for the trigger tile
-        const triggerTile = canvas.scene.tiles.get('yOMeLH13TRgES3Uf');
-        if (triggerTile) {
-            const tokenElevation = tokenDoc.elevation ?? 0;
-            const tileElevation = triggerTile.elevation ?? 0;
-            
-            console.log(`WoD TriggerManager | Trigger tile yOMeLH13TRgES3Uf at (${triggerTile.x}, ${triggerTile.y}) size ${triggerTile.width}x${triggerTile.height} elevation=${tileElevation}`);
-            console.log(`WoD TriggerManager | Token rect: x=${tokenRect.x}, y=${tokenRect.y}, w=${tokenRect.width}, h=${tokenRect.height} elevation=${tokenElevation}`);
-            console.log(`WoD TriggerManager | Intersection: ${this._rectIntersects(tokenRect, triggerTile)} (ignoring elevation)`);
-            console.log(`WoD TriggerManager | Elevation match: ${Math.abs(tokenElevation - tileElevation) < 1}`);
-        } else {
-            console.warn('WoD TriggerManager | Trigger tile yOMeLH13TRgES3Uf not found in scene!');
+        for (const tile of nearbyTiles) {
+            const tileElevation = tile.elevation ?? 0;
+            if (Math.abs(tokenElevation - tileElevation) < 1) {
+                tiles.add(tile.id);
+            }
         }
 
+        // Use spatial indexing for regions too
         const regions = new Set();
         if (canvas.scene.regions) {
-            for (const region of canvas.scene.regions) {
-                if (this._rectIntersectsRegion(tokenRect, region)) regions.add(region.id);
+            let nearbyRegions = [];
+            if (canvas.scene.regions.quadtree) {
+                nearbyRegions = canvas.scene.regions.quadtree.getObjects(tokenRect);
+            } else {
+                nearbyRegions = canvas.scene.regions.filter(region => {
+                    return region.bounds && 
+                           region.bounds.x < tokenRect.x + tokenRect.width &&
+                           region.bounds.x + region.bounds.width > tokenRect.x &&
+                           region.bounds.y < tokenRect.y + tokenRect.height &&
+                           region.bounds.y + region.bounds.height > tokenRect.y;
+                });
+            }
+            
+            for (const region of nearbyRegions) {
+                if (this._rectIntersectsRegion(tokenRect, region)) {
+                    regions.add(region.id);
+                }
             }
         }
 
-        
         return {
             sceneId: canvas.scene.id,
             rect: tokenRect,
@@ -256,7 +681,28 @@ export class TriggerManager {
 
     _getTilesAlongPath(fromRect, toRect) {
         const pathTiles = new Set();
-        const steps = 10; // Check 10 points along the path
+        const steps = 5; // Reduced from 10 to improve performance
+        
+        // Create expanded bounds to include the entire path
+        const pathBounds = {
+            x: Math.min(fromRect.x, toRect.x),
+            y: Math.min(fromRect.y, toRect.y),
+            width: Math.abs(toRect.x - fromRect.x) + fromRect.width,
+            height: Math.abs(toRect.y - fromRect.y) + fromRect.height
+        };
+        
+        // Get tiles that could possibly be in the path using spatial indexing
+        let candidateTiles = [];
+        if (canvas.scene.tiles.quadtree) {
+            candidateTiles = canvas.scene.tiles.quadtree.getObjects(pathBounds);
+        } else {
+            candidateTiles = canvas.scene.tiles.filter(tile => {
+                return (tile.x < pathBounds.x + pathBounds.width &&
+                        tile.x + tile.width > pathBounds.x &&
+                        tile.y < pathBounds.y + pathBounds.height &&
+                        tile.y + tile.height > pathBounds.y);
+            });
+        }
         
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
@@ -265,8 +711,8 @@ export class TriggerManager {
                 y: fromRect.y + (toRect.y - fromRect.y) * t + fromRect.height / 2
             };
             
-            // Check which tiles contain this point
-            for (const tile of canvas.scene.tiles) {
+            // Only check candidate tiles, not all tiles
+            for (const tile of candidateTiles) {
                 if (this._pointInRect(point, tile)) {
                     pathTiles.add(tile.id);
                 }
@@ -278,7 +724,28 @@ export class TriggerManager {
 
     _getCrossedTiles(fromRect, toRect) {
         const crossedTiles = new Set();
-        const steps = 20; // Check more points along the path for accuracy
+        const steps = 8; // Reduced from 20 to improve performance
+        
+        // Create expanded bounds to include the entire path
+        const pathBounds = {
+            x: Math.min(fromRect.x, toRect.x),
+            y: Math.min(fromRect.y, toRect.y),
+            width: Math.abs(toRect.x - fromRect.x) + fromRect.width,
+            height: Math.abs(toRect.y - fromRect.y) + fromRect.height
+        };
+        
+        // Get tiles that could possibly be crossed using spatial indexing
+        let candidateTiles = [];
+        if (canvas.scene.tiles.quadtree) {
+            candidateTiles = canvas.scene.tiles.quadtree.getObjects(pathBounds);
+        } else {
+            candidateTiles = canvas.scene.tiles.filter(tile => {
+                return (tile.x < pathBounds.x + pathBounds.width &&
+                        tile.x + tile.width > pathBounds.x &&
+                        tile.y < pathBounds.y + pathBounds.height &&
+                        tile.y + tile.height > pathBounds.y);
+            });
+        }
         
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
@@ -291,8 +758,8 @@ export class TriggerManager {
                 height: fromRect.height
             };
             
-            // Check all tiles using rectangle intersection
-            for (const tile of canvas.scene.tiles) {
+            // Only check candidate tiles, not all tiles
+            for (const tile of candidateTiles) {
                 if (this._rectIntersects(tokenRectAtPoint, tile)) {
                     crossedTiles.add(tile.id);
                 }
@@ -302,60 +769,447 @@ export class TriggerManager {
     }
 
     
-    async _fireDocumentTriggers(documentType, doc, tokenDoc, eventType, sourceDoc = null, effect = null) {
+    async _fireDocumentTriggers(documentType, doc, tokenDoc, eventType, sourceDoc = null, effect = null, additionalContext = {}) {
         const triggers = doc.getFlag('wodsystem', 'triggers') || [];
         if (!Array.isArray(triggers) || triggers.length === 0) return;
 
-        console.log(`WoD TriggerManager | ${eventType.toUpperCase()}: ${triggers.length} triggers for ${documentType} ${doc.id}`);
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | ${eventType.toUpperCase()}: ${triggers.length} triggers for ${documentType} ${doc.id}`);
+        }
 
         const actor = tokenDoc?.actor || null;
         for (const trigger of triggers) {
             if (!trigger || trigger.enabled === false) continue;
-            if (trigger?.trigger?.eventType !== eventType) continue;
             
-            // For onEffect events, check if the effect name matches
-            if (eventType === 'onEffect' && effect) {
-                const expectedEffectName = trigger?.trigger?.effectName?.trim().toLowerCase();
-                const actualEffectName = effect.label?.trim().toLowerCase() || effect.name?.trim().toLowerCase();
+            // Build evaluation context
+            const context = {
+                token: tokenDoc,
+                actor: actor,
+                document: doc,
+                documentType: documentType,
+                eventType: eventType,
+                effect: effect,
+                sourceDoc: sourceDoc,
+                entered: eventType === 'onEnter',
+                exited: eventType === 'onExit',
+                ...additionalContext  // Merge additional context
+            };
+            
+            // Check if trigger should fire based on format (new vs legacy)
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Evaluating trigger "${trigger.name}" for firing`);
+            }
+            const shouldFire = this._shouldTriggerFire(trigger, context, executionMode);
+            if (!shouldFire) {
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" conditions not met, skipping`);
+                }
+                continue;
+            }
+            
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Trigger "${trigger.name}" conditions met, executing actions`);
+            }
+
+            // Notify TriggerAPI that trigger is firing
+            this._triggerAPI.notifyTriggerFired(trigger.id, { passed: true }, context);
+
+            // Get execution configuration
+            const execution = trigger.trigger?.execution || {};
+            const executionMode = execution.mode || 'event';
+            const timingConfig = execution.timing || {};
+            const delay = timingConfig.delay || 0;
+            const repeat = timingConfig.repeat || 0;
+            const duration = timingConfig.duration || null;
+
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Trigger "${trigger.name}" execution config:`, {
+                    executionMode,
+                    delay,
+                    repeat,
+                    duration
+                });
+            }
+
+            // Route based on execution mode
+            if (executionMode === 'event') {
+                // Event mode: route by specific event OR conditions
+                const triggerEvent = execution.event || 'onEnter';
+                const hasConditions = trigger.trigger?.conditions && trigger.trigger.conditions.length > 0;
                 
-                if (!expectedEffectName || expectedEffectName !== actualEffectName) {
-                    continue;
+                // If trigger has conditions, they were already evaluated in _shouldTriggerFire
+                // If no conditions, check event type match
+                if (hasConditions || triggerEvent === eventType) {
+                    await this._executeTimedTrigger(trigger, context, { delay, repeat, duration });
                 }
-            }
-
-            console.log(`WoD TriggerManager | TRIGGER: ${trigger.name || 'Unnamed'}`);
-
-            const rollConfig = trigger.roll || {};
-            const actionsConfig = trigger.actions || {};
-
-            let passed = null;
-            if (rollConfig.enabled) {
-                passed = await this._executeRoll(actor, rollConfig);
-            }
-
-            // Always actions execute regardless of roll
-            const alwaysActions = actionsConfig.always || [];
-            if (alwaysActions.length > 0) {
-                console.log(`WoD TriggerManager | ACTIONS: ${alwaysActions.length} always actions`);
-                await this._executeActions(actor, alwaysActions, tokenDoc, sourceDoc || doc);
-            }
-
-            if (rollConfig.enabled) {
-                if (passed) {
-                    const successActions = actionsConfig.success || [];
-                    if (successActions.length > 0) {
-                        console.log(`WoD TriggerManager | ACTIONS: ${successActions.length} success actions`);
-                        await this._executeActions(actor, successActions, tokenDoc, doc);
-                    }
-                } else {
-                    const failureActions = actionsConfig.failure || [];
-                    if (failureActions.length > 0) {
-                        console.log(`WoD TriggerManager | ACTIONS: ${failureActions.length} failure actions`);
-                        await this._executeActions(actor, failureActions, tokenDoc, doc);
-                    }
+            } else if (executionMode === 'continuous') {
+                // Continuous mode: always evaluate conditions
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" using continuous mode`);
                 }
+                await this._executeContinuousTrigger(trigger, context, { delay, repeat, duration });
+            } else {
+                // State mode: evaluate once when conditions become true
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" using state mode`);
+                }
+                await this._executeTimedTrigger(trigger, context, { delay, repeat, duration });
             }
         }
+    }
+    
+    // ==================== V2 Trigger Execution ====================
+    
+    /**
+     * Fire triggers on a document using v2 schema
+     * @param {Document} doc - The document with triggers
+     * @param {string} documentType - The document type (tile, region, wall, actor, scene)
+     * @param {string} eventType - The event type
+     * @param {Object} context - Additional context
+     */
+    async _fireDocumentTriggersV2(doc, documentType, eventType, context = {}) {
+        const triggers = doc.getFlag('wodsystem', 'triggers') || [];
+        if (!Array.isArray(triggers) || triggers.length === 0) return;
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | V2: Checking ${triggers.length} triggers on ${documentType} for event: ${eventType}`);
+        }
+        
+        for (const trigger of triggers) {
+            if (!trigger || trigger.enabled === false) continue;
+            
+            // Check if trigger is v2 schema
+            const isV2 = trigger.version === 2 || trigger.anchor?.documentType;
+            
+            if (isV2) {
+                // V2 Schema processing
+                
+                // Check if this trigger responds to this event
+                if (trigger.execution?.mode === 'event') {
+                    if (trigger.execution.event !== eventType) continue;
+                }
+                
+                // Build full context
+                const fullContext = {
+                    eventType: eventType,
+                    document: doc,
+                    documentType: documentType,
+                    ...context
+                };
+                
+                // Evaluate conditions
+                if (trigger.conditions && trigger.conditions.length > 0) {
+                    const result = this._conditionEvaluator.evaluateConditions(trigger.conditions, fullContext);
+                    if (!result.passed) {
+                        if (this._debugMode) {
+                            console.log(`WoD TriggerManager | V2: Trigger "${trigger.name}" conditions not met`);
+                        }
+                        continue;
+                    }
+                }
+                
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | V2: Executing trigger "${trigger.name}"`);
+                }
+                
+                // Execute trigger
+                await this._executeTriggerV2(trigger, fullContext);
+            } else {
+                // Legacy schema - use old method
+                // This maintains backward compatibility during transition
+            }
+        }
+    }
+    
+    /**
+     * Execute a v2 schema trigger
+     * @param {Object} trigger - The trigger object
+     * @param {Object} context - The execution context
+     */
+    async _executeTriggerV2(trigger, context) {
+        const execution = trigger.execution || {};
+        const timing = execution.timing || {};
+        const delay = timing.delay || 0;
+        const repeat = timing.repeat || 0;
+        const duration = timing.duration || null;
+        
+        // Notify API
+        this._triggerAPI.notifyTriggerFired(trigger.id, { passed: true }, context);
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | V2: Trigger "${trigger.name}" timing:`, { delay, repeat, duration });
+        }
+        
+        // Apply delay if specified
+        if (delay > 0) {
+            await new Promise(resolve => setTimeout(resolve, delay * 1000));
+        }
+        
+        // Execute actions
+        await this._executeTriggerActionsV2(trigger, context);
+        
+        // Handle repeat
+        if (repeat > 0) {
+            const startTime = Date.now();
+            const repeatInterval = setInterval(async () => {
+                // Check duration limit
+                if (duration && (Date.now() - startTime) >= duration * 1000) {
+                    clearInterval(repeatInterval);
+                    this._activeIntervals.delete(trigger.id);
+                    return;
+                }
+                
+                await this._executeTriggerActionsV2(trigger, context);
+            }, repeat * 1000);
+            
+            this._activeIntervals.set(trigger.id, repeatInterval);
+        }
+    }
+    
+    /**
+     * Execute actions for a v2 schema trigger
+     * @param {Object} trigger - The trigger object
+     * @param {Object} context - The execution context
+     */
+    async _executeTriggerActionsV2(trigger, context) {
+        // Handle roll if configured
+        let rollPassed = true;
+        if (trigger.roll?.enabled && context.actor) {
+            rollPassed = await this._executeRoll(context.actor, trigger.roll);
+        }
+        
+        // Determine which actions to execute
+        const actions = trigger.actions || {};
+        const actionsToExecute = [];
+        
+        // Always actions
+        if (actions.always && actions.always.length > 0) {
+            actionsToExecute.push(...actions.always);
+        }
+        
+        // Success/Failure actions based on roll
+        if (trigger.roll?.enabled) {
+            if (rollPassed && actions.success && actions.success.length > 0) {
+                actionsToExecute.push(...actions.success);
+            } else if (!rollPassed && actions.failure && actions.failure.length > 0) {
+                actionsToExecute.push(...actions.failure);
+            }
+        }
+        
+        // Execute actions using the action executor
+        if (actionsToExecute.length > 0) {
+            await this._actionExecutor.executeActions(actionsToExecute, trigger, context);
+        }
+    }
+    
+    /**
+     * Execute a single action with v2 target selection (legacy - use _actionExecutor instead)
+     * @param {Object} action - The action object
+     * @param {Object} trigger - The trigger object
+     * @param {Object} context - The execution context
+     * @deprecated Use TriggerActionExecutor.executeAction instead
+     */
+    async _executeActionV2(action, trigger, context) {
+        // Delegate to action executor
+        return this._actionExecutor.executeAction(action, trigger, context);
+    }
+    
+    /**
+     * Legacy execute action method - kept for backwards compatibility
+     * @deprecated
+     */
+    async _executeActionV2Legacy(action, trigger, context) {
+        if (!action || !action.type) return;
+        
+        // Handle action delay
+        const actionDelay = action.delay || 0;
+        if (actionDelay > 0) {
+            await new Promise(resolve => setTimeout(resolve, actionDelay * 1000));
+        }
+        
+        // Resolve target based on target mode
+        const targetDoc = await this._resolveActionTarget(action, trigger, context);
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | V2: Executing action "${action.type}" on target:`, targetDoc?.id || 'self');
+        }
+        
+        // Execute based on action type
+        switch (action.type) {
+            case 'door':
+                await this._actionDoor({ 
+                    ...action, 
+                    target: targetDoc?.id || action.parameters?.target || action.target 
+                });
+                break;
+                
+            case 'enableCoreEffect':
+            case 'disableCoreEffect':
+            case 'toggleCoreEffect':
+                const targetActor = targetDoc?.actor || context.actor;
+                await this._actionCoreEffect(targetActor, action);
+                break;
+                
+            case 'changeTileAsset':
+                await this._actionChangeTileAsset(action, context.token, targetDoc || context.document);
+                break;
+                
+            default:
+                console.warn(`WoD TriggerManager | V2: Unknown action type: ${action.type}`);
+        }
+    }
+    
+    /**
+     * Resolve the target for an action based on target mode
+     * @param {Object} action - The action object
+     * @param {Object} trigger - The trigger object
+     * @param {Object} context - The execution context
+     * @returns {Document|null} The resolved target document
+     */
+    async _resolveActionTarget(action, trigger, context) {
+        const targetConfig = action.target || { mode: 'self' };
+        const mode = targetConfig.mode || 'self';
+        
+        switch (mode) {
+            case 'self':
+                // Target is the document the trigger is anchored to
+                return context.document;
+                
+            case 'triggering':
+                // Target is the triggering token/actor
+                return context.token || null;
+                
+            case 'specific':
+                // Target is a specific document by ID
+                const docType = targetConfig.documentType;
+                const docId = targetConfig.documentId;
+                
+                if (!docId) return null;
+                
+                switch (docType) {
+                    case 'wall':
+                        return canvas.scene.walls.get(docId);
+                    case 'tile':
+                        return canvas.scene.tiles.get(docId);
+                    case 'token':
+                        return canvas.scene.tokens.get(docId);
+                    case 'actor':
+                        return game.actors.get(docId);
+                    default:
+                        return null;
+                }
+                
+            case 'all':
+                // Return first matching document (for now - full implementation would return array)
+                // This is a simplified implementation
+                return context.document;
+                
+            default:
+                return context.document;
+        }
+    }
+
+    /**
+     * Determine if a trigger should fire based on its conditions
+     * Supports both new compound conditions format and legacy eventType format
+     * @private
+     */
+    _shouldTriggerFire(trigger, context, executionMode = 'event') {
+        // Check scope type first - for proximity triggers, they should only fire on onProximity events
+        const scopeType = trigger.trigger?.scope?.type;
+        
+        // New format with scope and conditions
+        if (scopeType) {
+            // Proximity triggers: event mode only fires on onProximity, state/continuous modes evaluate conditions
+            if (scopeType === 'proximity') {
+                if (executionMode === 'event' && context.eventType !== 'onProximity') {
+                    return false;
+                }
+                // For state/continuous modes, allow condition evaluation regardless of event type
+            }
+            
+            // Tile/region triggers fire on onEnter/onExit/onEffect based on boundary config
+            if (scopeType === 'tile' || scopeType === 'region') {
+                const boundary = trigger.trigger?.scope?.[scopeType]?.boundary || 'both';
+                if (boundary === 'enter' && context.eventType !== 'onEnter') return false;
+                if (boundary === 'exit' && context.eventType !== 'onExit') return false;
+                // 'both' accepts either
+            }
+            
+            // Global triggers fire on onGlobal events
+            if (scopeType === 'global' && context.eventType !== 'onGlobal') {
+                if (executionMode === 'event') {
+                    return false;
+                }
+                // For state/continuous modes, allow condition evaluation regardless of event type
+            }
+        }
+        
+        // New format: use conditions array with ConditionEvaluator
+        if (trigger.trigger?.conditions && Array.isArray(trigger.trigger.conditions) && trigger.trigger.conditions.length > 0) {
+            const result = this._conditionEvaluator.evaluateConditions(trigger.trigger.conditions, context);
+            return result.passed;
+        }
+        
+        // State/Continuous mode with no conditions: handle based on scope type
+        if (executionMode === 'state' || executionMode === 'continuous') {
+            if (scopeType === 'proximity' && context.eventType === 'onProximity') {
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | State/Continuous trigger "${trigger.name}" with no conditions firing for proximity`);
+                }
+                return true;
+            }
+            
+            if (scopeType === 'tile' || scopeType === 'region') {
+                const boundary = trigger.trigger?.scope?.[scopeType]?.boundary || 'both';
+                if (boundary === 'enter' && context.eventType === 'onEnter') {
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | State/Continuous trigger "${trigger.name}" with no conditions firing for tile/region enter`);
+                    }
+                    return true;
+                }
+                if (boundary === 'exit' && context.eventType === 'onExit') {
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | State/Continuous trigger "${trigger.name}" with no conditions firing for tile/region exit`);
+                    }
+                    return true;
+                }
+                if (boundary === 'both' && (context.eventType === 'onEnter' || context.eventType === 'onExit')) {
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | State/Continuous trigger "${trigger.name}" with no conditions firing for tile/region ${context.eventType}`);
+                    }
+                    return true;
+                }
+            }
+            
+            if (scopeType === 'global') {
+                // Global triggers fire regardless of context
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | State/Continuous trigger "${trigger.name}" with no conditions firing for global scope`);
+                }
+                return true;
+            }
+        }
+        
+        // Legacy format: check eventType directly
+        const eventType = context.eventType;
+        const triggerEventType = trigger.trigger?.eventType;
+        
+        if (triggerEventType !== eventType) {
+            return false;
+        }
+        
+        // For onEffect events, check if the effect name matches
+        if (eventType === 'onEffect' && context.effect) {
+            const expectedEffectName = trigger.trigger?.effectName?.trim().toLowerCase();
+            const actualEffectName = context.effect.label?.trim().toLowerCase() || context.effect.name?.trim().toLowerCase();
+            
+            if (!expectedEffectName || expectedEffectName !== actualEffectName) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
     async _executeRoll(actor, rollConfig) {
@@ -448,114 +1302,198 @@ export class TriggerManager {
         return null;
     }
 
-    _onDoorUpdated(wall, changes) {
+    // ==================== Door State Handler ====================
+    
+    /**
+     * Get a human-readable name for a door state
+     * @param {number} state - The door state constant
+     * @returns {string} Human-readable state name
+     */
+    _getDoorStateName(state) {
+        switch (state) {
+            case CONST.WALL_DOOR_STATES.CLOSED: return 'closed';
+            case CONST.WALL_DOOR_STATES.OPEN: return 'open';
+            case CONST.WALL_DOOR_STATES.LOCKED: return 'locked';
+            default: return 'unknown';
+        }
+    }
+    
+    /**
+     * Handle door state changes - fires door triggers on the wall itself AND scene triggers
+     * @param {WallDocument} wall - The wall document
+     * @param {Object} changes - The changes object
+     */
+    _onDoorStateChanged(wall, changes) {
         try {
-            // Handle case where changes might be undefined or incomplete
-            let oldState, newState;
+            if (!canvas?.scene) return;
             
-            if (!changes) {
-                const defaultState = (wall.ds !== undefined) ? wall.ds : CONST.WALL_DOOR_STATES.CLOSED;
-                oldState = defaultState;
-                newState = defaultState;
+            // Determine old and new state
+            const newState = changes.ds;
+            let oldState;
+            
+            // Infer old state from the change
+            if (newState === CONST.WALL_DOOR_STATES.OPEN) {
+                oldState = CONST.WALL_DOOR_STATES.CLOSED;
+            } else if (newState === CONST.WALL_DOOR_STATES.CLOSED) {
+                oldState = CONST.WALL_DOOR_STATES.OPEN;
+            } else if (newState === CONST.WALL_DOOR_STATES.LOCKED) {
+                oldState = CONST.WALL_DOOR_STATES.CLOSED;
             } else {
-                // Since changes._original is undefined, we need to determine old state differently
-                // The new state is in changes.ds, but we need to infer the old state
-                newState = (changes.ds !== undefined) ? changes.ds : wall.ds;
-                
-                // For the old state, we'll use the opposite of the new state since we know a change occurred
-                // This is a workaround for when _original is not available
-                if (newState === CONST.WALL_DOOR_STATES.OPEN) {
-                    oldState = CONST.WALL_DOOR_STATES.CLOSED;
-                } else if (newState === CONST.WALL_DOOR_STATES.CLOSED) {
-                    oldState = CONST.WALL_DOOR_STATES.OPEN;
-                } else {
-                    oldState = wall.ds; // fallback to current state
-                }
+                oldState = wall.ds;
             }
+            
+            if (oldState === newState) return;
+            
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Door state changed: ${this._getDoorStateName(oldState)} -> ${this._getDoorStateName(newState)}`);
+            }
+            
+            // Determine which event to fire
+            let eventType = null;
+            if (newState === CONST.WALL_DOOR_STATES.OPEN) {
+                eventType = 'onDoorOpened';
+            } else if (newState === CONST.WALL_DOOR_STATES.CLOSED && oldState === CONST.WALL_DOOR_STATES.OPEN) {
+                eventType = 'onDoorClosed';
+            } else if (newState === CONST.WALL_DOOR_STATES.LOCKED) {
+                eventType = 'onDoorLocked';
+            } else if (oldState === CONST.WALL_DOOR_STATES.LOCKED && newState !== CONST.WALL_DOOR_STATES.LOCKED) {
+                eventType = 'onDoorUnlocked';
+            }
+            
+            if (!eventType) return;
+            
+            // 1. Fire triggers on the wall/door itself (v2 architecture)
+            this._fireDocumentTriggersV2(wall, 'wall', eventType, {
+                oldState: oldState,
+                newState: newState,
+                wall: wall
+            });
+            
+            // 2. Fire scene-level triggers (onAnyDoorOpened, onAnyDoorClosed)
+            const sceneEventType = eventType === 'onDoorOpened' ? 'onAnyDoorOpened' : 
+                                   eventType === 'onDoorClosed' ? 'onAnyDoorClosed' : null;
+            if (sceneEventType) {
+                this._fireSceneTriggers(sceneEventType, {
+                    wall: wall,
+                    oldState: oldState,
+                    newState: newState
+                });
+            }
+            
+        } catch (error) {
+            console.error('WoD TriggerManager | Error in _onDoorStateChanged:', error);
+        }
+    }
+    
+    // ==================== Combat Event Handler ====================
+    
+    /**
+     * Handle combat events - fires scene-level combat triggers
+     * @param {string} eventType - The combat event type
+     * @param {Combat} combat - The combat instance
+     */
+    _onCombatEvent(eventType, combat) {
+        if (!canvas?.scene) return;
         
-        // Only proceed if there's an actual state change
-        if (oldState === newState) {
-            return;
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Combat event: ${eventType}`);
         }
         
-        // Find tiles that might have triggers for this door
-        // Add defensive checking for wall properties
-        if (!wall.c || !Array.isArray(wall.c) || wall.c.length < 4) {
-            return;
+        this._fireSceneTriggers(eventType, {
+            combat: combat,
+            round: combat?.round,
+            turn: combat?.turn
+        });
+    }
+    
+    // ==================== Scene Trigger Monitoring ====================
+    
+    /**
+     * Start monitoring for scene-level triggers
+     */
+    _startSceneTriggerMonitoring() {
+        if (this._debugMode) {
+            console.log('WoD TriggerManager | Starting scene trigger monitoring');
+        }
+        // Scene triggers are fired by specific events, no continuous monitoring needed
+        // This method exists for future time-based triggers (Simple Calendar integration)
+    }
+    
+    /**
+     * Fire triggers attached to the scene document
+     * @param {string} eventType - The event type
+     * @param {Object} context - Additional context
+     */
+    _fireSceneTriggers(eventType, context = {}) {
+        if (!canvas?.scene) return;
+        
+        const sceneTriggers = canvas.scene.getFlag('wodsystem', 'sceneTriggers') || [];
+        if (!Array.isArray(sceneTriggers) || sceneTriggers.length === 0) return;
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Checking ${sceneTriggers.length} scene triggers for event: ${eventType}`);
         }
         
-        // Wall coordinates are stored as [x1, y1, x2, y2] in the c array
-        const doorCenter = { 
-            x: (wall.c[0] + wall.c[2]) / 2,
-            y: (wall.c[1] + wall.c[3]) / 2
-        };
-        
-        for (const tile of canvas.scene.tiles) {
-            const tileRect = {
-                x: tile.x,
-                y: tile.y,
-                width: tile.width,
-                height: tile.height
+        for (const trigger of sceneTriggers) {
+            if (!trigger.enabled) continue;
+            
+            // Check if this trigger responds to this event
+            if (trigger.execution?.mode === 'event') {
+                if (trigger.execution.event !== eventType) continue;
+            }
+            
+            // Build full context
+            const fullContext = {
+                eventType: eventType,
+                scene: canvas.scene,
+                ...context
             };
             
-            // Check if door is within tile bounds (with some tolerance)
-            const tolerance = 50;
-            const isWithinTile = doorCenter.x >= tileRect.x - tolerance && 
-                doorCenter.x <= tileRect.x + tileRect.width + tolerance &&
-                doorCenter.y >= tileRect.y - tolerance && 
-                doorCenter.y <= tileRect.y + tileRect.height + tolerance;
+            // Evaluate conditions
+            if (trigger.conditions && trigger.conditions.length > 0) {
+                const result = this._conditionEvaluator.evaluateConditions(trigger.conditions, fullContext);
+                if (!result.passed) continue;
+            }
             
-            if (isWithinTile) {
-                
-                // Fire appropriate event based on state change
-                if (oldState !== CONST.WALL_DOOR_STATES.OPEN && newState === CONST.WALL_DOOR_STATES.OPEN) {
-                    this._fireDocumentTriggers('tile', tile, null, 'onDoorOpened', tile, null);
-                } else if (oldState === CONST.WALL_DOOR_STATES.OPEN && newState !== CONST.WALL_DOOR_STATES.OPEN) {
-                    this._fireDocumentTriggers('tile', tile, null, 'onDoorClosed', tile, null);
-                }
+            // Execute trigger
+            this._executeTriggerV2(trigger, fullContext);
+        }
+    }
+
+    /**
+     * Find tokens near a specific tile
+     * @param {Tile} tile - The tile to check around
+     * @returns {Token[]} Array of nearby tokens
+     * @private
+     */
+    _findTokensNearTile(tile) {
+        const nearbyTokens = [];
+        const proximity = 2; // Check within 2 grid spaces
+        
+        for (const token of canvas.scene.tokens) {
+            const distance = Math.max(
+                Math.abs(token.x - tile.x),
+                Math.abs(token.y - tile.y)
+            );
+            
+            if (distance <= proximity * canvas.scene.grid.size) {
+                nearbyTokens.push(token);
             }
         }
-        } catch (error) {
-            console.error('WoD TriggerManager | ERROR in _onDoorUpdated:', error);
-        }
-    }
-
-    _onTokenEffectsChanged(token, newEffects) {
-        // Get the old effects from the token document
-        const oldEffects = token.document.effects || [];
         
-        // Find newly added effects
-        const addedEffects = newEffects.filter(effect => 
-            !oldEffects.some(oldEffect => oldEffect.id === effect.id)
-        );
-
-        // Check each added effect against triggers
-        for (const effect of addedEffects) {
-            this._checkEffectTriggers(token, effect);
-        }
+        return nearbyTokens;
     }
 
-    _onActorEffectsChanged(actor, newEffects) {
-        // Get the old effects from the actor
-        const oldEffects = actor.effects || [];
-        
-        // Find newly added effects
-        const addedEffects = newEffects.filter(effect => 
-            !oldEffects.some(oldEffect => oldEffect.id === effect.id)
-        );
-
-        // Check each added effect against triggers
-        for (const effect of addedEffects) {
-            // Find all tokens for this actor and check triggers
-            const tokens = actor.getActiveTokens();
-            for (const token of tokens) {
-                this._checkEffectTriggers(token, effect);
-            }
-        }
-    }
+    
+/**
+ * Find tokens near a specific tile
+ * @param {Tile} tile - The tile to check around
+ * @returns {Token[]} Array of nearby tokens
+ * @private
+ */
 
     _checkEffectTriggers(token, effect) {
-        // Get all tiles that might have triggers
+        // Get all tiles that might have triggers using spatial indexing
         const tileRect = {
             x: token.x,
             y: token.y,
@@ -563,7 +1501,19 @@ export class TriggerManager {
             height: token.height
         };
 
-        for (const tile of canvas.scene.tiles) {
+        let nearbyTiles = [];
+        if (canvas.scene.tiles.quadtree) {
+            nearbyTiles = canvas.scene.tiles.quadtree.getObjects(tileRect);
+        } else {
+            nearbyTiles = canvas.scene.tiles.filter(tile => {
+                return (tile.x < tokenRect.x + tokenRect.width &&
+                        tile.x + tile.width > tokenRect.x &&
+                        tile.y < tokenRect.y + tokenRect.height &&
+                        tile.y + tile.height > tokenRect.y);
+            });
+        }
+
+        for (const tile of nearbyTiles) {
             if (this._rectIntersects(tileRect, tile)) {
                 // Check if this tile has an onEffect trigger for this effect
                 this._fireDocumentTriggers('tile', tile, token, 'onEffect', tile, effect);
@@ -572,13 +1522,25 @@ export class TriggerManager {
     }
 
     async _executeActions(actor, actions, tokenDoc, sourceDoc) {
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | EXECUTING ${actions.length} actions for actor ${actor?.name || 'unknown'}`);
+        }
+        
         for (const action of actions) {
-            if (!action) continue;
+            if (!action) {
+                if (this._debugMode) console.log('WoD TriggerManager | Skipping null action');
+                continue;
+            }
+            
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Executing action: ${action.type}`, action);
+            }
             
             const delay = parseFloat(action.delay) || 0;
             
             if (delay > 0) {
                 // Schedule the action with delay
+                if (this._debugMode) console.log(`WoD TriggerManager | Scheduling action with ${delay}s delay`);
                 setTimeout(async () => {
                     await this._executeSingleAction(actor, action, tokenDoc, sourceDoc);
                 }, delay * 1000);
@@ -590,42 +1552,48 @@ export class TriggerManager {
     }
 
     async _executeSingleAction(actor, action, tokenDoc, sourceDoc) {
-        switch (action.type) {
-            case 'door':
-                await this._actionDoor(action);
-                break;
-            case 'enableCoreEffect':
-            case 'disableCoreEffect':
-            case 'toggleCoreEffect':
-                await this._actionCoreEffect(actor, action);
-                break;
-            case 'changeTileAsset':
-                await this._actionChangeTileAsset(action, tokenDoc, sourceDoc);
-                break;
-            default:
-                ui.notifications?.warn(`WoD TriggerManager | Action type not implemented: ${action.type}`);
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | EXECUTING SINGLE ACTION: ${action.type}`, action);
+        }
+        
+        try {
+            switch (action.type) {
+                case 'door':
+                    if (this._debugMode) console.log('WoD TriggerManager | Executing door action');
+                    await this._actionDoor(action);
+                    break;
+                case 'enableCoreEffect':
+                case 'disableCoreEffect':
+                case 'toggleCoreEffect':
+                    if (this._debugMode) console.log('WoD TriggerManager | Executing core effect action');
+                    await this._actionCoreEffect(actor, action);
+                    break;
+                case 'changeTileAsset':
+                    if (this._debugMode) console.log('WoD TriggerManager | Executing tile asset action');
+                    await this._actionChangeTileAsset(action, tokenDoc, sourceDoc);
+                    break;
+                default:
+                    console.warn(`WoD TriggerManager | Action type not implemented: ${action.type}`);
+                    ui.notifications?.warn(`WoD TriggerManager | Action type not implemented: ${action.type}`);
+            }
+            
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | SUCCESS: Action ${action.type} completed`);
+            }
+        } catch (error) {
+            console.error(`WoD TriggerManager | ERROR: Failed to execute action ${action.type}:`, error);
+            ui.notifications?.error(`WoD TriggerManager | Failed to execute ${action.type} action`);
         }
     }
 
     async _actionDoor(action) {
-        console.log(`WoD TriggerManager | DOOR ACTION: ${action.state} door ${action.target} (delay=${action.delay}s)`);
-        
-        if (!game.user.isGM) {
-            ui.notifications?.warn('WoD TriggerManager | Only the GM can change door states');
-            return;
-        }
+        if (!game.user.isGM) return;
 
         const wallId = action.target;
-        if (!wallId) {
-            console.warn('WoD TriggerManager | No wall ID specified for door action');
-            return;
-        }
+        if (!wallId) return;
 
         const wall = canvas?.scene?.walls?.get(wallId);
-        if (!wall) {
-            console.warn('WoD TriggerManager | Wall not found:', wallId);
-            return;
-        }
+        if (!wall) return;
 
         const currentState = wall.ds;
         const state = (action.state || action.parameters?.state || '').toLowerCase();
@@ -652,14 +1620,9 @@ export class TriggerManager {
                 return;
         }
 
-        if (wall.ds === ds) {
-            console.log(`WoD TriggerManager | DOOR: ${action.target} already ${state}`);
-            return;
-        }
+        if (wall.ds === ds) return;
 
-        console.log(`WoD TriggerManager | DOOR: ${action.target} ${this._getDoorStateName(currentState)} → ${state}`);
         await wall.update({ ds });
-        console.log(`WoD TriggerManager | DOOR: ${action.target} updated to ${state}`);
     }
 
     async _actionChangeTileAsset(action, tokenDoc, sourceDoc) {
@@ -769,4 +1732,273 @@ export class TriggerManager {
         }
         return out;
     }
-}
+    
+    /**
+     * Execute trigger with timing controls (delay, repeat, duration)
+     * @private
+     */
+    async _executeTimedTrigger(trigger, context, timing) {
+        const { delay, repeat, duration } = timing;
+        const startTime = Date.now();
+        
+        // Apply initial delay
+        if (delay > 0) {
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Delaying execution by ${delay} seconds`);
+            }
+            await new Promise(resolve => setTimeout(resolve, delay * 1000));
+        }
+        
+        // Execute initial trigger
+        await this._executeTriggerActions(trigger, context);
+        
+        // Handle repeat execution
+        if (repeat > 0) {
+            let executionCount = 1;
+            const repeatInterval = setInterval(async () => {
+                // Check duration limit
+                if (duration && (Date.now() - startTime) >= duration * 1000) {
+                    clearInterval(repeatInterval);
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | Stopping repeat due to duration limit`);
+                    }
+                    return;
+                }
+                
+                executionCount++;
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Repeating execution #${executionCount}`);
+                }
+                
+                await this._executeTriggerActions(trigger, context);
+            }, repeat * 1000);
+            
+            // Store interval for cleanup if needed
+            if (!this._activeIntervals) {
+                this._activeIntervals = new Map();
+            }
+            this._activeIntervals.set(trigger.id, repeatInterval);
+        }
+    }
+    
+    /**
+     * Execute continuous trigger (monitors state continuously)
+     * @private
+     */
+    async _executeContinuousTrigger(trigger, context, timing) {
+        const { delay, repeat, duration } = timing;
+        const startTime = Date.now();
+        
+        // Apply initial delay
+        if (delay > 0) {
+            await new Promise(resolve => setTimeout(resolve, delay * 1000));
+        }
+        
+        // Start continuous monitoring
+        const monitorInterval = setInterval(async () => {
+            // Check duration limit
+            if (duration && (Date.now() - startTime) >= duration * 1000) {
+                clearInterval(monitorInterval);
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Stopping continuous monitoring due to duration limit`);
+                }
+                return;
+            }
+            
+            // Re-evaluate conditions for continuous mode
+            const shouldFire = this._shouldTriggerFire(trigger, context);
+            if (shouldFire) {
+                await this._executeTriggerActions(trigger, context);
+            }
+        }, (repeat || 1) * 1000);
+        
+        // Store interval for cleanup
+        if (!this._activeIntervals) {
+            this._activeIntervals = new Map();
+        }
+        this._activeIntervals.set(`continuous-${trigger.id}`, monitorInterval);
+    }
+    
+    /**
+     * Execute the actual trigger actions
+     * @private
+     */
+    async _executeTriggerActions(trigger, context) {
+        const actor = context.actor;
+        const tokenDoc = context.token;
+        const sourceDoc = context.document;
+        
+        const rollConfig = trigger.roll || trigger.rollConfig || {};
+        const actionsConfig = trigger.actions || {};
+
+        let passed = null;
+        if (rollConfig.enabled) {
+            passed = await this._executeRoll(actor, rollConfig);
+        }
+
+        // Always actions execute regardless of roll
+        const alwaysActions = actionsConfig.always || [];
+        if (alwaysActions.length > 0) {
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | ACTIONS: ${alwaysActions.length} always actions`);
+            }
+            await this._executeActions(actor, alwaysActions, tokenDoc, sourceDoc);
+        }
+
+        if (rollConfig.enabled) {
+            if (passed) {
+                const successActions = actionsConfig.success || [];
+                if (successActions.length > 0) {
+                    await this._executeActions(actor, successActions, tokenDoc, sourceDoc);
+                }
+            } else {
+                const failureActions = actionsConfig.failure || [];
+                if (failureActions.length > 0) {
+                    await this._executeActions(actor, failureActions, tokenDoc, sourceDoc);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Clean up active intervals for a trigger
+     * @param {string} triggerId - The trigger ID to clean up
+     */
+    _cleanupTriggerIntervals(triggerId) {
+        if (!this._activeIntervals) return;
+        
+        // Clean up regular interval
+        const interval = this._activeIntervals.get(triggerId);
+        if (interval) {
+            clearInterval(interval);
+            this._activeIntervals.delete(triggerId);
+        }
+        
+        // Clean up continuous interval
+        const continuousInterval = this._activeIntervals.get(`continuous-${triggerId}`);
+        if (continuousInterval) {
+            clearInterval(continuousInterval);
+            this._activeIntervals.delete(`continuous-${triggerId}`);
+        }
+    }
+    
+    /**
+     * Start monitoring global triggers
+     * @private
+     */
+    _startGlobalTriggerMonitoring() {
+        if (!canvas?.scene) return;
+        
+        // Get all global triggers from the scene
+        const globalTriggers = canvas.scene.getFlag('wodsystem', 'globalTriggers') || [];
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Starting global trigger monitoring: ${globalTriggers.length} global triggers found`);
+        }
+        
+        // Check global triggers every 5 seconds
+        this._globalTriggerInterval = setInterval(() => {
+            this._checkGlobalTriggers();
+        }, 5000);
+        
+        // Also check immediately
+        this._checkGlobalTriggers();
+    }
+    
+    /**
+     * Check all global triggers
+     * @private
+     */
+    async _checkGlobalTriggers() {
+        if (!canvas?.scene) return;
+        
+        const globalTriggers = canvas.scene.getFlag('wodsystem', 'globalTriggers') || [];
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Checking ${globalTriggers.length} global triggers`);
+        }
+        
+        // Get all tokens for condition evaluation context
+        const allTokens = canvas.scene.tokens.contents || [];
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Global triggers will check against ${allTokens.length} tokens for condition evaluation`);
+        }
+        
+        for (const trigger of globalTriggers) {
+            if (!trigger || trigger.enabled === false) continue;
+            
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Processing global trigger "${trigger.name}" with ${trigger.trigger?.conditions?.length || 0} conditions`);
+            }
+            
+            // Check global triggers for each token (for condition evaluation)
+            for (const tokenDoc of allTokens) {
+                const context = {
+                    token: tokenDoc,
+                    actor: tokenDoc.actor,
+                    document: canvas.scene,
+                    documentType: 'scene',
+                    eventType: 'onGlobal',
+                    effect: null,
+                    sourceDoc: null,
+                    entered: false,
+                    exited: false
+                };
+                
+                // Fire the global trigger with token context
+                await this._fireDocumentTriggers('scene', canvas.scene, tokenDoc, 'onGlobal', null, null);
+            }
+        }
+    }
+
+    /**
+     * Handle actor effect changes (global)
+     * @param {Actor} actor - The actor document
+     * @param {Array} effects - The effects array
+     */
+    _onActorEffectsChanged(actor, effects) {
+        if (!actor) return;
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Actor effects changed for ${actor.name}:`, effects);
+        }
+        
+        // Determine effect event type based on changes
+        const currentEffects = actor.effects || [];
+        const addedEffects = effects.filter(e => !currentEffects.includes(e));
+        const removedEffects = currentEffects.filter(e => !effects.includes(e));
+        
+        // Fire effect applied events (global)
+        for (const effectId of addedEffects) {
+            this._fireDocumentTriggers('actor', actor, actor, 'onEffectApplied', effectId, null);
+        }
+        
+        // Fire effect removed events (global)
+        for (const effectId of removedEffects) {
+            this._fireDocumentTriggers('actor', actor, actor, 'onEffectRemoved', effectId, null);
+        }
+    }
+
+    /**
+     * Handle actor attribute changes (global)
+     * @param {Actor} actor - The actor document
+     * @param {Object} systemData - The system data changes
+     */
+    _onActorAttributesChanged(actor, systemData) {
+        if (!actor) return;
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Actor attributes changed for ${actor.name}:`, systemData);
+        }
+        
+        // Check for health changes
+        if (systemData.health !== undefined) {
+            this._fireDocumentTriggers('actor', actor, actor, 'onHealthChanged', 'health', systemData.health);
+        }
+        
+        // Fire general attribute change event
+        this._fireDocumentTriggers('actor', actor, actor, 'onAttributeChanged', 'attributes', systemData);
+    }
+
+    }

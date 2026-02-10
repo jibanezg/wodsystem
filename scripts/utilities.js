@@ -24,11 +24,7 @@ export function registerHandlebarsHelpers() {
     /**
      * Debug helper - logs values
      */
-    Handlebars.registerHelper('debug', function(label, value) {
-        console.log(`🐛 HANDLEBARS DEBUG [${label}]:`, value);
-        return '';
-    });
-    
+        
     /**
      * Concat helper - concatenates strings
      */
@@ -473,8 +469,7 @@ export function registerHandlebarsHelpers() {
         return truncated + '...';
     });
 
-    console.log("WoD | Handlebars helpers registered");
-}
+    }
 
 /**
  * Utility function to format numbers

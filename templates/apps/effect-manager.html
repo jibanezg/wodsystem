@@ -1,6 +1,6 @@
-<form class="wod-effect-manager">
+<form class="flexcol">
     <!-- Basic Information Section -->
-    <div class="effect-header-section">
+    <section class="effect-header-section">
         <h3><i class="fas fa-info-circle"></i> {{i18n 'EffectManager.BasicInformation'}}</h3>
         
         <div class="form-group">
@@ -10,13 +10,60 @@
         
         <div class="form-group">
             <label>{{i18n 'EffectManager.IconPath'}} <span class="help-text">({{i18n 'EffectManager.Optional'}})</span></label>
-            <input type="text" name="icon" value="{{effect.icon}}" placeholder="icons/svg/aura.svg" />
+            <div class="icon-picker">
+                <input type="text" name="icon" value="{{effect.icon}}" placeholder="icons/svg/aura.svg" />
+                <button type="button" class="file-picker" data-type="image" data-target="icon">
+                    <i class="fas fa-file-image"></i>
+                </button>
+            </div>
             <p class="help-text">{{i18n 'EffectManager.LeaveEmptyForDefault'}}</p>
         </div>
-    </div>
+        
+        {{#if templateMode}}
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.StatusEffects.Description'}}</label>
+            <textarea name="description" rows="3" placeholder="{{i18n 'WODSYSTEM.StatusEffects.DescriptionPlaceholder'}}">{{effect.description}}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.StatusEffects.Category'}}</label>
+            <select name="category">
+                <option value="">{{i18n 'WODSYSTEM.StatusEffects.NoCategory'}}</option>
+                <option value="Combat" {{#if (eq effect.category 'Combat')}}selected{{/if}}>Combat</option>
+                <option value="Social" {{#if (eq effect.category 'Social')}}selected{{/if}}>Social</option>
+                <option value="Mental" {{#if (eq effect.category 'Mental')}}selected{{/if}}>Mental</option>
+                <option value="Physical" {{#if (eq effect.category 'Physical')}}selected{{/if}}>Physical</option>
+                <option value="Supernatural" {{#if (eq effect.category 'Supernatural')}}selected{{/if}}>Supernatural</option>
+                <option value="Environmental" {{#if (eq effect.category 'Environmental')}}selected{{/if}}>Environmental</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.StatusEffects.Tags'}}</label>
+            <div class="tags-checkboxes">
+                <label class="tag-checkbox">
+                    <input type="checkbox" name="tags" value="System" {{#if effect.tagSystem}}checked{{/if}} />
+                    <span>{{i18n 'WODSYSTEM.StatusEffects.System'}}</span>
+                </label>
+                <label class="tag-checkbox">
+                    <input type="checkbox" name="tags" value="Automatic" {{#if effect.tagAutomatic}}checked{{/if}} />
+                    <span>{{i18n 'WODSYSTEM.StatusEffects.Automatic'}}</span>
+                </label>
+                <label class="tag-checkbox">
+                    <input type="checkbox" name="tags" value="Player" {{#if effect.tagPlayer}}checked{{/if}} />
+                    <span>{{i18n 'WODSYSTEM.StatusEffects.Player'}}</span>
+                </label>
+                <label class="tag-checkbox">
+                    <input type="checkbox" name="tags" value="Storyteller" {{#if effect.tagStoryteller}}checked{{/if}} />
+                    <span>{{i18n 'WODSYSTEM.StatusEffects.Storyteller'}}</span>
+                </label>
+            </div>
+        </div>
+        {{/if}}
+    </section>
     
     <!-- Metadata Section -->
-    <div class="effect-metadata-section">
+    <section class="effect-metadata-section">
         <h3><i class="fas fa-user-tag"></i> {{i18n 'EffectManager.EffectType'}}</h3>
         
         <div class="form-group">
@@ -24,7 +71,6 @@
             <input type="text" value="{{#if isGM}}{{i18n 'EffectManager.Storyteller'}}{{else}}{{i18n 'EffectManager.Player'}}{{/if}}" readonly disabled />
             <input type="hidden" name="createdBy" value="{{effect.createdBy}}" />
         </div>
-        
         
         {{#if isGM}}
         <div class="form-group checkbox-group">
@@ -35,10 +81,10 @@
             <small>{{i18n 'EffectManager.STEffectsAutoApplied'}}</small>
         </div>
         {{/if}}
-    </div>
+    </section>
     
     <!-- Conditions Section -->
-    <div class="effect-conditions-section">
+    <section class="effect-conditions-section">
         <h3><i class="fas fa-filter"></i> {{i18n 'EffectManager.WhenToApplyEffect'}}</h3>
         
         <div class="form-group">
@@ -63,10 +109,10 @@
             </div>
             <small class="condition-target-help">{{i18n 'EffectManager.SelectSpecificTraits'}}</small>
         </div>
-    </div>
+    </section>
     
     <!-- Modifiers Section -->
-    <div class="effect-modifiers">
+    <section class="effect-modifiers-section">
         <h3><i class="fas fa-sliders-h"></i> {{i18n 'EffectManager.Modifiers'}}</h3>
         <p class="modifiers-help"><small>{{i18n 'EffectManager.UsePositiveForBonuses'}}</small></p>
         <div class="modifiers-list">
@@ -79,21 +125,21 @@
                     <option value="autoFail" {{#eq this.key "autoFail"}}selected{{/eq}}>{{i18n 'EffectManager.AutoFail'}}</option>
                 </select>
                 <input type="number" class="modifier-value" name="modifiers.{{@index}}.value" value="{{this.value}}" placeholder="+2 or -2" />
-                <button type="button" class="remove-modifier-row"><i class="fas fa-times"></i></button>
+                <i class="fas fa-trash remove-modifier-row" title="{{i18n 'WODSYSTEM.Common.Delete'}}" style="cursor: pointer; color: #dc3545;"></i>
             </div>
             {{/each}}
         </div>
         <button type="button" class="add-modifier-row" title="{{i18n 'EffectManager.AddModifier'}}"><i class="fas fa-plus"></i></button>
-    </div>
+    </section>
     
     <!-- Action Buttons -->
-    <div class="dialog-buttons">
+    <footer class="dialog-buttons">
         <button type="button" class="save-effect">
             <i class="fas fa-save"></i> {{i18n 'EffectManager.SaveEffect'}}
         </button>
         <button type="button" class="cancel-effect">
             <i class="fas fa-times"></i> {{i18n 'Common.Cancel'}}
         </button>
-    </div>
+    </footer>
 </form>
 

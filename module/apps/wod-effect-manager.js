@@ -2,29 +2,44 @@ import { WodActiveEffect } from '../effects/wod-active-effect.js';
 import { i18n } from '../helpers/i18n.js';
 
 /**
- * Effect Manager Dialog for World of Darkness System
- * Allows creation and editing of status effects
+ * WoD Effect Editor Dialog
+ * Generic effect editor that works for both templates and actor effects
  */
-export class WodEffectManager extends FormApplication {
-    constructor(actor, effectId = null, options = {}) {
+export class WodEffectEditor extends FormApplication {
+    constructor(target = null, effectId = null, options = {}) {
+        // Determine mode from options
+        const mode = options.mode || 'actor'; // 'template' or 'actor'
+        const effectData = options.effectData || null; // For template mode
+        
         // Set title in options if not provided, using i18n if available
-        // This must be done BEFORE calling super() - exactly like WodRollDialog
         if (!options.title) {
+            const titleKey = mode === 'template' 
+                ? "WODSYSTEM.StatusEffects.CreateEffect" 
+                : "WODSYSTEM.EffectManager.ManageStatusEffect";
             if (game?.i18n) {
-                const localized = game.i18n.localize("WODSYSTEM.EffectManager.ManageStatusEffect");
-                // Only use localized if it's not the same as the key (meaning translation was found)
-                options.title = (localized !== "WODSYSTEM.EffectManager.ManageStatusEffect") 
-                    ? localized 
-                    : "Manage Status Effect";
+                const localized = game.i18n.localize(titleKey);
+                options.title = (localized !== titleKey) ? localized : "Effect Editor";
             } else {
-                options.title = "Manage Status Effect";
+                options.title = "Effect Editor";
             }
         }
         
         super({}, options);
-        this.actor = actor;
+        
+        // Now we can safely set instance properties
+        this.mode = mode;
+        this.effectData = effectData;
+        
+        // Set up based on mode
+        if (this.mode === 'template') {
+            this.actor = null; // Templates don't need actors
+            this.effect = this.effectData;
+        } else {
+            this.actor = target; // Actor effects need actors
+            this.effect = effectId ? target.effects.get(effectId) : null;
+        }
+        
         this.effectId = effectId;
-        this.effect = effectId ? actor.effects.get(effectId) : null;
         
         // Prevent players from editing ST-created effects
         if (this.effect && !game.user.isGM) {
@@ -41,27 +56,47 @@ export class WodEffectManager extends FormApplication {
     
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
-            classes: ["wod", "dialog", "effect-manager"],
+            classes: ["wod-effect-manager", "wod-effect-editor"],
             template: "systems/wodsystem/templates/apps/effect-manager.html",
             width: 600,
-            height: "auto",
+            height: 800,
             resizable: true,
-            title: "Manage Status Effect", // Static title, will be overridden in constructor if i18n is available
+            title: "Effect Editor",
             closeOnSubmit: false,
             submitOnChange: false
         });
     }
     
     async getData() {
-        const data = super.getData();
+                const data = super.getData();
         
         // Auto-detect who's creating the effect
         const createdBy = game.user.isGM ? 'storyteller' : 'player';
         
-        // If editing, get effect data
+        // Handle effect data based on mode
         if (this.effect) {
-            const effectScope = this.effect.getFlag('wodsystem', 'conditionScope') || 'always';
-            let conditionTargets = this.effect.getFlag('wodsystem', 'conditionTargets') || [];
+            // Editing existing effect
+            let effectScope, conditionTargets, createdBy, mandatory, description, category, tags;
+            
+            if (this.mode === 'template') {
+                // Template mode - effect is already template data
+                effectScope = this.effect.conditionScope || 'always';
+                conditionTargets = this.effect.conditionTargets || [];
+                createdBy = this.effect.createdBy || 'storyteller';
+                mandatory = this.effect.mandatory || false;
+                description = this.effect.description || '';
+                category = this.effect.category || '';
+                tags = this.effect.tags || [];
+            } else {
+                // Actor mode - get from actor effect flags
+                effectScope = this.effect.getFlag('wodsystem', 'conditionScope') || 'always';
+                conditionTargets = this.effect.getFlag('wodsystem', 'conditionTargets') || [];
+                createdBy = this.effect.getFlag('wodsystem', 'createdBy') || createdBy;
+                mandatory = this.effect.getFlag('wodsystem', 'mandatory') === true;
+                description = this.effect.description || '';
+                category = this.effect.getFlag('wodsystem', 'category') || '';
+                tags = this.effect.getFlag('wodsystem', 'tags') || [];
+            }
             
             // Backwards compatibility: convert old single conditionTarget to array
             if (!Array.isArray(conditionTargets) && conditionTargets) {
@@ -71,17 +106,24 @@ export class WodEffectManager extends FormApplication {
             data.effect = {
                 id: this.effect.id,
                 name: this.effect.name,
-                icon: this.effect.img || this.effect.icon || "icons/svg/aura.svg", // Use img (v12+) with fallback
-                createdBy: this.effect.getFlag('wodsystem', 'createdBy') || createdBy,
-                mandatory: this.effect.getFlag('wodsystem', 'mandatory') === true,
+                icon: this.effect.img || this.effect.icon || "icons/svg/aura.svg",
+                createdBy: createdBy,
+                mandatory: mandatory,
                 conditionScope: effectScope,
-                conditionTargets: conditionTargets, // Now an array
+                conditionTargets: conditionTargets,
                 hideConditionTarget: effectScope === 'always',
-                changes: this.effect.changes.map(c => ({
+                description: description,
+                category: category,
+                tags: tags,
+                tagSystem: tags.includes('System'),
+                tagAutomatic: tags.includes('Automatic'),
+                tagPlayer: tags.includes('Player'),
+                tagStoryteller: tags.includes('Storyteller'),
+                changes: this.effect.changes?.map(c => ({
                     key: c.key,
                     value: c.value,
                     mode: c.mode
-                }))
+                })) || []
             };
         } else {
             // New effect defaults
@@ -89,10 +131,17 @@ export class WodEffectManager extends FormApplication {
                 name: i18n('WODSYSTEM.EffectManager.NewStatus'),
                 icon: "icons/svg/aura.svg",
                 createdBy: createdBy,
-                mandatory: createdBy === 'storyteller', // Default to true for ST effects
+                mandatory: createdBy === 'storyteller',
                 conditionScope: 'always',
-                conditionTargets: [], // Now an array
+                conditionTargets: [],
                 hideConditionTarget: true,
+                description: '',
+                category: '',
+                tags: [],
+                tagSystem: false,
+                tagAutomatic: false,
+                tagPlayer: false,
+                tagStoryteller: false,
                 changes: []
             };
         }
@@ -101,16 +150,21 @@ export class WodEffectManager extends FormApplication {
         data.isPlayerEffect = data.effect.createdBy === 'player';
         data.isGM = game.user.isGM;
         
+        // Pass mode flag to template
+        data.templateMode = this.mode === 'template';
+        
         // Condition scope options (EXTENSIBLE - add new scopes here in the future)
         data.conditionScopes = [
             { value: 'always', label: i18n('WODSYSTEM.EffectManager.AlwaysActive') },
             { value: 'attribute', label: i18n('WODSYSTEM.EffectManager.SpecificAttribute') },
             { value: 'ability', label: i18n('WODSYSTEM.EffectManager.SpecificAbility') },
-            { value: 'advantage', label: i18n('WODSYSTEM.EffectManager.SpecificAdvantage') }
+            { value: 'advantage', label: i18n('WODSYSTEM.EffectManager.SpecificAdvantage') },
+            { value: 'exclude', label: 'Exclude Specific Traits' }
             // FUTURE: Add { value: 'soak', label: 'Soak Rolls' },
             // FUTURE: Add { value: 'damage', label: 'Damage Rolls' },
         ];
         
+                
         // Get targets based on current scope with checked flags
         data.conditionTargets = this._getConditionTargetsWithChecked(data.effect.conditionScope, data.effect.conditionTargets);
         
@@ -253,6 +307,25 @@ export class WodEffectManager extends FormApplication {
                     { value: 'Background', label: `${game.i18n.localize('WODSYSTEM.Advantages.Backgrounds')} (Any)` }
                 ];
             
+            case 'exclude':
+                // For exclude scope, show all possible traits that can be excluded
+                return [
+                    // Attributes
+                    { value: 'Strength', label: game.i18n.localize('WODSYSTEM.Attributes.Strength') },
+                    { value: 'Dexterity', label: game.i18n.localize('WODSYSTEM.Attributes.Dexterity') },
+                    { value: 'Stamina', label: game.i18n.localize('WODSYSTEM.Attributes.Stamina') },
+                    { value: 'Charisma', label: game.i18n.localize('WODSYSTEM.Attributes.Charisma') },
+                    { value: 'Manipulation', label: game.i18n.localize('WODSYSTEM.Attributes.Manipulation') },
+                    { value: 'Appearance', label: game.i18n.localize('WODSYSTEM.Attributes.Appearance') },
+                    { value: 'Perception', label: game.i18n.localize('WODSYSTEM.Attributes.Perception') },
+                    { value: 'Intelligence', label: game.i18n.localize('WODSYSTEM.Attributes.Intelligence') },
+                    { value: 'Wits', label: game.i18n.localize('WODSYSTEM.Attributes.Wits') },
+                    // Advantages
+                    { value: 'Willpower', label: game.i18n.localize('WODSYSTEM.Advantages.Willpower') },
+                    { value: 'Enlightenment', label: `${game.i18n.localize('WODSYSTEM.Advantages.Enlightenment')} (Arete)` },
+                    { value: 'Background', label: `${game.i18n.localize('WODSYSTEM.Advantages.Backgrounds')} (Any)` }
+                ];
+            
             // FUTURE: Add cases for 'soak', 'damage', etc.
             
             default:
@@ -264,7 +337,7 @@ export class WodEffectManager extends FormApplication {
         super.activateListeners(html);
         
         // Apply theme class to dialog window (not just form)
-        const actorTypeLower = this.actor ? this.actor.type.toLowerCase() : "mortal";
+        const actorTypeLower = (this.actor && this.actor.type) ? this.actor.type.toLowerCase() : "mortal";
         
         // Apply theme to form
         html[0].classList.add(actorTypeLower);
@@ -275,10 +348,55 @@ export class WodEffectManager extends FormApplication {
             dialogElement.classList.add(actorTypeLower);
         }
         
-        html.find('.add-modifier-row').click(this._onAddModifier.bind(this));
-        html.find('.remove-modifier-row').click(this._onRemoveModifier.bind(this));
+        // Use only the working event listener
+        html.find('.add-modifier-row').on('click', this._onAddModifier.bind(this));
+        
+                html.find('.remove-modifier-row').click(this._onRemoveModifier.bind(this));
         html.find('.save-effect').click(this._onSaveEffect.bind(this));
         html.find('.cancel-effect').click(() => this.close());
+        
+        // File picker for icons - simplified to avoid offsetWidth errors
+        html.find('.file-picker').on('click', (ev) => {
+            const target = ev.currentTarget.dataset.target;
+            const input = html.find(`input[name="${target}"]`);
+            
+            // Simple prompt fallback if FilePicker fails
+            const fallbackPrompt = () => {
+                const path = prompt("Enter icon path (e.g., icons/svg/aura.svg):", input.val() || "icons/svg/aura.svg");
+                if (path !== null) {
+                    input.val(path);
+                }
+            };
+            
+            try {
+                const filePicker = new FilePicker({
+                    type: 'image',
+                    callback: (path) => {
+                        input.val(path);
+                    },
+                    // Minimal configuration to avoid positioning issues
+                    forceLoad: true
+                });
+                
+                // Override the problematic method if it exists
+                if (filePicker._updatePosition) {
+                    const originalUpdatePosition = filePicker._updatePosition;
+                    filePicker._updatePosition = function(...args) {
+                        try {
+                            return originalUpdatePosition.apply(this, args);
+                        } catch (error) {
+                            console.warn('FilePicker _updatePosition error, using fallback:', error);
+                            return;
+                        }
+                    };
+                }
+                
+                filePicker.render(true);
+            } catch (error) {
+                console.warn('FilePicker failed, using prompt fallback:', error);
+                fallbackPrompt();
+            }
+        });
         
         // Dynamic condition target dropdown
         html.find('.condition-scope-select').change(this._onConditionScopeChange.bind(this));
@@ -286,10 +404,29 @@ export class WodEffectManager extends FormApplication {
         // Set initial visibility state based on current scope selection
         const initialScope = html.find('.condition-scope-select').val();
         const targetGroup = html.find('.condition-target-group');
+        const targetCheckboxesContainer = html.find('.condition-targets-checkboxes');
+        
         if (initialScope === 'always') {
             targetGroup.hide();
         } else {
+            // Show and populate target checkboxes for initial state
             targetGroup.show();
+            
+            // Get available targets for this scope
+            const targets = this._getConditionTargets(initialScope);
+            
+            // Clear and populate the checkboxes
+            targetCheckboxesContainer.empty();
+            
+            targets.forEach(target => {
+                const checkbox = $(`
+                    <label class="condition-target-checkbox">
+                        <input type="checkbox" name="conditionTargets" value="${target.value}" />
+                        <span>${target.label}</span>
+                    </label>
+                `);
+                targetCheckboxesContainer.append(checkbox);
+            });
         }
     }
     
@@ -329,7 +466,7 @@ export class WodEffectManager extends FormApplication {
     async _onAddModifier(event) {
         event.preventDefault();
         
-        const modifierList = this.element.find('.effect-modifiers .modifiers-list');
+        const modifierList = this.element.find('.modifiers-list');
         const index = modifierList.find('.modifier-row').length;
         
         const newRow = $(`
@@ -341,7 +478,7 @@ export class WodEffectManager extends FormApplication {
                     <option value="autoFail">${i18n('WODSYSTEM.EffectManager.AutoFail')}</option>
                 </select>
                 <input type="number" class="modifier-value" name="modifiers.${index}.value" value="0" placeholder="+2 or -2" />
-                <button type="button" class="remove-modifier-row"><i class="fas fa-times"></i></button>
+                <i class="fas fa-trash remove-modifier-row" title="${i18n('WODSYSTEM.Common.Delete')}" style="cursor: pointer; color: #dc3545;"></i>
             </div>
         `);
         
@@ -416,28 +553,59 @@ export class WodEffectManager extends FormApplication {
         // Filter out null/undefined values
         conditionTargets = conditionTargets.filter(target => target !== null && target !== undefined && target !== '');
         
-        // Prepare effect data
-        const effectData = {
-            name: formData.name || "New Status",
-            img: formData.icon || "icons/svg/aura.svg", // Use img instead of icon (Foundry v12+)
-            changes: changes,
-            flags: {
-                wodsystem: {
-                    createdBy: formData.createdBy || (game.user.isGM ? 'storyteller' : 'player'),
-                    mandatory: formData.mandatory === true || formData.mandatory === 'true',
-                    conditionScope: formData.conditionScope || 'always',
-                    conditionTargets: conditionTargets // Now an array
-                }
-            }
-        };
+        // Parse tags from checkboxes
+        const selectedTags = formData.tags || [];
+        if (typeof selectedTags === 'string') {
+            selectedTags = [selectedTags];
+        }
         
-        // Create or update effect
-        if (this.effect) {
-            await this.effect.update(effectData);
-            ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectUpdated', {name: effectData.name}));
+        if (this.mode === 'template') {
+            // Template mode - return template data
+            const templateData = {
+                name: formData.name || "New Status",
+                icon: formData.icon || "icons/svg/aura.svg",
+                description: formData.description || '',
+                category: formData.category || '',
+                tags: selectedTags,
+                mandatory: formData.mandatory === true || formData.mandatory === 'true',
+                conditionScope: formData.conditionScope || 'always',
+                conditionTargets: conditionTargets,
+                changes: changes
+            };
+            
+            // Call the template save callback if provided
+            if (this.options.onSave) {
+                await this.options.onSave(templateData);
+            }
+            
+            ui.notifications.info(i18n('WODSYSTEM.StatusEffects.EffectCreated', {name: templateData.name}));
         } else {
-            await this.actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
-            ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectCreated', {name: effectData.name}));
+            // Actor mode - create/update actor effect
+            const effectData = {
+                name: formData.name || "New Status",
+                img: formData.icon || "icons/svg/aura.svg",
+                description: formData.description || '',
+                changes: changes,
+                flags: {
+                    wodsystem: {
+                        createdBy: formData.createdBy || (game.user.isGM ? 'storyteller' : 'player'),
+                        mandatory: formData.mandatory === true || formData.mandatory === 'true',
+                        conditionScope: formData.conditionScope || 'always',
+                        conditionTargets: conditionTargets,
+                        category: formData.category || '',
+                        tags: selectedTags
+                    }
+                }
+            };
+            
+            // Create or update effect
+            if (this.effect) {
+                await this.effect.update(effectData);
+                ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectUpdated', {name: effectData.name}));
+            } else {
+                await this.actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
+                ui.notifications.info(i18n('WODSYSTEM.EffectManager.EffectCreated', {name: effectData.name}));
+            }
         }
         
         // Force actor sheet to re-render

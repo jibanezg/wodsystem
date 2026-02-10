@@ -683,6 +683,7 @@
       "ChooseWhenToApply": "Elige cuándo se debe aplicar este efecto a las tiradas",
       "AlwaysActive": "Siempre Activo",
       "SpecificAttribute": "Atributo Específico",
+      "ExcludeSpecificTraits": "Excluir Rasgos Específicos",
       "SpecificAbility": "Habilidad Específica",
       "SpecificAdvantage": "Ventaja Específica",
       "SpecificTargets": "Objetivos Específicos (selecciona uno o más)",

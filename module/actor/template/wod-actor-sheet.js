@@ -1,5 +1,5 @@
 import { WodRollDialog } from "../../apps/wod-roll-dialog.js";
-import { WodEffectManager } from "../../apps/wod-effect-manager.js";
+import { WodEffectEditor } from "../../apps/wod-effect-manager.js";
 import { i18n } from "../../helpers/i18n.js";
 
 /**
@@ -2527,7 +2527,7 @@ export class WodActorSheet extends ActorSheet {
      */
     _onManageEffects(event) {
         event.preventDefault();
-        const manager = new WodEffectManager(this.actor);
+        const manager = new WodEffectEditor(this.actor);
         manager.render(true);
     }
 
@@ -2537,14 +2537,14 @@ export class WodActorSheet extends ActorSheet {
     _onEditEffect(event) {
         event.preventDefault();
         
-        // Don't open editor for locked ST effects (handled in WodEffectManager constructor too)
+        // Don't open editor for locked ST effects (handled in WodEffectEditor constructor too)
         if (event.currentTarget.classList.contains('st-effect-locked')) {
             ui.notifications.warn("You cannot edit effects created by the Storyteller.");
             return;
         }
         
         const effectId = event.currentTarget.dataset.effectId;
-        const manager = new WodEffectManager(this.actor, effectId);
+        const manager = new WodEffectEditor(this.actor, effectId);
         manager.render(true);
     }
 

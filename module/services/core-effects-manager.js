@@ -192,7 +192,6 @@ export class CoreEffectsManager {
             // Update existing effect if penalty changed, but ensure only one exists
             if (existingEffects.length > 1) {
                 // Remove duplicates first
-                console.log(`Core Effects Manager: Found ${existingEffects.length} instances of "${effectId}" on ${actor.name}, cleaning up duplicates`);
                 await this._removeCoreEffect(actor, effectId);
                 await this._applyCoreEffect(actor, effectConfig, conditionResult);
             } else {
@@ -238,7 +237,6 @@ export class CoreEffectsManager {
 
         try {
             await actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
-            console.log(`Core Effects Manager: Applied effect "${effectConfig.name}" (${conditionResult.level}, ${conditionResult.penalty}) to ${actor.name}`);
         } catch (error) {
             console.error(`Core Effects Manager: Failed to apply effect "${effectConfig.name}" to ${actor.name}:`, error);
         }
@@ -287,7 +285,6 @@ export class CoreEffectsManager {
 
         try {
             await existingEffect.update(updateData);
-            console.log(`Core Effects Manager: Updated effect "${effectConfig.name}" (${conditionResult.level}, ${conditionResult.penalty}) on ${actor.name}`);
         } catch (error) {
             console.error(`Core Effects Manager: Failed to update effect "${effectConfig.name}" on ${actor.name}:`, error);
         }
@@ -309,14 +306,8 @@ export class CoreEffectsManager {
             const effectIds = effectsToRemove.map(e => e.id);
             try {
                 await actor.deleteEmbeddedDocuments('ActiveEffect', effectIds);
-                console.log(`Core Effects Manager: Removed effect "${effectId}" from ${actor.name}`);
             } catch (error) {
-                // Silently handle cases where effects don't exist (race conditions, etc.)
-                if (error.message.includes('does not exist')) {
-                    console.log(`Core Effects Manager: Effect "${effectId}" already removed from ${actor.name}`);
-                } else {
-                    console.error(`Core Effects Manager: Failed to remove effect "${effectId}" from ${actor.name}:`, error);
-                }
+                console.error(`Core Effects Manager: Failed to remove effect "${effectId}" from ${actor.name}:`, error);
             }
         }
     }

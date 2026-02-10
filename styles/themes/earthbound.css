@@ -2595,42 +2595,7 @@ form.wod.sheet.actor.earthbound .sheet-header {
     color: var(--wod-primary) !important;
 }
 
-/* Override effect manager section headers */
-.app.dialog.Earthbound form.wod-effect-manager .effect-header-section h3,
-.app.dialog.Earthbound form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.Earthbound form.wod-effect-manager .effect-conditions-section h3,
-.window-app.Earthbound form.wod-effect-manager .effect-header-section h3,
-.window-app.Earthbound form.wod-effect-manager .effect-metadata-section h3,
-.window-app.Earthbound form.wod-effect-manager .effect-conditions-section h3,
-.window-app.earthbound form.wod-effect-manager .effect-header-section h3,
-.window-app.earthbound form.wod-effect-manager .effect-metadata-section h3,
-.window-app.earthbound form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.earthbound form.wod-effect-manager .effect-header-section h3,
-.app.dialog.earthbound form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.earthbound form.wod-effect-manager .effect-conditions-section h3,
-.window-app.Earthbound .window-content form.wod-effect-manager .effect-header-section h3,
-.window-app.Earthbound .window-content form.wod-effect-manager .effect-metadata-section h3,
-.window-app.Earthbound .window-content form.wod-effect-manager .effect-conditions-section h3,
-.window-app.earthbound .window-content form.wod-effect-manager .effect-header-section h3,
-.window-app.earthbound .window-content form.wod-effect-manager .effect-metadata-section h3,
-.window-app.earthbound .window-content form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.Earthbound .window-content form.wod-effect-manager .effect-header-section h3,
-.app.dialog.Earthbound .window-content form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.Earthbound .window-content form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.earthbound .window-content form.wod-effect-manager .effect-header-section h3,
-.app.dialog.earthbound .window-content form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.earthbound .window-content form.wod-effect-manager .effect-conditions-section h3 {
-    background: linear-gradient(135deg, var(--wod-primary-light, #FF4500) 0%, var(--wod-primary, #8B0000) 50%, var(--wod-primary-dark, #000000) 100%) !important;
-    color: white !important;
-    padding: 8px 12px !important;
-    border-radius: 3px !important;
-    margin: 0 0 12px 0 !important;
-    text-align: center !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-}
+/* Effect manager section headers - removed gradient styling, handled by status-effect-manager.css */
 
 /* Roll Dialog - Trait chips and total pool */
 .wod.dialog.roll-dialog.Earthbound .trait-chip,
@@ -2839,21 +2804,7 @@ form.wod-effect-manager.earthbound select:focus,
     transition: all 0.2s ease !important;
 }
 
-/* Effect Manager Section Headers Icons */
-.wod.dialog.Earthbound form.wod-effect-manager .effect-header-section h3 i,
-.wod.dialog.Earthbound form.wod-effect-manager .effect-metadata-section h3 i,
-.wod.dialog.Earthbound form.wod-effect-manager .effect-conditions-section h3 i,
-.window-app.Earthbound form.wod-effect-manager .effect-header-section h3 i,
-.window-app.Earthbound form.wod-effect-manager .effect-metadata-section h3 i,
-.window-app.Earthbound form.wod-effect-manager .effect-conditions-section h3 i,
-.window-app.earthbound form.wod-effect-manager .effect-header-section h3 i,
-.window-app.earthbound form.wod-effect-manager .effect-metadata-section h3 i,
-.window-app.earthbound form.wod-effect-manager .effect-conditions-section h3 i,
-form.wod-effect-manager.earthbound .effect-header-section h3 i,
-form.wod-effect-manager.earthbound .effect-metadata-section h3 i,
-form.wod-effect-manager.earthbound .effect-conditions-section h3 i {
-    color: var(--wod-primary, #8B0000) !important;
-}
+/* Effect Manager Section Headers Icons - removed, handled by status-effect-manager.css */
 
 /* ========================================
    STATUS EFFECTS - ICONS AND INDICATORS

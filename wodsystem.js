@@ -1,4 +1,3 @@
-console.log("🚀 [WODSYSTEM] File loading started - BEFORE imports");
 
 import { WodActor } from "./module/actor/data/wod-actor.js";
 import { WodActorSheet } from "./module/actor/template/wod-actor-sheet.js";
@@ -26,13 +25,19 @@ import { StatusEffectManager } from "./module/services/status-effect-manager.js"
 // Import Item Classes
 import { WodItem, WodWeapon, WodArmor, WodGear } from "./module/items/wod-item.js";
 
-console.log("🚀 [WODSYSTEM] All imports completed successfully");
 
 Hooks.once("init", async function() {
-    console.log("🎬 [SYSTEM INIT] WoD System initialization starting...");
+    // Register system settings FIRST (before any services that might use them)
+    game.settings.register('wodsystem', 'debugMode', {
+        name: 'Debug Mode',
+        hint: 'Enable debug logging for WoD system',
+        scope: 'world',
+        config: true,
+        default: false,
+        type: Boolean
+    });
     
     // Register Actor Classes FIRST (before any async operations)
-    console.log("🎬 [SYSTEM INIT] Registering Actor classes...");
     CONFIG.Actor.documentClass = WodActor;
     
     // Register Item Classes
@@ -54,7 +59,6 @@ Hooks.once("init", async function() {
     CONFIG.Item.typeLabels.gear = "Gear";
     
     // Register Actor Sheets EARLY (before async operations that might fail)
-    console.log("🎬 [SYSTEM INIT] Registering Actor Sheets...");
     Actors.registerSheet("wodsystem", MortalSheet, {
         types: ["Mortal", "Mortal-NPC"],
         makeDefault: true
@@ -85,8 +89,7 @@ Hooks.once("init", async function() {
         makeDefault: true
     });
     
-    console.log("🎬 [SYSTEM INIT] Actor Sheets registered successfully");
-    
+        
     // Make Character Wizard available globally
     game.wodsystem = game.wodsystem || {};
     game.wodsystem.WodCharacterWizard = WodCharacterWizard;
@@ -94,7 +97,6 @@ Hooks.once("init", async function() {
     // Now do async operations (these might fail but sheets are already registered)
     // Initialize game data service (organizes data by source: M20, D20)
     try {
-        console.log("🎬 [SYSTEM INIT] Creating GameDataService...");
         game.wod = game.wod || {};
         game.wod.referenceDataService = new GameDataService();
         game.wod.gameDataService = game.wod.referenceDataService;
@@ -104,9 +106,7 @@ Hooks.once("init", async function() {
         game.wod.statusEffectManager = new StatusEffectManager();
         await game.wod.statusEffectManager.initialize();
         registerWodTriggerTabs();
-        console.log("🎬 [SYSTEM INIT] Initializing GameDataService...");
         await game.wod.referenceDataService.initialize();
-        console.log("🎬 [SYSTEM INIT] GameDataService initialized successfully");
     } catch (error) {
         console.error("WoD | CRITICAL: Failed to initialize Game Data Service:", error);
         // Create a minimal service to prevent complete failure
@@ -204,12 +204,9 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/wizard-steps/step-review.html"
     ]);
     
-    console.log("🎬 [SYSTEM INIT] Templates loaded successfully");
-    console.log("🎬 [SYSTEM INIT] WoD System initialization complete");
-});
+    });
 
 Hooks.on("setup", () => {
-    console.log("🎬 [SYSTEM SETUP] WoD System setup phase starting...");
     // Ensure Item types are registered (Foundry loads these from template.json)
     // But we explicitly register them here to ensure they're available
     if (!CONFIG.Item.types) {
@@ -252,8 +249,7 @@ Hooks.on("updateActor", async (actor, updateData, options, userId) => {
         const currentEssence = actor.system.advantages?.essence?.max || 0;
         
         if (newEssence !== currentEssence) {
-            console.log(`Recalculating essence for ${actor.name}: ${currentEssence} -> ${newEssence}`);
-            await actor.update({ 
+                        await actor.update({ 
                 "system.advantages.essence.max": newEssence,
                 "system.advantages.essence.value": Math.min(actor.system.advantages?.essence?.value || 0, newEssence)
             });
@@ -267,7 +263,6 @@ Hooks.on("updateActor", async (actor, updateData, options, userId) => {
 });
 
 Hooks.on("ready", async () => {
-    console.log("🎬 [SYSTEM READY] WoD System ready phase starting...");
     // Initialize socket for effect approval system
     initializeApprovalSocket();
     
@@ -277,8 +272,7 @@ Hooks.on("ready", async () => {
     // Initialize Minimap Manager
     MinimapManager.initialize();
     
-    console.log("🎬 [SYSTEM READY] WoD System fully ready");
-    
+        
     // Load Minimap dialogs and make them globally available
     Promise.all([
         import("./module/apps/wod-minimap-config-dialog.js"),

@@ -1,0 +1,738 @@
+/* ==================== Trigger Configuration Dialog ==================== */
+
+/* Main form layout */
+.wod-trigger-config .form.flexcol {
+    gap: 16px;
+    padding: 12px;
+}
+
+/* Section styling */
+.wod-trigger-config section.trigger-basics,
+.wod-trigger-config section.trigger-roll,
+.wod-trigger-config section.trigger-actions {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+/* Basics section specific styling */
+.wod-trigger-config section.trigger-basics .basics-two-column {
+    padding: 4px 0;
+}
+
+section.trigger-basics .effect-group {
+    margin-top: 12px;
+}
+
+section.trigger-roll .roll-config {
+    margin-top: 8px;
+}
+
+section.trigger-basics h3,
+section.trigger-roll h3,
+section.trigger-actions h3 {
+    margin: 0 0 8px 0;
+    color: #444;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 4px;
+}
+
+/* Form groups */
+.wod-trigger-config .form-group {
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wod-trigger-config .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.wod-trigger-config .form-group input[type="text"],
+.wod-trigger-config .form-group input[type="number"],
+.wod-trigger-config .form-group select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    max-width: 180px;
+}
+
+/* Horizontal form groups for better space usage */
+.wod-trigger-config .form-group.horizontal {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.wod-trigger-config .form-group.horizontal label {
+    min-width: 80px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.wod-trigger-config .form-group.horizontal input,
+.wod-trigger-config .form-group.horizontal select {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Two-column layout for basics section */
+.wod-trigger-config .basics-two-column {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.wod-trigger-config .basics-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 120px;
+    text-align: right;
+    padding-top: 6px;
+}
+
+.wod-trigger-config .basics-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.wod-trigger-config .basics-labels label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.wod-trigger-config .basics-fields .field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Grid layout for action rows */
+.wod-trigger-config .action-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 15px;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 500px;
+}
+
+.wod-trigger-config .grid-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.wod-trigger-config .grid-cell label {
+    font-weight: 600;
+    color: #4a5568;
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+}
+
+.grid-cell .field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grid-cell .target-input {
+    flex: 1;
+    min-width: 100px;
+    max-width: 140px;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.action-grid .grid-cell .pick-target {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-grid .grid-cell .pick-target:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.action-grid .grid-cell .pick-asset {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-grid .grid-cell .pick-asset:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+}
+
+.action-grid .grid-cell select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    background: #fff;
+}
+
+.action-grid .grid-cell input[type="number"] {
+    width: 75%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.action-grid .grid-cell .delete-action {
+    width: auto;
+    height: auto;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #dc3545;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.action-grid .grid-cell .delete-action:hover {
+    color: #dc3545;
+    opacity: 0.7;
+}
+
+/* Better positioning for delete button */
+.action-grid .grid-cell:last-child {
+    justify-content: center;
+    align-items: center;
+}
+
+/* Align delete button with delay input field */
+.action-grid .grid-cell:last-child .delete-action {
+    margin-top: 24px; /* Align with input field height */
+}
+
+.basics-fields input[type="checkbox"] {
+    margin: 0;
+}
+
+.form-group input[type="checkbox"] {
+    margin: 0;
+}
+
+/* Action rows */
+.wod-trigger-config .action-row {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 6px;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.wod-trigger-config .action-type-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    min-width: 50px;
+    flex-shrink: 0;
+}
+
+.wod-trigger-config .target-input {
+    flex: 1;
+    min-width: 80px;
+    max-width: 120px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* Icon buttons - compact and clean - scoped to trigger config only */
+.wod-trigger-config .pick-target {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f8;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.wod-trigger-config .pick-target i {
+    margin: 0;
+}
+
+.wod-trigger-config .pick-target:hover {
+    background: #e0e0e0;
+    border-color: #999;
+}
+
+/* Remove action buttons - icon only, no borders */
+.wod-trigger-config .remove-action {
+    width: auto;
+    height: auto;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #dc3545;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.wod-trigger-config .remove-action:hover {
+    color: #dc3545;
+    opacity: 0.7;
+}
+
+/* Action buttons section */
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.action-buttons button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f8f8;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.action-buttons button i {
+    font-size: 12px;
+    margin: 0;
+}
+
+.action-buttons button:hover {
+    background: #e8e8e8;
+    border-color: #999;
+}
+
+.action-buttons button:hover {
+    background: #e8e8e8;
+    border-color: #999;
+}
+
+/* Fieldsets */
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+legend {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    padding: 0 6px;
+}
+
+/* Roll configuration */
+.roll-config {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.roll-attribute-ability,
+.roll-single {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.roll-attribute-ability .form-group,
+.roll-single .form-group {
+    flex: 1;
+}
+
+.roll-attribute-ability .form-group input,
+.roll-single .form-group input {
+    max-width: 100px;
+}
+
+/* Tile specific styling */
+.tile-image-input,
+.tile-target-section {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin: 4px 0;
+}
+
+.tile-image-input input,
+.tile-target-section input {
+    flex: 1;
+    max-width: 120px;
+}
+
+.tile-picker-section {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+/* Compact form groups in action rows */
+.action-row .form-group {
+    margin-bottom: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+.action-row .form-group label {
+    margin-bottom: 0;
+    font-size: 11px;
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.action-row .form-group input,
+.action-row .form-group select {
+    max-width: 80px;
+    padding: 2px 4px;
+    font-size: 11px;
+}
+
+/* Notes and hints */
+.notes,
+.hint {
+    font-size: 11px;
+    color: #666;
+    font-style: italic;
+    margin: 4px 0;
+}
+
+/* Horizontal rules */
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 12px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .action-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .action-buttons {
+        justify-content: stretch;
+    }
+    
+    .action-buttons button {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+/* Proximity Configuration - scoped to trigger config */
+.wod-trigger-config .proximity-config {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.wod-trigger-config .proximity-config h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Execution Timing Section - scoped to trigger config */
+.wod-trigger-config .execution-timing-section {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.wod-trigger-config .execution-timing-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+/* Conditions Section - scoped to trigger config */
+.wod-trigger-config .conditions-section {
+    background: #f0f4f8;
+    border: 1px solid #ccd;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.wod-trigger-config .conditions-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.wod-trigger-config .conditions-section .add-condition {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid #4a9eff;
+    border-radius: 4px;
+    background: #4a9eff;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.wod-trigger-config .conditions-section .add-condition:hover {
+    background: #2a7edf;
+}
+
+.wod-trigger-config .conditions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wod-trigger-config .condition-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.wod-trigger-config .condition-row select {
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.wod-trigger-config .condition-row .condition-type {
+    flex: 1;
+    min-width: 100px;
+}
+
+.wod-trigger-config .condition-row .condition-operator {
+    width: 100px;
+}
+
+.wod-trigger-config .condition-row .condition-value {
+    flex: 1;
+    min-width: 80px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.wod-trigger-config .condition-row .condition-logic {
+    width: 70px;
+}
+
+.wod-trigger-config .condition-row .remove-condition {
+    width: auto;
+    height: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.wod-trigger-config .condition-row .remove-condition:hover {
+    opacity: 0.7;
+}
+
+.wod-trigger-config .no-conditions {
+    color: #666;
+    font-style: italic;
+    font-size: 12px;
+    margin: 5px 0;
+}
+
+/* Event-only fields - hidden by default for non-event execution modes */
+.wod-trigger-config .event-only {
+    display: none;
+}
+
+/* ==================== Target Configuration ==================== */
+
+/* Target mode dropdown */
+.wod-trigger-config .target-mode {
+    min-width: 100px;
+    max-width: 130px;
+}
+
+/* Target element type dropdown */
+.wod-trigger-config .target-element-type {
+    min-width: 70px;
+    max-width: 90px;
+}
+
+/* Target ID cell - hidden by default for non-specific modes */
+.wod-trigger-config .target-id-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Target type cell */
+.wod-trigger-config .target-type-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Compact action grid for success/failure sections */
+.wod-trigger-config .action-grid.compact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.wod-trigger-config .action-grid.compact select {
+    padding: 4px 6px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.wod-trigger-config .action-grid.compact input[type="text"] {
+    padding: 4px 6px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 80px;
+    max-width: 120px;
+}
+
+.wod-trigger-config .action-grid.compact .target-mode {
+    min-width: 80px;
+    max-width: 100px;
+}
+
+.wod-trigger-config .action-grid.compact .target-element-type {
+    min-width: 60px;
+    max-width: 80px;
+}
+
+.wod-trigger-config .action-grid.compact .effect-action-type {
+    min-width: 70px;
+    max-width: 90px;
+}
+
+.wod-trigger-config .action-grid.compact .remove-action {
+    padding: 4px;
+    border: none;
+    background: transparent;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.wod-trigger-config .action-grid.compact .remove-action:hover {
+    opacity: 0.7;
+}
+
+.wod-trigger-config .action-grid.compact .pick-target {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f8f9fa;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.wod-trigger-config .action-grid.compact .pick-target:hover {
+    background: #e9ecef;
+    border-color: #007bff;
+    color: #007bff;
+}

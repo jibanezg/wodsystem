@@ -142,8 +142,7 @@ export class WodEquipmentEffectsDialog extends FormApplication {
      */
     async _onSave(event) {
         event.preventDefault();
-        console.log('Equipment Effects: Save button clicked');
-        
+                
         try {
             // Get form data
             const formData = new FormData(this.element[0].querySelector('form'));
@@ -170,15 +169,11 @@ export class WodEquipmentEffectsDialog extends FormApplication {
                 }
             }
             
-            console.log('Equipment Effects: Saving data:', formDataObj);
-            
+                        
             // Call the update method
             await this._updateObject(event, formDataObj);
-            console.log('Equipment Effects: Save completed');
-            
             // Close the dialog
             this.close();
-            console.log('Equipment Effects: Dialog close called');
         } catch (error) {
             console.error('Equipment Effects: Error during save:', error);
             ui.notifications.error('Failed to save equipment effects: ' + error.message);

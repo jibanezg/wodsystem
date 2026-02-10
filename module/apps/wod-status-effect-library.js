@@ -1,4 +1,5 @@
 import { i18n } from '../helpers/i18n.js';
+import { WodEffectEditor } from './wod-effect-manager.js';
 
 /**
  * Status Effect Library Dialog
@@ -98,11 +99,9 @@ export class WodStatusEffectLibrary extends FormApplication {
         const effectId = event.currentTarget.dataset.effectId;
         const effect = this.manager.getEffectTemplate(effectId);
         
-        console.log('Effect clicked:', effectId, effect);
-        
+                
         // Show tooltip for ALL effects
         if (effect) {
-            console.log('Showing tooltip for effect');
             this._showEffectTooltip(event, effect);
         }
     }
@@ -110,8 +109,8 @@ export class WodStatusEffectLibrary extends FormApplication {
     async _onCreateEffect(event) {
         event.preventDefault();
         
-        // Open effect editor dialog for new effect
-        const effectData = await this._openEffectEditor(null);
+        // Open effect editor dialog for new effect using WodEffectManager
+        const effectData = await this._openEffectEditorWithFullManager(null);
         if (effectData) {
             await this.manager.createEffectTemplate(effectData);
             ui.notifications.info(i18n('WODSYSTEM.StatusEffects.EffectCreated', { name: effectData.name }));
@@ -136,7 +135,7 @@ export class WodStatusEffectLibrary extends FormApplication {
         const effect = this.manager.getEffectTemplate(effectId);
         if (!effect) return;
         
-        const effectData = await this._openEffectEditor(effect);
+        const effectData = await this._openEffectEditorWithFullManager(effect);
         if (effectData) {
             await this.manager.updateEffectTemplate(effectId, effectData);
             ui.notifications.info(i18n('WODSYSTEM.StatusEffects.EffectUpdated', { name: effectData.name }));
@@ -389,6 +388,7 @@ export class WodStatusEffectLibrary extends FormApplication {
                             <option value="attribute" ${effectData.conditionScope === 'attribute' ? 'selected' : ''}>${i18n('WODSYSTEM.EffectManager.SpecificAttribute')}</option>
                             <option value="ability" ${effectData.conditionScope === 'ability' ? 'selected' : ''}>${i18n('WODSYSTEM.EffectManager.SpecificAbility')}</option>
                             <option value="advantage" ${effectData.conditionScope === 'advantage' ? 'selected' : ''}>${i18n('WODSYSTEM.EffectManager.SpecificAdvantage')}</option>
+                            <option value="exclude" ${effectData.conditionScope === 'exclude' ? 'selected' : ''}>${i18n('WODSYSTEM.EffectManager.ExcludeSpecificTraits')}</option>
                         </select>
                     </div>
                     
@@ -509,18 +509,14 @@ export class WodStatusEffectLibrary extends FormApplication {
     }
 
     _showEffectTooltip(event, effect) {
-        console.log('Creating tooltip for effect:', effect);
-        
         // Remove any existing tooltip first
         const existingTooltip = document.querySelector('.wod-effect-tooltip');
         if (existingTooltip) {
-            console.log('Removing existing tooltip');
             existingTooltip.remove();
             return; // If clicking again on same effect, just close the tooltip
         }
         
         const isCore = effect.isCore === true || effect.category === 'Core';
-        console.log('Is core effect:', isCore);
         
         const tooltip = `
             <div class="wod-effect-tooltip">
@@ -557,8 +553,6 @@ export class WodStatusEffectLibrary extends FormApplication {
             </div>
         `;
 
-        console.log('Tooltip HTML created');
-
         // Create and show tooltip
         const tooltipElement = document.createElement('div');
         tooltipElement.innerHTML = tooltip;
@@ -578,33 +572,25 @@ export class WodStatusEffectLibrary extends FormApplication {
         const spaceAbove = rect.top;
         const spaceBelow = window.innerHeight - rect.bottom;
         
-        console.log('Positioning tooltip - rect:', rect, 'spaceAbove:', spaceAbove, 'spaceBelow:', spaceBelow);
-        
         if (spaceBelow >= tooltipHeight) {
             // Position below
             tooltipElement.style.left = `${rect.left}px`;
             tooltipElement.style.top = `${rect.bottom + 5}px`;
-            console.log('Positioning below at:', tooltipElement.style.left, tooltipElement.style.top);
         } else {
             // Position above
             tooltipElement.style.left = `${rect.left}px`;
             tooltipElement.style.top = `${rect.top - tooltipHeight - 5}px`;
-            console.log('Positioning above at:', tooltipElement.style.left, tooltipElement.style.top);
         }
 
-        console.log('Adding tooltip to document');
         document.body.appendChild(tooltipElement);
-        console.log('Tooltip added, element:', tooltipElement);
 
         // Add event listeners for edit/delete buttons
         if (!isCore) {
             const editBtn = tooltipElement.querySelector('.tooltip-edit-btn');
             const deleteBtn = tooltipElement.querySelector('.tooltip-delete-btn');
-            console.log('Edit button:', editBtn, 'Delete button:', deleteBtn);
             
             if (editBtn) {
                 editBtn.addEventListener('click', (e) => {
-                    console.log('Edit button clicked');
                     e.stopPropagation();
                     this._onEditEffect(e);
                     tooltipElement.remove();
@@ -613,7 +599,6 @@ export class WodStatusEffectLibrary extends FormApplication {
             
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', (e) => {
-                    console.log('Delete button clicked');
                     e.stopPropagation();
                     this._onDeleteEffect(e);
                     tooltipElement.remove();
@@ -621,12 +606,11 @@ export class WodStatusEffectLibrary extends FormApplication {
             }
         }
 
-        // Remove tooltip on next click anywhere (but not on tooltip itself)
+        // Add click listener to remove tooltip when clicking outside
         const removeTooltip = (e) => {
             if (!tooltipElement.contains(e.target)) {
                 const tooltip = document.querySelector('.wod-effect-tooltip');
                 if (tooltip) {
-                    console.log('Removing tooltip via click outside');
                     tooltip.remove();
                 }
                 document.removeEventListener('click', removeTooltip);
@@ -635,8 +619,33 @@ export class WodStatusEffectLibrary extends FormApplication {
 
         // Add click listener after a small delay to avoid immediate removal
         setTimeout(() => {
-            console.log('Adding click listener for tooltip removal');
             document.addEventListener('click', removeTooltip);
         }, 50);
+    }
+
+    /**
+     * Open effect editor using the unified WodEffectEditor
+     * @param {Object|null} effect - Existing effect data or null for new effect
+     * @returns {Promise<Object|null>} Effect data or null if cancelled
+     */
+    async _openEffectEditorWithFullManager(effect) {
+        return new Promise((resolve) => {
+            const editor = new WodEffectEditor(null, null, {
+                mode: 'template',
+                effectData: effect,
+                title: effect ? i18n('WODSYSTEM.StatusEffects.EditEffect') : i18n('WODSYSTEM.StatusEffects.CreateEffect'),
+                onSave: async (templateData) => {
+                    resolve(templateData);
+                }
+            });
+            
+            // Override close to handle cancellation
+            editor.close = () => {
+                resolve(null);
+                FormApplication.prototype.close.call(editor);
+            };
+            
+            editor.render(true);
+        });
     }
 }

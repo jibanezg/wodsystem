@@ -7,7 +7,8 @@
 /* ==================== CSS Variables ==================== */
 .wod-status-effect-library,
 .wod-effect-assignment,
-.effect-editor-form {
+.effect-editor-form,
+form.flexcol {
     --sem-primary: #6b7280;
     --sem-primary-dark: #4b5563;
     --sem-primary-light: #9ca3af;
@@ -478,6 +479,22 @@
     gap: 0;
 }
 
+/* Override Foundry's max-height for effect assignment dialog specifically */
+#wod-effect-assignment.window-app.dialog .window-content,
+.app.dialog .window-app.wod-effect-assignment.dialog .window-content,
+.window-app.dialog.wod-effect-assignment.wod.dialog.effect-assignment.wizard .window-content,
+.window-app.dialog.wod-effect-assignment .window-content {
+    max-height: none !important; /* Remove max-height constraint */
+    height: auto !important;
+}
+
+/* Override dialog height to allow proper scrolling */
+.window-app.dialog.wod-effect-assignment {
+    height: auto !important;
+    min-height: 600px !important;
+    max-height: 90vh !important;
+}
+
 /* Wizard Header */
 .wod-effect-assignment .wizard-header {
     display: flex;
@@ -578,8 +595,9 @@
     flex-direction: column;
     overflow: hidden;
     width: 100%;
-    padding: 10px 0; /* 10px top and bottom */
+    padding: 10px 0 40px 0; /* Further reduce bottom padding */
     box-sizing: border-box;
+    background: transparent; /* Ensure no background color causing artifacts */
 }
 
 .wod-effect-assignment .wizard-page {
@@ -588,6 +606,26 @@
     flex-direction: column;
     overflow: hidden;
     width: 100%;
+    background: transparent; /* Ensure no background color causing artifacts */
+}
+
+/* Allow scrolling for actor list specifically */
+.wod-effect-assignment .wizard-page[data-step="2"] {
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.wod-effect-assignment .wizard-page[data-step="2"] .actors-list {
+    overflow-y: auto;
+    max-height: calc(70vh - 250px); /* Work within Foundry's 70vh constraint */
+    min-height: 200px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    background: var(--sem-bg);
+    margin-bottom: 2px; /* Minimize margin to reduce gap */
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .wod-effect-assignment .wizard-page.hidden {
@@ -841,6 +879,8 @@
     overflow-y: auto;
     padding: 8px;
     background: var(--sem-bg);
+    max-height: 40vh;
+    min-height: 120px;
 }
 
 .wod-effect-assignment .actor-item {
@@ -1387,4 +1427,630 @@
     border-top: 1px solid var(--sem-border);
     color: #6b7280;
     font-size: 9px;
+}
+
+/* ==================== Effect Editor ==================== */
+/* Very specific selector for WodEffectEditor */
+.window-app[data-app-id*="wod-effect-editor"] form,
+.window-app.app[data-app-id^="wod-effect-editor"] form,
+form.flexcol,
+.window-app .form,
+.window-app form {
+    padding: 12px !important;
+    gap: 16px !important;
+}
+
+/* Force section styling */
+.window-app[data-app-id*="wod-effect-editor"] section,
+.window-app.app[data-app-id^="wod-effect-editor"] section,
+.window-app[data-app-id*="wod-effect-editor"] form section,
+.window-app.app[data-app-id^="wod-effect-editor"] form section {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    margin-bottom: 16px !important;
+}
+
+/* Force header styling */
+.window-app[data-app-id*="wod-effect-editor"] section h3,
+.window-app.app[data-app-id^="wod-effect-editor"] section h3 {
+    margin: 0 0 12px 0 !important;
+    padding: 6px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+/* Standardize dialog window backgrounds and headers across all dialogs */
+.window-app {
+    background: #f8f9fa !important;
+}
+
+.window-app .window-content {
+    background: #f8f9fa !important;
+}
+
+.window-app .window-header {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+    border-bottom: 1px solid #4b5563 !important;
+    border-radius: 6px 6px 0 0 !important;
+}
+
+.window-app .window-header h3 {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+.window-app .window-header .close {
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.1) !important;
+    border-radius: 4px !important;
+    transition: all 0.15s ease !important;
+}
+
+.window-app .window-header .close:hover {
+    background: rgba(255,255,255,0.2) !important;
+    color: #ffffff !important;
+}
+
+/* Modifier add button styling */
+.wod-effect-editor .add-modifier-row {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 4px !important;
+    font-size: 12px !important;
+    border-radius: 4px !important;
+    background: #f8f9fa !important;
+    border: 1px solid #e5e7eb !important;
+    color: #6b7280 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wod-effect-editor .add-modifier-row:hover {
+    background: #e9ecef !important;
+    border-color: #6b7280 !important;
+    color: #111827 !important;
+}
+
+
+/* Target only WodEffectEditor specifically */
+.wod-effect-editor form section {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    margin-bottom: 16px !important;
+}
+
+.wod-effect-editor form section h3 {
+    margin: 0 0 12px 0 !important;
+    padding: 6px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+/* Status Effect Library styling - Target actual HTML structure */
+.wod-status-effect-library {
+    padding: 16px !important;
+}
+
+.wod-status-effect-library .library-header {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    margin-bottom: 16px !important;
+}
+
+.wod-status-effect-library .library-header h2 {
+    margin: 0 0 12px 0 !important;
+    padding: 6px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+.wod-status-effect-library .toolbar-section {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    margin-bottom: 16px !important;
+}
+
+.wod-status-effect-library .section-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 0 8px 0 !important;
+    padding: 4px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+.wod-status-effect-library .section-header h3 {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+}
+
+.wod-status-effect-library .section-header i {
+    color: #6b7280 !important;
+    font-size: 14px !important;
+}
+
+
+.wod-status-effect-library .toolbar-section h3 {
+    margin: 0 0 12px 0 !important;
+    padding: 6px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+/* Effect Assignment styling - Target actual HTML structure */
+.wod-effect-assignment {
+    padding: 16px !important;
+}
+
+.wod-effect-assignment .wizard-header {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    margin-bottom: 16px !important;
+}
+
+.wod-effect-assignment .wizard-header h2 {
+    margin: 0 0 12px 0 !important;
+    padding: 6px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+.wod-effect-assignment .toolbar-section {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    margin-bottom: 16px !important;
+}
+
+.wod-effect-assignment .toolbar-section h3 {
+    margin: 0 0 12px 0 !important;
+    padding: 6px 8px !important;
+    background: #f9fafb !important;
+    border-radius: 4px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    border-left: 3px solid #6b7280 !important;
+}
+
+.window-app.app[data-app-id^="wod-effect-editor"] form section,
+form.flexcol section,
+.window-app .form section,
+.window-app form section {
+    border: 1px solid var(--sem-border);
+    border-radius: 6px;
+    padding: 12px;
+    background: var(--sem-bg);
+    margin-bottom: 16px;
+}
+
+form.flexcol section h3,
+.window-app .form section h3,
+.window-app form section h3 {
+    margin: 0 0 12px 0;
+    padding: 6px 8px;
+    background: var(--sem-bg-alt);
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sem-text);
+    border-left: 3px solid var(--sem-primary);
+}
+
+form.flexcol section h3 i,
+.window-app .form section h3 i,
+.window-app form section h3 i {
+    margin-right: 6px;
+    color: var(--sem-primary);
+}
+
+form.flexcol .form-group {
+    margin-bottom: 12px;
+}
+
+form.flexcol .form-group:last-child {
+    margin-bottom: 0;
+}
+
+form.flexcol label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: var(--sem-text);
+    font-size: 12px;
+}
+
+form.flexcol input[type="text"],
+form.flexcol input[type="number"],
+form.flexcol select,
+form.flexcol textarea {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    background: var(--sem-bg);
+    color: var(--sem-text);
+    font-size: 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+form.flexcol input:focus,
+form.flexcol select:focus,
+form.flexcol textarea:focus {
+    border-color: var(--sem-primary);
+    box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
+    outline: none;
+}
+
+form.flexcol .icon-picker {
+    display: flex;
+    gap: 8px;
+}
+
+form.flexcol .icon-picker input {
+    flex: 1;
+}
+
+form.flexcol .icon-picker button {
+    padding: 6px 12px;
+    background: var(--sem-bg-alt);
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    color: var(--sem-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+form.flexcol .icon-picker button:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+form.flexcol .tags-checkboxes,
+form.flexcol .condition-targets-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+form.flexcol .tag-checkbox,
+form.flexcol .condition-target-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    background: var(--sem-bg);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+form.flexcol .tag-checkbox:hover,
+form.flexcol .condition-target-checkbox:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+}
+
+form.flexcol .tag-checkbox input,
+form.flexcol .condition-target-checkbox input {
+    width: auto;
+    margin: 0;
+}
+
+form.flexcol .tag-checkbox span,
+form.flexcol .condition-target-checkbox span {
+    font-size: 11px;
+    color: var(--sem-text);
+}
+
+form.flexcol .modifier-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: var(--sem-bg-alt);
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+}
+
+form.flexcol .modifier-row select,
+form.flexcol .modifier-row input {
+    margin: 0;
+}
+
+form.flexcol .modifier-row select {
+    flex: 2;
+}
+
+form.flexcol .modifier-row input {
+    flex: 1;
+}
+
+form.flexcol .modifier-row button {
+    padding: 4px 8px;
+    background: var(--sem-danger);
+    border: 1px solid var(--sem-danger);
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+form.flexcol .modifier-row button:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+form.flexcol .add-modifier-row {
+    padding: 8px 12px;
+    background: var(--sem-primary);
+    border: 1px solid var(--sem-primary);
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-top: 8px;
+}
+
+form.flexcol .add-modifier-row:hover {
+    background: var(--sem-primary-dark);
+    border-color: var(--sem-primary-dark);
+}
+
+form.flexcol .dialog-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 12px;
+    border-top: 1px solid var(--sem-border);
+    background: var(--sem-bg-alt);
+    margin: 0 -12px -12px -12px;
+    border-radius: 0 0 6px 6px;
+}
+
+form.flexcol .dialog-buttons button {
+    padding: 8px 16px;
+    border: 1px solid var(--sem-border);
+    border-radius: 4px;
+    background: var(--sem-bg);
+    color: var(--sem-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-weight: 500;
+}
+
+form.flexcol .dialog-buttons .save-effect {
+    background: var(--sem-primary);
+    border-color: var(--sem-primary);
+    color: white;
+}
+
+form.flexcol .dialog-buttons .save-effect:hover {
+    background: var(--sem-primary-dark);
+    border-color: var(--sem-primary-dark);
+}
+
+form.flexcol .dialog-buttons .cancel-effect:hover {
+    background: var(--sem-bg-hover);
+    border-color: var(--sem-primary);
+    color: var(--sem-primary);
+}
+
+form.flexcol small {
+    color: var(--sem-text-muted);
+    font-size: 10px;
+    margin-top: 4px;
+    display: block;
+}
+
+form.flexcol .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+form.flexcol .checkbox-group label {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+form.flexcol .checkbox-group input {
+    width: auto;
+    margin: 0;
+}
+
+/* ==================== Scene Control Buttons ==================== */
+.scene-controls .control-tool[data-tool="effect-library"],
+.scene-controls .control-tool[data-tool="apply-effects"] {
+    display: flex !important;
+    visibility: visible !important;
+}
+
+.scene-controls .control-tool[data-tool="effect-library"] i,
+.scene-controls .control-tool[data-tool="apply-effects"] i {
+    color: var(--color-text-primary);
+}
+
+.scene-controls .control-tool[data-tool="effect-library"]:hover i,
+.scene-controls .control-tool[data-tool="apply-effects"]:hover i {
+    color: var(--color-text-primary-highlight);
+}
+
+/* ==================== Creature-Specific Effect Editor Header Colors ==================== */
+/* These apply ONLY to the effect editor dialog headers based on actor type */
+
+/* Earthbound - Dark green gradient */
+.window-app.wod-effect-editor.earthbound .window-header,
+.window-app.wod-effect-manager.earthbound .window-header {
+    background: linear-gradient(135deg, #3F7F5F 0%, #2F5F3F 50%, #1A3A1A 100%) !important;
+    border-bottom: 1px solid #1A3A1A !important;
+}
+
+/* Demon - Yellow-orange-black gradient */
+.window-app.wod-effect-editor.demon .window-header,
+.window-app.wod-effect-manager.demon .window-header {
+    background: linear-gradient(135deg, #FFD700 0%, #FF8C00 50%, #CC5500 100%) !important;
+    border-bottom: 1px solid #CC5500 !important;
+}
+
+/* Technocrat - Blue gradient */
+.window-app.wod-effect-editor.technocrat .window-header,
+.window-app.wod-effect-manager.technocrat .window-header {
+    background: linear-gradient(135deg, #87CEEB 0%, #4682B4 50%, #2F4F6F 100%) !important;
+    border-bottom: 1px solid #2F4F6F !important;
+}
+
+/* Mage - Purple-gold gradient */
+.window-app.wod-effect-editor.mage .window-header,
+.window-app.wod-effect-manager.mage .window-header {
+    background: linear-gradient(135deg, #D4AF37 0%, #7B2CBF 50%, #5A189A 100%) !important;
+    border-bottom: 1px solid #5A189A !important;
+}
+
+/* Mortal - Green gradient */
+.window-app.wod-effect-editor.mortal .window-header,
+.window-app.wod-effect-manager.mortal .window-header {
+    background: linear-gradient(135deg, #90EE90 0%, #2D5016 50%, #1A3A0A 100%) !important;
+    border-bottom: 1px solid #1A3A0A !important;
+}
+
+/* Werewolf - Brown gradient */
+.window-app.wod-effect-editor.werewolf .window-header,
+.window-app.wod-effect-manager.werewolf .window-header {
+    background: linear-gradient(135deg, #DEB887 0%, #6B4423 50%, #4A2F17 100%) !important;
+    border-bottom: 1px solid #4A2F17 !important;
+}
+
+/* Spirit - Silver-blue gradient */
+.window-app.wod-effect-editor.spirit .window-header,
+.window-app.wod-effect-manager.spirit .window-header {
+    background: linear-gradient(135deg, #E0F2FF 0%, #4A90E2 50%, #2E5C8A 100%) !important;
+    border-bottom: 1px solid #2E5C8A !important;
+}
+
+/* Creature-specific section header accent colors (border-left) */
+.wod-effect-editor.earthbound form section h3 {
+    border-left-color: #2F5F3F !important;
+}
+
+.wod-effect-editor.demon form section h3 {
+    border-left-color: #FF8C00 !important;
+}
+
+.wod-effect-editor.technocrat form section h3 {
+    border-left-color: #4682B4 !important;
+}
+
+.wod-effect-editor.mage form section h3 {
+    border-left-color: #7B2CBF !important;
+}
+
+.wod-effect-editor.mortal form section h3 {
+    border-left-color: #2D5016 !important;
+}
+
+.wod-effect-editor.werewolf form section h3 {
+    border-left-color: #6B4423 !important;
+}
+
+.wod-effect-editor.spirit form section h3 {
+    border-left-color: #4A90E2 !important;
+}
+
+/* ==================== Override Creature Theme Section Header Gradients ==================== */
+/* Force simple styling on section headers - override gradient backgrounds from creature themes */
+/* These rules must be very specific to override the !important rules in creature CSS files */
+
+.window-app.wod-effect-editor form section h3,
+.window-app.wod-effect-manager form section h3,
+.window-app.wod-effect-editor .effect-header-section h3,
+.window-app.wod-effect-editor .effect-metadata-section h3,
+.window-app.wod-effect-editor .effect-conditions-section h3,
+.window-app.wod-effect-editor .effect-modifiers-section h3,
+.window-app.wod-effect-manager .effect-header-section h3,
+.window-app.wod-effect-manager .effect-metadata-section h3,
+.window-app.wod-effect-manager .effect-conditions-section h3,
+.window-app.wod-effect-manager .effect-modifiers-section h3,
+form.flexcol .effect-header-section h3,
+form.flexcol .effect-metadata-section h3,
+form.flexcol .effect-conditions-section h3,
+form.flexcol .effect-modifiers-section h3 {
+    background: #f9fafb !important;
+    color: #111827 !important;
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    margin: 0 0 12px 0 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Override creature-specific effect manager rules - must come after creature theme files */
+.window-app.earthbound form.flexcol section h3,
+.window-app.demon form.flexcol section h3,
+.window-app.technocrat form.flexcol section h3,
+.window-app.mage form.flexcol section h3,
+.window-app.mortal form.flexcol section h3,
+.window-app.werewolf form.flexcol section h3,
+.window-app.spirit form.flexcol section h3,
+.window-app.Earthbound form.flexcol section h3,
+.window-app.Demon form.flexcol section h3,
+.window-app.Technocrat form.flexcol section h3,
+.window-app.Mage form.flexcol section h3,
+.window-app.Mortal form.flexcol section h3,
+.window-app.Werewolf form.flexcol section h3,
+.window-app.Spirit form.flexcol section h3 {
+    background: #f9fafb !important;
+    color: #111827 !important;
 }

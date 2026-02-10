@@ -38,7 +38,8 @@
         "styles/reference-system.css",
         "styles/themes/equipment-effects-dialog.css",
         "styles/themes/minimap.css",
-        "styles/themes/status-effect-manager.css"
+        "styles/themes/status-effect-manager.css",
+        "styles/themes/trigger-config.css"
     ],
   "languages": [
     {

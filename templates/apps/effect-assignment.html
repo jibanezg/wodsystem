@@ -1,10 +1,6 @@
 <form class="wod-effect-assignment">
     <!-- Header with Step Indicator -->
-    <div class="wizard-header">
-        <div class="header-title">
-            <i class="fas fa-user-plus" style="color: var(--sem-primary);"></i>
-            <h2>{{i18n 'WODSYSTEM.StatusEffects.ApplyEffects'}}</h2>
-        </div>
+    <div class="wizard-header">      
         <div class="wizard-steps">
             <div class="wizard-step {{#if (eq currentStep 1)}}active{{else}}{{#if (gt currentStep 1)}}completed{{/if}}{{/if}}" data-step="1">
                 <span class="step-number">1</span>
@@ -185,9 +181,6 @@
             {{else}}
             <button type="button" class="icon-btn prev-step-btn" title="{{i18n 'WODSYSTEM.Common.Back'}}">
                 <i class="fas fa-arrow-left"></i>
-            </button>
-            <button type="button" class="icon-btn danger remove-effects-btn" title="{{i18n 'WODSYSTEM.StatusEffects.RemoveEffects'}}">
-                <i class="fas fa-user-minus"></i>
             </button>
             <button type="button" class="icon-btn primary apply-effects-btn" title="{{i18n 'WODSYSTEM.StatusEffects.ApplyEffects'}}">
                 <i class="fas fa-user-plus"></i>

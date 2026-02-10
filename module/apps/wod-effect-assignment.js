@@ -221,7 +221,17 @@ export class WodEffectAssignment extends FormApplication {
         } else {
             this.selectedActorIds.delete(actorId);
         }
+        
+        // Save scroll position before render
+        const actorsList = this.element.find('.actors-list');
+        const scrollTop = actorsList.scrollTop();
+        
         this.render(false);
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            actorsList.scrollTop(scrollTop);
+        }, 0);
     }
 
     _onActorClick(event) {
@@ -234,7 +244,17 @@ export class WodEffectAssignment extends FormApplication {
         } else {
             this.selectedActorIds.add(actorId);
         }
+        
+        // Save scroll position before render
+        const actorsList = this.element.find('.actors-list');
+        const scrollTop = actorsList.scrollTop();
+        
         this.render(false);
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            actorsList.scrollTop(scrollTop);
+        }, 0);
     }
 
     _onSelectAllActors(event) {
@@ -243,13 +263,33 @@ export class WodEffectAssignment extends FormApplication {
         html.find('.actor-item').each((i, el) => {
             this.selectedActorIds.add(el.dataset.actorId);
         });
+        
+        // Save scroll position before render
+        const actorsList = this.element.find('.actors-list');
+        const scrollTop = actorsList.scrollTop();
+        
         this.render(false);
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            actorsList.scrollTop(scrollTop);
+        }, 0);
     }
 
     _onDeselectAllActors(event) {
         event.preventDefault();
         this.selectedActorIds.clear();
+        
+        // Save scroll position before render
+        const actorsList = this.element.find('.actors-list');
+        const scrollTop = actorsList.scrollTop();
+        
         this.render(false);
+        
+        // Restore scroll position after render
+        setTimeout(() => {
+            actorsList.scrollTop(scrollTop);
+        }, 0);
     }
 
     _onFilterActorType(event) {

@@ -6,17 +6,21 @@
 
 // Register the scene control hook immediately at module load
 Hooks.on("getSceneControlButtons", (controls) => {
-    if (!game.user?.isGM) return;
+    if (!game.user?.isGM) {
+        return;
+    }
     
     // Controls is an object with control groups as properties
+    // Add to token control group (always visible)
     const tokenControl = controls.tokens;
-    if (tokenControl) {
+    if (tokenControl && tokenControl.tools) {
         // Tools is an object with tool names as properties
         if (!tokenControl.tools["effect-library"]) {
             tokenControl.tools["effect-library"] = {
                 name: "effect-library",
                 title: game.i18n?.localize("WODSYSTEM.StatusEffects.EffectLibrary") || "Effect Library",
                 icon: "fas fa-book",
+                visible: true,
                 button: true,
                 onClick: () => {
                     const manager = game.wod?.statusEffectManager;
@@ -31,7 +35,8 @@ Hooks.on("getSceneControlButtons", (controls) => {
             tokenControl.tools["apply-effects"] = {
                 name: "apply-effects",
                 title: game.i18n?.localize("WODSYSTEM.StatusEffects.ApplyEffects") || "Apply Effects",
-                icon: "fas fa-user-plus",
+                icon: "fas fa-magic",
+                visible: true,
                 button: true,
                 onClick: () => {
                     const manager = game.wod?.statusEffectManager;
@@ -72,7 +77,6 @@ export class StatusEffectManager {
         this._registerSyncHooks();
         
         this._initialized = true;
-        console.log('WoD StatusEffectManager | Initialized');
     }
 
     /**
@@ -97,7 +101,7 @@ export class StatusEffectManager {
             });
         } catch (error) {
             // Setting may already be registered
-            console.log('WoD StatusEffectManager | Settings already registered or error:', error.message);
+            // Settings already registered or error occurred
         }
     }
 
@@ -140,8 +144,6 @@ export class StatusEffectManager {
                     this.effectTemplates.set(effect.id, effect);
                 });
             }
-            
-            console.log(`WoD StatusEffectManager | Loaded ${this.effectTemplates.size} effect templates`);
         } catch (error) {
             console.error('WoD StatusEffectManager | Error loading effect templates:', error);
         }
@@ -163,7 +165,6 @@ export class StatusEffectManager {
         
         // Save to world settings (persists across sessions)
         await game.settings.set('wodsystem', 'statusEffectTemplates', data);
-        console.log('WoD StatusEffectManager | Saved effect templates to world settings');
     }
 
     /**
@@ -191,7 +192,6 @@ export class StatusEffectManager {
                     });
                 }
                 
-                console.log(`WoD StatusEffectManager | Loaded ${this.effectTemplates.size} effect templates from world settings`);
                 return true;
             }
         } catch (error) {
@@ -233,8 +233,6 @@ export class StatusEffectManager {
         template.tags.forEach(tag => this.tags.add(tag));
         
         await this._saveEffectTemplates();
-        
-        console.log(`WoD StatusEffectManager | Created effect template: ${template.name}`);
         return template;
     }
 
@@ -271,8 +269,6 @@ export class StatusEffectManager {
         
         // Sync to all actors with this effect
         await this._syncEffectToActors(id, updatedTemplate);
-        
-        console.log(`WoD StatusEffectManager | Updated effect template: ${updatedTemplate.name}`);
         return updatedTemplate;
     }
 
@@ -291,8 +287,6 @@ export class StatusEffectManager {
         this.effectTemplates.delete(id);
         
         await this._saveEffectTemplates();
-        
-        console.log(`WoD StatusEffectManager | Deleted effect template: ${template.name}`);
         return true;
     }
 
@@ -361,7 +355,6 @@ export class StatusEffectManager {
         );
         
         if (existingEffect) {
-            console.log(`WoD StatusEffectManager | Actor ${actor.name} already has effect: ${template.name}`);
             return existingEffect;
         }
         
@@ -385,7 +378,6 @@ export class StatusEffectManager {
         
         try {
             const [effect] = await actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
-            console.log(`WoD StatusEffectManager | Applied effect "${template.name}" to ${actor.name}`);
             return effect;
         } catch (error) {
             console.error(`WoD StatusEffectManager | Failed to apply effect to ${actor.name}:`, error);
@@ -410,7 +402,6 @@ export class StatusEffectManager {
         
         try {
             await actor.deleteEmbeddedDocuments('ActiveEffect', [effect.id]);
-            console.log(`WoD StatusEffectManager | Removed effect from ${actor.name}`);
             return true;
         } catch (error) {
             console.error(`WoD StatusEffectManager | Failed to remove effect from ${actor.name}:`, error);
@@ -495,10 +486,6 @@ export class StatusEffectManager {
                     console.error(`WoD StatusEffectManager | Failed to sync effect on ${actor.name}:`, error);
                 }
             }
-        }
-        
-        if (syncCount > 0) {
-            console.log(`WoD StatusEffectManager | Synced effect "${template.name}" to ${syncCount} actors`);
         }
     }
 

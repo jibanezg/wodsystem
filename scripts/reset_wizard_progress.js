@@ -20,11 +20,7 @@ async function resetWizardProgress(actor = null) {
     
     if (!selected) {
       console.error("No actor found. Please select a token or provide an actor ID or name.");
-      console.log("Usage:");
-      console.log("  resetWizardProgress(game.actors.get('ACTOR_ID'))");
-      console.log("  resetWizardProgress('Actor Name')");
-      console.log("  Or select a token and run: resetWizardProgress()");
-      return;
+            return;
     }
     actor = selected;
   }
@@ -52,16 +48,13 @@ async function resetWizardProgress(actor = null) {
   
   if (!actor) {
     console.error("Actor not found!");
-    console.log("Available actors:", Array.from(game.actors.values()).map(a => ({id: a.id, name: a.name})));
-    return;
+        return;
   }
   
-  console.log(`Resetting wizard progress for: ${actor.name} (${actor.id})`);
-  
+    
   try {
     // Clear the wizard progress flag
     await actor.unsetFlag('wodsystem', 'wizardProgress');
-    console.log("✓ Cleared wizardProgress flag");
     
     // Optionally, you can also reset specific wizard-related data if needed
     // This is commented out by default - uncomment if you want to reset these too
@@ -76,9 +69,6 @@ async function resetWizardProgress(actor = null) {
     // await actor.update(updateData);
     // console.log("✓ Reset freebies data");
     
-    console.log("✓ Wizard progress reset complete!");
-    console.log("You can now reopen the character creation wizard and it will start fresh.");
-    
   } catch (error) {
     console.error("Error resetting wizard progress:", error);
   }
@@ -91,10 +81,7 @@ const selectedActor = canvas?.tokens?.controlled?.[0]?.actor ||
 if (selectedActor) {
   resetWizardProgress(selectedActor);
 } else {
-  console.log("No actor found. Usage:");
-  console.log("  resetWizardProgress(game.actors.get('ACTOR_ID'))");
-  console.log("  Or select a token and run: resetWizardProgress()");
-}
+  }
 
 // Make function available globally
 window.resetWizardProgress = resetWizardProgress;

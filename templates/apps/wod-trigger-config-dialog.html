@@ -1,51 +1,130 @@
 <form class="flexcol">
     <section class="trigger-basics">
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" name="name" value="{{trigger.name}}" placeholder="Trigger name" />
+        <div class="basics-two-column">
+            <div class="basics-labels">
+                <label>Name</label>
+                <label>Enabled</label>
+                <label>Actor Types</label>
+                <label>Require Roll</label>
+            </div>
+            <div class="basics-fields">
+                <div class="field-row">
+                    <input type="text" name="name" value="{{trigger.name}}" placeholder="Trigger name" />
+                </div>
+                <div class="field-row">
+                    <input type="checkbox" name="enabled" {{#if trigger.enabled}}checked{{/if}} />
+                </div>
+                <div class="field-row">
+                    <select name="actorTypesCsv">
+                        <option value="">-- All Actor Types --</option>
+                        <option value="character" {{#if (eq actorTypesCsv "character")}}selected{{/if}}>Character</option>
+                        <option value="npc" {{#if (eq actorTypesCsv "npc")}}selected{{/if}}>NPC</option>
+                        <option value="character,npc" {{#if (eq actorTypesCsv "character,npc")}}selected{{/if}}>Character & NPC</option>
+                        <option value="vehicle" {{#if (eq actorTypesCsv "vehicle")}}selected{{/if}}>Vehicle</option>
+                        <option value="character,npc,vehicle" {{#if (eq actorTypesCsv "character,npc,vehicle")}}selected{{/if}}>All Types</option>
+                    </select>
+                </div>
+                <div class="field-row">
+                    <input type="checkbox" name="roll.enabled" data-action="toggle-roll" {{#if trigger.roll.enabled}}checked{{/if}} />
+                </div>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>Enabled</label>
-            <input type="checkbox" name="enabled" {{#if trigger.enabled}}checked{{/if}} />
+        
+        <!-- Hidden field to store auto-detected scope type -->
+        <input type="hidden" name="trigger.scope.type" value="{{currentScopeType}}" />
+        
+        <!-- Proximity Configuration (shown when scope type is proximity) -->
+        <div class="proximity-config" id="proximity-config" {{#unless (eq currentScopeType "proximity")}}style="display:none"{{/unless}}>
+            <h4>Proximity Settings</h4>
+            <div class="form-group horizontal">
+                <label>Distance</label>
+                <input type="number" name="trigger.scope.proximity.distance" value="{{trigger.trigger.scope.proximity.distance}}" min="1" />
+            </div>
+            <div class="form-group horizontal">
+                <label>Unit</label>
+                <select name="trigger.scope.proximity.unit">
+                    <option value="grid" {{#if (eq trigger.trigger.scope.proximity.unit "grid")}}selected{{/if}}>Grid Units</option>
+                    <option value="pixels" {{#if (eq trigger.trigger.scope.proximity.unit "pixels")}}selected{{/if}}>Pixels</option>
+                </select>
+            </div>
+            <div class="form-group horizontal">
+                <label>Shape</label>
+                <select name="trigger.scope.proximity.shape">
+                    <option value="circle" {{#if (eq trigger.trigger.scope.proximity.shape "circle")}}selected{{/if}}>Circle</option>
+                    <option value="square" {{#if (eq trigger.trigger.scope.proximity.shape "square")}}selected{{/if}}>Square</option>
+                    <option value="rectangle" {{#if (eq trigger.trigger.scope.proximity.shape "rectangle")}}selected{{/if}}>Rectangle</option>
+                </select>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>Event</label>
-            <select name="trigger.eventType">
-                <option value="onEnter" {{#if (eq trigger.trigger.eventType "onEnter")}}selected{{/if}}>Token Enters</option>
-                <option value="onExit" {{#if (eq trigger.trigger.eventType "onExit")}}selected{{/if}}>Token Exits</option>
-                <option value="onDoorOpened" {{#if (eq trigger.trigger.eventType "onDoorOpened")}}selected{{/if}}>Door Opened</option>
-                <option value="onDoorClosed" {{#if (eq trigger.trigger.eventType "onDoorClosed")}}selected{{/if}}>Door Closed</option>
-                <option value="onEffect" {{#if (eq trigger.trigger.eventType "onEffect")}}selected{{/if}}>Effect Applied</option>
-            </select>
+        
+        <!-- Execution Timing Section -->
+        <div class="execution-timing-section">
+            <h4>Execution Timing</h4>
+            <div class="form-group horizontal">
+                <label>Execution Mode</label>
+                <select name="trigger.execution.mode">
+                    <option value="event" {{#if (eq trigger.trigger.execution.mode "event")}}selected{{/if}}>Event</option>
+                    <option value="state" {{#if (eq trigger.trigger.execution.mode "state")}}selected{{/if}}>State</option>
+                    <option value="continuous" {{#if (eq trigger.trigger.execution.mode "continuous")}}selected{{/if}}>Continuous</option>
+                </select>
+            </div>
+            {{#if (eq trigger.trigger.execution.mode "event")}}
+            <div class="form-group horizontal">
+                <label>Event</label>
+                <select name="trigger.eventType">
+                    {{#each availableEvents}}
+                    <option value="{{this.id}}" {{#if (eq ../trigger.trigger.execution.event this.id)}}selected{{/if}}>{{this.label}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            {{/if}}
+            <div class="form-group horizontal">
+                <label>Delay (seconds)</label>
+                <input type="number" name="trigger.execution.timing.delay" value="{{trigger.trigger.execution.timing.delay}}" min="0" step="0.1" />
+            </div>
+            <div class="form-group horizontal">
+                <label>Repeat Interval (seconds, 0 = no repeat)</label>
+                <input type="number" name="trigger.execution.timing.repeat" value="{{trigger.trigger.execution.timing.repeat}}" min="0" step="0.1" />
+            </div>
+            <div class="form-group horizontal">
+                <label>Duration (seconds, null = indefinite)</label>
+                <input type="number" name="trigger.execution.timing.duration" value="{{trigger.trigger.execution.timing.duration}}" min="0" step="0.1" placeholder="Indefinite" />
+            </div>
         </div>
-
-        <div class="form-group" id="effect-config-group" style="display: none;">
-            <label>Effect Name</label>
-            <select name="trigger.effectName">
-                <option value="">-- Select an Effect --</option>
-                {{#each availableEffects}}
-                <option value="{{this}}" {{#if (eq ../trigger.trigger.effectName this)}}selected{{/if}}>{{this}}</option>
+        
+        <!-- Conditions Section -->
+        <div class="conditions-section">
+            <h4>Conditions <button type="button" class="add-condition" data-action="add-condition" title="Add Condition"><i class="fas fa-plus"></i></button></h4>
+            <div class="conditions-list" id="conditions-list">
+                {{#each trigger.trigger.conditions}}
+                <div class="condition-row" data-index="{{@index}}">
+                    <select name="trigger.conditions.{{@index}}.type" class="condition-type">
+                        {{#each ../conditionTypes}}
+                        <option value="{{this.id}}" {{#if (eq ../this.type this.id)}}selected{{/if}}>{{this.label}}</option>
+                        {{/each}}
+                    </select>
+                    <select name="trigger.conditions.{{@index}}.operator" class="condition-operator">
+                        <option value="equals" {{#if (eq this.operator "equals")}}selected{{/if}}>Equals</option>
+                        <option value="notEquals" {{#if (eq this.operator "notEquals")}}selected{{/if}}>Not Equals</option>
+                        <option value="greaterThan" {{#if (eq this.operator "greaterThan")}}selected{{/if}}>Greater Than</option>
+                        <option value="lessThan" {{#if (eq this.operator "lessThan")}}selected{{/if}}>Less Than</option>
+                        <option value="contains" {{#if (eq this.operator "contains")}}selected{{/if}}>Contains</option>
+                    </select>
+                    <input type="text" name="trigger.conditions.{{@index}}.value" value="{{this.value}}" placeholder="Value" class="condition-value" />
+                    <select name="trigger.conditions.{{@index}}.logic" class="condition-logic">
+                        <option value="none" {{#if (eq this.logic "none")}}selected{{/if}}>None</option>
+                        <option value="and" {{#if (eq this.logic "and")}}selected{{/if}}>AND</option>
+                        <option value="or" {{#if (eq this.logic "or")}}selected{{/if}}>OR</option>
+                    </select>
+                    <button type="button" class="remove-condition" data-action="remove-condition" data-index="{{@index}}" title="Remove Condition"><i class="fas fa-trash"></i></button>
+                </div>
                 {{/each}}
-            </select>
-            <p class="hint">Select the effect that will trigger this action</p>
+                {{#unless trigger.trigger.conditions.length}}
+                <p class="no-conditions">No conditions configured. Add conditions or use legacy event type.</p>
+                {{/unless}}
+            </div>
         </div>
-
-        <div class="form-group">
-            <label>Actor Types</label>
-            <input type="text" name="actorTypesCsv" value="{{actorTypesCsv}}" placeholder="Leave empty for all, or: character, npc" />
-        </div>
-    </section>
-
-    <hr />
-
-    <section class="trigger-roll">
-        <div class="form-group">
-            <label>Require Roll</label>
-            <input type="checkbox" name="roll.enabled" data-action="toggle-roll" {{#if trigger.roll.enabled}}checked{{/if}} />
-        </div>
-
+        
         <div class="roll-config" {{#unless trigger.roll.enabled}}style="display:none"{{/unless}}>
             <div class="form-group">
                 <label>Roll Type</label>
@@ -56,30 +135,45 @@
             </div>
 
             <div class="roll-attribute-ability" {{#if (eq trigger.roll.type "single")}}style="display:none"{{/if}}>
-                <div class="form-group">
+                <div class="form-group horizontal">
                     <label>Attribute</label>
-                    <input type="text" name="roll.attribute" value="{{trigger.roll.attribute}}" placeholder="e.g. Perception" />
+                    <select name="roll.attribute">
+                        <option value="">-- Select Attribute --</option>
+                        {{#each availableAttributes}}
+                        <option value="{{this}}" {{#if (eq ../trigger.roll.attribute this)}}selected{{/if}}>{{this}}</option>
+                        {{/each}}
+                    </select>
                 </div>
-                <div class="form-group">
+                <div class="form-group horizontal">
                     <label>Ability</label>
-                    <input type="text" name="roll.ability" value="{{trigger.roll.ability}}" placeholder="e.g. Alertness" />
+                    <select name="roll.ability">
+                        <option value="">-- Select Ability --</option>
+                        {{#each availableAbilities}}
+                        <option value="{{this}}" {{#if (eq ../trigger.roll.ability this)}}selected{{/if}}>{{this}}</option>
+                        {{/each}}
+                    </select>
                 </div>
             </div>
 
             <div class="roll-single" {{#unless (eq trigger.roll.type "single")}}style="display:none"{{/unless}}>
-                <div class="form-group">
+                <div class="form-group horizontal">
                     <label>Pool Name</label>
-                    <input type="text" name="roll.poolName" value="{{trigger.roll.poolName}}" placeholder="e.g. Arete, Faith, Torment" />
+                    <select name="roll.poolName">
+                        <option value="">-- Select Pool --</option>
+                        {{#each availablePools}}
+                        <option value="{{this}}" {{#if (eq ../trigger.roll.poolName this)}}selected{{/if}}>{{this}}</option>
+                        {{/each}}
+                    </select>
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group horizontal">
                 <label>Difficulty</label>
                 <input type="number" name="roll.difficulty" value="{{trigger.roll.difficulty}}" min="2" max="10" />
             </div>
 
-            <div class="form-group">
-                <label>Successes Needed</label>
+            <div class="form-group horizontal">
+                <label>Successes</label>
                 <input type="number" name="roll.successThreshold" value="{{trigger.roll.successThreshold}}" min="1" />
             </div>
         </div>
@@ -98,53 +192,133 @@
                 <div class="action-row flexrow" data-index="{{@index}}">
                     <input type="hidden" name="actions.always.{{@index}}.type" value="{{this.type}}" />
                     {{#if (eq this.type "door")}}
-                    <span class="action-type-label">Door:</span>
-                    <input type="text" name="actions.always.{{@index}}.target" value="{{this.target}}" placeholder="Wall ID" class="target-input" />
-                    <button type="button" class="pick-target" data-action="pick-target" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
-                    <div class="form-group">
-                        <label>Door State</label>
-                        <select name="actions.always.{{@index}}.state">
-                            <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
-                            <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Closed</option>
-                            <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Locked</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Delay (seconds)</label>
-                        <input type="number" name="actions.always.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="0 for immediate" />
+                    <div class="action-grid">
+                        <div class="grid-cell">
+                            <label>Target Mode</label>
+                            <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                                <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Element</option>
+                                <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering Actor</option>
+                                <option value="self" {{#if (eq this.target.mode "self")}}selected{{/if}}>Self (Trigger Source)</option>
+                                <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All in Scene</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell target-type-cell">
+                            <label>Element Type</label>
+                            <select name="actions.always.{{@index}}.target.elementType" class="target-element-type">
+                                <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door/Wall</option>
+                                <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
+                                <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                                <option value="tile" {{#if (eq this.target.elementType "tile")}}selected{{/if}}>Tile</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell target-id-cell" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <label>Element ID</label>
+                            <div class="field-row">
+                                <input type="text" name="actions.always.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Element ID" class="target-input" />
+                                <button type="button" class="pick-target" data-action="pick-element" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                            </div>
+                        </div>
+                        <div class="grid-cell">
+                            <label>Door State</label>
+                            <select name="actions.always.{{@index}}.state">
+                                <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
+                                <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Closed</option>
+                                <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Locked</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell">
+                            <label>Delay (s)</label>
+                            <input type="number" name="actions.always.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="0" style="width:60px" />
+                        </div>
+                        <div class="grid-cell">
+                            <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
                     {{else}}
-                    <span class="action-type-label">Effect:</span>
-                    <select name="actions.always.{{@index}}.type" class="effect-action-type">
-                        <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
-                        <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
-                        <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
-                        <option value="changeTileAsset" {{#if (eq this.type "changeTileAsset")}}selected{{/if}}>Change Tile Asset</option>
-                    </select>
-                    <input type="text" name="actions.always.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
-                    <div class="tile-image-input" style="display:none;">
-                        <input type="text" name="actions.always.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
-                        <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="always" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                    {{#if (eq this.type "changeTileAsset")}}
+                    <div class="action-grid">
+                        <div class="grid-cell">
+                            <label>Target Mode</label>
+                            <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                                <option value="self" {{#if (eq this.target.mode "self")}}selected{{/if}}>Self (Trigger Source)</option>
+                                <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Element</option>
+                                <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All in Scene</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell target-id-cell" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <label>Element ID</label>
+                            <div class="field-row">
+                                <input type="text" name="actions.always.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Tile ID" class="target-input" />
+                                <button type="button" class="pick-target" data-action="pick-element" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                            </div>
+                        </div>
+                        <input type="hidden" name="actions.always.{{@index}}.target.elementType" value="tile" />
+                        <div class="grid-cell">
+                            <label>Tile Asset</label>
+                            <div class="field-row">
+                                <input type="text" name="actions.always.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
+                                <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="always" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                            </div>
+                        </div>
+                        <div class="grid-cell">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="actions.always.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
+                                Use current tile
+                            </label>
+                        </div>
+                        <div class="grid-cell">
+                            <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                        </div>
                     </div>
-                    <div class="tile-target-section" style="display:none;">
-                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
-                            <input type="checkbox" name="actions.always.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
-                            Use current tile
-                        </label>
-                        <div class="tile-picker-section">
-                            <input type="text" name="actions.always.{{@index}}.tileId" value="{{this.tileId}}" placeholder="Tile ID" class="target-input" />
-                            <button type="button" class="pick-target" data-action="pick-target" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                    {{else}}
+                    <div class="action-grid">
+                        <div class="grid-cell">
+                            <label>Effect Action</label>
+                            <select name="actions.always.{{@index}}.type" class="effect-action-type">
+                                <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
+                                <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
+                                <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell">
+                            <label>Target Mode</label>
+                            <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                                <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering Actor</option>
+                                <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Element</option>
+                                <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All in Scene</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell target-type-cell">
+                            <label>Element Type</label>
+                            <select name="actions.always.{{@index}}.target.elementType" class="target-element-type">
+                                <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
+                                <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                            </select>
+                        </div>
+                        <div class="grid-cell target-id-cell" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <label>Element ID</label>
+                            <div class="field-row">
+                                <input type="text" name="actions.always.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Actor/Token ID" class="target-input" />
+                                <button type="button" class="pick-target" data-action="pick-element" data-outcome="always" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                            </div>
+                        </div>
+                        <div class="grid-cell">
+                            <label>Effect Name</label>
+                            <input type="text" name="actions.always.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
+                        </div>
+                        <div class="grid-cell">
+                            <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     {{/if}}
-                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                {{/if}}
                 </div>
                 {{/each}}
             </div>
             <div class="action-buttons">
-                <button type="button" data-action="add-action" data-outcome="always" data-type="door"><i class="fas fa-door-open"></i> Door</button>
-                <button type="button" data-action="add-action" data-outcome="always" data-type="coreEffect"><i class="fas fa-magic"></i> Effect</button>
-                <button type="button" data-action="add-action" data-outcome="always" data-type="tileAsset"><i class="fas fa-image"></i> Tile Asset</button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
             </div>
         </fieldset>
 
@@ -155,47 +329,52 @@
                 <div class="action-row flexrow" data-index="{{@index}}">
                     <input type="hidden" name="actions.success.{{@index}}.type" value="{{this.type}}" />
                     {{#if (eq this.type "door")}}
-                    <span class="action-type-label">Door:</span>
-                    <input type="text" name="actions.success.{{@index}}.target" value="{{this.target}}" placeholder="Wall ID" class="target-input" />
-                    <button type="button" class="pick-target" data-action="pick-target" data-outcome="success" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
-                    <select name="actions.success.{{@index}}.state">
-                        <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
-                        <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
-                        <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
-                    </select>
-                    <input type="number" name="actions.success.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="Delay (s)" title="Delay in seconds" style="width: 60px;" />
-                    {{else}}
-                    <span class="action-type-label">Effect:</span>
-                    <select name="actions.success.{{@index}}.type" class="effect-action-type">
-                        <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
-                        <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
-                        <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
-                        <option value="changeTileAsset" {{#if (eq this.type "changeTileAsset")}}selected{{/if}}>Change Tile Asset</option>
-                    </select>
-                    <input type="text" name="actions.success.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
-                    <div class="tile-image-input" style="display:none;">
-                        <input type="text" name="actions.success.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
-                        <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="success" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                    <div class="action-grid compact">
+                        <select name="actions.success.{{@index}}.target.mode" class="target-mode">
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
+                            <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
+                        </select>
+                        <select name="actions.success.{{@index}}.target.elementType" class="target-element-type">
+                            <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
+                        </select>
+                        <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Wall ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="success" data-index="{{@index}}" title="Pick"><i class="fas fa-crosshairs"></i></button>
+                        <select name="actions.success.{{@index}}.state">
+                            <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
+                            <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
+                            <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
+                        </select>
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
-                    <div class="tile-target-section" style="display:none;">
-                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
-                            <input type="checkbox" name="actions.success.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
-                            Use current tile
-                        </label>
-                        <div class="tile-picker-section">
-                            <input type="text" name="actions.success.{{@index}}.tileId" value="{{this.tileId}}" placeholder="Tile ID" class="target-input" />
-                            <button type="button" class="pick-target" data-action="pick-target" data-outcome="success" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
-                        </div>
+                    {{else}}
+                    <div class="action-grid compact">
+                        <select name="actions.success.{{@index}}.type" class="effect-action-type">
+                            <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
+                            <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
+                            <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.success.{{@index}}.target.mode" class="target-mode">
+                            <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
+                        </select>
+                        <select name="actions.success.{{@index}}.target.elementType" class="target-element-type">
+                            <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
+                            <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                        </select>
+                        <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <input type="text" name="actions.success.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" />
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                     {{/if}}
-                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                 </div>
                 {{/each}}
             </div>
             <div class="action-buttons">
-                <button type="button" data-action="add-action" data-outcome="success" data-type="door"><i class="fas fa-door-open"></i> Door</button>
-                <button type="button" data-action="add-action" data-outcome="success" data-type="coreEffect"><i class="fas fa-magic"></i> Effect</button>
-                <button type="button" data-action="add-action" data-outcome="success" data-type="tileAsset"><i class="fas fa-image"></i> Tile Asset</button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
             </div>
         </fieldset>
 
@@ -206,47 +385,52 @@
                 <div class="action-row flexrow" data-index="{{@index}}">
                     <input type="hidden" name="actions.failure.{{@index}}.type" value="{{this.type}}" />
                     {{#if (eq this.type "door")}}
-                    <span class="action-type-label">Door:</span>
-                    <input type="text" name="actions.failure.{{@index}}.target" value="{{this.target}}" placeholder="Wall ID" class="target-input" />
-                    <button type="button" class="pick-target" data-action="pick-target" data-outcome="failure" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
-                    <select name="actions.failure.{{@index}}.state">
-                        <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
-                        <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
-                        <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
-                    </select>
-                    <input type="number" name="actions.failure.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" placeholder="Delay (s)" title="Delay in seconds" style="width: 60px;" />
-                    {{else}}
-                    <span class="action-type-label">Effect:</span>
-                    <select name="actions.failure.{{@index}}.type" class="effect-action-type">
-                        <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
-                        <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
-                        <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
-                        <option value="changeTileAsset" {{#if (eq this.type "changeTileAsset")}}selected{{/if}}>Change Tile Asset</option>
-                    </select>
-                    <input type="text" name="actions.failure.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
-                    <div class="tile-image-input" style="display:none;">
-                        <input type="text" name="actions.failure.{{@index}}.tileImg" value="{{this.tileImg}}" placeholder="tiles/path/to/image.png" />
-                        <button type="button" class="pick-asset" data-action="pick-asset" data-outcome="failure" data-index="{{@index}}" title="Browse assets"><i class="fas fa-folder-open"></i></button>
+                    <div class="action-grid compact">
+                        <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
+                            <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
+                        </select>
+                        <select name="actions.failure.{{@index}}.target.elementType" class="target-element-type">
+                            <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
+                        </select>
+                        <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Wall ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="failure" data-index="{{@index}}" title="Pick"><i class="fas fa-crosshairs"></i></button>
+                        <select name="actions.failure.{{@index}}.state">
+                            <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
+                            <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
+                            <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
+                        </select>
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
-                    <div class="tile-target-section" style="display:none;">
-                        <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 5px;">
-                            <input type="checkbox" name="actions.failure.{{@index}}.useCurrentTile" {{#if this.useCurrentTile}}checked{{/if}} />
-                            Use current tile
-                        </label>
-                        <div class="tile-picker-section">
-                            <input type="text" name="actions.failure.{{@index}}.tileId" value="{{this.tileId}}" placeholder="Tile ID" class="target-input" />
-                            <button type="button" class="pick-target" data-action="pick-target" data-outcome="failure" data-index="{{@index}}" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
-                        </div>
+                    {{else}}
+                    <div class="action-grid compact">
+                        <select name="actions.failure.{{@index}}.type" class="effect-action-type">
+                            <option value="enableCoreEffect" {{#if (eq this.type "enableCoreEffect")}}selected{{/if}}>Enable</option>
+                            <option value="disableCoreEffect" {{#if (eq this.type "disableCoreEffect")}}selected{{/if}}>Disable</option>
+                            <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
+                            <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
+                        </select>
+                        <select name="actions.failure.{{@index}}.target.elementType" class="target-element-type">
+                            <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
+                            <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                        </select>
+                        <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <input type="text" name="actions.failure.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" />
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                     {{/if}}
-                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                 </div>
                 {{/each}}
             </div>
             <div class="action-buttons">
-                <button type="button" data-action="add-action" data-outcome="failure" data-type="door"><i class="fas fa-door-open"></i> Door</button>
-                <button type="button" data-action="add-action" data-outcome="failure" data-type="coreEffect"><i class="fas fa-magic"></i> Effect</button>
-                <button type="button" data-action="add-action" data-outcome="failure" data-type="tileAsset"><i class="fas fa-image"></i> Tile Asset</button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
             </div>
         </fieldset>
     </section>

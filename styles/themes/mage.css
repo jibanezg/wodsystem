@@ -1442,30 +1442,7 @@
     color: var(--wod-primary) !important;
 }
 
-/* Override effect manager section headers - ensure they use purple background */
-.app.dialog.Mage form.wod-effect-manager .effect-header-section h3,
-.app.dialog.Mage form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.Mage form.wod-effect-manager .effect-conditions-section h3,
-.window-app.Mage form.wod-effect-manager .effect-header-section h3,
-.window-app.Mage form.wod-effect-manager .effect-metadata-section h3,
-.window-app.Mage form.wod-effect-manager .effect-conditions-section h3,
-.window-app.mage form.wod-effect-manager .effect-header-section h3,
-.window-app.mage form.wod-effect-manager .effect-metadata-section h3,
-.window-app.mage form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.mage form.wod-effect-manager .effect-header-section h3,
-.app.dialog.mage form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.mage form.wod-effect-manager .effect-conditions-section h3 {
-    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
-    color: white !important;
-    padding: 8px 12px !important;
-    border-radius: 3px !important;
-    margin: 0 0 12px 0 !important;
-    text-align: center !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-}
+/* Effect manager section headers - removed gradient styling, handled by status-effect-manager.css */
 
 /* Pool summary - solid background, no transparency */
 .wod.roll-dialog.Mage .pool-summary {
@@ -1803,65 +1780,7 @@ form.wod-effect-manager.mage .add-modifier-row:hover {
     background: var(--wod-primary-dark) !important;
 }
 
-/* Effect Manager Section Headers - Override hardcoded blue/grey backgrounds */
-/* Must override both .window-content h3 and section-specific h3 */
-.wod.dialog.Mage form.wod-effect-manager .effect-header-section h3,
-.wod.dialog.Mage form.wod-effect-manager .effect-metadata-section h3,
-.wod.dialog.Mage form.wod-effect-manager .effect-conditions-section h3,
-.window-app.Mage form.wod-effect-manager .effect-header-section h3,
-.window-app.Mage form.wod-effect-manager .effect-metadata-section h3,
-.window-app.Mage form.wod-effect-manager .effect-conditions-section h3,
-.window-app.mage form.wod-effect-manager .effect-header-section h3,
-.window-app.mage form.wod-effect-manager .effect-metadata-section h3,
-.window-app.mage form.wod-effect-manager .effect-conditions-section h3,
-form.wod-effect-manager.mage .effect-header-section h3,
-form.wod-effect-manager.mage .effect-metadata-section h3,
-form.wod-effect-manager.mage .effect-conditions-section h3,
-.app.dialog.Mage form.wod-effect-manager .effect-header-section h3,
-.app.dialog.Mage form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.Mage form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.mage form.wod-effect-manager .effect-header-section h3,
-.app.dialog.mage form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.mage form.wod-effect-manager .effect-conditions-section h3,
-.window-app.Mage .window-content form.wod-effect-manager .effect-header-section h3,
-.window-app.Mage .window-content form.wod-effect-manager .effect-metadata-section h3,
-.window-app.Mage .window-content form.wod-effect-manager .effect-conditions-section h3,
-.window-app.mage .window-content form.wod-effect-manager .effect-header-section h3,
-.window-app.mage .window-content form.wod-effect-manager .effect-metadata-section h3,
-.window-app.mage .window-content form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.Mage .window-content form.wod-effect-manager .effect-header-section h3,
-.app.dialog.Mage .window-content form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.Mage .window-content form.wod-effect-manager .effect-conditions-section h3,
-.app.dialog.mage .window-content form.wod-effect-manager .effect-header-section h3,
-.app.dialog.mage .window-content form.wod-effect-manager .effect-metadata-section h3,
-.app.dialog.mage .window-content form.wod-effect-manager .effect-conditions-section h3 {
-    background: linear-gradient(135deg, var(--wod-primary-light, #D4AF37) 0%, var(--wod-primary, #7B2CBF) 50%, var(--wod-primary-dark, #000000) 100%) !important;
-    color: white !important;
-    padding: 8px 12px !important;
-    border-radius: 3px !important;
-    margin: 0 0 12px 0 !important;
-    text-align: center !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-}
-
-/* Effect Manager Section Headers Icons */
-.wod.dialog.Mage form.wod-effect-manager .effect-header-section h3 i,
-.wod.dialog.Mage form.wod-effect-manager .effect-metadata-section h3 i,
-.wod.dialog.Mage form.wod-effect-manager .effect-conditions-section h3 i,
-.window-app.Mage form.wod-effect-manager .effect-header-section h3 i,
-.window-app.Mage form.wod-effect-manager .effect-metadata-section h3 i,
-.window-app.Mage form.wod-effect-manager .effect-conditions-section h3 i,
-.window-app.mage form.wod-effect-manager .effect-header-section h3 i,
-.window-app.mage form.wod-effect-manager .effect-metadata-section h3 i,
-.window-app.mage form.wod-effect-manager .effect-conditions-section h3 i,
-form.wod-effect-manager.mage .effect-header-section h3 i,
-form.wod-effect-manager.mage .effect-metadata-section h3 i,
-form.wod-effect-manager.mage .effect-conditions-section h3 i {
-    color: var(--wod-primary) !important;
-}
+/* Effect Manager Section Headers - removed gradient styling, handled by status-effect-manager.css */
 
 /* Effect Manager Input Focus */
 .wod.dialog.Mage form.wod-effect-manager input:focus,
