@@ -129,10 +129,18 @@ export function registerWodTriggerTabs() {
                                         const wodOption = document.createElement('li');
                                         wodOption.className = 'context-item';
                                         wodOption.innerHTML = `
-                                            <i class="fa-solid fa-shield-halved"></i>
+                                            <i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i>
                                             <span>WoD Triggers</span>
                                         `;
-                                        wodOption.style.color = '#dc3545';
+                                        wodOption.style.cssText = `
+                                            color: #dc3545;
+                                            padding: 4px 8px;
+                                            cursor: pointer;
+                                            display: flex;
+                                            align-items: center;
+                                            font-size: 12px;
+                                            border-bottom: 1px solid #eee;
+                                        `;
                                         wodOption.addEventListener('click', () => {
                                             console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                             _showSceneTriggersDialog(scene);
@@ -150,7 +158,7 @@ export function registerWodTriggerTabs() {
                                 });
                                 
                                 // If no suitable menu found, try to find the right-click menu that was just created
-                                if (possibleMenus.length === 0 || !possibleMenus.some(m => m.textContent.includes('Configure'))) {
+                                if (possibleMenus.length === 0 || !Array.from(possibleMenus).some(m => m.textContent.includes('Configure'))) {
                                     console.log('WoD Trigger Tabs | No suitable context menu found, checking for recently created elements...');
                                     
                                     // Look for any element that was recently added (within last 200ms)
@@ -177,10 +185,18 @@ export function registerWodTriggerTabs() {
                                                 const wodOption = document.createElement('li');
                                                 wodOption.className = 'context-item';
                                                 wodOption.innerHTML = `
-                                                    <i class="fa-solid fa-shield-halved"></i>
+                                                    <i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i>
                                                     <span>WoD Triggers</span>
                                                 `;
-                                                wodOption.style.color = '#dc3545';
+                                                wodOption.style.cssText = `
+                                                    color: #dc3545;
+                                                    padding: 4px 8px;
+                                                    cursor: pointer;
+                                                    display: flex;
+                                                    align-items: center;
+                                                    font-size: 12px;
+                                                    border-bottom: 1px solid #eee;
+                                                `;
                                                 wodOption.addEventListener('click', () => {
                                                     console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                                     _showSceneTriggersDialog(scene);
