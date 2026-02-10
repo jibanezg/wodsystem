@@ -36,8 +36,13 @@ export class WodUnifiedTriggersDialog extends Dialog {
         this.context = options.context || {};
         this.onClose = options.onClose;
         this.documentType = options.documentType || 'actor';
-        
-        // Initialize dialog content
+    }
+    
+    /**
+     * Initialize the dialog content when the dialog is rendered
+     */
+    render(force = false) {
+        super.render(force);
         this._initializeContent();
     }
     
