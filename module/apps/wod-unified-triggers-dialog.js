@@ -276,19 +276,6 @@ export class WodUnifiedTriggersDialog extends Dialog {
                         font-style: italic;
                         padding: 20px;
                     }
-                    .wod-triggers-dialog .add-trigger-btn {
-                        background: #28a745;
-                        color: white;
-                        border: none;
-                        border-radius: 4px;
-                        padding: 10px 20px;
-                        cursor: pointer;
-                        font-weight: bold;
-                        margin-top: 10px;
-                    }
-                    .wod-triggers-dialog .add-trigger-btn:hover {
-                        background: #218838;
-                    }
                 </style>
                 <div class="wod-triggers-container">
                     <div class="wod-triggers-content">
@@ -298,9 +285,6 @@ export class WodUnifiedTriggersDialog extends Dialog {
                                 <div class="trigger-list">
                                     ${rendered}
                                 </div>
-                                <button type="button" class="add-trigger-btn">
-                                    <i class="fas fa-plus"></i> Add Trigger
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -333,8 +317,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
         const dialogElement = $(this.element);
         
         // Add click listener for add trigger button using the same system as actors/doors
-        // Handle both the original rectangular button and the circular button
-        const $button = dialogElement.find('.add-trigger-btn, .wod-add-trigger-btn');
+        // Only target the nice circular green button
+        const $button = dialogElement.find('.wod-add-trigger-btn');
         
         if ($button.length) {
             console.log('WoD Unified Triggers Dialog | Found add trigger button');
