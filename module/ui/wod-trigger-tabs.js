@@ -64,19 +64,7 @@ export function registerWodTriggerTabs() {
                                         console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                         const scene = window._wodCurrentScene;
                                         if (scene) {
-                                            console.log('WoD Trigger Tabs | Opening unified dialog for scene:', scene.name);
-                                            try {
-                                                WodUnifiedTriggersDialog.create(scene, {
-                                                    documentType: 'scene',
-                                                    title: `WoD Triggers - ${scene.name}`,
-                                                    onClose: () => {
-                                                        console.log('WoD Trigger Tabs | Scene triggers dialog closed');
-                                                    }
-                                                });
-                                            } catch (error) {
-                                                console.error('WoD Trigger Tabs | Error creating unified dialog:', error);
-                                                ui.notifications.error('Could not open WoD Triggers dialog');
-                                            }
+                                            _showSceneTriggersDialog(scene);
                                         }
                                         // Close the context menu
                                         menu.remove();
@@ -324,79 +312,14 @@ function _handleRenderHook(app, html, source) {
     // Use different approaches based on the source
     setTimeout(() => {
         if (source === 'ActorSheet' || source === 'ActorSheetV2' || source === 'BaseActorSheet' || source === 'Sheet') {
-            // For actor sheets, use the context menu approach instead of tabs
-            _injectWodTriggersContextMenu(app, $html, doc).catch(() => {});
+            // For actor sheets, use the original context menu approach
+            _injectWodTriggersTab(app, $html, doc).catch(() => {});
         } else if (source === 'TileConfig' || source === 'RegionConfig' || source === 'SceneConfig') {
             // For these configuration dialogs, use the new tab approach
             _addWodTriggersTabToConfigDialog(app, $html, doc);
         }
         // Wall/Door sources are excluded - they use context menu approach instead
     }, 50);
-}
-
-async function _injectWodTriggersContextMenu(app, html, doc) {
-    // Check if user is GM
-    if (!game.user.isGM) return;
-
-    console.log('WoD Trigger Tabs | Injecting WoD Triggers context menu for actor:', doc.name);
-    
-    // Add GM context menu instead of tab
-    const gmContextMenu = $(`
-        <div class="wod-gm-context-menu" style="display: none; position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
-            <div class="wod-context-item" data-action="wod-triggers" style="padding: 8px 12px; cursor: pointer; color: #dc3545; border-bottom: 1px solid #eee;">
-                <i class="fa-solid fa-shield-halved"></i> WoD Triggers
-            </div>
-        </div>
-    `);
-    
-    // Add the context menu to the body
-    $('body').append(gmContextMenu);
-    
-    // Handle right-click on actor sheet
-    html.on('contextmenu.wodGM', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (game.user.isGM) {
-            // Position menu at mouse location
-            gmContextMenu.css({
-                left: e.clientX + 'px',
-                top: e.clientY + 'px'
-            }).show();
-        }
-    });
-    
-    // Handle menu item clicks
-    gmContextMenu.on('click', '.wod-context-item', (e) => {
-        e.stopPropagation();
-        const action = $(e.currentTarget).data('action');
-        
-        if (action === 'wod-triggers') {
-            // Show trigger content using unified dialog
-            console.log('WoD Trigger Tabs | Opening unified dialog for actor:', doc.name);
-            try {
-                WodUnifiedTriggersDialog.create(doc, {
-                    documentType: 'actor',
-                    title: `WoD Triggers - ${doc.name}`,
-                    onClose: () => {
-                        console.log('WoD Trigger Tabs | Actor triggers dialog closed');
-                    }
-                });
-            } catch (error) {
-                console.error('WoD Trigger Tabs | Error creating unified dialog for actor:', error);
-                ui.notifications.error('Could not open WoD Triggers dialog');
-            }
-        }
-        
-        gmContextMenu.hide();
-    });
-    
-    // Hide menu when clicking elsewhere
-    $(document).on('click.wodGM', () => {
-        gmContextMenu.hide();
-    });
-    
-    console.log('WoD Trigger Tabs | WoD Triggers context menu injected for actor:', doc.name);
 }
 
 async function _injectWodTriggersTab(app, html, doc) {
@@ -571,15 +494,8 @@ async function _injectWodTriggersTab(app, html, doc) {
         const action = $(e.currentTarget).data('action');
         
         if (action === 'wod-triggers') {
-            // Show trigger content using unified dialog
-            WodUnifiedTriggersDialog.create(doc, {
-                documentType: 'actor',
-                title: `WoD Triggers - ${doc.name}`,
-                onClose: () => {
-                    // Optional callback when dialog closes
-                    console.log('WoD Trigger Tabs | Actor triggers dialog closed');
-                }
-            });
+            // Show trigger content using original approach
+            _showWodTriggersContent(app, html, doc);
         }
         
         gmContextMenu.hide();
@@ -1519,18 +1435,11 @@ async function _injectTabContent(app, html, doc) {
     }
 }
 
-// Function to show WoD Triggers dialog for walls (using unified dialog)
+// Function to show WoD Triggers dialog for walls (using original approach)
 function _showWodTriggersDialog(wall) {
     
-    // Use the unified dialog system
-    WodUnifiedTriggersDialog.create(wall, {
-        documentType: 'wall',
-        title: `WoD Triggers - Wall ${wall.id}`,
-        onClose: () => {
-            // Optional callback when dialog closes
-            console.log('WoD Trigger Tabs | Wall triggers dialog closed');
-        }
-    });
+    // For walls, show the trigger list dialog first (like actors do)
+    _showWallTriggersContent(wall);
 }
 
 // Wall-specific version of _showWodTriggersContent for walls
@@ -2028,15 +1937,8 @@ function _showSceneContextMenu(scene, event) {
 // Function to show WoD Triggers dialog for scenes
 function _showSceneTriggersDialog(scene) {
     
-    // Use the unified dialog system
-    WodUnifiedTriggersDialog.create(scene, {
-        documentType: 'scene',
-        title: `WoD Triggers - ${scene.name}`,
-        onClose: () => {
-            // Optional callback when dialog closes
-            console.log('WoD Trigger Tabs | Scene triggers dialog closed');
-        }
-    });
+    // Show the trigger list dialog first (like actors do)
+    _showSceneTriggersContent(scene);
 }
 
 // Function to show scene triggers content
