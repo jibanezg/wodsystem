@@ -33,15 +33,20 @@ export function registerWodTriggerTabs() {
         setTimeout(() => {
             console.log('WoD Trigger Tabs | Fallback: Looking for scene directory...');
             
-            // Try multiple selectors for scene directory
+            // Try multiple selectors for scene directory - look for the actual content, not the tab button
             const selectors = [
                 '.scene-directory',
                 '.scenes-list', 
-                '[data-tab="scenes"]',
-                '#scenes',
-                '.sidebar-tab[data-tab="scenes"]',
-                '.directory-list.scenes',
-                '.scenes'
+                '[data-tab="scenes"] .directory-list',
+                '[data-tab="scenes"] .list',
+                '[data-tab="scenes"] .content',
+                '#scenes .directory-list',
+                '#scenes .list',
+                '.sidebar-tab[data-tab="scenes"] .directory-list',
+                '.sidebar-tab[data-tab="scenes"] .content',
+                '[aria-controls="scenes"]',
+                '[data-tab="scenes"] + .content', // Next sibling after tab button
+                '[data-tab="scenes"] ~ .content'   // Following sibling after tab button
             ];
             
             let sceneDirectory = null;
