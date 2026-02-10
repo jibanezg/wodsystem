@@ -1565,8 +1565,13 @@ export class TriggerManager {
     _fireSceneTriggers(eventType, context = {}) {
         if (!canvas?.scene) return;
         
+        console.log(`WoD TriggerManager | _fireSceneTriggers called with eventType: ${eventType}`, context);
+        
         const sceneTriggers = canvas.scene.getFlag('wodsystem', 'sceneTriggers') || [];
-        if (!Array.isArray(sceneTriggers) || sceneTriggers.length === 0) return;
+        if (!Array.isArray(sceneTriggers) || sceneTriggers.length === 0) {
+            console.log(`WoD TriggerManager | No scene triggers found for event: ${eventType}`);
+            return;
+        }
         
         if (this._debugMode) {
             console.log(`WoD TriggerManager | Checking ${sceneTriggers.length} scene triggers for event: ${eventType}`);
@@ -2184,20 +2189,21 @@ export class TriggerManager {
      * @param {Actor} actor - The actor document
      * @param {Array} effects - The effects array
      */
-    _onActorEffectsChanged(actor, effects) {
+    async _onActorEffectsChanged(actor, effects) {
         if (!actor) return;
         
-        if (this._debugMode) {
-            console.log(`WoD TriggerManager | Actor effects changed for ${actor.name}:`, effects);
-        }
+        console.log(`WoD TriggerManager | _onActorEffectsChanged called for actor: ${actor.name}`, effects);
         
         // Determine effect event type based on changes
         const currentEffects = actor.effects || [];
         const addedEffects = effects.filter(e => !currentEffects.includes(e));
         const removedEffects = currentEffects.filter(e => !effects.includes(e));
         
+        console.log(`WoD TriggerManager | Added effects: [${addedEffects.join(', ')}], Removed effects: [${removedEffects.join(', ')}]`);
+        
         // Fire effect applied events (global)
         for (const effectId of addedEffects) {
+            console.log(`WoD TriggerManager | Firing onEffectApplied for effect: ${effectId}`);
             this._fireDocumentTriggers('actor', actor, actor, 'onEffectApplied', effectId, null);
             
             // Also fire scene triggers for effect events
@@ -2210,6 +2216,7 @@ export class TriggerManager {
         
         // Fire effect removed events (global)
         for (const effectId of removedEffects) {
+            console.log(`WoD TriggerManager | Firing onEffectRemoved for effect: ${effectId}`);
             this._fireDocumentTriggers('actor', actor, actor, 'onEffectRemoved', effectId, null);
             
             // Also fire scene triggers for effect events
