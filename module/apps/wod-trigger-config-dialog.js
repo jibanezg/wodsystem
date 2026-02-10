@@ -1,16 +1,41 @@
+import { TriggerAPI } from '../services/trigger-api.js';
+import { EffectAutocomplete } from './effect-autocomplete.js';
+import { TriggerEventRegistry } from '../services/trigger-event-registry.js';
+
 export class WodTriggerConfigDialog extends FormApplication {
     constructor(document, triggerId = null, options = {}) {
         super({}, options);
         this.document = document;
         this.triggerId = triggerId || foundry.utils.randomID();
         this._onCloseCb = options?.onClose || null;
+        this._closeCallbackCalled = false; // Track if callback was already called
+        
+        // Store the callback in multiple ways to ensure it survives Foundry internals
+        this._wodOnCloseCallback = options?.onClose || null;
+        this._wodCallbackBackup = options?.onClose;
+        
+        // Store it in a Map which is less likely to be interfered with
+        this._wodCallbacks = new Map();
+        if (options?.onClose) {
+            this._wodCallbacks.set('onClose', options.onClose);
+        }
+        
+        // Debug: Check what we're storing
+        console.log('WoD TriggerConfig | Constructor - options.onClose:', options?.onClose);
+        console.log('WoD TriggerConfig | Constructor - _onCloseCb:', this._onCloseCb);
+        console.log('WoD TriggerConfig | Constructor - _wodOnCloseCallback:', this._wodOnCloseCallback);
+        console.log('WoD TriggerConfig | Constructor - _wodCallbackBackup:', this._wodCallbackBackup);
+        console.log('WoD TriggerConfig | Constructor - _wodCallbacks.get:', this._wodCallbacks.get('onClose'));
+        
         this._pickMode = null;
         this._pickHandlers = null;
+        this._triggerAPI = TriggerAPI.getInstance();
+        this._effectAutocompletes = new Map(); // Store autocomplete instances
     }
 
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
-            classes: ["sheet"],
+            classes: ["sheet", "wod-trigger-config"],
             template: "systems/wodsystem/templates/apps/wod-trigger-config-dialog.html",
             width: 480,
             height: "auto",
@@ -23,20 +48,31 @@ export class WodTriggerConfigDialog extends FormApplication {
 
     getData() {
         const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
-        console.log('WoD TriggerManager | DEBUG: Loading triggers, found:', triggers.length);
-        console.log('WoD TriggerManager | DEBUG: Looking for triggerId:', this.triggerId);
-        
         const existing = Array.isArray(triggers) ? triggers.find(t => t?.id === this.triggerId) : null;
-        console.log('WoD TriggerManager | DEBUG: Found existing trigger:', existing);
-        const trigger = foundry.utils.duplicate(existing || {
+        
+        // Default trigger structure (clean format)
+        const defaultTrigger = {
             id: this.triggerId,
             name: "",
             enabled: true,
             priority: 10,
             trigger: {
-                eventType: 'onEnter',
-                effectName: '',
-                actorTypes: []
+                // Clean format - no legacy fields
+                actorTypes: [],
+                // New format
+                scope: {
+                    type: 'tile',
+                    target: null,
+                    tile: { boundary: 'enter' },
+                    region: { boundary: 'enter' },
+                    proximity: { distance: 5, unit: 'grid', shape: 'circle' }
+                },
+                conditions: [],
+                execution: {
+                    mode: 'event',
+                    event: 'onEnter',  // Only for event mode
+                    timing: { delay: 0, repeat: 0, duration: null }
+                }
             },
             roll: {
                 enabled: false,
@@ -52,24 +88,74 @@ export class WodTriggerConfigDialog extends FormApplication {
                 success: [],
                 failure: []
             }
-        });
+        };
+        
+        const trigger = foundry.utils.duplicate(existing || defaultTrigger);
+        
+                
+        // Ensure new format fields exist
+        if (!trigger.trigger.scope) {
+            trigger.trigger.scope = defaultTrigger.trigger.scope;
+        }
+        if (!trigger.trigger.conditions) {
+            trigger.trigger.conditions = [];
+        }
+        if (!trigger.trigger.execution) {
+            trigger.trigger.execution = defaultTrigger.trigger.execution;
+        }
+        
+        // Auto-detect scope type based on document type (but not for actors - let them choose)
+        const registry = TriggerEventRegistry.getInstance();
+        const detectedDocumentType = registry.detectDocumentType(this.document);
+        const isActor = this.document.documentName === 'Actor';
+        const autoScopeType = detectedDocumentType || 'tile'; // Default to tile if detection fails
+        
+                
+        // Get condition types from TriggerAPI
+        const conditionTypes = this._triggerAPI.getConditionTypes();
+        
+        // Get available events for this document type from TriggerEventRegistry
+        const documentType = detectedDocumentType;
+        const availableEvents = registry.getEventsForDocumentType(documentType);
 
         return {
             trigger,
             isNew: !existing,
             actorTypesCsv: (trigger.trigger?.actorTypes || []).join(', '),
-            availableEffects: this._getAvailableEffects()
+            availableEffects: this._getAvailableEffects(),
+            availableAttributes: this._getAvailableAttributes(),
+            availableAbilities: this._getAvailableAbilities(),
+            availablePools: this._getAvailablePools(),
+            // New format data
+            conditionTypes: Object.values(conditionTypes),
+            currentScopeType: isActor ? (trigger.trigger?.scope?.type || 'actor') : autoScopeType, // Use auto-detected for non-actors
+            hasConditions: trigger.trigger?.conditions?.length > 0,
+            // V2 architecture data
+            documentType: documentType,
+            availableEvents: availableEvents
         };
     }
 
     activateListeners(html) {
         super.activateListeners(html);
 
+        // Inject trigger configuration CSS if not already loaded
+        if (!document.getElementById('wod-trigger-config-css')) {
+            const link = document.createElement('link');
+            link.id = 'wod-trigger-config-css';
+            link.rel = 'stylesheet';
+            link.href = 'systems/wodsystem/styles/themes/trigger-config.css';
+            document.head.appendChild(link);
+        }
+
         // Handle event type changes to show/hide effect configuration
         html.find('select[name="trigger.eventType"]').on('change', this._onEventTypeChange.bind(this));
 
         // Initialize effect field visibility
         this._updateEffectFieldVisibility(html);
+        
+        // Initialize autocompletes for existing hasEffect conditions
+        this._initializeConditionAutocompletes(html);
 
         // Cancel button
         html.find('button[data-action="cancel"]').on('click', (ev) => {
@@ -91,6 +177,40 @@ export class WodTriggerConfigDialog extends FormApplication {
             html.find('.roll-single').toggle(type === 'single');
         });
 
+        // Handle execution mode changes to show/hide event field
+        html.find('select[name="trigger.execution.mode"]').on('change', (ev) => {
+            const executionMode = ev.currentTarget.value;
+            const eventField = html.find('select[name="trigger.eventType"]').closest('.form-group');
+            eventField.toggle(executionMode === 'event');
+        });
+
+        // Add condition button
+        html.find('button[data-action="add-condition"]').on('click', async (ev) => {
+            ev.preventDefault();
+            await this._addCondition();
+        });
+
+        // Remove condition buttons - use event delegation for dynamic content
+        html.off('click', 'button[data-action="remove-condition"]').on('click', 'button[data-action="remove-condition"]', async (ev) => {
+            ev.preventDefault();
+            const index = Number(ev.currentTarget.dataset.index);
+            await this._removeCondition(index);
+        });
+
+        // Handle condition type changes to enable/disable autocomplete
+        html.off('change', '.condition-type').on('change', '.condition-type', (ev) => {
+            const conditionType = ev.currentTarget.value;
+            const conditionRow = ev.currentTarget.closest('.condition-row');
+            const valueInput = conditionRow.querySelector('.condition-value');
+            const index = conditionRow.dataset.index;
+            
+            if (conditionType === 'hasEffect') {
+                this._setupEffectAutocomplete(valueInput, index);
+            } else {
+                this._removeEffectAutocomplete(valueInput);
+            }
+        });
+
         // Add action buttons
         html.find('button[data-action="add-action"]').on('click', async (ev) => {
             ev.preventDefault();
@@ -99,20 +219,55 @@ export class WodTriggerConfigDialog extends FormApplication {
             await this._addAction(outcome, type);
         });
 
-        // Remove action buttons
-        html.find('button[data-action="remove-action"]').on('click', async (ev) => {
+        // Remove action buttons - use event delegation for dynamic content
+        html.off('click', 'button[data-action="remove-action"]').on('click', 'button[data-action="remove-action"]', async (ev) => {
             ev.preventDefault();
             const outcome = ev.currentTarget.dataset.outcome;
             const index = Number(ev.currentTarget.dataset.index);
             await this._removeAction(outcome, index);
         });
 
-        // Pick target from scene
+        // Pick target from scene (legacy)
         html.find('button[data-action="pick-target"]').on('click', (ev) => {
             ev.preventDefault();
             const outcome = ev.currentTarget.dataset.outcome;
             const index = Number(ev.currentTarget.dataset.index);
             this._startPickTarget(outcome, index);
+        });
+
+        // Pick element for new target system
+        html.on('click', 'button[data-action="pick-element"]', (ev) => {
+            ev.preventDefault();
+            const outcome = ev.currentTarget.dataset.outcome;
+            const index = Number(ev.currentTarget.dataset.index);
+            const actionRow = $(ev.currentTarget).closest('.action-row');
+            const elementType = actionRow.find('.target-element-type').val() || 'wall';
+            this._startPickElement(outcome, index, elementType);
+        });
+
+        // Handle target mode changes - show/hide element ID fields
+        html.on('change', '.target-mode', (ev) => {
+            const mode = ev.currentTarget.value;
+            const actionRow = $(ev.currentTarget).closest('.action-row, .action-grid');
+            const idCell = actionRow.find('.target-id-cell');
+            const idInput = actionRow.find('input[name$=".target.elementId"]');
+            const typeCell = actionRow.find('.target-type-cell');
+            
+            // Show/hide element ID field based on mode
+            if (mode === 'specific') {
+                idCell.show();
+                idInput.show();
+            } else {
+                idCell.hide();
+                idInput.hide();
+            }
+            
+            // Show/hide element type for non-triggering modes
+            if (mode === 'triggering') {
+                typeCell.hide();
+            } else {
+                typeCell.show();
+            }
         });
 
         // Pick asset from file browser
@@ -204,12 +359,31 @@ export class WodTriggerConfigDialog extends FormApplication {
         trigger.actions = trigger.actions || { always: [], success: [], failure: [] };
         trigger.actions[outcome] = trigger.actions[outcome] || [];
 
+        // Default target config - all actions now have cross-element targeting
+        const defaultTarget = { mode: 'triggering', elementType: 'actor', elementId: '' };
+        
         if (type === 'door') {
-            trigger.actions[outcome].push({ type: 'door', target: '', state: 'open' });
+            trigger.actions[outcome].push({ 
+                type: 'door', 
+                target: { mode: 'specific', elementType: 'wall', elementId: '' },
+                state: 'open',
+                delay: 0
+            });
         } else if (type === 'tileAsset') {
-            trigger.actions[outcome].push({ type: 'changeTileAsset', tileImg: '', tileId: '', useCurrentTile: true });
+            trigger.actions[outcome].push({ 
+                type: 'changeTileAsset', 
+                target: { mode: 'self', elementType: 'tile', elementId: '' },
+                tileImg: '', 
+                useCurrentTile: true,
+                delay: 0
+            });
         } else {
-            trigger.actions[outcome].push({ type: 'enableCoreEffect', effectId: '' });
+            trigger.actions[outcome].push({ 
+                type: 'enableCoreEffect', 
+                target: defaultTarget,
+                effectId: '',
+                delay: 0
+            });
         }
 
         triggers[triggerIndex] = trigger;
@@ -324,6 +498,9 @@ export class WodTriggerConfigDialog extends FormApplication {
         if (this._pickHandlers?.onControlTile) {
             Hooks.off('controlTile', this._pickHandlers.onControlTile);
         }
+        if (this._pickHandlers?.onControlToken) {
+            Hooks.off('controlToken', this._pickHandlers.onControlToken);
+        }
         if (this._pickHandlers?.onKeyDown) {
             document.removeEventListener('keydown', this._pickHandlers.onKeyDown);
         }
@@ -347,6 +524,11 @@ export class WodTriggerConfigDialog extends FormApplication {
         tileInput.val(tileId);
     }
 
+    _setDoorTarget(outcome, index, wallId) {
+        const targetInput = $(this.element).find(`input[name="actions.${outcome}.${index}.target"]`);
+        targetInput.val(wallId);
+    }
+
     async _startPickAsset(outcome, index) {
         try {
             const result = await new FilePicker({
@@ -365,6 +547,232 @@ export class WodTriggerConfigDialog extends FormApplication {
     _setAssetTarget(outcome, index, assetPath) {
         const assetInput = $(this.element).find(`input[name="actions.${outcome}.${index}.tileImg"]`);
         assetInput.val(assetPath);
+    }
+
+    /**
+     * Start pick mode for selecting an element from the scene
+     * @param {string} outcome - Action outcome (always, success, failure)
+     * @param {number} index - Action index
+     * @param {string} elementType - Type of element to pick (wall, tile, token, actor)
+     */
+    _startPickElement(outcome, index, elementType) {
+        if (!canvas?.ready) {
+            ui.notifications?.warn('Canvas not ready');
+            return;
+        }
+
+        this._stopPickMode();
+        const previousLayer = canvas.activeLayer?.options?.name;
+        this._pickMode = { outcome, index, previousLayer, elementType };
+
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                this._stopPickMode();
+            }
+        };
+
+        switch (elementType) {
+            case 'wall':
+                ui.notifications?.info('Click a door on the canvas. Press Escape to cancel.');
+                try { canvas.walls?.activate(); } catch (e) { /* ignore */ }
+                
+                const onControlWall = (wall, controlled) => {
+                    if (!controlled || !this._pickMode) return;
+                    const wallId = wall?.document?.id;
+                    if (!wallId) return;
+                    this._setElementTarget(this._pickMode.outcome, this._pickMode.index, wallId);
+                    this._stopPickMode();
+                };
+                this._pickHandlers = { onControlWall, onKeyDown };
+                Hooks.on('controlWall', onControlWall);
+                break;
+
+            case 'tile':
+                ui.notifications?.info('Click a tile on the canvas. Press Escape to cancel.');
+                try { canvas.tiles?.activate(); } catch (e) { /* ignore */ }
+                
+                const onControlTile = (tile, controlled) => {
+                    if (!controlled || !this._pickMode) return;
+                    const tileId = tile?.document?.id;
+                    if (!tileId) return;
+                    this._setElementTarget(this._pickMode.outcome, this._pickMode.index, tileId);
+                    this._stopPickMode();
+                };
+                this._pickHandlers = { onControlTile, onKeyDown };
+                Hooks.on('controlTile', onControlTile);
+                break;
+
+            case 'token':
+                ui.notifications?.info('Click a token on the canvas. Press Escape to cancel.');
+                try { canvas.tokens?.activate(); } catch (e) { /* ignore */ }
+                
+                const onControlToken = (token, controlled) => {
+                    if (!controlled || !this._pickMode) return;
+                    const tokenId = token?.document?.id;
+                    if (!tokenId) return;
+                    this._setElementTarget(this._pickMode.outcome, this._pickMode.index, tokenId);
+                    this._stopPickMode();
+                };
+                this._pickHandlers = { onControlToken, onKeyDown };
+                Hooks.on('controlToken', onControlToken);
+                break;
+
+            case 'actor':
+                // For actors, show a dialog to select from game.actors
+                this._showActorPicker(outcome, index);
+                return;
+
+            default:
+                ui.notifications?.warn(`Unknown element type: ${elementType}`);
+                return;
+        }
+
+        document.addEventListener('keydown', onKeyDown);
+    }
+
+    /**
+     * Show actor picker dialog
+     */
+    async _showActorPicker(outcome, index) {
+        const actors = game.actors.contents.map(a => ({ id: a.id, name: a.name }));
+        if (actors.length === 0) {
+            ui.notifications?.warn('No actors available');
+            return;
+        }
+
+        const content = `<form><div class="form-group"><label>Select Actor</label>
+            <select name="actorId">${actors.map(a => `<option value="${a.id}">${a.name}</option>`).join('')}</select>
+        </div></form>`;
+
+        new Dialog({
+            title: 'Select Actor',
+            content,
+            buttons: {
+                select: {
+                    label: 'Select',
+                    callback: (html) => {
+                        const actorId = html.find('select[name="actorId"]').val();
+                        this._setElementTarget(outcome, index, actorId);
+                    }
+                },
+                cancel: { label: 'Cancel' }
+            },
+            default: 'select'
+        }).render(true);
+    }
+
+    /**
+     * Set element target ID for an action
+     */
+    _setElementTarget(outcome, index, elementId) {
+        const targetInput = $(this.element).find(`input[name="actions.${outcome}.${index}.target.elementId"]`);
+        targetInput.val(elementId);
+    }
+
+    async _addCondition() {
+        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
+        
+        if (triggerIndex < 0) {
+            // Trigger not saved yet, just re-render with a new condition
+            this.render(false);
+            return;
+        }
+
+        const trigger = foundry.utils.duplicate(triggers[triggerIndex]);
+        if (!trigger.trigger.conditions) {
+            trigger.trigger.conditions = [];
+        }
+        
+        // Add new condition with defaults
+        trigger.trigger.conditions.push({
+            type: 'hasEffect',
+            operator: 'equals',
+            value: '',
+            logic: 'none'
+        });
+        
+        triggers[triggerIndex] = trigger;
+        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        this.render(false);
+    }
+
+    async _removeCondition(index) {
+        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
+        
+        if (triggerIndex < 0) {
+            this.render(false);
+            return;
+        }
+
+        const trigger = foundry.utils.duplicate(triggers[triggerIndex]);
+        if (!Array.isArray(trigger.trigger?.conditions)) return;
+
+        trigger.trigger.conditions.splice(index, 1);
+        triggers[triggerIndex] = trigger;
+
+        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        this.render(false);
+    }
+    
+    /**
+     * Setup effect autocomplete for a condition value input
+     * @private
+     */
+    _setupEffectAutocomplete(input, index) {
+        // Remove existing autocomplete if any
+        this._removeEffectAutocomplete(input);
+        
+        // Create new autocomplete
+        const autocomplete = new EffectAutocomplete(input, {
+            maxResults: 8,
+            minQueryLength: 1
+        });
+        
+        // Store reference
+        this._effectAutocompletes.set(index, autocomplete);
+    }
+    
+    /**
+     * Remove effect autocomplete from an input
+     * @private
+     */
+    _removeEffectAutocomplete(input) {
+        // Find and destroy autocomplete by input element
+        for (const [index, autocomplete] of this._effectAutocompletes) {
+            if (autocomplete.input === input) {
+                autocomplete.destroy();
+                this._effectAutocompletes.delete(index);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Clean up all autocompletes
+     * @private
+     */
+    _cleanupAutocompletes() {
+        for (const autocomplete of this._effectAutocompletes.values()) {
+            autocomplete.destroy();
+        }
+        this._effectAutocompletes.clear();
+    }
+    
+    /**
+     * Initialize autocompletes for existing conditions
+     * @private
+     */
+    _initializeConditionAutocompletes(html) {
+        html.find('.condition-row').each((index, row) => {
+            const conditionType = row.querySelector('.condition-type')?.value;
+            const valueInput = row.querySelector('.condition-value');
+            
+            if (conditionType === 'hasEffect' && valueInput) {
+                this._setupEffectAutocomplete(valueInput, index);
+            }
+        });
     }
 
     _updateTilePickerVisibility(checkbox) {
@@ -386,15 +794,14 @@ export class WodTriggerConfigDialog extends FormApplication {
         };
 
         // Parse actions from flat form data
-        const actionKeys = Object.keys(formData).filter(key => key.startsWith('actions.'));
-        
         Object.keys(formData).forEach(key => {
             if (key.startsWith('actions.')) {
                 const parts = key.split('.');
-                if (parts.length >= 3) {
+                if (parts.length >= 4) {
                     const outcome = parts[1]; // always, success, failure
                     const index = parseInt(parts[2]); // 0, 1, 2...
                     const field = parts[3]; // type, target, state, etc.
+                    const subField = parts.length > 4 ? parts[4] : null; // mode, elementType, elementId (for nested target)
 
                     if (!isNaN(index) && actions[outcome]) {
                         // Ensure array has enough elements
@@ -402,31 +809,42 @@ export class WodTriggerConfigDialog extends FormApplication {
                             actions[outcome].push({});
                         }
 
-                        // Get the action type first to determine which fields to set
+                        // Get the action type first
                         const actionTypeKey = `actions.${outcome}.${index}.type`;
                         const actionType = actions[outcome][index].type || formData[actionTypeKey] || 'door';
                         
-                        // Only set relevant fields based on action type
-                        if (actionType === 'changeTileAsset') {
-                            // Only set tile asset related fields
-                            if (field === 'tileImg' || field === 'tileId' || field === 'useCurrentTile' || field === 'delay') {
-                                actions[outcome][index][field] = formData[key];
+                        // Handle nested target config (target.mode, target.elementType, target.elementId)
+                        if (field === 'target' && subField) {
+                            if (!actions[outcome][index].target) {
+                                actions[outcome][index].target = { mode: 'triggering', elementType: 'actor', elementId: '' };
                             }
-                        } else if (actionType === 'door') {
-                            // Only set door related fields
-                            if (field === 'target' || field === 'state' || field === 'delay') {
-                                actions[outcome][index][field] = formData[key];
-                            }
-                        } else {
-                            // Core effect fields
-                            if (field === 'effectId' || field === 'delay') {
-                                actions[outcome][index][field] = formData[key];
-                            }
+                            actions[outcome][index].target[subField] = formData[key];
                         }
-                        
-                        // Set type separately to avoid duplication
-                        if (field === 'type') {
-                            actions[outcome][index].type = actionType;
+                        // Handle regular fields (no subField)
+                        else if (!subField) {
+                            // Set type for all action types
+                            if (field === 'type') {
+                                actions[outcome][index].type = formData[key] || actionType;
+                            }
+                            // Common fields
+                            else if (field === 'delay') {
+                                actions[outcome][index].delay = parseFloat(formData[key]) || 0;
+                            }
+                            // Action-specific fields
+                            else if (actionType === 'changeTileAsset') {
+                                if (field === 'tileImg' || field === 'useCurrentTile') {
+                                    actions[outcome][index][field] = formData[key];
+                                }
+                            } else if (actionType === 'door') {
+                                if (field === 'state') {
+                                    actions[outcome][index][field] = formData[key];
+                                }
+                            } else {
+                                // Core effect fields
+                                if (field === 'effectId') {
+                                    actions[outcome][index][field] = formData[key];
+                                }
+                            }
                         }
                     }
                 }
@@ -435,33 +853,129 @@ export class WodTriggerConfigDialog extends FormApplication {
 
         return actions;
     }
+    
+    /**
+     * Parse conditions from form data
+     * @private
+     */
+    _parseConditionsFromFormData(formData, $form) {
+        const conditions = [];
+        
+        // Find all condition rows
+        $form.find('.condition-row').each((index, row) => {
+            const $row = $(row);
+            const conditionType = $row.find('.condition-type').val();
+            const operator = $row.find('.condition-operator').val();
+            const value = $row.find('.condition-value').val();
+            const logic = $row.find('.condition-logic').val();
+            
+            // Only add condition if type is specified
+            if (conditionType) {
+                conditions.push({
+                    type: conditionType,
+                    operator: operator || 'equals',
+                    value: value || '',
+                    logic: logic || 'none'
+                });
+            }
+        });
+        
+        // Store conditions in form data
+        formData['trigger.conditions'] = conditions;
+    }
+    
+    /**
+     * Parse scope configuration from form data
+     * @private
+     */
+    _parseScopeFromFormData(formData) {
+        // Use auto-detected scope type if available, otherwise use form data
+        const scopeType = formData['trigger.scope.type'] || 'tile';
+        const scope = {
+            type: scopeType
+        };
+        
+        switch (scopeType) {
+            case 'proximity':
+                scope.proximity = {
+                    distance: Number(formData['trigger.scope.proximity.distance'] || 5),
+                    unit: formData['trigger.scope.proximity.unit'] || 'grid',
+                    shape: formData['trigger.scope.proximity.shape'] || 'circle'
+                };
+                break;
+            case 'tile':
+                scope.target = formData['trigger.scope.target'] || '';
+                break;
+            case 'region':
+                scope.target = formData['trigger.scope.target'] || '';
+                break;
+            case 'global':
+                // Global scope has no additional config
+                break;
+        }
+        
+        return scope;
+    }
+    
+    /**
+     * Parse execution configuration from form data
+     * @private
+     */
+    _parseExecutionFromFormData(formData) {
+        const executionMode = formData['trigger.execution.mode'] || 'event';
+        
+        const execution = {
+            mode: executionMode,
+            timing: {
+                delay: Number(formData['trigger.execution.timing.delay'] || 0),
+                repeat: Number(formData['trigger.execution.timing.repeat'] || 0),
+                duration: formData['trigger.execution.timing.duration'] ? 
+                    Number(formData['trigger.execution.timing.duration']) : null
+            }
+        };
+        
+        // Only include event field for event mode
+        if (executionMode === 'event') {
+            execution.event = formData['trigger.eventType'] || 'onEnter';
+        }
+        
+        return execution;
+    }
 
-    async _saveTrigger(expanded) {
-        const parsedActions = this._parseActionsFromFormData(expanded);
+    async _saveTrigger(formData, _) {
+        console.log('WoD TriggerConfig | Saving trigger to document:', this.document?.constructor?.name, this.document?.name);
+        console.log('WoD TriggerConfig | Document ID:', this.document?.id);
+        console.log('WoD TriggerConfig | Current triggers before save:', this.document?.getFlag('wodsystem', 'triggers')?.length || 0);
+        
+        const parsedActions = this._parseActionsFromFormData(formData);
         
         const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
-        const triggerIndex = triggers.findIndex(t => t?.id === expanded.id);
+        const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
-        const actorTypesCsv = (expanded.actorTypesCsv || '').trim();
+        const actorTypesCsv = (formData.actorTypesCsv || '').trim();
         const actorTypes = actorTypesCsv.length ? actorTypesCsv.split(',').map(s => s.trim()).filter(Boolean) : [];
 
+                
         const next = {
-            id: expanded.id,
-            name: expanded.name || 'Unnamed Trigger',
-            enabled: expanded.enabled === true || expanded.enabled === 'true' || expanded.enabled === 'on',
-            priority: Number(expanded.priority ?? 10),
+            id: this.triggerId,
+            name: formData.name || 'Unnamed Trigger',
+            enabled: formData.enabled === true || formData.enabled === 'true' || formData.enabled === 'on',
+            priority: Number(formData.priority ?? 10),
             trigger: {
-                eventType: expanded['trigger.eventType'] || 'onEnter',
-                effectName: expanded['trigger.effectName'] || '',
-                actorTypes
+                // Clean structure - no legacy fields
+                actorTypes,
+                // New structure
+                scope: this._parseScopeFromFormData(formData),
+                conditions: formData['trigger.conditions'] || [],
+                execution: this._parseExecutionFromFormData(formData)
             },
             roll: {
-                enabled: Boolean(expanded.roll?.enabled),
-                attribute: expanded.roll?.attribute || '',
-                ability: expanded.roll?.ability || '',
-                poolName: expanded.roll?.poolName || '',
-                difficulty: Number(expanded.roll?.difficulty ?? 6),
-                successThreshold: Number(expanded.roll?.successThreshold ?? 1)
+                enabled: Boolean(formData.roll?.enabled),
+                attribute: formData.roll?.attribute || '',
+                ability: formData.roll?.ability || '',
+                poolName: formData.roll?.poolName || '',
+                difficulty: Number(formData.roll?.difficulty ?? 6),
+                successThreshold: Number(formData.roll?.successThreshold ?? 1)
             },
             actions: this._normalizeActions(parsedActions, triggerIndex >= 0 ? triggers[triggerIndex]?.actions : null)
         };
@@ -473,6 +987,9 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
 
         await this.document.setFlag('wodsystem', 'triggers', triggers);
+        
+        console.log('WoD TriggerConfig | Save completed. Triggers after save:', triggers.length);
+        console.log('WoD TriggerConfig | Verification - triggers in document:', this.document.getFlag('wodsystem', 'triggers')?.length || 0);
     }
 
     _normalizeActions(rawActions, fallbackActions) {
@@ -498,24 +1015,42 @@ export class WodTriggerConfigDialog extends FormApplication {
             const actionType = a?.type || 'door';
             const delay = parseFloat(a?.delay) || 0;
             
+            // Normalize target config - handle both legacy strings and new object format
+            const normalizeTarget = (target, defaultMode, defaultType) => {
+                if (!target) {
+                    return { mode: defaultMode, elementType: defaultType, elementId: '' };
+                }
+                // Legacy string format (wall ID for doors)
+                if (typeof target === 'string') {
+                    return { mode: 'specific', elementType: defaultType, elementId: target };
+                }
+                // New object format
+                return {
+                    mode: target.mode || defaultMode,
+                    elementType: target.elementType || defaultType,
+                    elementId: target.elementId || ''
+                };
+            };
+            
             if (actionType === 'door') {
                 return { 
                     type: 'door', 
-                    target: a?.target || '', 
+                    target: normalizeTarget(a?.target, 'specific', 'wall'),
                     state: a?.state || 'open',
                     delay: delay
                 };
             } else if (actionType === 'changeTileAsset') {
                 return { 
                     type: 'changeTileAsset', 
+                    target: normalizeTarget(a?.target, 'self', 'tile'),
                     tileImg: a?.tileImg || '',
-                    tileId: a?.tileId || '',
                     useCurrentTile: Boolean(a?.useCurrentTile),
                     delay: delay
                 };
             } else {
                 return { 
                     type: actionType, 
+                    target: normalizeTarget(a?.target, 'triggering', 'actor'),
                     effectId: a?.effectId || '',
                     delay: delay
                 };
@@ -532,9 +1067,11 @@ export class WodTriggerConfigDialog extends FormApplication {
     async _updateObject(event, formData) {
         const $form = $(event?.currentTarget);
         if (!$form.length) return formData;
-
+        
+        
         // Force UI values for critical fields that might not be in formData
         formData['trigger.eventType'] = $form.find('select[name="trigger.eventType"]').val();
+        formData.name = $form.find('input[name="name"]').val();
         
         // Force action type values
         $form.find('select[name$=".type"]').each((i, el) => {
@@ -556,11 +1093,58 @@ export class WodTriggerConfigDialog extends FormApplication {
             const name = $checkbox.attr('name');
             formData[name] = $checkbox.is(':checked');
         });
+        
+        // Force target configuration values (mode, elementType, elementId)
+        $form.find('select[name$=".target.mode"]').each((i, el) => {
+            const $select = $(el);
+            const name = $select.attr('name');
+            formData[name] = $select.val();
+        });
+        
+        $form.find('select[name$=".target.elementType"]').each((i, el) => {
+            const $select = $(el);
+            const name = $select.attr('name');
+            formData[name] = $select.val();
+        });
+        
+        $form.find('input[name$=".target.elementId"]').each((i, el) => {
+            const $input = $(el);
+            const name = $input.attr('name');
+            formData[name] = $input.val();
+        });
+        
+        // Force execution timing values
+        formData['trigger.execution.mode'] = $form.find('select[name="trigger.execution.mode"]').val();
+        formData['trigger.execution.timing.delay'] = $form.find('input[name="trigger.execution.timing.delay"]').val();
+        formData['trigger.execution.timing.repeat'] = $form.find('input[name="trigger.execution.timing.repeat"]').val();
+        formData['trigger.execution.timing.duration'] = $form.find('input[name="trigger.execution.timing.duration"]').val();
+        
+        // Force proximity scope values
+        formData['trigger.scope.proximity.distance'] = $form.find('input[name="trigger.scope.proximity.distance"]').val();
+        formData['trigger.scope.proximity.unit'] = $form.find('select[name="trigger.scope.proximity.unit"]').val();
+        formData['trigger.scope.proximity.shape'] = $form.find('select[name="trigger.scope.proximity.shape"]').val();
+        
+        // Parse conditions from form data
+        this._parseConditionsFromFormData(formData, $form);
 
+                
+                
         await this._saveTrigger(formData);
+        
+        // Only refresh actor sheets, not config dialogs
+        if (this.document && this.document.sheet && this.document.documentName === 'Actor') {
+            this.document.sheet.render();
+        }
+        
+        // Don't call close callback here - let the close() method handle it
+        // This prevents the callback from being called twice and ensures proper timing
+        
+        // Don't manually close - Foundry will handle it automatically due to closeOnSubmit: true
+        
         return {};
     }
 
+    
     _onEventTypeChange(event) {
         this._updateEffectFieldVisibility($(event.currentTarget).closest('form'));
     }
@@ -579,56 +1163,119 @@ export class WodTriggerConfigDialog extends FormApplication {
     _getAvailableEffects() {
         const effects = new Set();
         
-        // Get effects from all active tokens
-        for (const token of canvas.tokens.placeables) {
-            const tokenEffects = token.document.effects || [];
-            tokenEffects.forEach(effect => {
-                if (effect.label) effects.add(effect.label);
-                if (effect.name) effects.add(effect.name);
-            });
-            
-            // Also get effects from the token's actor
-            if (token.actor) {
-                const actorEffects = token.actor.effects || [];
-                actorEffects.forEach(effect => {
-                    if (effect.label) effects.add(effect.label);
-                    if (effect.name) effects.add(effect.name);
-                });
+        // Only get effects from actors in the current scene (much more efficient)
+        if (canvas?.tokens?.placeables) {
+            for (const token of canvas.tokens.placeables) {
+                if (token.actor?.effects) {
+                    for (const effect of token.actor.effects) {
+                        const name = effect.label || effect.name;
+                        if (name) effects.add(name);
+                    }
+                }
             }
         }
         
-        // Get effects from all actors in the world
-        for (const actor of game.actors.contents) {
-            const actorEffects = actor.effects || [];
-            actorEffects.forEach(effect => {
-                if (effect.label) effects.add(effect.label);
-                if (effect.name) effects.add(effect.name);
-            });
-        }
+        return Array.from(effects).sort();
+    }
+
+    _getAvailableAttributes() {
+        // Standard WoD attributes (from wizard config)
+        const attributes = [
+            'Strength', 'Dexterity', 'Stamina',
+            'Charisma', 'Manipulation', 'Appearance', 
+            'Perception', 'Intelligence', 'Wits'
+        ];
+        return attributes;
+    }
+
+    _getAvailableAbilities() {
+        // Standard WoD abilities (from wizard config)
+        const abilities = [
+            // Talents
+            'Alertness', 'Athletics', 'Awareness', 'Brawl', 'Dodge', 'Empathy', 'Expression',
+            'Intimidation', 'Intuition', 'Leadership', 'Streetwise', 'Subterfuge',
+            // Skills  
+            'Animal Ken', 'Crafts', 'Drive', 'Etiquette', 'Firearms', 'Larceny', 'Melee',
+            'Performance', 'Ride', 'Stealth', 'Survival', 'Swimming',
+            // Knowledges
+            'Academics', 'Computer', 'Finance', 'Investigation', 'Law', 'Linguistics',
+            'Medicine', 'Occult', 'Politics', 'Science', 'Technology'
+        ];
+        return abilities;
+    }
+
+    _getAvailablePools() {
+        // Collect pools from all creature types in the system
+        const pools = new Set();
         
-        // Get effects from all items in the world
-        for (const item of game.items.contents) {
-            if (item.effects) {
-                item.effects.forEach(effect => {
-                    if (effect.label) effects.add(effect.label);
-                    if (effect.name) effects.add(effect.name);
+        // Standard pools that exist across most creature types
+        const standardPools = [
+            'Arete', 'Faith', 'Torment', 'Willpower', 'Quintessence',
+            'Paradox', 'Glamour', 'Banality'
+        ];
+        
+        standardPools.forEach(pool => pools.add(pool));
+        
+        // Try to get pools from existing actors in the game
+        game.actors?.forEach(actor => {
+            if (actor.system?.pools) {
+                Object.keys(actor.system.pools).forEach(poolName => {
+                    pools.add(poolName);
                 });
             }
-        }
+        });
         
-        // Convert to array and sort alphabetically
-        return Array.from(effects).sort((a, b) => a.localeCompare(b));
+        return Array.from(pools).sort();
     }
 
     async close(options) {
+        console.log('WoD TriggerConfig | close() method called');
+        console.log('WoD TriggerConfig | _onCloseCb exists:', typeof this._onCloseCb);
+        console.log('WoD TriggerConfig | _onCloseCb value:', this._onCloseCb);
+        console.log('WoD TriggerConfig | _closeCallbackCalled:', this._closeCallbackCalled);
+        console.log('WoD TriggerConfig | document type:', this.document?.documentName);
+        
+        // Prevent multiple calls by setting the flag immediately
+        if (this._closeCallbackCalled) {
+            console.log('WoD TriggerConfig | Callback already called, skipping');
+            this._stopPickMode();
+            this._cleanupAutocompletes();
+            await super.close(options);
+            return;
+        }
+        
         this._stopPickMode();
+        this._cleanupAutocompletes();
         await super.close(options);
-        if (typeof this._onCloseCb === 'function') {
+        
+        // Call the close callback if it exists and hasn't been called yet
+        console.log('WoD TriggerConfig | Checking callback - _onCloseCb:', !!this._onCloseCb, '_wodOnCloseCallback:', !!this._wodOnCloseCallback, '_wodCallbackBackup:', !!this._wodCallbackBackup, '_wodCallbacks.get:', !!this._wodCallbacks?.get('onClose'), '_closeCallbackCalled:', this._closeCallbackCalled);
+        
+        // Try all possible callback storage methods
+        const callback = this._onCloseCb || 
+                         this._wodOnCloseCallback || 
+                         this._wodCallbackBackup || 
+                         this._wodCallbacks?.get('onClose');
+        
+        if (callback && !this._closeCallbackCalled) {
+            console.log('WoD TriggerConfig | Calling onClose callback');
+            this._closeCallbackCalled = true; // Set immediately to prevent double calls
+            
             try {
-                await this._onCloseCb();
+                console.log('WoD TriggerConfig | Executing callback:', typeof callback);
+                
+                // Call the callback - try both direct call and function call
+                if (typeof callback === 'function') {
+                    await callback();
+                } else {
+                    // Try to call it anyway in case it's a callable object
+                    await callback();
+                }
             } catch (error) {
                 console.error('WoD TriggerManager | Error in close callback', error);
             }
+        } else {
+            console.log('WoD TriggerConfig | onClose callback not called - original exists:', !!this._onCloseCb, 'backup1 exists:', !!this._wodOnCloseCallback, 'backup2 exists:', !!this._wodCallbackBackup, 'map exists:', !!this._wodCallbacks?.get('onClose'), 'type:', typeof callback, 'already called:', this._closeCallbackCalled);
         }
     }
 }
