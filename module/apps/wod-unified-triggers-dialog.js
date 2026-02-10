@@ -22,7 +22,6 @@ export class WodUnifiedTriggersDialog extends Dialog {
     constructor(document, options = {}) {
         super({
             title: options.title || 'WoD Triggers',
-            content: '<div class="dialog-content">Loading...</div>',
             buttons: {
                 close: {
                     label: "Close",
