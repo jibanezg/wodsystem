@@ -2234,36 +2234,28 @@ export class TriggerManager {
         const currentEffectIds = Array.from(actor.effects || []).map(e => e.id);
         console.log(`WoD TriggerManager | Current effect IDs: [${currentEffectIds.join(', ')}]`);
         
-        // Determine which effects were added and removed
-        const addedEffects = effects.filter(e => !currentEffectIds.includes(e));
-        const removedEffects = currentEffectIds.filter(e => !effects.includes(e));
+        // For createActiveEffect hook, effects contains the new effect ID that was just created
+        // For deleteActiveEffect hook, effects is empty (the effect was already deleted)
+        const isNewEffect = effects.length > 0;
         
-        console.log(`WoD TriggerManager | Added effects: [${addedEffects.join(', ')}], Removed effects: [${removedEffects.join(', ')}]`);
-        
-        // Fire effect applied events (global)
-        for (const effectId of addedEffects) {
-            console.log(`WoD TriggerManager | Firing onEffectApplied for effect: ${effectId}`);
-            this._fireDocumentTriggers('actor', actor, actor, 'onEffectApplied', effectId, null);
-            
-            // Also fire scene triggers for effect events
-            this._fireSceneTriggers('onEffectApplied', {
-                actor: actor,
-                effectId: effectId,
-                effect: actor.effects.get(effectId)
-            });
-        }
-        
-        // Fire effect removed events (global)
-        for (const effectId of removedEffects) {
-            console.log(`WoD TriggerManager | Firing onEffectRemoved for effect: ${effectId}`);
-            this._fireDocumentTriggers('actor', actor, actor, 'onEffectRemoved', effectId, null);
-            
-            // Also fire scene triggers for effect events
-            this._fireSceneTriggers('onEffectRemoved', {
-                actor: actor,
-                effectId: effectId,
-                effect: null
-            });
+        if (isNewEffect) {
+            // Effect was created - fire onEffectApplied
+            for (const effectId of effects) {
+                console.log(`WoD TriggerManager | Firing onEffectApplied for effect: ${effectId}`);
+                this._fireDocumentTriggers('actor', actor, actor, 'onEffectApplied', effectId, null);
+                
+                // Also fire scene triggers for effect events
+                this._fireSceneTriggers('onEffectApplied', {
+                    actor: actor,
+                    effectId: effectId,
+                    effect: actor.effects.get(effectId)
+                });
+            }
+        } else {
+            // Effect was deleted - we need to determine which effect was removed
+            // This is more complex since we don't have the deleted effect ID
+            // For now, we'll skip effect removal events from deleteActiveEffect hook
+            console.log(`WoD TriggerManager | Effect deletion detected, but effect ID not available from deleteActiveEffect hook`);
         }
     }
 
