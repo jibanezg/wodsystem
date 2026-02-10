@@ -6,29 +6,7 @@ const _processedApps = new WeakSet();
 
 export function registerWodTriggerTabs() {
     
-    // Add scene context menu support - try multiple possible hooks
-    Hooks.on('renderSceneDirectory', (app, html, data) => {
-        console.log('WoD Trigger Tabs | renderSceneDirectory hook triggered');
-        _addSceneContextMenu(app, html, data);
-    });
-    
-    // Try alternative hooks for scene navigation
-    Hooks.on('renderSidebarTab', (app, html, data) => {
-        if (app.options?.tab === 'scenes') {
-            console.log('WoD Trigger Tabs | renderSidebarTab scenes hook triggered');
-            _addSceneContextMenu(app, html, data);
-        }
-    });
-    
-    // Try Application render hook for scene directory
-    Hooks.on('renderApplication', (app, html, data) => {
-        if (app.constructor.name === 'SceneDirectory') {
-            console.log('WoD Trigger Tabs | renderApplication SceneDirectory hook triggered');
-            _addSceneContextMenu(app, html, data);
-        }
-    });
-    
-    // Hook into Foundry's context menu system
+    // Hook into Foundry's context menu system - this is the proper way
     Hooks.on('getSceneContextOptions', (context, html) => {
         console.log('WoD Trigger Tabs | getSceneContextOptions hook triggered');
         
@@ -52,54 +30,6 @@ export function registerWodTriggerTabs() {
         
         console.log('WoD Trigger Tabs | Added WoD Triggers to scene context menu');
         return context;
-    });
-    
-    // Fallback: Add context menu after a delay
-    Hooks.on('ready', () => {
-        setTimeout(() => {
-            console.log('WoD Trigger Tabs | Fallback: Looking for scene directory...');
-            
-            // Try multiple selectors for scene directory - look for the actual content, not the tab button
-            const selectors = [
-                '.scene-directory',
-                '.scenes-list', 
-                '[data-tab="scenes"] .directory-list',
-                '[data-tab="scenes"] .list',
-                '[data-tab="scenes"] .content',
-                '#scenes .directory-list',
-                '#scenes .list',
-                '.sidebar-tab[data-tab="scenes"] .directory-list',
-                '.sidebar-tab[data-tab="scenes"] .content',
-                '[aria-controls="scenes"]',
-                '[data-tab="scenes"] + .content', // Next sibling after tab button
-                '[data-tab="scenes"] ~ .content'   // Following sibling after tab button
-            ];
-            
-            let sceneDirectory = null;
-            for (const selector of selectors) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    console.log(`WoD Trigger Tabs | Found scene directory with selector: ${selector}`, element);
-                    sceneDirectory = element;
-                    break;
-                }
-            }
-            
-            if (sceneDirectory) {
-                console.log('WoD Trigger Tabs | Found scene directory, adding context menu');
-                _addSceneContextMenuFallback(sceneDirectory);
-            } else {
-                console.log('WoD Trigger Tabs | Scene directory not found, checking all sidebar elements...');
-                // Log all sidebar elements for debugging
-                const sidebarElements = document.querySelectorAll('.sidebar *, .sidebar-tab *, .directory *');
-                console.log('WoD Trigger Tabs | Sidebar elements found:', sidebarElements.length);
-                sidebarElements.forEach((el, index) => {
-                    if (index < 10) { // Only log first 10 to avoid spam
-                        console.log(`WoD Trigger Tabs | Sidebar element ${index}:`, el.tagName, el.className, el.id);
-                    }
-                });
-            }
-        }, 2000);
     });
     
     // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
