@@ -81,6 +81,86 @@ export function registerWodTriggerTabs() {
         return context;
     });
     
+    // Direct DOM approach - intercept context menu and add our option
+    Hooks.on('ready', () => {
+        console.log('WoD Trigger Tabs | Setting up direct DOM context menu interception');
+        
+        // Wait a bit for the scene directory to be ready
+        setTimeout(() => {
+            const sceneList = document.querySelector('[data-tab="scenes"] .directory-list');
+            if (sceneList) {
+                console.log('WoD Trigger Tabs | Found scene list, adding context menu interception');
+                
+                // Add context menu listener to scene items
+                sceneList.addEventListener('contextmenu', (e) => {
+                    const sceneItem = e.target.closest('.directory-item.scene');
+                    if (sceneItem && game.user.isGM) {
+                        console.log('WoD Trigger Tabs | Scene context menu detected');
+                        
+                        // Get scene data
+                        const sceneId = sceneItem.dataset.entryId;
+                        const scene = game.scenes.get(sceneId);
+                        
+                        if (scene) {
+                            console.log('WoD Trigger Tabs | Found scene:', scene.name);
+                            
+                            // Set up a mutation observer to watch for context menu creation
+                            const observer = new MutationObserver((mutations) => {
+                                mutations.forEach((mutation) => {
+                                    mutation.addedNodes.forEach((node) => {
+                                        if (node.nodeType === Node.ELEMENT_NODE) {
+                                            // Look for context menu
+                                            const contextMenu = node.querySelector?.('.context-menu') || 
+                                                              (node.classList?.contains('context-menu') ? node : null);
+                                            
+                                            if (contextMenu) {
+                                                console.log('WoD Trigger Tabs | Found context menu, adding WoD Triggers option');
+                                                
+                                                // Add our WoD Triggers option
+                                                const wodOption = document.createElement('li');
+                                                wodOption.className = 'context-item';
+                                                wodOption.innerHTML = `
+                                                    <i class="fa-solid fa-shield-halved"></i>
+                                                    <span>WoD Triggers</span>
+                                                `;
+                                                wodOption.style.color = '#dc3545';
+                                                wodOption.addEventListener('click', () => {
+                                                    console.log('WoD Trigger Tabs | WoD Triggers option clicked');
+                                                    _showSceneTriggersDialog(scene);
+                                                    // Close the context menu
+                                                    contextMenu.remove();
+                                                });
+                                                
+                                                // Add to context menu
+                                                contextMenu.appendChild(wodOption);
+                                                
+                                                // Stop observing
+                                                observer.disconnect();
+                                            }
+                                        }
+                                    });
+                                });
+                            });
+                            
+                            // Start observing the document for context menu creation
+                            observer.observe(document.body, {
+                                childList: true,
+                                subtree: true
+                            });
+                            
+                            // Stop observing after a timeout to prevent memory leaks
+                            setTimeout(() => {
+                                observer.disconnect();
+                            }, 2000);
+                        }
+                    }
+                });
+            } else {
+                console.log('WoD Trigger Tabs | Scene list not found');
+            }
+        }, 1000);
+    });
+    
     // Debug: Log all available hooks that might be related
     Hooks.on('ready', () => {
         console.log('WoD Trigger Tabs | Checking for SceneDirectory class...');
