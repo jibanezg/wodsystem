@@ -1,4 +1,5 @@
 import { WodTriggerConfigDialog } from './wod-trigger-config-dialog.js';
+import { ApplicationV2 } from '@foundry/applications/api';
 
 /**
  * Unified WoD Triggers Dialog
