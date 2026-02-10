@@ -56,8 +56,11 @@ export class TriggerManager {
         // ==================== Actor Events (Global) ====================
         Hooks.on('updateActor', (actor, changes, options, userId) => {
             try {
+                console.log(`WoD TriggerManager | updateActor hook called for ${actor.name}`, changes);
+                
                 // Handle actor effect changes
                 if (changes.effects !== undefined) {
+                    console.log(`WoD TriggerManager | Effects changed for ${actor.name}:`, changes.effects);
                     this._onActorEffectsChanged(actor, changes.effects);
                 }
                 // Handle actor attribute changes (health, etc.)
