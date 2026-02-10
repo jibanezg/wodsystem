@@ -32,10 +32,10 @@
                             <option value="regions" {{#if (eq targetCsv "regions")}}selected{{/if}}>All Regions</option>
                         </optgroup>
                         <optgroup label="Special Conditions">
-                            <option value="hasEffect:Anastasia Up and Running" {{#if (eq targetCsv "hasEffect:Anastasia Up and Running")}}selected{{/if}}>Has Effect: Anastasia Up and Running</option>
-                            <option value="hasEffect:PowerUp" {{#if (eq targetCsv "hasEffect:PowerUp")}}selected{{/if}}>Has Effect: Power Up</option>
+                            <option value="hasEffect" {{#if (eq targetCsv "hasEffect")}}selected{{/if}}>Has Any Effect</option>
                             <option value="isGM" {{#if (eq targetCsv "isGM")}}selected{{/if}}>Is GM</option>
                             <option value="isPlayer" {{#if (eq targetCsv "isPlayer")}}selected{{/if}}>Is Player</option>
+                            <option value="isOwner" {{#if (eq targetCsv "isOwner")}}selected{{/if}}>Is Owner</option>
                         </optgroup>
                     </select>
                 </div>

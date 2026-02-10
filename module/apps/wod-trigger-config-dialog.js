@@ -133,7 +133,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         return {
             trigger,
             isNew: !existing,
-            targetCsv: trigger.trigger?.actorTypes?.join(', ') || '', // Convert legacy actorTypes to targetCsv
+            targetCsv: this._formatTargetCsv(trigger.trigger?.actorTypes || []), // Convert legacy actorTypes to targetCsv
             availableEffects: this._getAvailableEffects(),
             availableAttributes: this._getAvailableAttributes(),
             availableAbilities: this._getAvailableAbilities(),
@@ -1029,8 +1029,19 @@ export class WodTriggerConfigDialog extends FormApplication {
         console.log('WoD Trigger Config Dialog | Existing triggers:', triggers.length);
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
-        const actorTypesCsv = (formData.targetCsv || '').trim();
-        const actorTypes = actorTypesCsv.length ? actorTypesCsv.split(',').map(s => s.trim()).filter(Boolean) : [];
+        const targetCsv = (formData.targetCsv || '').trim();
+        let actorTypes = [];
+        
+        // Parse targetCsv with support for special conditions
+        if (targetCsv.length) {
+            if (targetCsv.includes(':')) {
+                // Special condition format like "hasEffect:EffectName" 
+                actorTypes = [targetCsv]; // Keep as-is for condition system to parse
+            } else {
+                // Regular comma-separated actor types
+                actorTypes = targetCsv.split(',').map(s => s.trim()).filter(Boolean);
+            }
+        }
 
                 
         const next = {
@@ -1127,6 +1138,26 @@ export class WodTriggerConfigDialog extends FormApplication {
         });
         
         console.log('WoD Trigger Config Dialog | Updated events for target type:', targetType, events);
+    }
+
+    /**
+     * Format target CSV for display in dropdown
+     * @param {Array} actorTypes - Legacy actor types array
+     * @returns {string} Formatted target CSV
+     * @private
+     */
+    _formatTargetCsv(actorTypes) {
+        if (!actorTypes || !actorTypes.length) {
+            return '';
+        }
+        
+        // If it's a special condition (contains colon), return as-is
+        if (actorTypes.length === 1 && actorTypes[0].includes(':')) {
+            return actorTypes[0];
+        }
+        
+        // Regular comma-separated actor types
+        return actorTypes.join(', ');
     }
 
     /**
