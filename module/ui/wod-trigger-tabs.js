@@ -114,15 +114,15 @@ export function registerWodTriggerTabs() {
                             
                             // Wait a bit for the context menu to be created, then add our option
                             setTimeout(() => {
-                                // Look for any context menu in the document
-                                const possibleMenus = document.querySelectorAll('.context-menu, .dropdown-menu, [data-context-menu], .menu');
+                                // Look for any context menu in the document with actual Foundry class names
+                                const possibleMenus = document.querySelectorAll('.context-menu, .dropdown-menu, [data-context-menu], .menu, .encounter-context-menu, .scene-context, [class*="context"]');
                                 console.log('WoD Trigger Tabs | Found possible context menus:', possibleMenus.length);
                                 
                                 possibleMenus.forEach((menu, index) => {
                                     console.log(`WoD Trigger Tabs | Menu ${index}:`, menu.className, menu.outerHTML.substring(0, 100));
                                     
                                     // Check if this menu looks like a scene context menu
-                                    if (menu.textContent.includes('Configure') || menu.textContent.includes('Activate')) {
+                                    if (menu.textContent.includes('Configure') || menu.textContent.includes('Activate') || menu.className.includes('scene-context')) {
                                         console.log('WoD Trigger Tabs | Found likely scene context menu, adding WoD Triggers option');
                                         
                                         // Add our WoD Triggers option
@@ -149,18 +149,55 @@ export function registerWodTriggerTabs() {
                                     }
                                 });
                                 
-                                // If no suitable menu found, log all menus for debugging
-                                if (possibleMenus.length === 0) {
-                                    console.log('WoD Trigger Tabs | No context menus found, checking all elements...');
-                                    const allMenus = document.querySelectorAll('[class*="menu"], [class*="context"], [class*="dropdown"]');
-                                    console.log('WoD Trigger Tabs | All menu-like elements:', allMenus.length);
-                                    allMenus.forEach((el, i) => {
-                                        if (i < 5) { // Only log first 5
-                                            console.log(`WoD Trigger Tabs | Menu-like ${i}:`, el.className, el.tagName);
+                                // If no suitable menu found, try to find the right-click menu that was just created
+                                if (possibleMenus.length === 0 || !possibleMenus.some(m => m.textContent.includes('Configure'))) {
+                                    console.log('WoD Trigger Tabs | No suitable context menu found, checking for recently created elements...');
+                                    
+                                    // Look for any element that was recently added (within last 200ms)
+                                    const allElements = document.querySelectorAll('*');
+                                    const recentElements = Array.from(allElements).filter(el => {
+                                        // Look for elements that might be context menus
+                                        return el.classList.contains('context') || 
+                                               el.classList.contains('menu') ||
+                                               el.style.position === 'fixed' ||
+                                               el.style.zIndex > '1000';
+                                    });
+                                    
+                                    console.log('WoD Trigger Tabs | Found recent elements:', recentElements.length);
+                                    
+                                    recentElements.forEach((el, i) => {
+                                        if (i < 10) { // Only check first 10
+                                            console.log(`WoD Trigger Tabs | Recent element ${i}:`, el.className, el.tagName, el.style.position, el.style.zIndex);
+                                            
+                                            // Check if this looks like a context menu with scene options
+                                            if (el.textContent.includes('Configure') || el.textContent.includes('Activate')) {
+                                                console.log('WoD Trigger Tabs | Found scene context menu in recent elements!');
+                                                
+                                                // Add our WoD Triggers option
+                                                const wodOption = document.createElement('li');
+                                                wodOption.className = 'context-item';
+                                                wodOption.innerHTML = `
+                                                    <i class="fa-solid fa-shield-halved"></i>
+                                                    <span>WoD Triggers</span>
+                                                `;
+                                                wodOption.style.color = '#dc3545';
+                                                wodOption.addEventListener('click', () => {
+                                                    console.log('WoD Trigger Tabs | WoD Triggers option clicked');
+                                                    _showSceneTriggersDialog(scene);
+                                                    // Close the context menu
+                                                    el.remove();
+                                                });
+                                                
+                                                // Add to context menu
+                                                el.appendChild(wodOption);
+                                                
+                                                console.log('WoD Trigger Tabs | Added WoD Triggers option to recent element');
+                                                return;
+                                            }
                                         }
                                     });
                                 }
-                            }, 100); // Wait 100ms for menu to be created
+                            }, 200); // Wait 200ms for menu to be created
                         }
                     }
                 });
