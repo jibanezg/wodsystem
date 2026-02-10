@@ -94,6 +94,12 @@ export class WodUnifiedTriggersDialog extends Dialog {
      * Get triggers based on document type and context
      */
     _getTriggers() {
+        const flagPath = this._getFlagPath();
+        console.log('WoD Unified Triggers Dialog | Getting triggers from flag path:', flagPath);
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
+        console.log('WoD Unified Triggers Dialog | Raw triggers from flag:', triggers);
+        return triggers;
+        
         switch (this.documentType) {
             case 'scene':
                 return this.document.getFlag('wodsystem', 'sceneTriggers') || [];
