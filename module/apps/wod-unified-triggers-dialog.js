@@ -273,6 +273,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
      * Static method to create unified dialog for any document
      */
     static create(document, options = {}) {
-        return new WodUnifiedTriggersDialog(document, options);
+        const dialog = new WodUnifiedTriggersDialog(document, options);
+        dialog.render(true);
+        return dialog;
     }
 }
