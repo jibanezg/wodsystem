@@ -7,6 +7,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         super({}, options);
         this.document = document;
         this.triggerId = triggerId || foundry.utils.randomID();
+        this.documentType = options.documentType || 'actor'; // Store document type
         this._onCloseCb = options?.onClose || null;
         this._closeCallbackCalled = false; // Track if callback was already called
         
