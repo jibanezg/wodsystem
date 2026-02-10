@@ -117,12 +117,17 @@ export function registerWodTriggerTabs() {
                                 mutations.forEach((mutation) => {
                                     mutation.addedNodes.forEach((node) => {
                                         if (node.nodeType === Node.ELEMENT_NODE) {
-                                            // Look for context menu
+                                            // Look for context menu with multiple possible selectors
                                             const contextMenu = node.querySelector?.('.context-menu') || 
-                                                              (node.classList?.contains('context-menu') ? node : null);
+                                                              node.querySelector?.('.dropdown-menu') ||
+                                                              node.querySelector?.('[data-context-menu]') ||
+                                                              (node.classList?.contains('context-menu') ? node : null) ||
+                                                              (node.classList?.contains('dropdown-menu') ? node : null);
                                             
                                             if (contextMenu) {
                                                 console.log('WoD Trigger Tabs | Found context menu, adding WoD Triggers option');
+                                                console.log('WoD Trigger Tabs | Context menu classes:', contextMenu.className);
+                                                console.log('WoD Trigger Tabs | Context menu HTML:', contextMenu.outerHTML.substring(0, 200));
                                                 
                                                 // Add our WoD Triggers option
                                                 const wodOption = document.createElement('li');
@@ -139,8 +144,11 @@ export function registerWodTriggerTabs() {
                                                     contextMenu.remove();
                                                 });
                                                 
-                                                // Add to context menu
-                                                contextMenu.appendChild(wodOption);
+                                                // Add to context menu - try different container types
+                                                const menuList = contextMenu.querySelector('ul') || contextMenu.querySelector('ol') || contextMenu;
+                                                menuList.appendChild(wodOption);
+                                                
+                                                console.log('WoD Trigger Tabs | Added WoD Triggers option to menu');
                                                 
                                                 // Stop observing
                                                 observer.disconnect();
