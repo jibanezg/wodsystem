@@ -1995,6 +1995,10 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
     // Convert to jQuery if needed
     const $sceneDirectory = $(sceneDirectoryElement);
     
+    // Debug: Log what's actually in the scene directory
+    console.log('WoD Trigger Tabs | Scene directory HTML structure:');
+    console.log($sceneDirectory.html());
+    
     // Try multiple selectors for scene items
     const sceneSelectors = [
         '.scene',
@@ -2002,35 +2006,48 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         '.list-item',
         '[data-scene-id]',
         '[data-entity="scene"]',
-        'li[data-document-id]'
+        'li[data-document-id]',
+        'li',
+        'div',
+        'a'
     ];
     
     let $sceneItems = $();
+    let workingSelector = '';
     for (const selector of sceneSelectors) {
         $sceneItems = $sceneDirectory.find(selector);
         if ($sceneItems.length > 0) {
-            console.log(`WoD Trigger Tabs | Found ${$sceneItems.length} scene items with selector: ${selector}`);
+            console.log(`WoD Trigger Tabs | Found ${$sceneItems.length} items with selector: ${selector}`);
+            workingSelector = selector;
+            
+            // Log details of first few items
+            $sceneItems.slice(0, 3).each((index, el) => {
+                console.log(`WoD Trigger Tabs | Item ${index} (${selector}):`, {
+                    tagName: el.tagName,
+                    className: el.className,
+                    id: el.id,
+                    textContent: el.textContent?.substring(0, 50),
+                    dataSceneId: $(el).data('scene-id'),
+                    dataDocumentId: $(el).data('document-id'),
+                    dataEntity: $(el).data('entity')
+                });
+            });
             break;
         }
     }
     
     if ($sceneItems.length === 0) {
         console.warn('WoD Trigger Tabs | No scene items found with any selector');
-        // Log what we did find
-        const allItems = $sceneDirectory.find('li, div, a');
-        console.log(`WoD Trigger Tabs | Found ${allItems.length} total items in scene directory`);
-        allItems.slice(0, 5).each((index, el) => {
-            console.log(`WoD Trigger Tabs | Item ${index}:`, el.tagName, el.className, el.textContent?.substring(0, 50));
-        });
         return;
     }
     
-    // Add right-click context menu to scene items
+    // Add right-click context menu to ALL found items
     $sceneItems.off('contextmenu.wodSceneTriggers').on('contextmenu.wodSceneTriggers', (e) => {
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Scene right-click detected');
+        console.log('WoD Trigger Tabs | Scene right-click detected on:', e.currentTarget);
+        console.log('WoD Trigger Tabs | Working selector was:', workingSelector);
         
         // Get scene ID from the element
         const sceneElement = $(e.currentTarget);
@@ -2046,6 +2063,14 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         
         if (!sceneId) {
             console.warn('WoD Trigger Tabs | Could not extract scene ID from element');
+            // Try to get scene from text content as last resort
+            const sceneName = sceneElement.text().trim();
+            console.log('WoD Trigger Tabs | Trying to find scene by name:', sceneName);
+            const scene = game.scenes.find(s => s.name === sceneName);
+            if (scene) {
+                console.log('WoD Trigger Tabs | Found scene by name:', scene.name);
+                _showSceneContextMenu(scene, e);
+            }
             return;
         }
         
@@ -2061,5 +2086,5 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         _showSceneContextMenu(scene, e);
     });
     
-    console.log('WoD Trigger Tabs | Fallback context menu attached');
+    console.log('WoD Trigger Tabs | Fallback context menu attached to', $sceneItems.length, 'elements');
 }
