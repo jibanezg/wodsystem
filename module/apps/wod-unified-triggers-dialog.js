@@ -182,7 +182,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
     }
     
     /**
-     * Initialize the dialog content using the exact same structure as the original working scene dialog
+     * Initialize the dialog content using the EXACT same structure as the original working scene dialog
      */
     async _initializeContent() {
         try {
@@ -203,7 +203,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 }
             );
             
-            // Create the exact same styled dialog content as the original working scene dialog
+            // Create the EXACT same styled dialog content as the original working scene dialog
             const dialogContent = `
                 <style>
                     .wod-triggers-container {
@@ -235,6 +235,26 @@ export class WodUnifiedTriggersDialog extends Dialog {
                         background: linear-gradient(to bottom, #5cb85c, #4cae4c);
                         border-color: #398439;
                         box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+                        transform: scale(1.1);
+                    }
+                    .wod-triggers-container .wod-add-trigger-btn:active {
+                        background: linear-gradient(to bottom, #449d44, #3d8b3d);
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                        transform: scale(0.95);
+                    }
+                    .wod-triggers-container .wod-add-trigger-btn i {
+                        margin: 0;
+                    }
+                    .wod-triggers-content {
+                        padding: 0 15px 15px;
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }
+                    .wod-triggers-list {
+                        min-height: 200px;
+                    }
+                    .wod-triggers-list .notes {
+                        text-align: center;
                     }
                     .wod-triggers-dialog .trigger-list {
                         max-height: 400px;
@@ -256,12 +276,32 @@ export class WodUnifiedTriggersDialog extends Dialog {
                         font-style: italic;
                         padding: 20px;
                     }
+                    .wod-triggers-dialog .add-trigger-btn {
+                        background: #28a745;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        padding: 10px 20px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        margin-top: 10px;
+                    }
+                    .wod-triggers-dialog .add-trigger-btn:hover {
+                        background: #218838;
+                    }
                 </style>
                 <div class="wod-triggers-container">
-                    <div class="wod-triggers-dialog">
-                        <h2>WoD Triggers - ${data.documentTitle}</h2>
-                        <div class="trigger-list">
-                            ${rendered}
+                    <div class="wod-triggers-content">
+                        <div class="wod-triggers-list">
+                            <div class="wod-triggers-dialog">
+                                <h2>WoD Triggers - ${data.documentTitle}</h2>
+                                <div class="trigger-list">
+                                    ${rendered}
+                                </div>
+                                <button type="button" class="add-trigger-btn">
+                                    <i class="fas fa-plus"></i> Add Trigger
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="wod-add-trigger-container">
@@ -293,7 +333,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
         const dialogElement = $(this.element);
         
         // Add click listener for add trigger button using the same system as actors/doors
-        const $button = dialogElement.find('.wod-add-trigger-btn');
+        // Handle both the original rectangular button and the circular button
+        const $button = dialogElement.find('.add-trigger-btn, .wod-add-trigger-btn');
         
         if ($button.length) {
             console.log('WoD Unified Triggers Dialog | Found add trigger button');
