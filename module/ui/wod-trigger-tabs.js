@@ -2024,29 +2024,38 @@ function _showSceneTriggersContent(scene) {
 
         dialog.render(true);
 
-        // Add click listener for add trigger button
-        const $button = $(dialog.element).find('.add-trigger-btn');
-        $button.off('click.sceneTrigger').on('click.sceneTrigger', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+        // Add click listener for add trigger button using the same system as actors/doors
+        const dialogElement = $(dialog.element);
+        const $button = dialogElement.find('.add-trigger-btn');
+        
+        if ($button.length) {
+            console.log('WoD Trigger Tabs | Found add trigger button in scene dialog');
+            
+            $button.off('click.sceneTrigger').on('click.sceneTrigger', (event) => {
+                console.log('WoD Trigger Tabs | Scene add trigger button clicked');
+                event.preventDefault();
+                event.stopPropagation();
 
-            // Open the trigger config dialog for this scene
-            import('../apps/wod-trigger-config-dialog.js').then(module => {
-                const DialogClass = module.WodTriggerConfigDialog || module.default;
-                if (DialogClass) {
-                    const triggerDialog = new DialogClass(scene, null, {
-                        title: `Add Trigger - ${scene.name}`,
-                        documentType: 'scene',
-                        onClose: () => {
-                            // Refresh the dialog content
-                            _showSceneTriggersContent(scene);
-                            dialog.render(false);
-                        }
-                    });
-                    triggerDialog.render(true);
-                }
+                // Open the trigger config dialog for this scene
+                import('../apps/wod-trigger-config-dialog.js').then(module => {
+                    const DialogClass = module.WodTriggerConfigDialog || module.default;
+                    if (DialogClass) {
+                        const triggerDialog = new DialogClass(scene, null, {
+                            title: `Add Trigger - ${scene.name}`,
+                            documentType: 'scene',
+                            onClose: () => {
+                                // Refresh the dialog content
+                                _showSceneTriggersContent(scene);
+                                dialog.render(false);
+                            }
+                        });
+                        triggerDialog.render(true);
+                    }
+                });
             });
-        });
+        } else {
+            console.warn('WoD Trigger Tabs | Could not find add trigger button in scene dialog');
+        }
 
         // Add click listeners for trigger actions
         $(dialog.element).find('.trigger-action').off('click.sceneTriggerAction').on('click.sceneTriggerAction', (event) => {
