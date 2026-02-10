@@ -1,5 +1,6 @@
 import { WodTriggerConfigDialog } from "../apps/wod-trigger-config-dialog.js";
 import { TriggerEventRegistry } from '../services/trigger-event-registry.js';
+import { WodUnifiedTriggersDialog } from '../apps/wod-unified-triggers-dialog.js';
 
 // Track which apps have been processed to prevent duplicate injections
 const _processedApps = new WeakSet();
@@ -492,8 +493,15 @@ async function _injectWodTriggersTab(app, html, doc) {
         const action = $(e.currentTarget).data('action');
         
         if (action === 'wod-triggers') {
-            // Show trigger content - create a temporary tab or dialog
-            _showWodTriggersContent(app, html, doc);
+            // Show trigger content using unified dialog
+            WodUnifiedTriggersDialog.create(doc, {
+                documentType: 'actor',
+                title: `WoD Triggers - ${doc.name}`,
+                onClose: () => {
+                    // Optional callback when dialog closes
+                    console.log('WoD Trigger Tabs | Actor triggers dialog closed');
+                }
+            });
         }
         
         gmContextMenu.hide();
@@ -844,19 +852,21 @@ function _attachConfigDialogEventListeners($content, app, doc) {
         });
     });
     
-    // Add trigger button
+    // Add trigger button - open unified dialog instead of tab
     $content.find('.wod-add-trigger-btn, button[data-action="add-trigger"]').off('click.wodConfig').on('click.wodConfig', async (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
         
+        console.log('WoD Trigger Tabs | Add trigger button clicked in config dialog');
+        ui.notifications.info('Opening trigger configuration...');
         
-        import('../apps/wod-trigger-config-dialog.js').then(module => {
-            const DialogClass = module.WodTriggerConfigDialog || module.default;
-            if (DialogClass) {
-                const configDialog = new DialogClass(doc, null, { 
-                    onClose: () => _refreshConfigDialogContent(dialogRef, doc)
-                });
-                configDialog.render(true);
+        // Open unified dialog for this document
+        WodUnifiedTriggersDialog.create(doc, {
+            documentType: doc.documentName || 'actor',
+            title: `WoD Triggers - ${doc.name}`,
+            onClose: () => {
+                // Optional callback when dialog closes
+                console.log('WoD Trigger Tabs | Config dialog triggers closed');
             }
         });
     });
@@ -926,19 +936,21 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
         });
     });
     
-    // Add trigger button
+    // Add trigger button - open unified dialog instead of tab
     $content.find('.wod-add-trigger-btn, button[data-action="add-trigger"]').off('click.wodConfig').on('click.wodConfig', async (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
         
+        console.log('WoD Trigger Tabs | Add trigger button clicked in config dialog');
+        ui.notifications.info('Opening trigger configuration...');
         
-        import('../apps/wod-trigger-config-dialog.js').then(module => {
-            const DialogClass = module.WodTriggerConfigDialog || module.default;
-            if (DialogClass) {
-                const configDialog = new DialogClass(doc, null, { 
-                    onClose: () => _refreshConfigDialogContent(dialogRef, doc)
-                });
-                configDialog.render(true);
+        // Open unified dialog for this document
+        WodUnifiedTriggersDialog.create(doc, {
+            documentType: doc.documentName || 'actor',
+            title: `WoD Triggers - ${doc.name}`,
+            onClose: () => {
+                // Optional callback when dialog closes
+                console.log('WoD Trigger Tabs | Config dialog triggers closed');
             }
         });
     });
@@ -1429,11 +1441,18 @@ async function _injectTabContent(app, html, doc) {
     }
 }
 
-// Function to show WoD Triggers dialog for walls (similar to actor context menu approach)
+// Function to show WoD Triggers dialog for walls (using unified dialog)
 function _showWodTriggersDialog(wall) {
     
-    // For walls, show the trigger list dialog first (like actors do)
-    _showWallTriggersContent(wall);
+    // Use the unified dialog system
+    WodUnifiedTriggersDialog.create(wall, {
+        documentType: 'wall',
+        title: `WoD Triggers - Wall ${wall.id}`,
+        onClose: () => {
+            // Optional callback when dialog closes
+            console.log('WoD Trigger Tabs | Wall triggers dialog closed');
+        }
+    });
 }
 
 // Wall-specific version of _showWodTriggersContent for walls
@@ -1931,8 +1950,15 @@ function _showSceneContextMenu(scene, event) {
 // Function to show WoD Triggers dialog for scenes
 function _showSceneTriggersDialog(scene) {
     
-    // Show the trigger list dialog first (like actors do)
-    _showSceneTriggersContent(scene);
+    // Use the unified dialog system
+    WodUnifiedTriggersDialog.create(scene, {
+        documentType: 'scene',
+        title: `WoD Triggers - ${scene.name}`,
+        onClose: () => {
+            // Optional callback when dialog closes
+            console.log('WoD Trigger Tabs | Scene triggers dialog closed');
+        }
+    });
 }
 
 // Function to show scene triggers content
