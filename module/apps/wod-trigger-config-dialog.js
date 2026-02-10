@@ -48,6 +48,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         
         console.log('WoD Trigger Config Dialog | getData - existing trigger:', existing);
         console.log('WoD Trigger Config Dialog | getData - in-memory data:', this._currentTriggerData);
+        console.log('WoD Trigger Config Dialog | getData - in-memory conditions:', this._currentTriggerData?.trigger?.trigger?.conditions?.length || 0);
         
         // Use in-memory data if available, otherwise use existing trigger data
         const triggerData = this._currentTriggerData || existing;
@@ -136,6 +137,10 @@ export class WodTriggerConfigDialog extends FormApplication {
             documentType: documentType,
             availableEvents: availableEvents
         };
+        
+        console.log('WoD Trigger Config Dialog | getData - final trigger conditions:', trigger.trigger?.conditions?.length || 0);
+        console.log('WoD Trigger Config Dialog | getData - final hasConditions:', data.hasConditions);
+        return data;
     }
 
     activateListeners(html) {
