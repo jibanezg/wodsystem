@@ -946,7 +946,9 @@ export class WodTriggerConfigDialog extends FormApplication {
         
         // Use context-aware flag path like the unified dialog
         const flagPath = this._getFlagPath();
+        console.log('WoD Trigger Config Dialog | Saving to flag path:', flagPath);
         const triggers = this.document.getFlag('wodsystem', flagPath) || [];
+        console.log('WoD Trigger Config Dialog | Existing triggers:', triggers.length);
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         const actorTypesCsv = (formData.actorTypesCsv || '').trim();
@@ -983,7 +985,9 @@ export class WodTriggerConfigDialog extends FormApplication {
             triggers.push(next);
         }
 
+        console.log('WoD Trigger Config Dialog | Saving triggers count:', triggers.length);
         await this.document.setFlag('wodsystem', flagPath, triggers);
+        console.log('WoD Trigger Config Dialog | Save completed');
     }
 
     /**
