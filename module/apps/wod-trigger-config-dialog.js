@@ -994,6 +994,7 @@ export class WodTriggerConfigDialog extends FormApplication {
      * Get the flag path based on document type (context-aware like unified dialog)
      */
     _getFlagPath() {
+        console.log('WoD Trigger Config Dialog | Document type for flag path:', this.documentType);
         switch (this.documentType) {
             case 'scene':
                 return 'sceneTriggers';
