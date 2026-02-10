@@ -180,7 +180,10 @@ export class WodTriggerConfigDialog extends FormApplication {
         });
 
         // Add condition button
-        html.find('button[data-action="add-condition"]').on('click', async (ev) => {
+        const addConditionBtn = html.find('button[data-action="add-condition"]');
+        console.log('WoD Trigger Config Dialog | Found add condition buttons:', addConditionBtn.length);
+        addConditionBtn.on('click', async (ev) => {
+            console.log('WoD Trigger Config Dialog | Add condition button clicked');
             ev.preventDefault();
             await this._addCondition();
         });
@@ -667,9 +670,13 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     async _addCondition() {
+        console.log('WoD Trigger Config Dialog | _addCondition method called');
         const flagPath = this._getFlagPath();
+        console.log('WoD Trigger Config Dialog | Add condition - flag path:', flagPath);
         const triggers = this.document.getFlag('wodsystem', flagPath) || [];
+        console.log('WoD Trigger Config Dialog | Add condition - existing triggers:', triggers.length);
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
+        console.log('WoD Trigger Config Dialog | Add condition - trigger index:', triggerIndex);
         
         if (triggerIndex < 0) {
             // Trigger not saved yet, just re-render with a new condition
@@ -690,9 +697,13 @@ export class WodTriggerConfigDialog extends FormApplication {
             logic: 'none'
         });
         
+        console.log('WoD Trigger Config Dialog | Add condition - new condition added, total conditions:', trigger.trigger.conditions.length);
+        
         triggers[triggerIndex] = trigger;
         await this.document.setFlag('wodsystem', flagPath, triggers);
+        console.log('WoD Trigger Config Dialog | Add condition - saved to flag');
         this.render(false);
+        console.log('WoD Trigger Config Dialog | Add condition - dialog re-rendered');
     }
 
     async _removeCondition(index) {
