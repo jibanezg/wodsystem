@@ -209,10 +209,8 @@
                         <div class="grid-cell">
                             <label>Target Mode</label>
                             <select name="actions.always.{{@index}}.target.mode" class="target-mode">
-                                <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Element</option>
-                                <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering Actor</option>
-                                <option value="self" {{#if (eq this.target.mode "self")}}selected{{/if}}>Self (Trigger Source)</option>
-                                <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All in Scene</option>
+                                <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Door</option>
+                                <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Doors in Scene</option>
                             </select>
                         </div>
                         <!-- Door Action - Element Type removed (auto-resolved as doors) -->
@@ -336,9 +334,8 @@
                     {{#if (eq this.type "door")}}
                     <div class="action-grid compact">
                         <select name="actions.success.{{@index}}.target.mode" class="target-mode">
-                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
-                            <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
-                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Door</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Doors in Scene</option>
                         </select>
                         <!-- Door Action - Element Type removed (auto-resolved as doors) -->
                         <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Wall ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
@@ -390,9 +387,8 @@
                     {{#if (eq this.type "door")}}
                     <div class="action-grid compact">
                         <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
-                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
-                            <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
-                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Door</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Doors in Scene</option>
                         </select>
                         <!-- Door Action - Element Type removed (auto-resolved as doors) -->
                         <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Wall ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
