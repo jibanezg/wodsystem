@@ -119,7 +119,13 @@ export function registerWodTriggerTabs() {
                                 console.log('WoD Trigger Tabs | Found possible context menus:', possibleMenus.length);
                                 
                                 possibleMenus.forEach((menu, index) => {
-                                    console.log(`WoD Trigger Tabs | Menu ${index}:`, menu.className, menu.outerHTML.substring(0, 100));
+                                    console.log(`WoD Trigger Tabs | Menu ${index}:`, menu.className, menu.outerHTML.substring(0, 200));
+                                    
+                                    // Debug: Log the structure of this menu
+                                    console.log(`WoD Trigger Tabs | Menu ${index} children:`, menu.children.length);
+                                    Array.from(menu.children).forEach((child, i) => {
+                                        console.log(`WoD Trigger Tabs | Child ${i}:`, child.tagName, child.className, child.textContent?.substring(0, 50));
+                                    });
                                     
                                     // Check if this menu looks like a scene context menu
                                     if (menu.textContent.includes('Configure') || menu.textContent.includes('Activate') || menu.className.includes('scene-context')) {
@@ -149,8 +155,17 @@ export function registerWodTriggerTabs() {
                                         });
                                         
                                         // Add to context menu - try different container types
-                                        const menuList = menu.querySelector('ul') || menu.querySelector('ol') || menu;
-                                        menuList.appendChild(wodOption);
+                                        let menuList = menu.querySelector('ul') || menu.querySelector('ol');
+                                        
+                                        // If we found a list, add our option as a new list item
+                                        if (menuList) {
+                                            console.log('WoD Trigger Tabs | Adding to menu list:', menuList.tagName);
+                                            menuList.appendChild(wodOption);
+                                        } else {
+                                            // If no list found, try to add directly to menu
+                                            console.log('WoD Trigger Tabs | Adding directly to menu container');
+                                            menu.appendChild(wodOption);
+                                        }
                                         
                                         console.log('WoD Trigger Tabs | Added WoD Triggers option to menu');
                                         return; // Stop after finding the right menu
