@@ -41,6 +41,133 @@ export class WodTriggerConfigDialog extends FormApplication {
         });
     }
 
+    /**
+     * Get available events based on target type
+     * @returns {Array} Array of event objects
+     * @private
+     */
+    _getAvailableEvents() {
+        const targetCsv = this.form?.find('select[name="targetCsv"]').val() || '';
+        const targetType = this._determineTargetType(targetCsv);
+        
+        return this._getEventsForTargetType(targetType);
+    }
+
+    /**
+     * Determine target type from targetCsv value
+     * @param {string} targetCsv - The target CSV value
+     * @returns {string} The target type category
+     * @private
+     */
+    _determineTargetType(targetCsv) {
+        if (!targetCsv) return 'actor'; // Default to actor events
+        
+        // Handle special conditions
+        if (targetCsv.startsWith('hasEffect') || targetCsv.startsWith('is')) {
+            return 'actor';
+        }
+        
+        // Handle universal
+        if (targetCsv === 'any') {
+            return 'actor';
+        }
+        
+        // Handle element types
+        if (['tokens', 'doors', 'walls', 'tiles', 'regions'].includes(targetCsv)) {
+            return targetCsv;
+        }
+        
+        // Handle "any:" prefixes - determine from the types
+        if (targetCsv.startsWith('any:')) {
+            const types = targetCsv.substring(4).split(',').map(t => t.trim());
+            // If any of the types are element types, use those
+            if (types.some(t => ['tokens', 'doors', 'walls', 'tiles', 'regions'].includes(t))) {
+                return types.find(t => ['tokens', 'doors', 'walls', 'tiles', 'regions'].includes(t));
+            }
+            return 'actor';
+        }
+        
+        // Handle direct actor types
+        const actorTypes = ['Mortal', 'Technocrat', 'Mage', 'Spirit', 'Demon', 'Earthbound', 
+                          'Mortal-NPC', 'Technocrat-NPC', 'Mage-NPC', 'Demon-NPC'];
+        if (actorTypes.some(type => targetCsv.includes(type))) {
+            return 'actor';
+        }
+        
+        // Default to actor
+        return 'actor';
+    }
+
+    /**
+     * Get events for a specific target type
+     * @param {string} targetType - The target type
+     * @returns {Array} Array of event objects
+     * @private
+     */
+    _getEventsForTargetType(targetType) {
+        const registry = game.wod?.triggerEventRegistry;
+        if (!registry) return this._getDefaultEvents();
+        
+        const allEvents = registry.getAllEvents();
+        
+        switch (targetType) {
+            case 'actor':
+                // Actor events: onEffectApplied, onEffectRemoved, onHealthChanged, onAttributeChanged
+                return allEvents.filter(event => 
+                    event.documentTypes?.includes('actor')
+                );
+                
+            case 'doors':
+            case 'walls':
+                // Door events: onDoorOpened, onDoorClosed, onDoorLocked, onDoorUnlocked
+                return allEvents.filter(event => 
+                    event.documentTypes?.includes('wall') || 
+                    event.documentTypes?.includes('scene')
+                ).filter(event => 
+                    event.category === 'door'
+                );
+                
+            case 'tokens':
+                // Token events: onEnter, onExit, onProximity, onEffect
+                return allEvents.filter(event => 
+                    event.documentTypes?.includes('tile') || 
+                    event.documentTypes?.includes('region')
+                ).filter(event => 
+                    ['movement', 'effect'].includes(event.category)
+                );
+                
+            case 'tiles':
+                // Tile events: onEnter, onExit, onProximity, onEffect
+                return allEvents.filter(event => 
+                    event.documentTypes?.includes('tile')
+                );
+                
+            case 'regions':
+                // Region events: onEnter, onExit, onProximity, onEffect
+                return allEvents.filter(event => 
+                    event.documentTypes?.includes('region')
+                );
+                
+            default:
+                return this._getDefaultEvents();
+        }
+    }
+
+    /**
+     * Get default events (fallback)
+     * @returns {Array} Default event options
+     * @private
+     */
+    _getDefaultEvents() {
+        return [
+            { id: 'onEffectApplied', label: 'Effect Applied', description: 'Fires when an effect is applied' },
+            { id: 'onHealthChanged', label: 'Health Changed', description: 'Fires when health changes' },
+            { id: 'onEnter', label: 'Token Enters', description: 'Fires when a token enters' },
+            { id: 'onExit', label: 'Token Exits', description: 'Fires when a token exits' },
+            { id: 'onDoorOpened', label: 'Door Opened', description: 'Fires when a door is opened' }
+        ];
+    }
+
     getData() {
         const flagPath = this._getFlagPath();
         const triggers = this.document.getFlag('wodsystem', flagPath) || [];
