@@ -6,9 +6,38 @@ const _processedApps = new WeakSet();
 
 export function registerWodTriggerTabs() {
     
-    // Add scene context menu support
+    // Add scene context menu support - try multiple possible hooks
     Hooks.on('renderSceneDirectory', (app, html, data) => {
+        console.log('WoD Trigger Tabs | renderSceneDirectory hook triggered');
         _addSceneContextMenu(app, html, data);
+    });
+    
+    // Try alternative hooks for scene navigation
+    Hooks.on('renderSidebarTab', (app, html, data) => {
+        if (app.options?.tab === 'scenes') {
+            console.log('WoD Trigger Tabs | renderSidebarTab scenes hook triggered');
+            _addSceneContextMenu(app, html, data);
+        }
+    });
+    
+    // Try Application render hook for scene directory
+    Hooks.on('renderApplication', (app, html, data) => {
+        if (app.constructor.name === 'SceneDirectory') {
+            console.log('WoD Trigger Tabs | renderApplication SceneDirectory hook triggered');
+            _addSceneContextMenu(app, html, data);
+        }
+    });
+    
+    // Fallback: Add context menu after a delay
+    Hooks.on('ready', () => {
+        setTimeout(() => {
+            console.log('WoD Trigger Tabs | Fallback: Looking for scene directory...');
+            const sceneDirectory = document.querySelector('.scene-directory, .scenes-list, [data-tab="scenes"]');
+            if (sceneDirectory) {
+                console.log('WoD Trigger Tabs | Found scene directory, adding context menu');
+                _addSceneContextMenuFallback(sceneDirectory);
+            }
+        }, 2000);
     });
     
     // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
@@ -1924,4 +1953,46 @@ function _showSceneTriggersContent(scene) {
         console.error('WoD Trigger Tabs | Error rendering scene triggers content:', error);
         ui.notifications.error('Failed to load scene triggers content');
     });
+}
+
+// Fallback function to add context menu directly to DOM
+function _addSceneContextMenuFallback(sceneDirectoryElement) {
+    if (!game.user.isGM) return;
+    
+    console.log('WoD Trigger Tabs | Adding fallback context menu to scene directory');
+    
+    // Convert to jQuery if needed
+    const $sceneDirectory = $(sceneDirectoryElement);
+    
+    // Add right-click context menu to scene items
+    $sceneDirectory.find('.scene').off('contextmenu.wodSceneTriggers').on('contextmenu.wodSceneTriggers', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('WoD Trigger Tabs | Scene right-click detected');
+        
+        // Get scene ID from the element
+        const sceneElement = $(e.currentTarget);
+        const sceneId = sceneElement.data('sceneId') || sceneElement.attr('data-scene-id') || sceneElement.attr('id')?.replace('scene-', '');
+        
+        console.log('WoD Trigger Tabs | Scene ID:', sceneId);
+        
+        if (!sceneId) {
+            console.warn('WoD Trigger Tabs | Could not extract scene ID from element');
+            return;
+        }
+        
+        const scene = game.scenes.get(sceneId);
+        if (!scene) {
+            console.warn('WoD Trigger Tabs | Could not find scene with ID:', sceneId);
+            return;
+        }
+        
+        console.log('WoD Trigger Tabs | Found scene:', scene.name);
+        
+        // Create context menu
+        _showSceneContextMenu(scene, e);
+    });
+    
+    console.log('WoD Trigger Tabs | Fallback context menu attached');
 }
