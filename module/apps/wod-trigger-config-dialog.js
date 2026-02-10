@@ -20,13 +20,6 @@ export class WodTriggerConfigDialog extends FormApplication {
             this._wodCallbacks.set('onClose', options.onClose);
         }
         
-        // Debug: Check what we're storing
-        console.log('WoD TriggerConfig | Constructor - options.onClose:', options?.onClose);
-        console.log('WoD TriggerConfig | Constructor - _onCloseCb:', this._onCloseCb);
-        console.log('WoD TriggerConfig | Constructor - _wodOnCloseCallback:', this._wodOnCloseCallback);
-        console.log('WoD TriggerConfig | Constructor - _wodCallbackBackup:', this._wodCallbackBackup);
-        console.log('WoD TriggerConfig | Constructor - _wodCallbacks.get:', this._wodCallbacks.get('onClose'));
-        
         this._pickMode = null;
         this._pickHandlers = null;
         this._triggerAPI = TriggerAPI.getInstance();
@@ -943,9 +936,6 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     async _saveTrigger(formData, _) {
-        console.log('WoD TriggerConfig | Saving trigger to document:', this.document?.constructor?.name, this.document?.name);
-        console.log('WoD TriggerConfig | Document ID:', this.document?.id);
-        console.log('WoD TriggerConfig | Current triggers before save:', this.document?.getFlag('wodsystem', 'triggers')?.length || 0);
         
         const parsedActions = this._parseActionsFromFormData(formData);
         
@@ -987,9 +977,6 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
 
         await this.document.setFlag('wodsystem', 'triggers', triggers);
-        
-        console.log('WoD TriggerConfig | Save completed. Triggers after save:', triggers.length);
-        console.log('WoD TriggerConfig | Verification - triggers in document:', this.document.getFlag('wodsystem', 'triggers')?.length || 0);
     }
 
     _normalizeActions(rawActions, fallbackActions) {
@@ -1229,15 +1216,9 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     async close(options) {
-        console.log('WoD TriggerConfig | close() method called');
-        console.log('WoD TriggerConfig | _onCloseCb exists:', typeof this._onCloseCb);
-        console.log('WoD TriggerConfig | _onCloseCb value:', this._onCloseCb);
-        console.log('WoD TriggerConfig | _closeCallbackCalled:', this._closeCallbackCalled);
-        console.log('WoD TriggerConfig | document type:', this.document?.documentName);
         
         // Prevent multiple calls by setting the flag immediately
         if (this._closeCallbackCalled) {
-            console.log('WoD TriggerConfig | Callback already called, skipping');
             this._stopPickMode();
             this._cleanupAutocompletes();
             await super.close(options);
@@ -1249,7 +1230,6 @@ export class WodTriggerConfigDialog extends FormApplication {
         await super.close(options);
         
         // Call the close callback if it exists and hasn't been called yet
-        console.log('WoD TriggerConfig | Checking callback - _onCloseCb:', !!this._onCloseCb, '_wodOnCloseCallback:', !!this._wodOnCloseCallback, '_wodCallbackBackup:', !!this._wodCallbackBackup, '_wodCallbacks.get:', !!this._wodCallbacks?.get('onClose'), '_closeCallbackCalled:', this._closeCallbackCalled);
         
         // Try all possible callback storage methods
         const callback = this._onCloseCb || 
@@ -1258,11 +1238,9 @@ export class WodTriggerConfigDialog extends FormApplication {
                          this._wodCallbacks?.get('onClose');
         
         if (callback && !this._closeCallbackCalled) {
-            console.log('WoD TriggerConfig | Calling onClose callback');
             this._closeCallbackCalled = true; // Set immediately to prevent double calls
             
             try {
-                console.log('WoD TriggerConfig | Executing callback:', typeof callback);
                 
                 // Call the callback - try both direct call and function call
                 if (typeof callback === 'function') {

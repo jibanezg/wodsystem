@@ -1298,7 +1298,6 @@ async function _injectTabContent(app, html, doc) {
 
 // Function to show WoD Triggers dialog for walls (similar to actor context menu approach)
 function _showWodTriggersDialog(wall) {
-    console.log('WoD Trigger Tabs | Showing WoD Triggers dialog for wall:', wall);
     
     // For walls, show the trigger list dialog first (like actors do)
     _showWallTriggersContent(wall);
@@ -1333,7 +1332,6 @@ async function _showWallTriggersContent(wall) {
             return trigger;
         });
         wall.setFlag('wodsystem', 'triggers', fixedTriggers);
-        console.log('WoD Trigger Tabs | Saved corrected wall trigger IDs');
     }
     
     const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
@@ -1351,15 +1349,10 @@ async function _showWallTriggersContent(wall) {
         supportsProximity: docTypeInfo?.supportsProximity || false
     };
     
-    console.log('WoD Trigger Tabs | Wall template data:', templateData);
-    
     renderFn(
         'systems/wodsystem/templates/apps/wod-triggers-tab.html',
         templateData
     ).then(rendered => {
-        console.log('WoD Trigger Tabs | Wall rendered content type:', typeof rendered);
-        console.log('WoD Trigger Tabs | Wall rendered content length:', rendered.length);
-        console.log('WoD Trigger Tabs | Wall rendered content preview:', rendered.substring(0, 200));
 
         // Create a professional Foundry-style dialog for walls
         const dialogContent = `
@@ -1481,7 +1474,6 @@ async function _showWallTriggersContent(wall) {
         // Wait for dialog to be fully rendered before accessing elements
         setTimeout(() => {
             const dialogElement = $(dialog.element);
-            console.log('WoD Trigger Tabs | Wall dialog element after timeout:', !!dialogElement.length);
             
             if (!dialogElement.length) {
                 console.warn('WoD Trigger Tabs | Wall dialog element not found after timeout');
@@ -1500,13 +1492,11 @@ async function _showWallTriggersContent(wall) {
             // Store dialog reference for event listeners
             dialogElement.data('dialogRef', dialog);
             dialogElement.data('wallDocument', wall);
-            console.log('WoD Trigger Tabs | Stored wall dialog reference:', dialog);
             
             // Add click listener for add trigger button
             $button.off('click.wallTrigger').on('click.wallTrigger', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                console.log('WoD Trigger Tabs | Wall add trigger button clicked');
                 
                 // Store dialog reference for the onClose callback
                 const dialogRef = dialog;
@@ -1517,15 +1507,9 @@ async function _showWallTriggersContent(wall) {
                     documentType: 'wall',
                     onClose: () => {
                         // Use the same refresh pattern as actors
-                        console.log('WoD Trigger Tabs | WALL onClose callback FIRED!');
-                        console.log('WoD Trigger Tabs | Wall trigger config closed, refreshing content');
                         _refreshConfigDialogContent(dialogRef, wall);
                     }
                 });
-                
-                // Debug: Check if onClose callback was set
-                console.log('WoD Trigger Tabs | onClose callback set:', typeof triggerDialog._onCloseCb);
-                console.log('WoD Trigger Tabs | dialogRef stored:', dialogRef);
                 
                 triggerDialog.render(true);
             });
@@ -1551,8 +1535,6 @@ function _attachWallTriggerEventListeners(dialogElement, wall) {
         const action = $(event.currentTarget).data('action');
         const triggerId = $(event.currentTarget).data('trigger-id');
         
-        console.log('WoD Trigger Tabs | Wall trigger action:', action, 'triggerId:', triggerId);
-        
         if (action === 'edit-trigger' && triggerId) {
             // Store dialog reference for the onClose callback
             const dialogRef = $content.closest('.app.window-app').data('dialogRef');
@@ -1562,28 +1544,16 @@ function _attachWallTriggerEventListeners(dialogElement, wall) {
                 documentType: 'wall',
                 onClose: () => {
                     // Use the same refresh pattern as actors
-                    console.log('WoD Trigger Tabs | Edit wall trigger config closed, refreshing content');
                     _refreshConfigDialogContent(dialogRef, wall);
                 }
             });
             triggerDialog.render(true);
         } else if (action === 'delete-trigger' && triggerId) {
             // Handle trigger deletion
-            console.log('WoD Trigger Tabs | Deleting wall trigger with ID:', triggerId);
             const triggers = wall.getFlag('wodsystem', 'triggers') || [];
-            console.log('WoD Trigger Tabs | Current triggers before deletion:', triggers.length);
-            console.log('WoD Trigger Tabs | Trigger IDs before deletion:', triggers.map(t => t.id));
+            const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
             
-            const updatedTriggers = triggers.filter(t => t.id !== triggerId);
-            console.log('WoD Trigger Tabs | Triggers after deletion:', updatedTriggers.length);
-            console.log('WoD Trigger Tabs | Trigger IDs after deletion:', updatedTriggers.map(t => t.id));
-            
-            await wall.setFlag('wodsystem', 'triggers', updatedTriggers);
-            console.log('WoD Trigger Tabs | Saved updated triggers to wall');
-            
-            // Verify the save worked
-            const verifyTriggers = wall.getFlag('wodsystem', 'triggers') || [];
-            console.log('WoD Trigger Tabs | Verification - triggers count:', verifyTriggers.length);
+            await wall.setFlag('wodsystem', 'triggers', next);
             
             // Refresh the dialog content instead of creating a new one
             const existingDialog = $content.closest('.app.window-app');
@@ -1600,22 +1570,13 @@ function _attachWallTriggerEventListeners(dialogElement, wall) {
 
 // Refresh function for existing wall trigger dialog
 async function _refreshWallTriggersContent(dialogElement, wall) {
-    console.log('WoD Trigger Tabs | _refreshWallTriggersContent called!');
-    console.log('WoD Trigger Tabs | dialogElement:', dialogElement);
-    console.log('WoD Trigger Tabs | wall:', wall);
     
     const triggers = wall.getFlag('wodsystem', 'triggers') || [];
-    console.log('WoD Trigger Tabs | Current triggers in refresh:', triggers.length);
     
     // Debug: Check trigger IDs for corruption
     triggers.forEach((trigger, index) => {
-        console.log(`WoD Trigger Tabs | Wall trigger ${index}:`, trigger);
-        console.log(`WoD Trigger Tabs | Wall trigger ${index} ID:`, trigger.id);
-        console.log(`WoD Trigger Tabs | Wall trigger ${index} ID type:`, typeof trigger.id);
         if (typeof trigger.id === 'object') {
-            console.warn(`WoD Trigger Tabs | CORRUPTED TRIGGER ID DETECTED - fixing...`);
             trigger.id = foundry.utils.randomID();
-            console.log(`WoD Trigger Tabs | Fixed trigger ID to:`, trigger.id);
         }
     });
     
@@ -1628,7 +1589,6 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
             return trigger;
         });
         wall.setFlag('wodsystem', 'triggers', fixedTriggers);
-        console.log('WoD Trigger Tabs | Saved corrected wall trigger IDs');
     }
     
     const registry = game.wodsystem?.triggerRegistry;
@@ -1648,8 +1608,6 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
         documentTypeLabel: docTypeInfo?.label || documentType,
         supportsProximity: docTypeInfo?.supportsProximity || false
     };
-    
-    console.log('WoD Trigger Tabs | Wall refresh template data:', templateData);
     
     renderFn(
         'systems/wodsystem/templates/apps/wod-triggers-tab.html',
@@ -1673,8 +1631,6 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
                 $content.prepend($addButtonContainer);
             }
             
-            console.log('WoD Trigger Tabs | Wall content refreshed successfully');
-            
             // Re-attach event listeners for the refreshed content
             _attachWallTriggerEventListeners(dialogElement, wall);
             
@@ -1686,7 +1642,6 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
                 
                 // Attach the native event listener for the green + button
                 $addButton[0].addEventListener('click', (e) => {
-                    console.log('WoD Trigger Tabs | Native add button listener triggered!');
                     e.stopPropagation();
                     e.preventDefault();
                     
@@ -1702,8 +1657,6 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
                                 documentType: 'wall',
                                 onClose: () => {
                                     // Use the same refresh pattern as actors
-                                    console.log('WoD Trigger Tabs | WALL onClose callback FIRED!');
-                                    console.log('WoD Trigger Tabs | Wall trigger config closed, refreshing content');
                                     _refreshConfigDialogContent(dialogRef, wall);
                                 }
                             });
@@ -1711,8 +1664,6 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
                         }
                     });
                 });
-                
-                console.log('WoD Trigger Tabs | Re-attached native event listener for green + button');
             }
         } else {
             console.warn('WoD Trigger Tabs | Could not find .wod-triggers-content element for refresh');
