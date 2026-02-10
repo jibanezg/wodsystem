@@ -187,7 +187,16 @@ export class WodUnifiedTriggersDialog extends Dialog {
      * Initialize the dialog content
      */
     async _initializeContent() {
-        // Wait a bit for the DOM to be ready, then attach event listeners
+        // Don't attach listeners here - do it in render() instead
+    }
+    
+    /**
+     * Override render to attach event listeners after content is ready
+     */
+    async render(force = false, options = {}) {
+        await super.render(force, options);
+        
+        // Wait a bit for the DOM to be fully ready, then attach event listeners
         setTimeout(() => {
             this._attachWorkingEventListeners();
         }, 100);
