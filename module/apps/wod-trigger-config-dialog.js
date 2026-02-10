@@ -210,6 +210,36 @@ export class WodTriggerConfigDialog extends FormApplication {
         console.log('WoD Trigger Config Dialog | Initial execution mode:', currentMode);
         console.log('WoD Trigger Config Dialog | Initial event field visibility:', currentMode === 'event');
 
+        // Handle target type changes to show/hide additional fields
+        html.find('select[name="trigger.target.type"]').on('change', (ev) => {
+            const targetType = ev.currentTarget.value;
+            const effectField = html.find('.target-effect-field');
+            const specificField = html.find('.target-specific-field');
+            
+            // Show/hide effect field
+            effectField.toggle(targetType === 'actorsWithEffect');
+            
+            // Show/hide specific IDs field
+            specificField.toggle(targetType === 'specificActors' || targetType === 'specificDoors');
+            
+            // Update available events based on target type
+            this._updateAvailableEvents(html, targetType);
+            
+            console.log('WoD Trigger Config Dialog | Target type changed to:', targetType);
+        });
+
+        // Initialize target field visibility
+        const currentTargetType = html.find('select[name="trigger.target.type"]').val();
+        if (currentTargetType) {
+            const effectField = html.find('.target-effect-field');
+            const specificField = html.find('.target-specific-field');
+            
+            effectField.toggle(currentTargetType === 'actorsWithEffect');
+            specificField.toggle(currentTargetType === 'specificActors' || currentTargetType === 'specificDoors');
+            
+            this._updateAvailableEvents(html, currentTargetType);
+        }
+
         // Add condition button
         const addConditionBtn = html.find('button[data-action="add-condition"]');
         addConditionBtn.on('click', async (ev) => {
@@ -970,6 +1000,30 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
     
     /**
+     * Parse target configuration from form data
+     * @private
+     */
+    _parseTargetFromFormData(formData) {
+        const targetType = formData['trigger.target.type'] || 'actors';
+        const target = {
+            type: targetType
+        };
+        
+        switch (targetType) {
+            case 'actorsWithEffect':
+                target.effectName = formData['trigger.target.effectName'] || '';
+                break;
+            case 'specificActors':
+            case 'specificDoors':
+                target.ids = formData['trigger.target.ids'] || '';
+                break;
+            // Other types don't need additional config
+        }
+        
+        return target;
+    }
+
+    /**
      * Parse execution configuration from form data
      * @private
      */
@@ -1019,6 +1073,7 @@ export class WodTriggerConfigDialog extends FormApplication {
                 actorTypes,
                 // New structure
                 scope: this._parseScopeFromFormData(formData),
+                target: this._parseTargetFromFormData(formData),
                 conditions: formData['trigger.conditions'] || [],
                 execution: this._parseExecutionFromFormData(formData)
             },
@@ -1045,7 +1100,70 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     /**
-     * Get the flag path based on document type (context-aware like unified dialog)
+     * Update available events based on target type
+     * @param {jQuery} html - The dialog HTML
+     * @param {string} targetType - The selected target type
+     * @private
+     */
+    _updateAvailableEvents(html, targetType) {
+        const eventSelect = html.find('select[name="trigger.eventType"]');
+        let events = [];
+        
+        switch (targetType) {
+            case 'actors':
+            case 'actorsWithEffect':
+            case 'specificActors':
+                events = [
+                    { id: 'onEffectApplied', label: 'Effect Applied' },
+                    { id: 'onEffectRemoved', label: 'Effect Removed' },
+                    { id: 'onHealthChanged', label: 'Health Changed' },
+                    { id: 'onAttributeChanged', label: 'Attribute Changed' },
+                    { id: 'onEnter', label: 'Token Enters Scene' },
+                    { id: 'onExit', label: 'Token Exits Scene' }
+                ];
+                break;
+            case 'tokens':
+                events = [
+                    { id: 'onTokenMove', label: 'Token Moves' },
+                    { id: 'onTokenEnter', label: 'Token Enters Area' },
+                    { id: 'onTokenExit', label: 'Token Exits Area' }
+                ];
+                break;
+            case 'doors':
+            case 'specificDoors':
+                events = [
+                    { id: 'onDoorOpen', label: 'Door Opens' },
+                    { id: 'onDoorClose', label: 'Door Closes' },
+                    { id: 'onDoorLock', label: 'Door Locks' },
+                    { id: 'onDoorUnlock', label: 'Door Unlocks' }
+                ];
+                break;
+            case 'tiles':
+                events = [
+                    { id: 'onTileClick', label: 'Tile Clicked' },
+                    { id: 'onTileHover', label: 'Tile Hovered' }
+                ];
+                break;
+            default:
+                events = [
+                    { id: 'onEnter', label: 'Token Enters Scene' },
+                    { id: 'onExit', label: 'Token Exits Scene' }
+                ];
+        }
+        
+        // Update event options
+        eventSelect.empty();
+        events.forEach(event => {
+            eventSelect.append(`<option value="${event.id}">${event.label}</option>`);
+        });
+        
+        console.log('WoD Trigger Config Dialog | Updated events for target type:', targetType, events);
+    }
+
+    /**
+     * Get the flag path for storing triggers based on document type
+     * @returns {string} The flag path
+     * @private
      */
     _getFlagPath() {
         console.log('WoD Trigger Config Dialog | Document type for flag path:', this.documentType);
@@ -1192,6 +1310,11 @@ export class WodTriggerConfigDialog extends FormApplication {
         formData['trigger.scope.proximity.distance'] = $form.find('input[name="trigger.scope.proximity.distance"]').val();
         formData['trigger.scope.proximity.unit'] = $form.find('select[name="trigger.scope.proximity.unit"]').val();
         formData['trigger.scope.proximity.shape'] = $form.find('select[name="trigger.scope.proximity.shape"]').val();
+        
+        // Force target configuration values
+        formData['trigger.target.type'] = $form.find('select[name="trigger.target.type"]').val();
+        formData['trigger.target.effectName'] = $form.find('input[name="trigger.target.effectName"]').val();
+        formData['trigger.target.ids'] = $form.find('input[name="trigger.target.ids"]').val();
         
         // Parse conditions from form data
         this._parseConditionsFromFormData(formData, $form);

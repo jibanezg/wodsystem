@@ -57,6 +57,31 @@
             </div>
         </div>
         
+        <!-- Target Configuration (for scene triggers) -->
+        <div class="target-section">
+            <h4>Target Configuration</h4>
+            <div class="form-group horizontal">
+                <label>Target Type</label>
+                <select name="trigger.target.type">
+                    <option value="actors" {{#if (eq trigger.trigger.target.type "actors")}}selected{{/if}}>All Actors in Scene</option>
+                    <option value="actorsWithEffect" {{#if (eq trigger.trigger.target.type "actorsWithEffect")}}selected{{/if}}>Actors with Specific Effect</option>
+                    <option value="specificActors" {{#if (eq trigger.trigger.target.type "specificActors")}}selected{{/if}}>Specific Actors</option>
+                    <option value="tokens" {{#if (eq trigger.trigger.target.type "tokens")}}selected{{/if}}>All Tokens in Scene</option>
+                    <option value="doors" {{#if (eq trigger.trigger.target.type "doors")}}selected{{/if}}>All Doors in Scene</option>
+                    <option value="specificDoors" {{#if (eq trigger.trigger.target.type "specificDoors")}}selected{{/if}}>Specific Doors</option>
+                    <option value="tiles" {{#if (eq trigger.trigger.target.type "tiles")}}selected{{/if}}>All Tiles in Scene</option>
+                </select>
+            </div>
+            <div class="form-group horizontal target-effect-field" {{#unless (eq trigger.trigger.target.type "actorsWithEffect")}}style="display:none"{{/unless}}>
+                <label>Effect Name</label>
+                <input type="text" name="trigger.target.effectName" value="{{trigger.trigger.target.effectName}}" placeholder="Anastasia Up and Running" />
+            </div>
+            <div class="form-group horizontal target-specific-field" {{#unless (or (eq trigger.trigger.target.type "specificActors") (eq trigger.trigger.target.type "specificDoors"))}}style="display:none"{{/unless}}>
+                <label>Target IDs</label>
+                <input type="text" name="trigger.target.ids" value="{{trigger.trigger.target.ids}}" placeholder="Comma-separated IDs" />
+            </div>
+        </div>
+        
         <!-- Execution Timing Section -->
         <div class="execution-timing-section">
             <h4>Execution Timing</h4>
