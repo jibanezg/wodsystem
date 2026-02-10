@@ -114,8 +114,15 @@ export class WodTriggerConfigDialog extends FormApplication {
      * @private
      */
     _getEventsForTargetType(targetType) {
+        console.log(`WoD TriggerConfig | _getEventsForTargetType called with targetType: ${targetType}`);
+        
         const registry = game.wod?.triggerEventRegistry;
-        if (!registry) return this._getDefaultEvents();
+        console.log(`WoD TriggerConfig | Registry available:`, !!registry);
+        
+        if (!registry) {
+            console.log(`WoD TriggerConfig | Registry not available, using default events`);
+            return this._getDefaultEvents();
+        }
         
         const allEvents = registry.getAllEvents();
         console.log(`WoD TriggerConfig | All events available:`, allEvents.map(e => e.id));
