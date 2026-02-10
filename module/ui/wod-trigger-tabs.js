@@ -131,44 +131,41 @@ export function registerWodTriggerTabs() {
                                     if (menu.textContent.includes('Configure') || menu.textContent.includes('Activate') || menu.className.includes('scene-context')) {
                                         console.log('WoD Trigger Tabs | Found likely scene context menu, adding WoD Triggers option');
                                         
-                                        // Add our WoD Triggers option
-                                        const wodOption = document.createElement('li');
-                                        wodOption.className = 'context-item';
-                                        wodOption.innerHTML = `
-                                            <i class="fa-solid fa-shield-halved" style="margin-right: 8px;"></i>
-                                            <span>WoD Triggers</span>
-                                        `;
-                                        wodOption.style.cssText = `
-                                            color: #dc3545;
-                                            padding: 4px 8px;
-                                            cursor: pointer;
-                                            display: flex;
-                                            align-items: center;
-                                            font-size: 12px;
-                                            border-bottom: 1px solid #eee;
-                                        `;
-                                        wodOption.addEventListener('click', () => {
-                                            console.log('WoD Trigger Tabs | WoD Triggers option clicked');
-                                            _showSceneTriggersDialog(scene);
-                                            // Close the context menu
-                                            menu.remove();
-                                        });
-                                        
-                                        // Add to context menu - try different container types
-                                        let menuList = menu.querySelector('ul') || menu.querySelector('ol');
-                                        
-                                        // If we found a list, add our option as a new list item
-                                        if (menuList) {
-                                            console.log('WoD Trigger Tabs | Adding to menu list:', menuList.tagName);
-                                            menuList.appendChild(wodOption);
-                                        } else {
-                                            // If no list found, try to add directly to menu
-                                            console.log('WoD Trigger Tabs | Adding directly to menu container');
+                                        // Only add to the main context menu container, not individual items
+                                        if (menu.tagName === 'MENU' && menu.classList.contains('context-items')) {
+                                            console.log('WoD Trigger Tabs | This is the main context menu container');
+                                            
+                                            // Add our WoD Triggers option
+                                            const wodOption = document.createElement('li');
+                                            wodOption.className = 'context-item';
+                                            wodOption.innerHTML = `
+                                                <i class="fa-solid fa-shield-halved fa-fw" style="margin-right: 8px;"></i>
+                                                <span>WoD Triggers</span>
+                                            `;
+                                            wodOption.style.cssText = `
+                                                color: #dc3545;
+                                                padding: 4px 8px;
+                                                cursor: pointer;
+                                                display: flex;
+                                                align-items: center;
+                                                font-size: 12px;
+                                                border-bottom: 1px solid #eee;
+                                            `;
+                                            wodOption.addEventListener('click', () => {
+                                                console.log('WoD Trigger Tabs | WoD Triggers option clicked');
+                                                _showSceneTriggersDialog(scene);
+                                                // Close the context menu
+                                                menu.remove();
+                                            });
+                                            
+                                            // Add to the main context menu
                                             menu.appendChild(wodOption);
+                                            
+                                            console.log('WoD Trigger Tabs | Added WoD Triggers option to main context menu');
+                                            return; // Stop after finding the right menu
+                                        } else {
+                                            console.log('WoD Trigger Tabs | This is not the main context menu, skipping');
                                         }
-                                        
-                                        console.log('WoD Trigger Tabs | Added WoD Triggers option to menu');
-                                        return; // Stop after finding the right menu
                                     }
                                 });
                                 
