@@ -112,62 +112,55 @@ export function registerWodTriggerTabs() {
                         if (scene) {
                             console.log('WoD Trigger Tabs | Found scene:', scene.name);
                             
-                            // Set up a mutation observer to watch for context menu creation
-                            const observer = new MutationObserver((mutations) => {
-                                mutations.forEach((mutation) => {
-                                    mutation.addedNodes.forEach((node) => {
-                                        if (node.nodeType === Node.ELEMENT_NODE) {
-                                            // Look for context menu with multiple possible selectors
-                                            const contextMenu = node.querySelector?.('.context-menu') || 
-                                                              node.querySelector?.('.dropdown-menu') ||
-                                                              node.querySelector?.('[data-context-menu]') ||
-                                                              (node.classList?.contains('context-menu') ? node : null) ||
-                                                              (node.classList?.contains('dropdown-menu') ? node : null);
-                                            
-                                            if (contextMenu) {
-                                                console.log('WoD Trigger Tabs | Found context menu, adding WoD Triggers option');
-                                                console.log('WoD Trigger Tabs | Context menu classes:', contextMenu.className);
-                                                console.log('WoD Trigger Tabs | Context menu HTML:', contextMenu.outerHTML.substring(0, 200));
-                                                
-                                                // Add our WoD Triggers option
-                                                const wodOption = document.createElement('li');
-                                                wodOption.className = 'context-item';
-                                                wodOption.innerHTML = `
-                                                    <i class="fa-solid fa-shield-halved"></i>
-                                                    <span>WoD Triggers</span>
-                                                `;
-                                                wodOption.style.color = '#dc3545';
-                                                wodOption.addEventListener('click', () => {
-                                                    console.log('WoD Trigger Tabs | WoD Triggers option clicked');
-                                                    _showSceneTriggersDialog(scene);
-                                                    // Close the context menu
-                                                    contextMenu.remove();
-                                                });
-                                                
-                                                // Add to context menu - try different container types
-                                                const menuList = contextMenu.querySelector('ul') || contextMenu.querySelector('ol') || contextMenu;
-                                                menuList.appendChild(wodOption);
-                                                
-                                                console.log('WoD Trigger Tabs | Added WoD Triggers option to menu');
-                                                
-                                                // Stop observing
-                                                observer.disconnect();
-                                            }
+                            // Wait a bit for the context menu to be created, then add our option
+                            setTimeout(() => {
+                                // Look for any context menu in the document
+                                const possibleMenus = document.querySelectorAll('.context-menu, .dropdown-menu, [data-context-menu], .menu');
+                                console.log('WoD Trigger Tabs | Found possible context menus:', possibleMenus.length);
+                                
+                                possibleMenus.forEach((menu, index) => {
+                                    console.log(`WoD Trigger Tabs | Menu ${index}:`, menu.className, menu.outerHTML.substring(0, 100));
+                                    
+                                    // Check if this menu looks like a scene context menu
+                                    if (menu.textContent.includes('Configure') || menu.textContent.includes('Activate')) {
+                                        console.log('WoD Trigger Tabs | Found likely scene context menu, adding WoD Triggers option');
+                                        
+                                        // Add our WoD Triggers option
+                                        const wodOption = document.createElement('li');
+                                        wodOption.className = 'context-item';
+                                        wodOption.innerHTML = `
+                                            <i class="fa-solid fa-shield-halved"></i>
+                                            <span>WoD Triggers</span>
+                                        `;
+                                        wodOption.style.color = '#dc3545';
+                                        wodOption.addEventListener('click', () => {
+                                            console.log('WoD Trigger Tabs | WoD Triggers option clicked');
+                                            _showSceneTriggersDialog(scene);
+                                            // Close the context menu
+                                            menu.remove();
+                                        });
+                                        
+                                        // Add to context menu - try different container types
+                                        const menuList = menu.querySelector('ul') || menu.querySelector('ol') || menu;
+                                        menuList.appendChild(wodOption);
+                                        
+                                        console.log('WoD Trigger Tabs | Added WoD Triggers option to menu');
+                                        return; // Stop after finding the right menu
+                                    }
+                                });
+                                
+                                // If no suitable menu found, log all menus for debugging
+                                if (possibleMenus.length === 0) {
+                                    console.log('WoD Trigger Tabs | No context menus found, checking all elements...');
+                                    const allMenus = document.querySelectorAll('[class*="menu"], [class*="context"], [class*="dropdown"]');
+                                    console.log('WoD Trigger Tabs | All menu-like elements:', allMenus.length);
+                                    allMenus.forEach((el, i) => {
+                                        if (i < 5) { // Only log first 5
+                                            console.log(`WoD Trigger Tabs | Menu-like ${i}:`, el.className, el.tagName);
                                         }
                                     });
-                                });
-                            });
-                            
-                            // Start observing the document for context menu creation
-                            observer.observe(document.body, {
-                                childList: true,
-                                subtree: true
-                            });
-                            
-                            // Stop observing after a timeout to prevent memory leaks
-                            setTimeout(() => {
-                                observer.disconnect();
-                            }, 2000);
+                                }
+                            }, 100); // Wait 100ms for menu to be created
                         }
                     }
                 });
