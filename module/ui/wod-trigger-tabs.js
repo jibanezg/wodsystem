@@ -6,6 +6,11 @@ const _processedApps = new WeakSet();
 
 export function registerWodTriggerTabs() {
     
+    // Add scene context menu support
+    Hooks.on('renderSceneDirectory', (app, html, data) => {
+        _addSceneContextMenu(app, html, data);
+    });
+    
     // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
     Hooks.on('renderTileConfig', async (app, html) => {
         _handleRenderHook(app, html, 'TileConfig');
@@ -525,17 +530,17 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
                 </div>
             </div>
         `);
-        
+
         contentRoot.append(tabContent);
-        
+
         // Store dialog reference for event listeners
         const dialogElement = $(app.element);
         // Store the config dialog (app) as the dialogRef - this is the tile/region/wall config dialog
         dialogElement.data('dialogRef', app);
-        
+
         // Attach event listeners for the new tab content
         _attachConfigDialogEventListeners(tabContent, app, doc);
-        
+
     }).catch(error => {
         console.error('WoD Trigger Tabs | Error rendering tab content:', error);
     });
@@ -543,6 +548,7 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
 
 // NEW: Function to create custom tab structure for Wall Config dialogs
 function _createWallConfigTabStructure(app, html, doc) {
+
     
     // Check if user is GM
     if (!game.user.isGM) {
@@ -1670,5 +1676,252 @@ async function _refreshWallTriggersContent(dialogElement, wall) {
         }
     }).catch(error => {
         console.error('WoD Trigger Tabs | Error refreshing wall triggers content:', error);
+    });
+}
+
+// Add scene context menu support
+function _addSceneContextMenu(app, html, data) {
+    if (!game.user.isGM) return;
+    
+    // Ensure html is a jQuery object
+    const $html = html instanceof jQuery ? html : $(html);
+    
+    // Add right-click context menu to scene items
+    $html.find('.scene').on('contextmenu.wodSceneTriggers', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Get scene ID from the element
+        const sceneElement = $(e.currentTarget);
+        const sceneId = sceneElement.data('sceneId') || sceneElement.attr('data-scene-id');
+        
+        if (!sceneId) return;
+        
+        const scene = game.scenes.get(sceneId);
+        if (!scene) return;
+        
+        // Create context menu
+        _showSceneContextMenu(scene, e);
+    });
+}
+
+// Function to show scene context menu
+function _showSceneContextMenu(scene, event) {
+    // Create a simple context menu using Foundry's Application
+    const menuItems = [
+        {
+            name: "WoD Triggers",
+            icon: '<i class="fa-solid fa-shield-halved"></i>',
+            action: () => {
+                _showSceneTriggersDialog(scene);
+            }
+        }
+    ];
+    
+    // Create a simple dropdown menu
+    const menuHtml = `
+        <div class="context-menu" style="position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
+            ${menuItems.map(item => `
+                <div class="context-item" style="padding: 8px 12px; cursor: pointer; color: #dc3545; border-bottom: 1px solid #eee;">
+                    ${item.icon} ${item.name}
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    // Add menu to body and position it
+    const $menu = $(menuHtml);
+    $('body').append($menu);
+    
+    // Position menu at mouse location
+    $menu.css({
+        left: event.clientX + 'px',
+        top: event.clientY + 'px'
+    });
+    
+    // Handle menu item clicks
+    $menu.find('.context-item').on('click', (e) => {
+        e.stopPropagation();
+        const index = $(e.currentTarget).index();
+        menuItems[index].action();
+        $menu.remove();
+    });
+    
+    // Remove menu when clicking elsewhere
+    $(document).on('click.wodSceneMenu', () => {
+        $menu.remove();
+        $(document).off('click.wodSceneMenu');
+    });
+    
+    // Prevent menu from going off-screen
+    const menuRect = $menu[0].getBoundingClientRect();
+    if (menuRect.right > window.innerWidth) {
+        $menu.css('left', (event.clientX - menuRect.width) + 'px');
+    }
+    if (menuRect.bottom > window.innerHeight) {
+        $menu.css('top', (event.clientY - menuRect.height) + 'px');
+    }
+}
+
+// Function to show WoD Triggers dialog for scenes
+function _showSceneTriggersDialog(scene) {
+    
+    // Show the trigger list dialog first (like actors do)
+    _showSceneTriggersContent(scene);
+}
+
+// Function to show scene triggers content
+function _showSceneTriggersContent(scene) {
+    const triggers = scene.getFlag('wodsystem', 'sceneTriggers') || [];
+    const registry = TriggerEventRegistry.getInstance();
+    const documentType = 'scene';
+    
+    const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
+    if (typeof renderFn !== 'function') {
+        throw new Error('No renderTemplate function available');
+    }
+
+    // Get document type info for display
+    const docTypeInfo = registry.getDocumentType(documentType);
+    
+    const templateData = {
+        documentType: documentType,
+        docTypeInfo: docTypeInfo,
+        triggers: triggers,
+        documentName: scene.name,
+        documentId: scene.id,
+        isGM: game.user.isGM
+    };
+
+    renderFn(
+        'systems/wodsystem/templates/apps/wod-triggers-tab.html',
+        templateData
+    ).then(rendered => {
+        // Create a professional Foundry-style dialog for scenes
+        const dialogContent = `
+            <style>
+                .wod-triggers-dialog .trigger-list {
+                    max-height: 400px;
+                    overflow-y: auto;
+                }
+                .wod-triggers-dialog .trigger-item {
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    padding: 10px;
+                    margin-bottom: 10px;
+                    background: #f9f9f9;
+                }
+                .wod-triggers-dialog .trigger-item:hover {
+                    background: #f0f0f0;
+                }
+                .wod-triggers-dialog .no-triggers {
+                    text-align: center;
+                    color: #666;
+                    font-style: italic;
+                    padding: 20px;
+                }
+                .wod-triggers-dialog .add-trigger-btn {
+                    background: #28a745;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    margin-top: 10px;
+                }
+                .wod-triggers-dialog .add-trigger-btn:hover {
+                    background: #218838;
+                }
+            </style>
+            <div class="wod-triggers-dialog">
+                <h2>WoD Triggers - ${scene.name}</h2>
+                <div class="trigger-list">
+                    ${rendered}
+                </div>
+                <button type="button" class="add-trigger-btn">
+                    <i class="fas fa-plus"></i> Add Trigger
+                </button>
+            </div>
+        `;
+
+        const dialog = new Dialog({
+            title: `WoD Triggers - ${scene.name}`,
+            content: dialogContent,
+            buttons: {
+                close: {
+                    label: "Close",
+                    callback: () => {}
+                }
+            },
+            default: "close"
+        });
+
+        dialog.render(true);
+
+        // Add click listener for add trigger button
+        const $button = $(dialog.element).find('.add-trigger-btn');
+        $button.off('click.sceneTrigger').on('click.sceneTrigger', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Open the trigger config dialog for this scene
+            import('../apps/wod-trigger-config-dialog.js').then(module => {
+                const DialogClass = module.WodTriggerConfigDialog || module.default;
+                if (DialogClass) {
+                    const triggerDialog = new DialogClass(scene, null, {
+                        title: `Add Trigger - ${scene.name}`,
+                        documentType: 'scene',
+                        onClose: () => {
+                            // Refresh the dialog content
+                            _showSceneTriggersContent(scene);
+                            dialog.render(false);
+                        }
+                    });
+                    triggerDialog.render(true);
+                }
+            });
+        });
+
+        // Add click listeners for trigger actions
+        $(dialog.element).find('.trigger-action').off('click.sceneTriggerAction').on('click.sceneTriggerAction', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const action = $(event.currentTarget).data('action');
+            const triggerId = $(event.currentTarget).data('triggerId');
+            
+            if (action === 'edit-trigger' && triggerId) {
+                // Handle trigger editing
+                import('../apps/wod-trigger-config-dialog.js').then(module => {
+                    const DialogClass = module.WodTriggerConfigDialog || module.default;
+                    if (DialogClass) {
+                        const triggerDialog = new DialogClass(scene, triggerId, {
+                            title: `Edit Trigger - ${scene.name}`,
+                            documentType: 'scene',
+                            onClose: () => {
+                                // Refresh the dialog content
+                                _showSceneTriggersContent(scene);
+                                dialog.render(false);
+                            }
+                        });
+                        triggerDialog.render(true);
+                    }
+                });
+            } else if (action === 'delete-trigger' && triggerId) {
+                // Handle trigger deletion
+                const triggers = scene.getFlag('wodsystem', 'sceneTriggers') || [];
+                const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
+                
+                scene.setFlag('wodsystem', 'sceneTriggers', next).then(() => {
+                    // Refresh the dialog content
+                    _showSceneTriggersContent(scene);
+                    dialog.render(false);
+                });
+            }
+        });
+    }).catch(error => {
+        console.error('WoD Trigger Tabs | Error rendering scene triggers content:', error);
+        ui.notifications.error('Failed to load scene triggers content');
     });
 }
