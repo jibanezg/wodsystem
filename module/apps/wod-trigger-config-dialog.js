@@ -128,7 +128,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         
         // Get available events for this document type from TriggerEventRegistry
         const documentType = detectedDocumentType;
-        const availableEvents = registry.getEventsForDocumentType(documentType);
+        const availableEvents = this._getAvailableEvents(); // Use dynamic event filtering based on target
 
         return {
             trigger,
@@ -163,6 +163,9 @@ export class WodTriggerConfigDialog extends FormApplication {
             link.href = 'systems/wodsystem/styles/themes/trigger-config.css';
             document.head.appendChild(link);
         }
+
+        // Handle target type changes to update event dropdown
+        html.find('select[name="targetCsv"]').on('change', this._onTargetChange.bind(this));
 
         // Handle event type changes to show/hide effect configuration
         html.find('select[name="trigger.eventType"]').on('change', this._onEventTypeChange.bind(this));
@@ -1342,7 +1345,10 @@ export class WodTriggerConfigDialog extends FormApplication {
         return {};
     }
 
-    
+    _onTargetChange(event) {
+        this._updateEventDropdown();
+    }
+
     _onEventTypeChange(event) {
         this._updateEffectFieldVisibility($(event.currentTarget).closest('form'));
     }
@@ -1358,16 +1364,39 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
     }
 
+    _onEventTypeChange(event) {
+        this._updateEffectFieldVisibility($(event.currentTarget).closest('form'));
+    }
+
+    _updateEffectFieldVisibility(html) {
+        const eventType = html.find('select[name="trigger.eventType"]').val();
+        const effectGroup = html.find('#effect-config-group');
+        
+        if (eventType === 'onEffect') {
+            effectGroup.show();
+        } else {
+            effectGroup.hide();
+        }
+    }
+
+    /**
+     * Get available effects for autocomplete
+     * @returns {Array} Array of effect names
+     * @private
+     */
     _getAvailableEffects() {
         const effects = new Set();
         
         // Only get effects from actors in the current scene (much more efficient)
-        if (canvas?.tokens?.placeables) {
-            for (const token of canvas.tokens.placeables) {
-                if (token.actor?.effects) {
-                    for (const effect of token.actor.effects) {
-                        const name = effect.label || effect.name;
-                        if (name) effects.add(name);
+        if (canvas?.scene) {
+            for (const tokenDoc of canvas.scene.tokens) {
+                const actor = tokenDoc.actor;
+                if (actor) {
+                    // Get active effects from the actor
+                    for (const effect of actor.effects) {
+                        if (effect.name && !effect.name.startsWith('WOD-')) {
+                            effects.add(effect.name);
+                        }
                     }
                 }
             }
