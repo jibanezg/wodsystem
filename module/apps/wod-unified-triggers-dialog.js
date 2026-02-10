@@ -187,29 +187,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
      * Initialize the dialog content
      */
     async _initializeContent() {
-        console.log('WoD Unified Triggers Dialog | _initializeContent called');
-        
-        // Wait a bit for the DOM to be ready
+        // Wait a bit for the DOM to be ready, then attach event listeners
         setTimeout(() => {
-            // Debug: Check what's in the dialog element
-            const dialogElement = $(this.element);
-            console.log('WoD Unified Triggers Dialog | Dialog element:', dialogElement.length > 0 ? 'found' : 'NOT FOUND');
-            
-            if (dialogElement.length) {
-                // Check different possible content containers
-                const content = dialogElement.find('.dialog-content');
-                const windowContent = dialogElement.find('.window-content');
-                const formContent = dialogElement.find('form');
-                const allDivs = dialogElement.find('div');
-                
-                console.log('WoD Unified Triggers Dialog | .dialog-content:', content.length > 0 ? 'found' : 'NOT FOUND');
-                console.log('WoD Unified Triggers Dialog | .window-content:', windowContent.length > 0 ? 'found' : 'NOT FOUND');
-                console.log('WoD Unified Triggers Dialog | form:', formContent.length > 0 ? 'found' : 'NOT FOUND');
-                console.log('WoD Unified Triggers Dialog | Total divs:', allDivs.length);
-                console.log('WoD Unified Triggers Dialog | Dialog HTML:', dialogElement.html());
-            }
-            
-            // Attach event listeners
             this._attachWorkingEventListeners();
         }, 100);
     }
@@ -228,18 +207,13 @@ export class WodUnifiedTriggersDialog extends Dialog {
         const $button = contentElement.find('.wod-add-trigger-btn');
         
         if ($button.length) {
-            console.log('WoD Unified Triggers Dialog | Found add trigger button');
-            
             $button.off('click.unifiedTrigger').on('click.unifiedTrigger', (event) => {
-                console.log('WoD Unified Triggers Dialog | Add trigger button clicked');
                 event.preventDefault();
                 event.stopPropagation();
 
                 // Open the trigger config dialog for this document
                 this._openTriggerConfigDialog();
             });
-        } else {
-            console.warn('WoD Unified Triggers Dialog | Could not find add trigger button');
         }
 
         // Add click listeners for trigger actions
