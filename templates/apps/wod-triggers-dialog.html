@@ -17,25 +17,12 @@
             color: #dc3545;
             font-size: 18px;
         }
-        .wod-add-trigger-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        .wod-add-trigger-btn:hover {
-            background: #c82333;
-        }
         .wod-triggers-content {
             min-height: 300px;
             overflow-y: auto;
         }
         .wod-triggers-content:empty::before {
-            content: "No triggers configured. Click 'Add Trigger' to create one.";
+            content: "No triggers configured. Click the circular button below to create one.";
             color: #6c757d;
             font-style: italic;
             display: block;
@@ -47,9 +34,6 @@
     <div class="wod-triggers-dialog">
         <div class="wod-triggers-header">
             <h3>🛡️ WoD Triggers</h3>
-            <button type="button" class="wod-add-trigger-btn">
-                <i class="fa-solid fa-plus"></i> Add Trigger
-            </button>
         </div>
         <div class="wod-triggers-content">
             {{{triggers}}}
