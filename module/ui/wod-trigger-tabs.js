@@ -112,6 +112,9 @@ export function registerWodTriggerTabs() {
                         if (scene) {
                             console.log('WoD Trigger Tabs | Found scene:', scene.name);
                             
+                            // Store the scene data for later use
+                            window._wodCurrentScene = scene;
+                            
                             // Wait a bit for the context menu to be created, then add our option
                             setTimeout(() => {
                                 // Look for any context menu in the document with actual Foundry class names
@@ -153,7 +156,10 @@ export function registerWodTriggerTabs() {
                                             `;
                                             wodOption.addEventListener('click', () => {
                                                 console.log('WoD Trigger Tabs | WoD Triggers option clicked');
-                                                _showSceneTriggersDialog(scene);
+                                                const scene = window._wodCurrentScene;
+                                                if (scene) {
+                                                    _showSceneTriggersDialog(scene);
+                                                }
                                                 // Close the context menu
                                                 menu.remove();
                                             });
@@ -162,6 +168,22 @@ export function registerWodTriggerTabs() {
                                             menu.appendChild(wodOption);
                                             
                                             console.log('WoD Trigger Tabs | Added WoD Triggers option to main context menu');
+                                            console.log('WoD Trigger Tabs | Menu now has', menu.children.length, 'children');
+                                            
+                                            // Debug: Check if our option is actually in the menu
+                                            setTimeout(() => {
+                                                const ourOption = menu.querySelector('.context-item:last-child');
+                                                if (ourOption && ourOption.textContent.includes('WoD Triggers')) {
+                                                    console.log('WoD Trigger Tabs | WoD Triggers option confirmed in menu');
+                                                } else {
+                                                    console.log('WoD Trigger Tabs | WoD Triggers option NOT found in menu after addition');
+                                                    console.log('WoD Trigger Tabs | Menu children after addition:', menu.children.length);
+                                                    Array.from(menu.children).forEach((child, i) => {
+                                                        console.log(`WoD Trigger Tabs | Child ${i}:`, child.tagName, child.className, child.textContent?.substring(0, 50));
+                                                    });
+                                                }
+                                            }, 50);
+                                            
                                             return; // Stop after finding the right menu
                                         } else {
                                             console.log('WoD Trigger Tabs | This is not the main context menu, skipping');
