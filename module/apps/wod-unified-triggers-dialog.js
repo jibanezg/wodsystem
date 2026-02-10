@@ -188,10 +188,63 @@ export class WodUnifiedTriggersDialog extends Dialog {
         try {
             const data = await this.getData();
             
+            // Create the styled dialog content like the original dialogs
+            const dialogContent = `
+                <style>
+                    .wod-triggers-dialog .trigger-list {
+                        max-height: 400px;
+                        overflow-y: auto;
+                    }
+                    .wod-triggers-dialog .trigger-item {
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        padding: 10px;
+                        margin-bottom: 10px;
+                        background: #f9f9f9;
+                    }
+                    .wod-triggers-dialog .trigger-item:hover {
+                        background: #f0f0f0;
+                    }
+                    .wod-triggers-dialog .no-triggers {
+                        text-align: center;
+                        color: #666;
+                        font-style: italic;
+                        padding: 20px;
+                    }
+                    .wod-triggers-dialog .add-trigger-btn {
+                        background: #28a745;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 40px;
+                        height: 40px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        margin-top: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 16px;
+                    }
+                    .wod-triggers-dialog .add-trigger-btn:hover {
+                        background: #218838;
+                    }
+                </style>
+                <div class="wod-triggers-dialog">
+                    <h2>WoD Triggers - ${data.documentTitle}</h2>
+                    <div class="trigger-list">
+                        ${data.renderedContent}
+                    </div>
+                    <button type="button" class="add-trigger-btn" title="Add Trigger">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            `;
+            
             // Update dialog content
             const dialogElement = $(this.element);
             if (dialogElement.length) {
-                dialogElement.find('.dialog-content').html(data.renderedContent);
+                dialogElement.find('.dialog-content').html(dialogContent);
                 
                 // Attach event listeners
                 this._attachEventListeners();
