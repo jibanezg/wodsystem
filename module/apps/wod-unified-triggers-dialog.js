@@ -4,6 +4,7 @@ import { WodTriggerConfigDialog } from './wod-trigger-config-dialog.js';
  * Unified WoD Triggers Dialog
  * Handles all trigger management contexts (scenes, actors, walls, tiles, regions)
  * while maintaining a single implementation
+ * Updated: 2025-02-10 - Removed ugly button
  */
 export class WodUnifiedTriggersDialog extends Dialog {
     
@@ -36,6 +37,8 @@ export class WodUnifiedTriggersDialog extends Dialog {
         this.context = options.context || {};
         this.onClose = options.onClose;
         this.documentType = options.documentType || 'actor';
+        
+        console.log('WoD Unified Triggers Dialog | Constructor called for:', this.documentType, document.name || document.id);
     }
     
     /**
