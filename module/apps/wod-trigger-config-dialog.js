@@ -289,10 +289,12 @@ export class WodTriggerConfigDialog extends FormApplication {
      * @private
      */
     _updateEventDropdown() {
-        const targetSelect = this.form?.find('select[name="targetCsv"]');
-        const eventSelect = this.form?.find('select[name="trigger.eventType"]');
+        // Use jQuery to find elements since this.form is now a DOM element
+        const $form = $(this.form);
+        const targetSelect = $form.find('select[name="targetCsv"]');
+        const eventSelect = $form.find('select[name="trigger.eventType"]');
         
-        if (!targetSelect || !eventSelect) return;
+        if (!targetSelect.length || !eventSelect.length) return;
         
         const currentEvent = eventSelect.val();
         const availableEvents = this._getAvailableEvents();
@@ -347,8 +349,8 @@ export class WodTriggerConfigDialog extends FormApplication {
             document.head.appendChild(link);
         }
 
-        // Store form reference for later use
-        this.form = html;
+        // Store form reference for later use (DOM element, not jQuery object)
+        this.form = html[0] || html.get(0);
 
         // Initialize event dropdown based on current target selection
         this._updateEventDropdown();
