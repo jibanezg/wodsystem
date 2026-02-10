@@ -17,16 +17,19 @@
                 <div class="field-row">
                     <select name="targetCsv">
                         <option value="">-- All Targets --</option>
-                        <optgroup label="Actor Types">
-                            <option value="Mortal" {{#if (eq targetCsv "Mortal")}}selected{{/if}}>Mortal</option>
-                            <option value="Technocrat" {{#if (eq targetCsv "Technocrat")}}selected{{/if}}>Technocrat</option>
-                            <option value="Mage" {{#if (eq targetCsv "Mage")}}selected{{/if}}>Mage</option>
-                            <option value="Spirit" {{#if (eq targetCsv "Spirit")}}selected{{/if}}>Spirit</option>
-                            <option value="Demon" {{#if (eq targetCsv "Demon")}}selected{{/if}}>Demon</option>
-                            <option value="Earthbound" {{#if (eq targetCsv "Earthbound")}}selected{{/if}}>Earthbound</option>
-                            <option value="Mortal,Technocrat,Mage,Demon,Earthbound" {{#if (eq targetCsv "Mortal,Technocrat,Mage,Demon,Earthbound")}}selected{{/if}}>All Player Types</option>
-                            <option value="Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC" {{#if (eq targetCsv "Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC")}}selected{{/if}}>All NPC Types</option>
-                            <option value="Mortal,Technocrat,Mage,Spirit,Demon,Demon-NPC,Earthbound,Mortal-NPC,Technocrat-NPC,Mage-NPC" {{#if (eq targetCsv "Mortal,Technocrat,Mage,Spirit,Demon,Demon-NPC,Earthbound,Mortal-NPC,Technocrat-NPC,Mage-NPC")}}selected{{/if}}>All Actor Types</option>
+                        <optgroup label="Universal">
+                            <option value="any" {{#if (eq targetCsv "any")}}selected{{/if}}>Any Actor</option>
+                            <option value="any:Mortal,Technocrat,Mage,Demon,Earthbound" {{#if (eq targetCsv "any:Mortal,Technocrat,Mage,Demon,Earthbound")}}selected{{/if}}>Any Player Type</option>
+                            <option value="any:Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC" {{#if (eq targetCsv "any:Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC")}}selected{{/if}}>Any NPC Type</option>
+                            <option value="any:Mortal,Technocrat,Mage,Spirit,Demon,Demon-NPC,Earthbound,Mortal-NPC,Technocrat-NPC,Mage-NPC" {{#if (eq targetCsv "any:Mortal,Technocrat,Mage,Spirit,Demon,Demon-NPC,Earthbound,Mortal-NPC,Technocrat-NPC,Mage-NPC")}}selected{{/if}}>Any Actor Type</option>
+                        </optgroup>
+                        <optgroup label="Specific Types">
+                            <option value="Mortal" {{#if (eq targetCsv "Mortal")}}selected{{/if}}>Mortal Only</option>
+                            <option value="Technocrat" {{#if (eq targetCsv "Technocrat")}}selected{{/if}}>Technocrat Only</option>
+                            <option value="Mage" {{#if (eq targetCsv "Mage")}}selected{{/if}}>Mage Only</option>
+                            <option value="Spirit" {{#if (eq targetCsv "Spirit")}}selected{{/if}}>Spirit Only</option>
+                            <option value="Demon" {{#if (eq targetCsv "Demon")}}selected{{/if}}>Demon Only</option>
+                            <option value="Earthbound" {{#if (eq targetCsv "Earthbound")}}selected{{/if}}>Earthbound Only</option>
                         </optgroup>
                         <optgroup label="Element Types">
                             <option value="tokens" {{#if (eq targetCsv "tokens")}}selected{{/if}}>All Tokens</option>

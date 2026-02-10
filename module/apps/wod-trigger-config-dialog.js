@@ -1032,13 +1032,16 @@ export class WodTriggerConfigDialog extends FormApplication {
         const targetCsv = (formData.targetCsv || '').trim();
         let actorTypes = [];
         
-        // Parse targetCsv with support for special conditions
+        // Parse targetCsv with support for special conditions and "any" logic
         if (targetCsv.length) {
             if (targetCsv.includes(':')) {
-                // Special condition format like "hasEffect:EffectName" 
+                // Special condition format like "hasEffect:EffectName" or "any:Type1,Type2"
                 actorTypes = [targetCsv]; // Keep as-is for condition system to parse
+            } else if (targetCsv === 'any') {
+                // Universal "any" - check all actors
+                actorTypes = ['any'];
             } else {
-                // Regular comma-separated actor types
+                // Regular comma-separated actor types (specific filtering)
                 actorTypes = targetCsv.split(',').map(s => s.trim()).filter(Boolean);
             }
         }
