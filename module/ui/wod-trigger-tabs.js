@@ -28,6 +28,32 @@ export function registerWodTriggerTabs() {
         }
     });
     
+    // Hook into Foundry's context menu system
+    Hooks.on('getSceneContextOptions', (context, html) => {
+        console.log('WoD Trigger Tabs | getSceneContextOptions hook triggered');
+        
+        // Add our WoD Triggers option to the existing context menu
+        context.push({
+            name: "WoD Triggers",
+            icon: '<i class="fa-solid fa-shield-halved"></i>',
+            condition: (li) => {
+                // Only show for GMs
+                return game.user.isGM;
+            },
+            callback: (li) => {
+                // Get the scene from the list item
+                const sceneId = li.data('entryId');
+                const scene = game.scenes.get(sceneId);
+                if (scene) {
+                    _showSceneTriggersDialog(scene);
+                }
+            }
+        });
+        
+        console.log('WoD Trigger Tabs | Added WoD Triggers to scene context menu');
+        return context;
+    });
+    
     // Fallback: Add context menu after a delay
     Hooks.on('ready', () => {
         setTimeout(() => {
@@ -1772,7 +1798,13 @@ function _addSceneContextMenu(app, html, data) {
 
 // Function to show scene context menu
 function _showSceneContextMenu(scene, event) {
-    // Create a simple context menu using Foundry's Application
+    // Don't create our own menu - add to existing Foundry context menu
+    // We'll hook into Foundry's context menu system instead
+    
+    // For now, let's trigger the existing context menu and add our option
+    // This is a temporary approach - we need to find the right way to extend Foundry's menu
+    
+    // Create a simple dropdown menu that appears alongside the existing one
     const menuItems = [
         {
             name: "WoD Triggers",
@@ -1783,9 +1815,9 @@ function _showSceneContextMenu(scene, event) {
         }
     ];
     
-    // Create a simple dropdown menu
+    // Create a simple dropdown menu positioned slightly offset from mouse
     const menuHtml = `
-        <div class="context-menu" style="position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
+        <div class="context-menu wod-scene-menu" style="position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
             ${menuItems.map(item => `
                 <div class="context-item" style="padding: 8px 12px; cursor: pointer; color: #dc3545; border-bottom: 1px solid #eee;">
                     ${item.icon} ${item.name}
@@ -1794,14 +1826,14 @@ function _showSceneContextMenu(scene, event) {
         </div>
     `;
     
-    // Add menu to body and position it
+    // Add menu to body and position it slightly offset from mouse
     const $menu = $(menuHtml);
     $('body').append($menu);
     
-    // Position menu at mouse location
+    // Position menu slightly offset from mouse to avoid overlap
     $menu.css({
-        left: event.clientX + 'px',
-        top: event.clientY + 'px'
+        left: (event.clientX + 10) + 'px',
+        top: (event.clientY + 10) + 'px'
     });
     
     // Handle menu item clicks
@@ -1821,11 +1853,43 @@ function _showSceneContextMenu(scene, event) {
     // Prevent menu from going off-screen
     const menuRect = $menu[0].getBoundingClientRect();
     if (menuRect.right > window.innerWidth) {
-        $menu.css('left', (event.clientX - menuRect.width) + 'px');
+        $menu.css('left', (event.clientX - menuRect.width - 10) + 'px');
     }
     if (menuRect.bottom > window.innerHeight) {
-        $menu.css('top', (event.clientY - menuRect.height) + 'px');
+        $menu.css('top', (event.clientY - menuRect.height - 10) + 'px');
     }
+    
+    // Also trigger the original Foundry context menu
+    setTimeout(() => {
+        // Trigger the original context menu by simulating a right-click without our handler
+        const originalEvent = new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: event.clientX,
+            clientY: event.clientY,
+            button: 2
+        });
+        
+        // Temporarily remove our handler to prevent infinite loop
+        $(event.currentTarget).off('contextmenu.wodSceneTriggers');
+        
+        // Trigger the original context menu
+        event.currentTarget.dispatchEvent(originalEvent);
+        
+        // Re-add our handler after a delay
+        setTimeout(() => {
+            $(event.currentTarget).on('contextmenu.wodSceneTriggers', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const sceneElement = $(e.currentTarget);
+                const sceneId = sceneElement.data('entryId') || sceneElement.data('sceneId') || sceneElement.attr('data-entry-id') || sceneElement.attr('data-scene-id') || sceneElement.attr('data-document-id') || sceneElement.attr('id')?.replace('scene-', '') || sceneElement.attr('id')?.replace('scene-', '');
+                const scene = game.scenes.get(sceneId);
+                if (scene) {
+                    _showSceneContextMenu(scene, e);
+                }
+            });
+        }, 100);
+    }, 50);
 }
 
 // Function to show WoD Triggers dialog for scenes
