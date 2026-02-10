@@ -6,130 +6,93 @@ const _processedApps = new WeakSet();
 
 export function registerWodTriggerTabs() {
     
-    // Try multiple possible context menu hooks for scenes
-    Hooks.on('getSceneContextOptions', (context, html) => {
-        console.log('WoD Trigger Tabs | getSceneContextOptions hook triggered');
-        console.log('WoD Trigger Tabs | context type:', typeof context);
-        console.log('WoD Trigger Tabs | context:', context);
-        
-        // Check what context actually is - it might not be an array
-        if (Array.isArray(context)) {
-            // Add our WoD Triggers option to the existing context menu
-            context.push({
-                name: "WoD Triggers",
-                icon: '<i class="fa-solid fa-shield-halved"></i>',
-                condition: (li) => {
-                    // Only show for GMs
-                    return game.user.isGM;
-                },
-                callback: (li) => {
-                    // Get the scene from the list item
-                    const sceneId = li.data('entryId');
-                    const scene = game.scenes.get(sceneId);
-                    if (scene) {
-                        _showSceneTriggersDialog(scene);
-                    }
-                }
-            });
-            
-            console.log('WoD Trigger Tabs | Added WoD Triggers to scene context menu');
-        } else {
-            console.log('WoD Trigger Tabs | context is not an array, cannot push to it');
-        }
-        
-        return context;
-    });
-    
-    // Try alternative context menu hooks
-    Hooks.on('getDirectoryContextOptions', (context, html) => {
-        console.log('WoD Trigger Tabs | getDirectoryContextOptions hook triggered');
-        
-        // Check if this is for scenes
-        if (html.closest('[data-tab="scenes"]').length > 0) {
-            console.log('WoD Trigger Tabs | Adding to scenes directory context menu');
-            
-            context.push({
-                name: "WoD Triggers",
-                icon: '<i class="fa-solid fa-shield-halved"></i>',
-                condition: (li) => {
-                    return game.user.isGM && li.hasClass('scene');
-                },
-                callback: (li) => {
-                    const sceneId = li.data('entryId');
-                    const scene = game.scenes.get(sceneId);
-                    if (scene) {
-                        _showSceneTriggersDialog(scene);
-                    }
-                }
-            });
-        }
-        
-        return context;
-    });
-    
-    // Try the SceneDirectory specific hook
-    Hooks.on('getSceneDirectoryContextOptions', (context, html) => {
-        console.log('WoD Trigger Tabs | getSceneDirectoryContextOptions hook triggered');
-        
-        context.push({
-            name: "WoD Triggers",
-            icon: '<i class="fa-solid fa-shield-halved"></i>',
-            condition: (li) => {
-                return game.user.isGM;
-            },
-            callback: (li) => {
-                const sceneId = li.data('entryId');
-                const scene = game.scenes.get(sceneId);
-                if (scene) {
-                    _showSceneTriggersDialog(scene);
-                }
-            }
-        });
-        
-        return context;
-    });
-    
-    // Check if getContextOptions hook is working
+    // Try to hook into the SceneNavigation class directly
     Hooks.on('ready', () => {
-        console.log('WoD Trigger Tabs | Checking for SceneDirectory class...');
-        if (game.scenes?.directory) {
-            console.log('WoD Trigger Tabs | Found SceneDirectory:', game.scenes.directory);
-            console.log('WoD Trigger Tabs | SceneDirectory constructor:', game.scenes.directory.constructor.name);
+        console.log('WoD Trigger Tabs | Looking for SceneNavigation class...');
+        
+        // Try to find SceneNavigation in the global scope
+        if (game.scenes?.navigation) {
+            console.log('WoD Trigger Tabs | Found SceneNavigation:', game.scenes.navigation);
+            console.log('WoD Trigger Tabs | SceneNavigation constructor:', game.scenes.navigation.constructor.name);
             
-            // Try to hook directly into the SceneDirectory instance
-            const originalGetContextOptions = game.scenes.directory.getContextOptions;
-            if (originalGetContextOptions) {
-                console.log('WoD Trigger Tabs | Found original getContextOptions method');
-                game.scenes.directory.getContextOptions = function(li) {
-                    console.log('WoD Trigger Tabs | SceneDirectory getContextOptions called');
-                    const options = originalGetContextOptions.call(this, li);
+            // Try to hook into the context menu creation
+            const SceneNavigation = game.scenes.navigation.constructor;
+            console.log('WoD Trigger Tabs | SceneNavigation methods:', Object.getOwnPropertyNames(SceneNavigation.prototype));
+            
+            // Try to override the _createContextMenu method
+            if (game.scenes.navigation._createContextMenu) {
+                console.log('WoD Trigger Tabs | Found _createContextMenu method');
+                const originalCreateContextMenu = game.scenes.navigation._createContextMenu.bind(game.scenes.navigation);
+                
+                game.scenes.navigation._createContextMenu = function(...args) {
+                    console.log('WoD Trigger Tabs | _createContextMenu called');
                     
-                    // Add our WoD Triggers option
-                    options.push({
-                        name: "WoD Triggers",
-                        icon: '<i class="fa-solid fa-shield-halved"></i>',
-                        condition: () => {
-                            // Only show for GMs
-                            return game.user.isGM;
-                        },
-                        callback: () => {
-                            // Get the scene from the list item
-                            const sceneId = li.data('entryId');
-                            const scene = game.scenes.get(sceneId);
-                            if (scene) {
-                                _showSceneTriggersDialog(scene);
+                    // Call the original method
+                    const result = originalCreateContextMenu(...args);
+                    
+                    // Try to add our option to the context menu
+                    setTimeout(() => {
+                        const contextMenus = document.querySelectorAll('.context-menu, .dropdown-menu, [data-context-menu], .menu, .encounter-context-menu, .scene-context, [class*="context"]');
+                        console.log('WoD Trigger Tabs | Found context menus after creation:', contextMenus.length);
+                        
+                        contextMenus.forEach((menu, index) => {
+                            if (menu.tagName === 'MENU' && menu.classList.contains('context-items')) {
+                                console.log('WoD Trigger Tabs | Adding WoD Triggers to context menu');
+                                
+                                const wodOption = document.createElement('li');
+                                wodOption.className = 'context-item';
+                                wodOption.innerHTML = `
+                                    <i class="fa-solid fa-shield-halved fa-fw" style="margin-right: 8px;"></i>
+                                    <span>WoD Triggers</span>
+                                `;
+                                wodOption.style.cssText = `
+                                    color: #dc3545;
+                                    padding: 4px 8px;
+                                    cursor: pointer;
+                                    display: flex;
+                                    align-items: center;
+                                    font-size: 12px;
+                                    border-bottom: 1px solid #eee;
+                                `;
+                                wodOption.addEventListener('click', () => {
+                                    console.log('WoD Trigger Tabs | WoD Triggers option clicked');
+                                    
+                                    // Get the currently selected scene
+                                    const selectedScene = game.scenes.viewed;
+                                    if (selectedScene) {
+                                        _showSceneTriggersDialog(selectedScene);
+                                    }
+                                    
+                                    // Close the context menu
+                                    menu.remove();
+                                });
+                                
+                                menu.appendChild(wodOption);
+                                console.log('WoD Trigger Tabs | WoD Triggers added to context menu');
+                                return;
                             }
-                        }
-                    });
+                        });
+                    }, 50);
                     
-                    console.log('WoD Trigger Tabs | Added WoD Triggers to context options');
-                    return options;
+                    return result;
                 };
-                console.log('WoD Trigger Tabs | Hooked into SceneDirectory.getContextOptions');
+                
+                console.log('WoD Trigger Tabs | Hooked into _createContextMenu');
             } else {
-                console.log('WoD Trigger Tabs | getContextOptions method not found');
+                console.log('WoD Trigger Tabs | _createContextMenu method not found');
             }
+        } else {
+            console.log('WoD Trigger Tabs | SceneNavigation not found');
         }
+        
+        // Also try to hook into any global context menu creation
+        if (ui && ui.context) {
+            console.log('WoD Trigger Tabs | Found ui.context:', ui.context);
+        }
+        
+        // Try to find all global hooks that might be related
+        console.log('WoD Trigger Tabs | Available global objects:', Object.keys(window));
+        console.log('WoD Trigger Tabs | Available game objects:', Object.keys(game));
     });
     
     // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
