@@ -1233,6 +1233,123 @@ export class TriggerManager {
         return true;
     }
 
+    /**
+     * Check if actor type matches the target specification
+     * @param {Array} targetTypes - Array of target type specifications
+     * @param {string} actorType - The actor's type
+     * @param {Object} context - The trigger context
+     * @returns {boolean} Whether the actor matches the target specification
+     * @private
+     */
+    _checkTargetTypeMatch(targetTypes, actorType, context) {
+        for (const targetType of targetTypes) {
+            // Handle "any" - matches any actor
+            if (targetType === 'any') {
+                return true;
+            }
+            
+            // Handle "any:Type1,Type2" - matches any of the specified types
+            if (targetType.startsWith('any:')) {
+                const allowedTypes = targetType.substring(4).split(',').map(t => t.trim());
+                if (allowedTypes.includes(actorType)) {
+                    return true;
+                }
+                continue;
+            }
+            
+            // Handle special conditions like "hasEffect", "isPlayer", "isGM", "isOwner"
+            if (targetType.startsWith('hasEffect') || targetType.startsWith('is')) {
+                if (this._evaluateSpecialCondition(targetType, context)) {
+                    return true;
+                }
+                continue;
+            }
+            
+            // Handle element types like "tokens", "doors", "walls", "tiles", "regions"
+            if (['tokens', 'doors', 'walls', 'tiles', 'regions'].includes(targetType)) {
+                if (this._evaluateElementTypeTarget(targetType, context)) {
+                    return true;
+                }
+                continue;
+            }
+            
+            // Handle direct type match
+            if (targetType === actorType) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * Evaluate special condition targets like "isPlayer", "isGM", "isOwner"
+     * @param {string} condition - The special condition
+     * @param {Object} context - The trigger context
+     * @returns {boolean} Whether the condition is met
+     * @private
+     */
+    _evaluateSpecialCondition(condition, context) {
+        const actor = context.actor;
+        if (!actor) return false;
+        
+        switch (condition) {
+            case 'isPlayer':
+                // Check if actor has any player owner (not GM)
+                return Object.entries(actor.ownership || {}).some(([userId, perm]) => {
+                    const user = game.users.get(userId);
+                    return user && !user.isGM && perm >= 1;
+                });
+                
+            case 'isGM':
+                // Check if actor is owned by GM
+                return Object.entries(actor.ownership || {}).some(([userId, perm]) => {
+                    const user = game.users.get(userId);
+                    return user && user.isGM && perm >= 1;
+                });
+                
+            case 'isOwner':
+                // Check if current user owns the actor
+                const currentUserId = game.user.id;
+                return (actor.ownership?.[currentUserId] || 0) >= 1;
+                
+            case 'hasEffect':
+                // Check if actor has any effects
+                return actor.effects && actor.effects.size > 0;
+                
+            default:
+                // Handle "hasEffect:EffectName" format
+                if (condition.startsWith('hasEffect:')) {
+                    const effectName = condition.substring(10);
+                    return actor.effects.some(effect => effect.name === effectName);
+                }
+                return false;
+        }
+    }
+
+    /**
+     * Evaluate element type targets like "tokens", "doors", "walls", "tiles", "regions"
+     * @param {string} elementType - The element type
+     * @param {Object} context - The trigger context
+     * @returns {boolean} Whether the element type matches
+     * @private
+     */
+    _evaluateElementTypeTarget(elementType, context) {
+        switch (elementType) {
+            case 'tokens':
+                return context.token !== undefined;
+            case 'doors':
+            case 'walls':
+                return context.wall !== undefined;
+            case 'tiles':
+                return context.tile !== undefined;
+            case 'regions':
+                return context.region !== undefined;
+            default:
+                return false;
+        }
+    }
+
     async _executeRoll(actor, rollConfig) {
         if (!actor) return false;
 
