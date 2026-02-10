@@ -314,6 +314,8 @@ export class TriggerActionExecutor {
     async _executeDoorAction(action, context) {
         const state = action.state || action.parameters?.state || 'open';
         
+        console.log(`WoD ActionExecutor | Executing door action:`, { state, action, context });
+        
         // Use resolvedTarget as primary source (set by _resolveTarget)
         let wall = context.resolvedTarget;
         

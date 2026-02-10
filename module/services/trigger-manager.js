@@ -1741,6 +1741,8 @@ export class TriggerManager {
         const { delay, repeat, duration } = timing;
         const startTime = Date.now();
         
+        console.log(`WoD TriggerManager | Starting timed trigger: "${trigger.name}"`, { delay, repeat, duration });
+        
         // Apply initial delay
         if (delay > 0) {
             if (this._debugMode) {
@@ -1750,6 +1752,7 @@ export class TriggerManager {
         }
         
         // Execute initial trigger
+        console.log(`WoD TriggerManager | Executing initial trigger: "${trigger.name}"`);
         await this._executeTriggerActions(trigger, context);
         
         // Handle repeat execution
@@ -1999,6 +2002,34 @@ export class TriggerManager {
         
         // Fire general attribute change event
         this._fireDocumentTriggers('actor', actor, actor, 'onAttributeChanged', 'attributes', systemData);
+    }
+
+    /**
+     * Emergency: Clear all active triggers and intervals
+     * Call this if triggers are interfering with normal Foundry operations
+     */
+    emergencyClearAllTriggers() {
+        console.warn('WoD TriggerManager | EMERGENCY: Clearing all active triggers');
+        
+        // Clear all intervals
+        if (this._activeIntervals) {
+            for (const [id, interval] of this._activeIntervals) {
+                clearInterval(interval);
+                console.log(`WoD TriggerManager | Cleared interval: ${id}`);
+            }
+            this._activeIntervals.clear();
+        }
+        
+        // Clear any other active timers
+        if (this._activeTimers) {
+            for (const [id, timer] of this._activeTimers) {
+                clearTimeout(timer);
+                console.log(`WoD TriggerManager | Cleared timer: ${id}`);
+            }
+            this._activeTimers.clear();
+        }
+        
+        console.log('WoD TriggerManager | Emergency clear completed');
     }
 
     }
