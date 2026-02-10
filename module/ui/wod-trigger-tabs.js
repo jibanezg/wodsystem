@@ -64,7 +64,13 @@ export function registerWodTriggerTabs() {
                                         console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                         const scene = window._wodCurrentScene;
                                         if (scene) {
-                                            _showSceneTriggersDialog(scene);
+                                            WodUnifiedTriggersDialog.create(scene, {
+                                                documentType: 'scene',
+                                                title: `WoD Triggers - ${scene.name}`,
+                                                onClose: () => {
+                                                    console.log('WoD Trigger Tabs | Scene triggers dialog closed');
+                                                }
+                                            });
                                         }
                                         // Close the context menu
                                         menu.remove();
@@ -116,7 +122,13 @@ export function registerWodTriggerTabs() {
                                                 console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                                 const scene = window._wodCurrentScene;
                                                 if (scene) {
-                                                    _showSceneTriggersDialog(scene);
+                                                    WodUnifiedTriggersDialog.create(scene, {
+                                                        documentType: 'scene',
+                                                        title: `WoD Triggers - ${scene.name}`,
+                                                        onClose: () => {
+                                                            console.log('WoD Trigger Tabs | Scene triggers dialog closed');
+                                                        }
+                                                    });
                                                 }
                                                 menu.remove();
                                             });
@@ -185,7 +197,13 @@ export function registerWodTriggerTabs() {
                 name: "WoD Triggers",
                 icon: '<i class="fa-solid fa-shield-halved"></i>',
                 callback: () => {
-                    _showWodTriggersDialog(wall.document);
+                    WodUnifiedTriggersDialog.create(wall.document, {
+                        documentType: 'wall',
+                        title: `WoD Triggers - Wall ${wall.id}`,
+                        onClose: () => {
+                            console.log('WoD Trigger Tabs | Wall triggers dialog closed');
+                        }
+                    });
                 }
             }
         ];
@@ -494,8 +512,14 @@ async function _injectWodTriggersTab(app, html, doc) {
         const action = $(e.currentTarget).data('action');
         
         if (action === 'wod-triggers') {
-            // Show trigger content using original approach
-            _showWodTriggersContent(app, html, doc);
+            // Show trigger content using unified dialog
+            WodUnifiedTriggersDialog.create(doc, {
+                documentType: 'actor',
+                title: `WoD Triggers - ${doc.name}`,
+                onClose: () => {
+                    console.log('WoD Trigger Tabs | Actor triggers dialog closed');
+                }
+            });
         }
         
         gmContextMenu.hide();
