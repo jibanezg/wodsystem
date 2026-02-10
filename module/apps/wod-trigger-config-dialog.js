@@ -53,6 +53,8 @@ export class WodTriggerConfigDialog extends FormApplication {
         // Use in-memory data if available, otherwise use existing trigger data
         const triggerData = this._currentTriggerData || existing;
         
+        console.log('WoD Trigger Config Dialog | getData - triggerData conditions:', triggerData?.trigger?.conditions?.length || 0);
+        
         // Default trigger structure (clean format)
         const defaultTrigger = {
             id: this.triggerId,
@@ -697,8 +699,8 @@ export class WodTriggerConfigDialog extends FormApplication {
                 logic: 'none'
             });
             
-            // Store the updated data in memory
-            this._currentTriggerData = currentData;
+            // Store the updated data in memory (only the trigger part)
+            this._currentTriggerData = currentData.trigger;
             console.log('WoD Trigger Config Dialog | Add condition - stored in-memory data with conditions:', currentData.trigger.trigger.conditions.length);
             
             this.render(false);
