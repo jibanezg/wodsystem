@@ -1,12 +1,11 @@
 import { WodTriggerConfigDialog } from './wod-trigger-config-dialog.js';
-import { ApplicationV2 } from '@foundry/applications/api';
 
 /**
  * Unified WoD Triggers Dialog
  * Handles all trigger management contexts (scenes, actors, walls, tiles, regions)
  * while maintaining a single implementation
  */
-export class WodUnifiedTriggersDialog extends ApplicationV2 {
+export class WodUnifiedTriggersDialog extends Dialog {
     
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
@@ -20,12 +19,26 @@ export class WodUnifiedTriggersDialog extends ApplicationV2 {
     }
     
     constructor(document, options = {}) {
-        super(options);
+        super({
+            title: options.title || 'WoD Triggers',
+            content: '',
+            buttons: {
+                close: {
+                    label: "Close",
+                    callback: () => {}
+                }
+            },
+            default: "close",
+            ...options
+        });
         
         this.document = document;
         this.context = options.context || {};
         this.onClose = options.onClose;
         this.documentType = options.documentType || 'actor';
+        
+        // Initialize dialog content
+        this._initializeContent();
     }
     
     /**
@@ -130,11 +143,11 @@ export class WodUnifiedTriggersDialog extends ApplicationV2 {
     /**
      * Attach event listeners to dialog elements
      */
-    activateListeners(html) {
-        super.activateListeners(html);
+    _attachEventListeners() {
+        const dialogElement = $(this.element);
         
         // Add trigger button
-        const $addButton = html.find('.add-trigger-btn');
+        const $addButton = dialogElement.find('.add-trigger-btn');
         
         if ($addButton.length) {
             console.log('WoD Unified Triggers Dialog | Found add trigger button');
@@ -152,7 +165,7 @@ export class WodUnifiedTriggersDialog extends ApplicationV2 {
         }
         
         // Trigger action buttons (edit, delete, etc.)
-        html.find('.trigger-action').off('click.unifiedAction').on('click.unifiedAction', (event) => {
+        dialogElement.find('.trigger-action').off('click.unifiedAction').on('click.unifiedAction', (event) => {
             event.preventDefault();
             event.stopPropagation();
             
@@ -175,7 +188,7 @@ export class WodUnifiedTriggersDialog extends ApplicationV2 {
                     documentType: this.documentType,
                     onClose: () => {
                         // Refresh the dialog content
-                        this.render(false);
+                        this._initializeContent();
                         if (this.onClose) {
                             this.onClose();
                         }
@@ -209,7 +222,7 @@ export class WodUnifiedTriggersDialog extends ApplicationV2 {
                 if (triggerId) {
                     const next = triggers.filter(t => t.id !== triggerId);
                     await this._saveTriggers(next);
-                    this.render(false);
+                    this._initializeContent();
                     ui.notifications.info('Trigger deleted');
                 }
                 break;
@@ -220,7 +233,7 @@ export class WodUnifiedTriggersDialog extends ApplicationV2 {
                     if (trigger) {
                         trigger.enabled = !trigger.enabled;
                         await this._saveTriggers(triggers);
-                        this.render(false);
+                        this._initializeContent();
                     }
                 }
                 break;
