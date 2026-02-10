@@ -284,7 +284,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                     <div class="wod-triggers-content">
                         <div class="wod-triggers-list">
                             <div class="wod-triggers-dialog">
-                                <h2>WoD Triggers - ${data.documentTitle}</h2>
+                                <h2>🔥 UNIFIED DIALOG - WoD Triggers - ${data.documentTitle}</h2>
                                 <div class="trigger-list">
                                     ${rendered}
                                 </div>
