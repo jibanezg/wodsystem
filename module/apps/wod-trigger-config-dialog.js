@@ -51,7 +51,14 @@ export class WodTriggerConfigDialog extends FormApplication {
         console.log('WoD Trigger Config Dialog | getData - in-memory conditions:', this._currentTriggerData?.trigger?.conditions?.length || 0);
         
         // Use in-memory data if available, otherwise use existing trigger data
-        const triggerData = this._currentTriggerData || existing;
+        let triggerData = this._currentTriggerData || existing;
+        
+        // If we have saved data, clear in-memory data to use saved data instead
+        if (existing && this._currentTriggerData) {
+            console.log('WoD Trigger Config Dialog | Clearing in-memory data, using saved trigger');
+            this._currentTriggerData = null;
+            triggerData = existing; // Use existing trigger data instead
+        }
         
         console.log('WoD Trigger Config Dialog | getData - triggerData conditions:', triggerData?.trigger?.conditions?.length || 0);
         
