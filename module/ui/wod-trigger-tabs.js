@@ -5,7 +5,6 @@ import { TriggerEventRegistry } from '../services/trigger-event-registry.js';
 const _processedApps = new WeakSet();
 
 export function registerWodTriggerTabs() {
-    console.log('WoD Trigger Tabs | Registering trigger tabs...');
     
     // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
     Hooks.on('renderTileConfig', async (app, html) => {
@@ -39,7 +38,6 @@ export function registerWodTriggerTabs() {
             });
             
             if (wall) {
-                console.log('WoD Trigger Tabs | Wall right-clicked:', wall);
                 _showWallContextMenu(wall, event);
             }
         });
@@ -53,7 +51,6 @@ export function registerWodTriggerTabs() {
                 name: "WoD Triggers",
                 icon: '<i class="fa-solid fa-shield-halved"></i>',
                 callback: () => {
-                    console.log('WoD Trigger Tabs | Wall context menu clicked for wall:', wall);
                     _showWodTriggersDialog(wall.document);
                 }
             }
@@ -298,7 +295,6 @@ async function _injectWodTriggersTab(app, html, doc) {
     
     // Aggressive fallback for actor sheets - create entire structure if needed
     if (!nav?.length && !contentRoot?.length && docName === 'Actor') {
-        console.log('WoD Trigger Tabs | Creating complete tab structure for actor sheet');
         
         // Create complete tab structure
         const tabStructure = $(`
@@ -374,12 +370,9 @@ async function _injectWodTriggersTab(app, html, doc) {
 
 // NEW: Function to add WoD Triggers tab to configuration dialogs
 function _addWodTriggersTabToConfigDialog(app, html, doc) {
-    console.log('WoD Trigger Tabs | _addWodTriggersTabToConfigDialog called for:', app.constructor.name);
-    console.log('WoD Trigger Tabs | HTML structure preview:', html[0]?.outerHTML?.substring(0, 300));
     
     // Check if user is GM
     if (!game.user.isGM) {
-        console.log('WoD Trigger Tabs | User is not GM, skipping');
         return;
     }
 
@@ -462,9 +455,6 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
     // Check if we found both nav and content root
     if (!nav?.length || !contentRoot?.length) {
         console.warn('WoD Trigger Tabs | Could not find suitable nav or content root for config dialog');
-        console.log('WoD Trigger Tabs | Available nav elements found:', nav?.length || 0);
-        console.log('WoD Trigger Tabs | Available content elements found:', contentRoot?.length || 0);
-        console.log('WoD Trigger Tabs | Wall Config HTML structure:', html[0]?.outerHTML);
         
         // For Wall Config, we need to create our own tab structure since it doesn't have tabs
         _createWallConfigTabStructure(app, html, doc);
@@ -474,8 +464,6 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
     // Avoid double injection - check for existing WoD Triggers tabs
     const existingWodTabs = html.find('[data-tab="wod-triggers"]');
     if (existingWodTabs.length) {
-        console.log('WoD Trigger Tabs | WoD Triggers tab already exists, skipping injection');
-        console.log('WoD Trigger Tabs | Found', existingWodTabs.length, 'existing WoD Triggers tabs');
         return;
     }
 
@@ -498,7 +486,6 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
         ev.preventDefault();
         ev.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Config tab clicked');
         
         // Deactivate all tabs in this group
         const group = nav.attr('data-group') || 'sheet';
@@ -509,7 +496,6 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
         wodTab.addClass('active');
         html.find(`.tab[data-tab="wod-triggers"][data-group="${group}"]`).addClass('active');
         
-        console.log('WoD Trigger Tabs | Config tab activated');
     });
     
     // Add tab content
@@ -550,7 +536,6 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
         // Attach event listeners for the new tab content
         _attachConfigDialogEventListeners(tabContent, app, doc);
         
-        console.log('WoD Trigger Tabs | Added WoD Triggers tab to config dialog');
     }).catch(error => {
         console.error('WoD Trigger Tabs | Error rendering tab content:', error);
     });
@@ -558,11 +543,9 @@ function _addWodTriggersTabToConfigDialog(app, html, doc) {
 
 // NEW: Function to create custom tab structure for Wall Config dialogs
 function _createWallConfigTabStructure(app, html, doc) {
-    console.log('WoD Trigger Tabs | Creating custom tab structure for Wall Config');
     
     // Check if user is GM
     if (!game.user.isGM) {
-        console.log('WoD Trigger Tabs | User is not GM, skipping Wall Config tab creation');
         return;
     }
 
@@ -580,36 +563,26 @@ function _createWallConfigTabStructure(app, html, doc) {
     }
     
     if (!formContent.length) {
-        console.error('WoD Trigger Tabs | Could not find any suitable content area for Wall Config');
-        console.log('WoD Trigger Tabs | Available selectors:', html.find('form').children().map((i, el) => el.className).get());
         return;
     }
     
-    console.log('WoD Trigger Tabs | Found content area:', formContent[0].className);
-    console.log('WoD Trigger Tabs | Content area element:', formContent[0]);
-    console.log('WoD Trigger Tabs | Content area parent:', formContent[0].parentElement);
 
     // Check if tabs already exist to prevent duplicates - clean up any existing WoD tabs
     const existingTabs = formContent.find('.sheet-tabs[data-group="wall-config"]');
     const existingWoDTabContent = formContent.find('.tab[data-tab="wod-triggers"][data-group="wall-config"]');
     
     if (existingTabs.length && existingWoDTabContent.length) {
-        console.log('WoD Trigger Tabs | Wall Config tabs already exist, skipping creation');
-        console.log('WoD Trigger Tabs | Found', existingWoDTabContent.length, 'existing WoD Triggers tabs');
         return;
     }
     
     // Clean up any orphaned WoD tab content without proper navigation
     if (existingWoDTabContent.length && !existingTabs.length) {
-        console.log('WoD Trigger Tabs | Cleaning up orphaned WoD tab content');
         existingWoDTabContent.remove();
     }
 
     // Capture the original scrollable content BEFORE we modify anything
     const scrollableContent = html.find('.standard-form.scrollable').first();
     const originalContent = scrollableContent.html() || formContent.html();
-    console.log('WoD Trigger Tabs | Original content captured, length:', originalContent.length);
-    console.log('WoD Trigger Tabs | Using scrollable content:', !!scrollableContent.length);
 
     // Create tab navigation with proper Foundry styling
     const tabNav = $(`
@@ -649,10 +622,6 @@ function _createWallConfigTabStructure(app, html, doc) {
     formContent.append(basicTab);
     formContent.append(wodTriggersTab);
     
-    console.log('WoD Trigger Tabs | Tabs injected into:', formContent[0]);
-    console.log('WoD Trigger Tabs | Tab navigation element:', tabNav[0]);
-    console.log('WoD Trigger Tabs | Tab navigation visible:', tabNav.is(':visible'));
-    console.log('WoD Trigger Tabs | Tab navigation position:', tabNav.position());
 
     // Set up event listeners for tab switching - use Foundry's built-in tab system
     tabNav.find('a.tab').off('click.wodWallTab').on('click.wodWallTab', (ev) => {
@@ -662,7 +631,6 @@ function _createWallConfigTabStructure(app, html, doc) {
         const clickedTab = $(ev.currentTarget);
         const tabName = clickedTab.data('tab');
         
-        console.log('WoD Trigger Tabs | Tab clicked:', tabName);
         
         // Simple tab switching - hide all, show selected
         formContent.find('.tab[data-group="wall-config"]').hide();
@@ -699,12 +667,10 @@ function _createWallConfigTabStructure(app, html, doc) {
         const wodTabContent = wodTriggersTab.find('.wod-triggers-content');
         wodTabContent.html(rendered);
         
-        console.log('WoD Trigger Tabs | WoD Triggers content loaded and updated in existing tab');
         
         // Attach event listeners for WoD Triggers content
         _attachConfigDialogEventListeners(wodTriggersTab, app, doc);
         
-        console.log('WoD Trigger Tabs | Successfully created custom tab structure for Wall Config');
     }).catch(error => {
         console.error('WoD Trigger Tabs | Error rendering WoD Triggers tab content:', error);
     });
@@ -713,23 +679,16 @@ function _createWallConfigTabStructure(app, html, doc) {
 // NEW: Event listeners for config dialogs (shared with main dialog system)
 function _attachConfigDialogEventListeners($content, app, doc) {
     // DEBUG: Log what app and dialogRef we're working with
-    console.log('WoD Trigger Tabs | Attaching listeners to dialog:', app.constructor.name);
-    console.log('WoD Trigger Tabs | App title:', app.options?.title);
-    console.log('WoD Trigger Tabs | App classes:', app.options?.classes);
     
     const dialogElement = $(app.element);
     const dialogRef = dialogElement.data('dialogRef') || app;
     
-    console.log('WoD Trigger Tabs | dialogRef from data:', dialogElement.data('dialogRef')?.constructor.name);
-    console.log('WoD Trigger Tabs | Final dialogRef:', dialogRef.constructor.name);
     
     // Check if WoD Triggers tab already exists
     const existingTab = dialogRef.element.querySelectorAll('[data-tab]').length;
-    console.log('WoD Trigger Tabs | Found', existingTab, 'existing tabs');
     
     // Prevent double attachment by checking if already attached
     if ($content.data('wod-listeners-attached')) {
-        console.log('WoD Trigger Tabs | Event listeners already attached, skipping');
         return;
     }
     $content.data('wod-listeners-attached', true);
@@ -757,7 +716,6 @@ function _attachConfigDialogEventListeners($content, app, doc) {
         ev.preventDefault();
         ev.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Add trigger button clicked in config dialog');
         
         import('../apps/wod-trigger-config-dialog.js').then(module => {
             const DialogClass = module.WodTriggerConfigDialog || module.default;
@@ -783,10 +741,8 @@ function _attachConfigDialogEventListeners($content, app, doc) {
         // Check if we have corrupted triggers that need cleanup
         const hasCorruptedTriggers = triggers.some(t => typeof t?.id === 'object');
         if (hasCorruptedTriggers) {
-            console.log('WoD Trigger Tabs | DETECTED CORRUPTED TRIGGERS - Cleaning up...');
             const cleanedTriggers = triggers.map(trigger => {
                 if (typeof trigger.id === 'object') {
-                    console.log('WoD Trigger Tabs | Fixing corrupted trigger ID');
                     return {
                         ...trigger,
                         id: foundry.utils.randomID()
@@ -796,7 +752,6 @@ function _attachConfigDialogEventListeners($content, app, doc) {
             });
             
             await doc.setFlag('wodsystem', 'triggers', cleanedTriggers);
-            console.log('WoD Trigger Tabs | Trigger IDs cleaned up successfully');
             
             // Refresh and return - the trigger will have a proper ID now
             _refreshConfigDialogContent(dialogRef, doc);
@@ -813,11 +768,9 @@ function _attachConfigDialogEventListeners($content, app, doc) {
 
 // NEW: Event listeners for config dialogs ONLY (no tab injection)
 function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
-    console.log('WoD Trigger Tabs | Attaching listeners ONLY (no tab injection)');
     
     // Prevent double attachment by checking if already attached
     if ($content.data('wod-listeners-attached')) {
-        console.log('WoD Trigger Tabs | Event listeners already attached, skipping');
         return;
     }
     $content.data('wod-listeners-attached', true);
@@ -845,7 +798,6 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
         ev.preventDefault();
         ev.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Add trigger button clicked in config dialog');
         
         import('../apps/wod-trigger-config-dialog.js').then(module => {
             const DialogClass = module.WodTriggerConfigDialog || module.default;
@@ -871,10 +823,8 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
         // Check if we have corrupted triggers that need cleanup
         const hasCorruptedTriggers = triggers.some(t => typeof t?.id === 'object');
         if (hasCorruptedTriggers) {
-            console.log('WoD Trigger Tabs | DETECTED CORRUPTED TRIGGERS - Cleaning up...');
             const cleanedTriggers = triggers.map(trigger => {
                 if (typeof trigger.id === 'object') {
-                    console.log('WoD Trigger Tabs | Fixing corrupted trigger ID');
                     return {
                         ...trigger,
                         id: foundry.utils.randomID()
@@ -884,7 +834,6 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
             });
             
             await doc.setFlag('wodsystem', 'triggers', cleanedTriggers);
-            console.log('WoD Trigger Tabs | Trigger IDs cleaned up successfully');
             
             // Refresh and return - the trigger will have a proper ID now
             _refreshConfigDialogContent(dialogRef, doc);
@@ -908,13 +857,9 @@ function _refreshConfigDialogContent(dialogRef, doc) {
     }
     
     // DEBUG: Log which dialog we're targeting
-    console.log('WoD Trigger Tabs | Target dialog:', dialogRef.constructor.name);
-    console.log('WoD Trigger Tabs | Target dialog title:', dialogRef.options?.title);
-    console.log('WoD Trigger Tabs | Document being saved:', doc.constructor.name, doc.name);
     
     // Check if this is a wall dialog - if so, use the wall-specific refresh method
     if (doc.documentName === 'Wall') {
-        console.log('WoD Trigger Tabs | Using wall-specific refresh method');
         _refreshWallTriggersContent($(dialogRef.element), doc);
         return;
     }
@@ -953,11 +898,8 @@ function _refreshConfigDialogContent(dialogRef, doc) {
             $content.html(rendered);
             
             // Re-attach event listeners for the new content ONLY (no tab injection)
-            console.log('WoD Trigger Tabs | Re-attaching event listeners');
             _attachConfigDialogEventListenersOnly($content, dialogRef, doc);
             
-            console.log('WoD Trigger Tabs | Config dialog content refreshed');
-            console.log('WoD Trigger Tabs | Triggers after refresh:', triggers.length);
         } else {
             console.warn('WoD Trigger Tabs | Could not find .wod-triggers-content element');
         }
@@ -988,15 +930,11 @@ async function _showWodTriggersContent(app, html, doc) {
         supportsProximity: docTypeInfo?.supportsProximity || false
     };
     
-    console.log('WoD Trigger Tabs | Template data:', templateData);
     
     renderFn(
         'systems/wodsystem/templates/apps/wod-triggers-tab.html',
         templateData
     ).then(rendered => {
-        console.log('WoD Trigger Tabs | Rendered content type:', typeof rendered);
-        console.log('WoD Trigger Tabs | Rendered content length:', rendered.length);
-        console.log('WoD Trigger Tabs | Rendered content preview:', rendered.substring(0, 200));
 
         // Create a professional Foundry-style dialog
         const dialogContent = `
@@ -1118,26 +1056,21 @@ async function _showWodTriggersContent(app, html, doc) {
         // Wait for dialog to be fully rendered before accessing elements
         setTimeout(() => {
             const dialogElement = $(dialog.element);
-            console.log('WoD Trigger Tabs | Dialog element after timeout:', !!dialogElement.length);
             
             if (!dialogElement.length) {
-                console.warn('WoD Trigger Tabs | Dialog element not found after timeout');
                 return;
             }
             // Try multiple selectors to find the button
             let button = dialogElement.find('.wod-add-trigger-btn');
-            console.log('WoD Trigger Tabs | Button element found (primary):', button.length);
             
             if (button.length === 0) {
                 // Try finding in the dialog content
                 button = dialogElement.find('.dialog-content .wod-add-trigger-btn');
-                console.log('WoD Trigger Tabs | Button element found (dialog-content):', button.length);
             }
             
             if (button.length === 0) {
                 // Try finding by type and content
                 button = dialogElement.find('button[type="button"]:contains("Add Trigger")');
-                console.log('WoD Trigger Tabs | Button element found (contains):', button.length);
             }
             
             if (button.length === 0) {
@@ -1149,7 +1082,6 @@ async function _showWodTriggersContent(app, html, doc) {
                 });
             }
             
-            console.log('WoD Trigger Tabs | Final button count:', button.length);
             
             // Find the add trigger button
             const $button = dialogElement.find('.wod-add-trigger-btn');
@@ -1162,29 +1094,20 @@ async function _showWodTriggersContent(app, html, doc) {
             
             // Store dialog reference for event listeners
             dialogElement.data('dialogRef', dialog);
-            console.log('WoD Trigger Tabs | Stored dialog reference:', dialog);
-            console.log('WoD Trigger Tabs | Retrieved dialog reference:', dialogElement.data('dialogRef'));
             
             // Try direct DOM event listener
             $button[0].addEventListener('click', (e) => {
-                console.log('WoD Trigger Tabs | Native click listener triggered!');
-                console.log('WoD Trigger Tabs | Click event details:', e);
                 e.stopPropagation();
                 e.preventDefault();
                 
                 // Open trigger configuration dialog
-                console.log('WoD Trigger Tabs | Opening trigger configuration...');
                 
                 // Import the config dialog module
                 import('../apps/wod-trigger-config-dialog.js').then(module => {
-                    console.log('WoD Trigger Tabs | Attempting to import trigger config dialog...');
                     
                     const DialogClass = module.WodTriggerConfigDialog || module.default;
-                    console.log('WoD Trigger Tabs | Import successful, module:', module);
-                    console.log('WoD Trigger Tabs | Module keys:', Object.keys(module));
                     
                     if (DialogClass) {
-                        console.log('WoD Trigger Tabs | Creating config dialog...');
                         const configDialog = new DialogClass(doc, null, {
                             documentType: documentType,
                             documentTypeLabel: docTypeInfo?.label || documentType,
@@ -1195,7 +1118,6 @@ async function _showWodTriggersContent(app, html, doc) {
                                 refreshDialogContent(dialogRef);
                             }
                         });
-                        console.log('WoD Trigger Tabs | Rendering config dialog...');
                         configDialog.render(true);
                         // Don't close this dialog - let user stay in the trigger list
                     } else {
@@ -1212,7 +1134,6 @@ async function _showWodTriggersContent(app, html, doc) {
             attachEventListeners(dialogElement);
         }, 100);
         
-        console.log('WoD Trigger Tabs | Trigger dialog opened for:', doc.name);
     }).catch(error => {
         console.error('WoD Trigger Tabs | Error rendering template:', error);
         ui.notifications.error('Could not render trigger content: ' + error.message);
@@ -1241,7 +1162,6 @@ async function _showWodTriggersContent(app, html, doc) {
                 // Re-attach event listeners for the new content
                 attachEventListeners($(dialogRef.element));
                 
-                console.log('WoD Trigger Tabs | Dialog content refreshed');
             }
         }).catch(error => {
             console.error('WoD Trigger Tabs | Error refreshing content:', error);
@@ -1287,11 +1207,9 @@ async function _showWodTriggersContent(app, html, doc) {
             // Check if we have corrupted triggers that need cleanup
             const hasCorruptedTriggers = triggers.some(t => typeof t?.id === 'object');
             if (hasCorruptedTriggers) {
-                console.log('WoD Trigger Tabs | DETECTED CORRUPTED TRIGGERS - Cleaning up...');
-                const cleanedTriggers = triggers.map(trigger => {
+                    const cleanedTriggers = triggers.map(trigger => {
                     if (typeof trigger.id === 'object') {
-                        console.log('WoD Trigger Tabs | Fixing corrupted trigger ID');
-                        return {
+                            return {
                             ...trigger,
                             id: foundry.utils.randomID()
                         };
@@ -1300,8 +1218,7 @@ async function _showWodTriggersContent(app, html, doc) {
                 });
                 
                 await doc.setFlag('wodsystem', 'triggers', cleanedTriggers);
-                console.log('WoD Trigger Tabs | Trigger IDs cleaned up successfully');
-                
+                    
                 // Refresh and return - the trigger will have a proper ID now
                 refreshDialogContent(dialogRef);
                 return;

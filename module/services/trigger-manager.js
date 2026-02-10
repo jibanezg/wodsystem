@@ -41,7 +41,7 @@ export class TriggerManager {
         // Update debug mode from settings now that they're available
         // Use try-catch to handle case where settings aren't registered yet
         try {
-            this._debugMode = game.settings?.get?.('wodsystem', 'debugMode') ?? false;
+            this._debugMode = false; // Disabled debug mode to reduce console spam
         } catch (error) {
             console.warn('WoD TriggerManager | Debug mode setting not available, using default:', error);
             this._debugMode = false;

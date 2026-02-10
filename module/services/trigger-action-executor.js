@@ -59,9 +59,6 @@ export class TriggerActionExecutor {
      */
     setDebugMode(enabled) {
         this._debugMode = enabled;
-        if (enabled) {
-            console.log('WoD ActionExecutor | Debug mode enabled');
-        }
     }
     
     /**
@@ -71,9 +68,6 @@ export class TriggerActionExecutor {
      */
     registerActionHandler(actionType, handler) {
         this._actionHandlers.set(actionType, handler);
-        if (this._debugMode) {
-            console.log(`WoD ActionExecutor | Registered handler for action type: ${actionType}`);
-        }
     }
     
     /**

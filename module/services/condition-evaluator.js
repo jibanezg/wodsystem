@@ -51,9 +51,6 @@ export class ConditionEvaluator {
                 expected: evalResult.expected
             });
             
-            if (this._debugMode) {
-                console.log(`ConditionEvaluator | Condition ${i + 1} (${condition.type}): ${evalResult.passed ? 'PASSED' : 'FAILED'}`, evalResult);
-            }
             
             // Apply logic operator
             if (currentResult === null) {
@@ -72,9 +69,6 @@ export class ConditionEvaluator {
             }
         }
         
-        if (this._debugMode) {
-            console.log(`ConditionEvaluator | Final result: ${currentResult ? 'PASSED' : 'FAILED'}`);
-        }
         
         return {
             passed: currentResult ?? true,
