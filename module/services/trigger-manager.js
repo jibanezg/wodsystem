@@ -2230,10 +2230,13 @@ export class TriggerManager {
         
         console.log(`WoD TriggerManager | _onActorEffectsChanged called for actor: ${actor.name}`, effects);
         
-        // Determine effect event type based on changes
-        const currentEffects = actor.effects || [];
-        const addedEffects = effects.filter(e => !currentEffects.includes(e));
-        const removedEffects = currentEffects.filter(e => !effects.includes(e));
+        // Get current effect IDs from actor effects
+        const currentEffectIds = Array.from(actor.effects || []).map(e => e.id);
+        console.log(`WoD TriggerManager | Current effect IDs: [${currentEffectIds.join(', ')}]`);
+        
+        // Determine which effects were added and removed
+        const addedEffects = effects.filter(e => !currentEffectIds.includes(e));
+        const removedEffects = currentEffectIds.filter(e => !effects.includes(e));
         
         console.log(`WoD TriggerManager | Added effects: [${addedEffects.join(', ')}], Removed effects: [${removedEffects.join(', ')}]`);
         
