@@ -307,21 +307,18 @@ export class WodUnifiedTriggersDialog extends Dialog {
     }
     
     /**
-     * Open trigger config dialog
+     * Open trigger config dialog using the exact same pattern as the working scene dialog
      */
-    _openTriggerConfigDialog() {
+    _openTriggerConfigDialog(triggerId = null) {
         import('./wod-trigger-config-dialog.js').then(module => {
             const DialogClass = module.WodTriggerConfigDialog || module.default;
             if (DialogClass) {
-                const triggerDialog = new DialogClass(this.document, null, {
-                    title: `Add Trigger - ${this._getDocumentTitle()}`,
+                const triggerDialog = new DialogClass(this.document, triggerId, {
+                    title: triggerId ? `Edit Trigger - ${this._getDocumentTitle()}` : `Add Trigger - ${this._getDocumentTitle()}`,
                     documentType: this.documentType,
                     onClose: () => {
-                        // Refresh the dialog content
-                        this._initializeContent();
-                        if (this.onClose) {
-                            this.onClose();
-                        }
+                        // Refresh the dialog content using the same pattern as scene dialog
+                        this._refreshDialogContent();
                     }
                 });
                 triggerDialog.render(true);
@@ -330,6 +327,46 @@ export class WodUnifiedTriggersDialog extends Dialog {
             console.error('WoD Unified Triggers Dialog | Error loading config dialog:', error);
             ui.notifications.error('Could not open trigger configuration dialog');
         });
+    }
+    
+    /**
+     * Refresh dialog content using the same pattern as the working scene dialog
+     */
+    async _refreshDialogContent() {
+        try {
+            const data = await this.getData();
+            const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
+            
+            // Render the triggers list
+            const rendered = await renderFn(
+                'systems/wodsystem/templates/apps/wod-triggers-tab.html',
+                {
+                    triggers: Array.isArray(data.triggers) ? data.triggers : [],
+                    documentType: this.documentType,
+                    docTypeInfo: data.docTypeInfo,
+                    documentName: data.documentName,
+                    documentId: data.documentId,
+                    isGM: game.user.isGM,
+                    context: this.context
+                }
+            );
+            
+            // Update the trigger list content
+            const dialogElement = $(this.element);
+            if (dialogElement.length) {
+                dialogElement.find('.trigger-list').html(rendered);
+                
+                // Re-attach event listeners for the new content
+                this._attachWorkingEventListeners();
+            }
+            
+            // Call the onClose callback if it exists
+            if (this.onClose) {
+                this.onClose();
+            }
+        } catch (error) {
+            console.error('WoD Unified Triggers Dialog | Error refreshing content:', error);
+        }
     }
     
     /**
@@ -343,7 +380,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 if (triggerId) {
                     const trigger = triggers.find(t => t.id === triggerId);
                     if (trigger) {
-                        this._openTriggerConfigDialog(trigger);
+                        this._openTriggerConfigDialog(triggerId);
                     }
                 }
                 break;
@@ -352,7 +389,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 if (triggerId) {
                     const next = triggers.filter(t => t.id !== triggerId);
                     await this._saveTriggers(next);
-                    this._initializeContent();
+                    this._refreshDialogContent();
                     ui.notifications.info('Trigger deleted');
                 }
                 break;
@@ -363,7 +400,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                     if (trigger) {
                         trigger.enabled = !trigger.enabled;
                         await this._saveTriggers(triggers);
-                        this._initializeContent();
+                        this._refreshDialogContent();
                     }
                 }
                 break;
