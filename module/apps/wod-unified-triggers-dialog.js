@@ -187,6 +187,18 @@ export class WodUnifiedTriggersDialog extends Dialog {
      * Initialize the dialog content
      */
     async _initializeContent() {
+        console.log('WoD Unified Triggers Dialog | _initializeContent called');
+        
+        // Debug: Check what's in the dialog element
+        const dialogElement = $(this.element);
+        console.log('WoD Unified Triggers Dialog | Dialog element:', dialogElement.length > 0 ? 'found' : 'NOT FOUND');
+        
+        if (dialogElement.length) {
+            const content = dialogElement.find('.dialog-content');
+            console.log('WoD Unified Triggers Dialog | Dialog content:', content.length > 0 ? 'found' : 'NOT FOUND');
+            console.log('WoD Unified Triggers Dialog | Current HTML:', content.html());
+        }
+        
         // Let the template handle content generation
         // Just attach event listeners
         this._attachWorkingEventListeners();
