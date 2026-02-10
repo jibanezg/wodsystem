@@ -260,6 +260,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                     title: triggerId ? `Edit Trigger - ${this._getDocumentTitle()}` : `Add Trigger - ${this._getDocumentTitle()}`,
                     documentType: this.documentType,
                     onClose: () => {
+                        console.log('WoD Unified Triggers Dialog | Config dialog closed, refreshing content');
                         // Refresh the dialog content using the same pattern as scene dialog
                         this._refreshDialogContent();
                     }
@@ -277,7 +278,9 @@ export class WodUnifiedTriggersDialog extends Dialog {
      */
     async _refreshDialogContent() {
         try {
+            console.log('WoD Unified Triggers Dialog | Refreshing dialog content for:', this.documentType);
             const data = await this.getData();
+            console.log('WoD Unified Triggers Dialog | Got triggers:', data.triggers?.length || 0);
             const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
             
             // Render the triggers list
