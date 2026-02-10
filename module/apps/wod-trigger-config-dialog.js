@@ -679,8 +679,21 @@ export class WodTriggerConfigDialog extends FormApplication {
         console.log('WoD Trigger Config Dialog | Add condition - trigger index:', triggerIndex);
         
         if (triggerIndex < 0) {
-            // Trigger not saved yet, just re-render with a new condition
+            // Trigger not saved yet, add condition to in-memory data
+            console.log('WoD Trigger Config Dialog | Add condition - trigger not saved, adding to in-memory data');
+            const currentData = this.getData();
+            if (!currentData.trigger.trigger.conditions) {
+                currentData.trigger.trigger.conditions = [];
+            }
+            currentData.trigger.trigger.conditions.push({
+                type: 'hasEffect',
+                operator: 'equals',
+                value: '',
+                logic: 'none'
+            });
+            console.log('WoD Trigger Config Dialog | Add condition - added to in-memory data, total conditions:', currentData.trigger.trigger.conditions.length);
             this.render(false);
+            console.log('WoD Trigger Config Dialog | Add condition - dialog re-rendered with new condition');
             return;
         }
 
