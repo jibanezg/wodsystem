@@ -217,12 +217,18 @@ export class WodUnifiedTriggersDialog extends Dialog {
         }
 
         // Add click listeners for trigger edit and delete buttons
-        contentElement.find('.trigger-edit, .trigger-delete').off('click.unifiedAction').on('click.unifiedAction', (event) => {
+        const triggerButtons = contentElement.find('.trigger-edit, .trigger-delete');
+        console.log('WoD Unified Triggers Dialog | Found trigger buttons:', triggerButtons.length);
+        
+        triggerButtons.off('click.unifiedAction').on('click.unifiedAction', (event) => {
+            console.log('WoD Unified Triggers Dialog | Trigger button clicked');
             event.preventDefault();
             event.stopPropagation();
             
             const action = $(event.currentTarget).data('action');
             const triggerId = $(event.currentTarget).data('triggerId');
+            
+            console.log('WoD Unified Triggers Dialog | Action:', action, 'Trigger ID:', triggerId);
             
             this._handleTriggerAction(action, triggerId);
         });
