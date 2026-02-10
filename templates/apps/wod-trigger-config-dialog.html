@@ -15,13 +15,28 @@
                     <input type="checkbox" name="enabled" {{#if trigger.enabled}}checked{{/if}} />
                 </div>
                 <div class="field-row">
-                    <select name="actorTypesCsv">
-                        <option value="">-- All Actor Types --</option>
-                        <option value="character" {{#if (eq actorTypesCsv "character")}}selected{{/if}}>Character</option>
-                        <option value="npc" {{#if (eq actorTypesCsv "npc")}}selected{{/if}}>NPC</option>
-                        <option value="character,npc" {{#if (eq actorTypesCsv "character,npc")}}selected{{/if}}>Character & NPC</option>
-                        <option value="vehicle" {{#if (eq actorTypesCsv "vehicle")}}selected{{/if}}>Vehicle</option>
-                        <option value="character,npc,vehicle" {{#if (eq actorTypesCsv "character,npc,vehicle")}}selected{{/if}}>All Types</option>
+                    <select name="targetCsv">
+                        <option value="">-- All Targets --</option>
+                        <optgroup label="Actor Types">
+                            <option value="character" {{#if (eq targetCsv "character")}}selected{{/if}}>Character</option>
+                            <option value="npc" {{#if (eq targetCsv "npc")}}selected{{/if}}>NPC</option>
+                            <option value="vehicle" {{#if (eq targetCsv "vehicle")}}selected{{/if}}>Vehicle</option>
+                            <option value="character,npc" {{#if (eq targetCsv "character,npc")}}selected{{/if}}>Character & NPC</option>
+                            <option value="character,npc,vehicle" {{#if (eq targetCsv "character,npc,vehicle")}}selected{{/if}}>All Actor Types</option>
+                        </optgroup>
+                        <optgroup label="Element Types">
+                            <option value="tokens" {{#if (eq targetCsv "tokens")}}selected{{/if}}>All Tokens</option>
+                            <option value="doors" {{#if (eq targetCsv "doors")}}selected{{/if}}>All Doors</option>
+                            <option value="walls" {{#if (eq targetCsv "walls")}}selected{{/if}}>All Walls</option>
+                            <option value="tiles" {{#if (eq targetCsv "tiles")}}selected{{/if}}>All Tiles</option>
+                            <option value="regions" {{#if (eq targetCsv "regions")}}selected{{/if}}>All Regions</option>
+                        </optgroup>
+                        <optgroup label="Special Conditions">
+                            <option value="hasEffect:Anastasia Up and Running" {{#if (eq targetCsv "hasEffect:Anastasia Up and Running")}}selected{{/if}}>Has Effect: Anastasia Up and Running</option>
+                            <option value="hasEffect:PowerUp" {{#if (eq targetCsv "hasEffect:PowerUp")}}selected{{/if}}>Has Effect: Power Up</option>
+                            <option value="isGM" {{#if (eq targetCsv "isGM")}}selected{{/if}}>Is GM</option>
+                            <option value="isPlayer" {{#if (eq targetCsv "isPlayer")}}selected{{/if}}>Is Player</option>
+                        </optgroup>
                     </select>
                 </div>
                 <div class="field-row">
@@ -54,31 +69,6 @@
                     <option value="square" {{#if (eq trigger.trigger.scope.proximity.shape "square")}}selected{{/if}}>Square</option>
                     <option value="rectangle" {{#if (eq trigger.trigger.scope.proximity.shape "rectangle")}}selected{{/if}}>Rectangle</option>
                 </select>
-            </div>
-        </div>
-        
-        <!-- Target Configuration (for scene triggers) -->
-        <div class="target-section">
-            <h4>Target Configuration</h4>
-            <div class="form-group horizontal">
-                <label>Target Type</label>
-                <select name="trigger.target.type">
-                    <option value="actors" {{#if (eq trigger.trigger.target.type "actors")}}selected{{/if}}>All Actors in Scene</option>
-                    <option value="actorsWithEffect" {{#if (eq trigger.trigger.target.type "actorsWithEffect")}}selected{{/if}}>Actors with Specific Effect</option>
-                    <option value="specificActors" {{#if (eq trigger.trigger.target.type "specificActors")}}selected{{/if}}>Specific Actors</option>
-                    <option value="tokens" {{#if (eq trigger.trigger.target.type "tokens")}}selected{{/if}}>All Tokens in Scene</option>
-                    <option value="doors" {{#if (eq trigger.trigger.target.type "doors")}}selected{{/if}}>All Doors in Scene</option>
-                    <option value="specificDoors" {{#if (eq trigger.trigger.target.type "specificDoors")}}selected{{/if}}>Specific Doors</option>
-                    <option value="tiles" {{#if (eq trigger.trigger.target.type "tiles")}}selected{{/if}}>All Tiles in Scene</option>
-                </select>
-            </div>
-            <div class="form-group horizontal target-effect-field" {{#unless (eq trigger.trigger.target.type "actorsWithEffect")}}style="display:none"{{/unless}}>
-                <label>Effect Name</label>
-                <input type="text" name="trigger.target.effectName" value="{{trigger.trigger.target.effectName}}" placeholder="Anastasia Up and Running" />
-            </div>
-            <div class="form-group horizontal target-specific-field" {{#unless (or (eq trigger.trigger.target.type "specificActors") (eq trigger.trigger.target.type "specificDoors"))}}style="display:none"{{/unless}}>
-                <label>Target IDs</label>
-                <input type="text" name="trigger.target.ids" value="{{trigger.trigger.target.ids}}" placeholder="Comma-separated IDs" />
             </div>
         </div>
         

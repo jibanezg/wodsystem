@@ -133,7 +133,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         return {
             trigger,
             isNew: !existing,
-            actorTypesCsv: (trigger.trigger?.actorTypes || []).join(', '),
+            targetCsv: trigger.trigger?.actorTypes?.join(', ') || '', // Convert legacy actorTypes to targetCsv
             availableEffects: this._getAvailableEffects(),
             availableAttributes: this._getAvailableAttributes(),
             availableAbilities: this._getAvailableAbilities(),
@@ -209,36 +209,6 @@ export class WodTriggerConfigDialog extends FormApplication {
         eventField.toggle(currentMode === 'event');
         console.log('WoD Trigger Config Dialog | Initial execution mode:', currentMode);
         console.log('WoD Trigger Config Dialog | Initial event field visibility:', currentMode === 'event');
-
-        // Handle target type changes to show/hide additional fields
-        html.find('select[name="trigger.target.type"]').on('change', (ev) => {
-            const targetType = ev.currentTarget.value;
-            const effectField = html.find('.target-effect-field');
-            const specificField = html.find('.target-specific-field');
-            
-            // Show/hide effect field
-            effectField.toggle(targetType === 'actorsWithEffect');
-            
-            // Show/hide specific IDs field
-            specificField.toggle(targetType === 'specificActors' || targetType === 'specificDoors');
-            
-            // Update available events based on target type
-            this._updateAvailableEvents(html, targetType);
-            
-            console.log('WoD Trigger Config Dialog | Target type changed to:', targetType);
-        });
-
-        // Initialize target field visibility
-        const currentTargetType = html.find('select[name="trigger.target.type"]').val();
-        if (currentTargetType) {
-            const effectField = html.find('.target-effect-field');
-            const specificField = html.find('.target-specific-field');
-            
-            effectField.toggle(currentTargetType === 'actorsWithEffect');
-            specificField.toggle(currentTargetType === 'specificActors' || currentTargetType === 'specificDoors');
-            
-            this._updateAvailableEvents(html, currentTargetType);
-        }
 
         // Add condition button
         const addConditionBtn = html.find('button[data-action="add-condition"]');
@@ -1059,7 +1029,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         console.log('WoD Trigger Config Dialog | Existing triggers:', triggers.length);
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
-        const actorTypesCsv = (formData.actorTypesCsv || '').trim();
+        const actorTypesCsv = (formData.targetCsv || '').trim();
         const actorTypes = actorTypesCsv.length ? actorTypesCsv.split(',').map(s => s.trim()).filter(Boolean) : [];
 
                 
@@ -1073,7 +1043,6 @@ export class WodTriggerConfigDialog extends FormApplication {
                 actorTypes,
                 // New structure
                 scope: this._parseScopeFromFormData(formData),
-                target: this._parseTargetFromFormData(formData),
                 conditions: formData['trigger.conditions'] || [],
                 execution: this._parseExecutionFromFormData(formData)
             },
@@ -1315,6 +1284,9 @@ export class WodTriggerConfigDialog extends FormApplication {
         formData['trigger.target.type'] = $form.find('select[name="trigger.target.type"]').val();
         formData['trigger.target.effectName'] = $form.find('input[name="trigger.target.effectName"]').val();
         formData['trigger.target.ids'] = $form.find('input[name="trigger.target.ids"]').val();
+        
+        // Force target CSV value (the main target field)
+        formData['targetCsv'] = $form.find('select[name="targetCsv"]').val();
         
         // Parse conditions from form data
         this._parseConditionsFromFormData(formData, $form);
