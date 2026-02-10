@@ -180,6 +180,7 @@ export class WodTriggerConfigDialog extends FormApplication {
     _getDefaultEvents() {
         return [
             { id: 'onEffectApplied', label: 'Effect Applied', description: 'Fires when an effect is applied' },
+            { id: 'onEffectRemoved', label: 'Effect Removed', description: 'Fires when an effect is removed' },
             { id: 'onHealthChanged', label: 'Health Changed', description: 'Fires when health changes' },
             { id: 'onEnter', label: 'Token Enters', description: 'Fires when a token enters' },
             { id: 'onExit', label: 'Token Exits', description: 'Fires when a token exits' },
