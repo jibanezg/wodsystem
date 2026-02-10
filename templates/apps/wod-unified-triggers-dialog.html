@@ -1,45 +1,90 @@
 <style>
-.wod-unified-triggers-dialog .trigger-list {
+.wod-triggers-container {
+    padding: 0;
+}
+.wod-triggers-container .wod-add-trigger-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.wod-triggers-container .wod-add-trigger-btn {
+    background: linear-gradient(to bottom, #4cae4c, #449d44);
+    color: white;
+    border: 1px solid #3d8b3d;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+.wod-triggers-container .wod-add-trigger-btn:hover {
+    background: linear-gradient(to bottom, #5cb85c, #4cae4c);
+    border-color: #398439;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    transform: scale(1.1);
+}
+.wod-triggers-container .wod-add-trigger-btn:active {
+    background: linear-gradient(to bottom, #449d44, #3d8b3d);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    transform: scale(0.95);
+}
+.wod-triggers-container .wod-add-trigger-btn i {
+    margin: 0;
+}
+.wod-triggers-content {
+    padding: 0 15px 15px;
     max-height: 400px;
     overflow-y: auto;
 }
-.wod-unified-triggers-dialog .trigger-item {
+.wod-triggers-list {
+    min-height: 200px;
+}
+.wod-triggers-list .notes {
+    text-align: center;
+}
+.wod-triggers-dialog .trigger-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+.wod-triggers-dialog .trigger-item {
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 10px;
     margin-bottom: 10px;
     background: #f9f9f9;
 }
-.wod-unified-triggers-dialog .trigger-item:hover {
+.wod-triggers-dialog .trigger-item:hover {
     background: #f0f0f0;
 }
-.wod-unified-triggers-dialog .no-triggers {
+.wod-triggers-dialog .no-triggers {
     text-align: center;
     color: #666;
     font-style: italic;
     padding: 20px;
 }
-.wod-unified-triggers-dialog .add-trigger-btn {
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 10px;
-}
-.wod-unified-triggers-dialog .add-trigger-btn:hover {
-    background: #218838;
-}
 </style>
 
-<div class="wod-unified-triggers-dialog">
-    <h2>🔥 UNIFIED DIALOG - WoD Triggers - {{documentTitle}}</h2>
-    <div class="trigger-list">
-        {{{renderedContent}}}
+<div class="wod-triggers-container">
+    <div class="wod-triggers-content">
+        <div class="wod-triggers-list">
+            <div class="wod-triggers-dialog">
+                <h2>🔥 UNIFIED DIALOG - WoD Triggers - {{documentTitle}}</h2>
+                <div class="trigger-list">
+                    {{{renderedContent}}}
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="button" class="add-trigger-btn">
-        <i class="fas fa-plus"></i> Add Trigger
-    </button>
+    <div class="wod-add-trigger-container">
+        <button type="button" class="wod-add-trigger-btn" title="Add Trigger">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
 </div>
