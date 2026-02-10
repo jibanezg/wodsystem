@@ -220,9 +220,12 @@ export class WodUnifiedTriggersDialog extends Dialog {
     _attachWorkingEventListeners() {
         const dialogElement = $(this.element);
         
+        // Foundry uses .window-content, not .dialog-content
+        const contentElement = dialogElement.find('.window-content');
+        
         // Add click listener for add trigger button using the same system as actors/doors
         // Target the beautiful circular green button
-        const $button = dialogElement.find('.wod-add-trigger-btn');
+        const $button = contentElement.find('.wod-add-trigger-btn');
         
         if ($button.length) {
             console.log('WoD Unified Triggers Dialog | Found add trigger button');
@@ -240,7 +243,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
         }
 
         // Add click listeners for trigger actions
-        dialogElement.find('.trigger-action').off('click.unifiedAction').on('click.unifiedAction', (event) => {
+        contentElement.find('.trigger-action').off('click.unifiedAction').on('click.unifiedAction', (event) => {
             event.preventDefault();
             event.stopPropagation();
             
