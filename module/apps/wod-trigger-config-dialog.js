@@ -47,10 +47,15 @@ export class WodTriggerConfigDialog extends FormApplication {
      * @private
      */
     _getAvailableEvents() {
-        const targetCsv = this.form?.find('select[name="targetCsv"]').val() || '';
-        const targetType = this._determineTargetType(targetCsv);
+        // If form exists (after render), use the current target selection
+        if (this.form) {
+            const targetCsv = this.form.find('select[name="targetCsv"]').val() || '';
+            const targetType = this._determineTargetType(targetCsv);
+            return this._getEventsForTargetType(targetType);
+        }
         
-        return this._getEventsForTargetType(targetType);
+        // During getData(), the form doesn't exist yet, so use default actor events
+        return this._getEventsForTargetType('actor');
     }
 
     /**
@@ -290,6 +295,12 @@ export class WodTriggerConfigDialog extends FormApplication {
             link.href = 'systems/wodsystem/styles/themes/trigger-config.css';
             document.head.appendChild(link);
         }
+
+        // Store form reference for later use
+        this.form = html;
+
+        // Initialize event dropdown based on current target selection
+        this._updateEventDropdown();
 
         // Handle target type changes to update event dropdown
         html.find('select[name="targetCsv"]').on('change', this._onTargetChange.bind(this));
