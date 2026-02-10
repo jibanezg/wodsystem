@@ -2056,7 +2056,9 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         
         // Get scene ID from the element
         const sceneElement = $(e.currentTarget);
-        const sceneId = sceneElement.data('sceneId') || 
+        const sceneId = sceneElement.data('entryId') ||           // Foundry uses data-entry-id
+                        sceneElement.data('sceneId') || 
+                        sceneElement.attr('data-entry-id') ||     // Foundry uses data-entry-id
                         sceneElement.attr('data-scene-id') || 
                         sceneElement.attr('data-document-id') ||
                         sceneElement.attr('id')?.replace('scene-', '') ||
@@ -2064,7 +2066,17 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         
         console.log('WoD Trigger Tabs | Scene ID:', sceneId);
         console.log('WoD Trigger Tabs | Scene element data:', sceneElement.data());
-        console.log('WoD Trigger Tabs | Scene element attributes:', sceneElement.attr());
+        
+        // Safely get attributes
+        const attributes = {};
+        try {
+            for (const attr of e.currentTarget.attributes) {
+                attributes[attr.name] = attr.value;
+            }
+            console.log('WoD Trigger Tabs | Scene element attributes:', attributes);
+        } catch (error) {
+            console.warn('WoD Trigger Tabs | Error getting attributes:', error);
+        }
         
         if (!sceneId) {
             console.warn('WoD Trigger Tabs | Could not extract scene ID from element');
