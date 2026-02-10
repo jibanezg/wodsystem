@@ -196,7 +196,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         // Handle execution mode changes to show/hide event field
         html.find('select[name="trigger.execution.mode"]').on('change', (ev) => {
             const executionMode = ev.currentTarget.value;
-            const eventField = html.find('select[name="trigger.eventType"]').closest('.form-group');
+            const eventField = html.find('.event-field');
             eventField.toggle(executionMode === 'event');
             
             console.log('WoD Trigger Config Dialog | Execution mode changed to:', executionMode);
@@ -205,7 +205,7 @@ export class WodTriggerConfigDialog extends FormApplication {
 
         // Initialize event field visibility based on current mode
         const currentMode = html.find('select[name="trigger.execution.mode"]').val();
-        const eventField = html.find('select[name="trigger.eventType"]').closest('.form-group');
+        const eventField = html.find('.event-field');
         eventField.toggle(currentMode === 'event');
         console.log('WoD Trigger Config Dialog | Initial execution mode:', currentMode);
         console.log('WoD Trigger Config Dialog | Initial event field visibility:', currentMode === 'event');

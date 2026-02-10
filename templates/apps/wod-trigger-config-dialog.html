@@ -68,8 +68,7 @@
                     <option value="continuous" {{#if (eq trigger.trigger.execution.mode "continuous")}}selected{{/if}}>Continuous</option>
                 </select>
             </div>
-            {{#if (eq trigger.trigger.execution.mode "event")}}
-            <div class="form-group horizontal">
+            <div class="form-group horizontal event-field" {{#unless (eq trigger.trigger.execution.mode "event")}}style="display:none"{{/unless}}>
                 <label>Event</label>
                 <select name="trigger.eventType">
                     {{#each availableEvents}}
@@ -77,7 +76,6 @@
                     {{/each}}
                 </select>
             </div>
-            {{/if}}
             <div class="form-group horizontal">
                 <label>Delay (seconds)</label>
                 <input type="number" name="trigger.execution.timing.delay" value="{{trigger.trigger.execution.timing.delay}}" min="0" step="0.1" />
