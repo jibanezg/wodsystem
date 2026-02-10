@@ -72,6 +72,39 @@ export class TriggerManager {
             }
         });
 
+        // ==================== Effect Creation/Deletion Hooks ====================
+        // Hook for when effects are created (doesn't trigger updateActor)
+        Hooks.on('createActiveEffect', (effect, options, userId) => {
+            try {
+                console.log(`WoD TriggerManager | createActiveEffect hook called for ${effect.name}`);
+                const actor = effect.parent;
+                if (actor && actor.documentName === 'Actor') {
+                    console.log(`WoD TriggerManager | Effect created on actor: ${actor.name}`);
+                    // Get current effects and trigger effect applied event
+                    const currentEffects = actor.effects.map(e => e.id);
+                    this._onActorEffectsChanged(actor, currentEffects);
+                }
+            } catch (error) {
+                console.error('WoD TriggerManager | Error processing effect creation:', error);
+            }
+        });
+
+        // Hook for when effects are deleted (doesn't trigger updateActor)
+        Hooks.on('deleteActiveEffect', (effect, options, userId) => {
+            try {
+                console.log(`WoD TriggerManager | deleteActiveEffect hook called for ${effect.name}`);
+                const actor = effect.parent;
+                if (actor && actor.documentName === 'Actor') {
+                    console.log(`WoD TriggerManager | Effect deleted from actor: ${actor.name}`);
+                    // Get current effects and trigger effect removed event
+                    const currentEffects = actor.effects.map(e => e.id);
+                    this._onActorEffectsChanged(actor, currentEffects);
+                }
+            } catch (error) {
+                console.error('WoD TriggerManager | Error processing effect deletion:', error);
+            }
+        });
+
         // ==================== Wall/Door Events ====================
         Hooks.on('updateWall', (wall, changes, options, userId) => {
             try {
