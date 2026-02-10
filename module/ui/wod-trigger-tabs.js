@@ -9,26 +9,34 @@ export function registerWodTriggerTabs() {
     // Try multiple possible context menu hooks for scenes
     Hooks.on('getSceneContextOptions', (context, html) => {
         console.log('WoD Trigger Tabs | getSceneContextOptions hook triggered');
+        console.log('WoD Trigger Tabs | context type:', typeof context);
+        console.log('WoD Trigger Tabs | context:', context);
         
-        // Add our WoD Triggers option to the existing context menu
-        context.push({
-            name: "WoD Triggers",
-            icon: '<i class="fa-solid fa-shield-halved"></i>',
-            condition: (li) => {
-                // Only show for GMs
-                return game.user.isGM;
-            },
-            callback: (li) => {
-                // Get the scene from the list item
-                const sceneId = li.data('entryId');
-                const scene = game.scenes.get(sceneId);
-                if (scene) {
-                    _showSceneTriggersDialog(scene);
+        // Check what context actually is - it might not be an array
+        if (Array.isArray(context)) {
+            // Add our WoD Triggers option to the existing context menu
+            context.push({
+                name: "WoD Triggers",
+                icon: '<i class="fa-solid fa-shield-halved"></i>',
+                condition: (li) => {
+                    // Only show for GMs
+                    return game.user.isGM;
+                },
+                callback: (li) => {
+                    // Get the scene from the list item
+                    const sceneId = li.data('entryId');
+                    const scene = game.scenes.get(sceneId);
+                    if (scene) {
+                        _showSceneTriggersDialog(scene);
+                    }
                 }
-            }
-        });
+            });
+            
+            console.log('WoD Trigger Tabs | Added WoD Triggers to scene context menu');
+        } else {
+            console.log('WoD Trigger Tabs | context is not an array, cannot push to it');
+        }
         
-        console.log('WoD Trigger Tabs | Added WoD Triggers to scene context menu');
         return context;
     });
     
