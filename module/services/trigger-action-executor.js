@@ -191,7 +191,13 @@ export class TriggerActionExecutor {
         }
         
         const mode = targetConfig.mode || 'triggering';
-        const elementType = targetConfig.elementType || 'actor';
+        // For specific action types, auto-resolve elementType
+        let elementType = targetConfig.elementType;
+        if (action.type === 'door') {
+            elementType = 'wall'; // Door actions always target walls (doors)
+        } else {
+            elementType = elementType || 'actor'; // Default for other actions
+        }
         const elementId = targetConfig.elementId || '';
         
         switch (mode) {

@@ -335,9 +335,7 @@
                             <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
                             <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
                         </select>
-                        <select name="actions.success.{{@index}}.target.elementType" class="target-element-type">
-                            <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
-                        </select>
+                        <!-- Door Action - Element Type removed (auto-resolved as doors) -->
                         <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Wall ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
                         <button type="button" class="pick-target" data-action="pick-element" data-outcome="success" data-index="{{@index}}" title="Pick"><i class="fas fa-crosshairs"></i></button>
                         <select name="actions.success.{{@index}}.state">
@@ -391,9 +389,7 @@
                             <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
                             <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
                         </select>
-                        <select name="actions.failure.{{@index}}.target.elementType" class="target-element-type">
-                            <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
-                        </select>
+                        <!-- Door Action - Element Type removed (auto-resolved as doors) -->
                         <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Wall ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
                         <button type="button" class="pick-target" data-action="pick-element" data-outcome="failure" data-index="{{@index}}" title="Pick"><i class="fas fa-crosshairs"></i></button>
                         <select name="actions.failure.{{@index}}.state">
