@@ -40,7 +40,8 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     getData() {
-        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const flagPath = this._getFlagPath();
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const existing = Array.isArray(triggers) ? triggers.find(t => t?.id === this.triggerId) : null;
         
         // Default trigger structure (clean format)
@@ -337,7 +338,8 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     async _addAction(outcome, type) {
-        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const flagPath = this._getFlagPath();
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         let triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         let trigger;
@@ -380,12 +382,13 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
 
         triggers[triggerIndex] = trigger;
-        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        await this.document.setFlag('wodsystem', flagPath, triggers);
         this.render(false);
     }
 
     async _removeAction(outcome, index) {
-        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const flagPath = this._getFlagPath();
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         if (triggerIndex < 0) {
@@ -400,7 +403,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         trigger.actions[outcome].splice(index, 1);
         triggers[triggerIndex] = trigger;
 
-        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        await this.document.setFlag('wodsystem', flagPath, triggers);
         this.render(false);
     }
 
@@ -663,7 +666,8 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     async _addCondition() {
-        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const flagPath = this._getFlagPath();
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         if (triggerIndex < 0) {
@@ -686,12 +690,13 @@ export class WodTriggerConfigDialog extends FormApplication {
         });
         
         triggers[triggerIndex] = trigger;
-        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        await this.document.setFlag('wodsystem', flagPath, triggers);
         this.render(false);
     }
 
     async _removeCondition(index) {
-        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        const flagPath = this._getFlagPath();
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         if (triggerIndex < 0) {
@@ -705,7 +710,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         trigger.trigger.conditions.splice(index, 1);
         triggers[triggerIndex] = trigger;
 
-        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        await this.document.setFlag('wodsystem', flagPath, triggers);
         this.render(false);
     }
     
@@ -939,7 +944,9 @@ export class WodTriggerConfigDialog extends FormApplication {
         
         const parsedActions = this._parseActionsFromFormData(formData);
         
-        const triggers = this.document.getFlag('wodsystem', 'triggers') || [];
+        // Use context-aware flag path like the unified dialog
+        const flagPath = this._getFlagPath();
+        const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         const actorTypesCsv = (formData.actorTypesCsv || '').trim();
@@ -976,7 +983,23 @@ export class WodTriggerConfigDialog extends FormApplication {
             triggers.push(next);
         }
 
-        await this.document.setFlag('wodsystem', 'triggers', triggers);
+        await this.document.setFlag('wodsystem', flagPath, triggers);
+    }
+
+    /**
+     * Get the flag path based on document type (context-aware like unified dialog)
+     */
+    _getFlagPath() {
+        switch (this.documentType) {
+            case 'scene':
+                return 'sceneTriggers';
+            case 'actor':
+            case 'wall':
+            case 'tile':
+            case 'region':
+            default:
+                return 'triggers';
+        }
     }
 
     _normalizeActions(rawActions, fallbackActions) {
