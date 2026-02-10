@@ -1115,6 +1115,27 @@ export class TriggerManager {
      * @private
      */
     _shouldTriggerFire(trigger, context, executionMode = 'event') {
+        // Check target actor types first - this filters which actors the trigger applies to
+        const actorTypes = trigger.trigger?.actorTypes || [];
+        if (actorTypes.length > 0) {
+            const actorType = context.actor?.type;
+            if (!actorType) {
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" has target types but no actor in context, skipping`);
+                }
+                return false;
+            }
+            
+            // Handle special target formats
+            const targetTypeMatches = this._checkTargetTypeMatch(actorTypes, actorType, context);
+            if (!targetTypeMatches) {
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" target types [${actorTypes.join(', ')}] do not match actor type "${actorType}", skipping`);
+                }
+                return false;
+            }
+        }
+        
         // Check scope type first - for proximity triggers, they should only fire on onProximity events
         const scopeType = trigger.trigger?.scope?.type;
         
