@@ -53,10 +53,12 @@ export class WodTriggerConfigDialog extends FormApplication {
             const $form = $(this.form);
             const targetCsv = $form.find('select[name="targetCsv"]').val() || '';
             const targetType = this._determineTargetType(targetCsv);
+            console.log(`WoD TriggerConfig | _getAvailableEvents - targetType: ${targetType}, targetCsv: ${targetCsv}`);
             return this._getEventsForTargetType(targetType);
         }
         
         // During getData(), the form doesn't exist yet, so use default actor events
+        console.log(`WoD TriggerConfig | _getAvailableEvents - Using default actor events (form not ready)`);
         return this._getEventsForTargetType('actor');
     }
 
