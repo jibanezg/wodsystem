@@ -196,9 +196,17 @@ export class WodUnifiedTriggersDialog extends Dialog {
             console.log('WoD Unified Triggers Dialog | Dialog element:', dialogElement.length > 0 ? 'found' : 'NOT FOUND');
             
             if (dialogElement.length) {
+                // Check different possible content containers
                 const content = dialogElement.find('.dialog-content');
-                console.log('WoD Unified Triggers Dialog | Dialog content:', content.length > 0 ? 'found' : 'NOT FOUND');
-                console.log('WoD Unified Triggers Dialog | Current HTML:', content.html());
+                const windowContent = dialogElement.find('.window-content');
+                const formContent = dialogElement.find('form');
+                const allDivs = dialogElement.find('div');
+                
+                console.log('WoD Unified Triggers Dialog | .dialog-content:', content.length > 0 ? 'found' : 'NOT FOUND');
+                console.log('WoD Unified Triggers Dialog | .window-content:', windowContent.length > 0 ? 'found' : 'NOT FOUND');
+                console.log('WoD Unified Triggers Dialog | form:', formContent.length > 0 ? 'found' : 'NOT FOUND');
+                console.log('WoD Unified Triggers Dialog | Total divs:', allDivs.length);
+                console.log('WoD Unified Triggers Dialog | Dialog HTML:', dialogElement.html());
             }
             
             // Attach event listeners
