@@ -273,10 +273,10 @@ export function registerWodTriggerTabs() {
     //     }
     // });
 
-    // Scene configuration support for scene-level triggers (v2 architecture)
-    Hooks.on('renderSceneConfig', async (app, html) => {
-        _handleRenderHook(app, html, 'SceneConfig');
-    });
+    // Scene configuration support for scene-level triggers (v2 architecture) - REMOVED - Using unified dialog instead
+    // Hooks.on('renderSceneConfig', async (app, html) => {
+    //     _handleRenderHook(app, html, 'SceneConfig');
+    // });
 
     // Actor sheet support for global actor-level triggers (v2 architecture)
     Hooks.on('renderActorSheet', async (app, html) => {
