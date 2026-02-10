@@ -32,10 +32,41 @@ export function registerWodTriggerTabs() {
     Hooks.on('ready', () => {
         setTimeout(() => {
             console.log('WoD Trigger Tabs | Fallback: Looking for scene directory...');
-            const sceneDirectory = document.querySelector('.scene-directory, .scenes-list, [data-tab="scenes"]');
+            
+            // Try multiple selectors for scene directory
+            const selectors = [
+                '.scene-directory',
+                '.scenes-list', 
+                '[data-tab="scenes"]',
+                '#scenes',
+                '.sidebar-tab[data-tab="scenes"]',
+                '.directory-list.scenes',
+                '.scenes'
+            ];
+            
+            let sceneDirectory = null;
+            for (const selector of selectors) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    console.log(`WoD Trigger Tabs | Found scene directory with selector: ${selector}`, element);
+                    sceneDirectory = element;
+                    break;
+                }
+            }
+            
             if (sceneDirectory) {
                 console.log('WoD Trigger Tabs | Found scene directory, adding context menu');
                 _addSceneContextMenuFallback(sceneDirectory);
+            } else {
+                console.log('WoD Trigger Tabs | Scene directory not found, checking all sidebar elements...');
+                // Log all sidebar elements for debugging
+                const sidebarElements = document.querySelectorAll('.sidebar *, .sidebar-tab *, .directory *');
+                console.log('WoD Trigger Tabs | Sidebar elements found:', sidebarElements.length);
+                sidebarElements.forEach((el, index) => {
+                    if (index < 10) { // Only log first 10 to avoid spam
+                        console.log(`WoD Trigger Tabs | Sidebar element ${index}:`, el.tagName, el.className, el.id);
+                    }
+                });
             }
         }, 2000);
     });
@@ -1964,8 +1995,38 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
     // Convert to jQuery if needed
     const $sceneDirectory = $(sceneDirectoryElement);
     
+    // Try multiple selectors for scene items
+    const sceneSelectors = [
+        '.scene',
+        '.directory-item',
+        '.list-item',
+        '[data-scene-id]',
+        '[data-entity="scene"]',
+        'li[data-document-id]'
+    ];
+    
+    let $sceneItems = $();
+    for (const selector of sceneSelectors) {
+        $sceneItems = $sceneDirectory.find(selector);
+        if ($sceneItems.length > 0) {
+            console.log(`WoD Trigger Tabs | Found ${$sceneItems.length} scene items with selector: ${selector}`);
+            break;
+        }
+    }
+    
+    if ($sceneItems.length === 0) {
+        console.warn('WoD Trigger Tabs | No scene items found with any selector');
+        // Log what we did find
+        const allItems = $sceneDirectory.find('li, div, a');
+        console.log(`WoD Trigger Tabs | Found ${allItems.length} total items in scene directory`);
+        allItems.slice(0, 5).each((index, el) => {
+            console.log(`WoD Trigger Tabs | Item ${index}:`, el.tagName, el.className, el.textContent?.substring(0, 50));
+        });
+        return;
+    }
+    
     // Add right-click context menu to scene items
-    $sceneDirectory.find('.scene').off('contextmenu.wodSceneTriggers').on('contextmenu.wodSceneTriggers', (e) => {
+    $sceneItems.off('contextmenu.wodSceneTriggers').on('contextmenu.wodSceneTriggers', (e) => {
         e.preventDefault();
         e.stopPropagation();
         
@@ -1973,9 +2034,15 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         
         // Get scene ID from the element
         const sceneElement = $(e.currentTarget);
-        const sceneId = sceneElement.data('sceneId') || sceneElement.attr('data-scene-id') || sceneElement.attr('id')?.replace('scene-', '');
+        const sceneId = sceneElement.data('sceneId') || 
+                        sceneElement.attr('data-scene-id') || 
+                        sceneElement.attr('data-document-id') ||
+                        sceneElement.attr('id')?.replace('scene-', '') ||
+                        sceneElement.attr('id')?.replace('scene-', '');
         
         console.log('WoD Trigger Tabs | Scene ID:', sceneId);
+        console.log('WoD Trigger Tabs | Scene element data:', sceneElement.data());
+        console.log('WoD Trigger Tabs | Scene element attributes:', sceneElement.attr());
         
         if (!sceneId) {
             console.warn('WoD Trigger Tabs | Could not extract scene ID from element');
