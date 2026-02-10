@@ -13,6 +13,7 @@ export function registerWodTriggerTabs() {
         
         // Add global context menu listener
         document.addEventListener('contextmenu', (e) => {
+            console.log('WoD Trigger Tabs | Global contextmenu event triggered');
             // Check if this is a right-click on a scene item
             const sceneItem = e.target.closest('.directory-item.scene');
             if (sceneItem && game.user.isGM) {
@@ -63,7 +64,19 @@ export function registerWodTriggerTabs() {
                                         console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                         const scene = window._wodCurrentScene;
                                         if (scene) {
-                                            _showSceneTriggersDialog(scene);
+                                            console.log('WoD Trigger Tabs | Opening unified dialog for scene:', scene.name);
+                                            try {
+                                                WodUnifiedTriggersDialog.create(scene, {
+                                                    documentType: 'scene',
+                                                    title: `WoD Triggers - ${scene.name}`,
+                                                    onClose: () => {
+                                                        console.log('WoD Trigger Tabs | Scene triggers dialog closed');
+                                                    }
+                                                });
+                                            } catch (error) {
+                                                console.error('WoD Trigger Tabs | Error creating unified dialog:', error);
+                                                ui.notifications.error('Could not open WoD Triggers dialog');
+                                            }
                                         }
                                         // Close the context menu
                                         menu.remove();
