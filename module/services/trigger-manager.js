@@ -1463,6 +1463,14 @@ export class TriggerManager {
                 if (trigger.execution.event !== eventType) continue;
             }
             
+            // Check target filtering for scene triggers
+            const actorTypes = trigger.trigger?.actorTypes || [];
+            if (actorTypes.length > 0) {
+                // For scene triggers, we need to determine if any relevant actors are involved
+                const shouldContinue = this._checkSceneTriggerTargetMatch(trigger, context, eventType);
+                if (!shouldContinue) continue;
+            }
+            
             // Build full context
             const fullContext = {
                 eventType: eventType,
@@ -1479,6 +1487,84 @@ export class TriggerManager {
             // Execute trigger
             this._executeTriggerV2(trigger, fullContext);
         }
+    }
+
+    /**
+     * Check if a scene trigger should fire based on target matching
+     * @param {Object} trigger - The trigger object
+     * @param {Object} context - The event context
+     * @param {string} eventType - The event type
+     * @returns {boolean} Whether the trigger should continue processing
+     * @private
+     */
+    _checkSceneTriggerTargetMatch(trigger, context, eventType) {
+        const actorTypes = trigger.trigger?.actorTypes || [];
+        if (actorTypes.length === 0) return true; // No target restriction
+        
+        // For scene triggers, we need to determine relevant actors based on the event type
+        let relevantActors = [];
+        
+        switch (eventType) {
+            case 'onEffectApplied':
+            case 'onEffectRemoved':
+                // For effect events, check all actors in the scene
+                relevantActors = canvas.scene.tokens.map(t => t.actor).filter(a => a);
+                break;
+                
+            case 'onAnyDoorOpened':
+            case 'onAnyDoorClosed':
+                // For door events, no actors are directly involved
+                // But we should check if the trigger targets doors
+                const targetTypeMatches = this._checkTargetTypeMatch(actorTypes, 'doors', context);
+                if (!targetTypeMatches) {
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | Scene trigger "${trigger.name}" target types [${actorTypes.join(', ')}] do not match event type "${eventType}", skipping`);
+                    }
+                    return false;
+                }
+                return true; // Door target matches, continue
+                
+            case 'onCombatStart':
+            case 'onCombatEnd':
+                // For combat events, check combatants
+                if (context.combat?.combatants) {
+                    relevantActors = context.combat.combatants.map(c => c.actor).filter(a => a);
+                }
+                break;
+                
+            default:
+                // For other events, try to extract actors from context
+                if (context.actor) {
+                    relevantActors = [context.actor];
+                } else if (context.token?.actor) {
+                    relevantActors = [context.token.actor];
+                }
+                break;
+        }
+        
+        // If no relevant actors found, skip
+        if (relevantActors.length === 0) {
+            if (this._debugMode) {
+                console.log(`WoD TriggerManager | Scene trigger "${trigger.name}" has target types but no relevant actors for event "${eventType}", skipping`);
+            }
+            return false;
+        }
+        
+        // Check if any relevant actor matches the target types
+        for (const actor of relevantActors) {
+            const targetTypeMatches = this._checkTargetTypeMatch(actorTypes, actor.type, context);
+            if (targetTypeMatches) {
+                if (this._debugMode) {
+                    console.log(`WoD TriggerManager | Scene trigger "${trigger.name}" target types [${actorTypes.join(', ')}] match actor type "${actor.type}" for event "${eventType}"`);
+                }
+                return true;
+            }
+        }
+        
+        if (this._debugMode) {
+            console.log(`WoD TriggerManager | Scene trigger "${trigger.name}" target types [${actorTypes.join(', ')}] do not match any relevant actors for event "${eventType}", skipping`);
+        }
+        return false;
     }
 
     /**
