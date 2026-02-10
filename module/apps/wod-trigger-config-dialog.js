@@ -48,7 +48,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         
         console.log('WoD Trigger Config Dialog | getData - existing trigger:', existing);
         console.log('WoD Trigger Config Dialog | getData - in-memory data:', this._currentTriggerData);
-        console.log('WoD Trigger Config Dialog | getData - in-memory conditions:', this._currentTriggerData?.trigger?.trigger?.conditions?.length || 0);
+        console.log('WoD Trigger Config Dialog | getData - in-memory conditions:', this._currentTriggerData?.trigger?.conditions?.length || 0);
         
         // Use in-memory data if available, otherwise use existing trigger data
         const triggerData = this._currentTriggerData || existing;
@@ -731,6 +731,12 @@ export class WodTriggerConfigDialog extends FormApplication {
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
         
         if (triggerIndex < 0) {
+            // Trigger not saved yet, remove condition from in-memory data
+            console.log('WoD Trigger Config Dialog | Remove condition - trigger not saved, removing from in-memory data');
+            if (this._currentTriggerData?.trigger?.conditions) {
+                this._currentTriggerData.trigger.conditions.splice(index, 1);
+                console.log('WoD Trigger Config Dialog | Remove condition - removed from in-memory data, remaining conditions:', this._currentTriggerData.trigger.conditions.length);
+            }
             this.render(false);
             return;
         }
