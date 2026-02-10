@@ -41,10 +41,10 @@ export class TriggerManager {
         // Update debug mode from settings now that they're available
         // Use try-catch to handle case where settings aren't registered yet
         try {
-            this._debugMode = false; // Disable debug mode now that trigger is working
+            this._debugMode = true; // Temporarily enable debug mode to test effect removal
         } catch (error) {
             console.warn('WoD TriggerManager | Debug mode setting not available, using default:', error);
-            this._debugMode = false; // Disable debug mode by default
+            this._debugMode = true; // Enable debug mode by default for testing
         }
         this._conditionEvaluator.setDebugMode(this._debugMode);
         this._actionExecutor.setDebugMode(this._debugMode);
@@ -96,9 +96,15 @@ export class TriggerManager {
                 const actor = effect.parent;
                 if (actor && actor.documentName === 'Actor') {
                     console.log(`WoD TriggerManager | Effect deleted from actor: ${actor.name}`);
-                    // Get current effects and trigger effect removed event
-                    const currentEffects = actor.effects.map(e => e.id);
-                    this._onActorEffectsChanged(actor, currentEffects);
+                    // Fire onEffectRemoved with the deleted effect information
+                    this._fireDocumentTriggers('actor', actor, actor, 'onEffectRemoved', effect.id, effect);
+                    
+                    // Also fire scene triggers for effect events
+                    this._fireSceneTriggers('onEffectRemoved', {
+                        actor: actor,
+                        effectId: effect.id,
+                        effect: null
+                    });
                 }
             } catch (error) {
                 console.error('WoD TriggerManager | Error processing effect deletion:', error);
