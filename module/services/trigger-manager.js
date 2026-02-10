@@ -2199,11 +2199,25 @@ export class TriggerManager {
         // Fire effect applied events (global)
         for (const effectId of addedEffects) {
             this._fireDocumentTriggers('actor', actor, actor, 'onEffectApplied', effectId, null);
+            
+            // Also fire scene triggers for effect events
+            this._fireSceneTriggers('onEffectApplied', {
+                actor: actor,
+                effectId: effectId,
+                effect: actor.effects.get(effectId)
+            });
         }
         
         // Fire effect removed events (global)
         for (const effectId of removedEffects) {
             this._fireDocumentTriggers('actor', actor, actor, 'onEffectRemoved', effectId, null);
+            
+            // Also fire scene triggers for effect events
+            this._fireSceneTriggers('onEffectRemoved', {
+                actor: actor,
+                effectId: effectId,
+                effect: null
+            });
         }
     }
 
