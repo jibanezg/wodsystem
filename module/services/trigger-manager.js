@@ -103,7 +103,8 @@ export class TriggerManager {
                     this._fireSceneTriggers('onEffectRemoved', {
                         actor: actor,
                         effectId: effect.id,
-                        effect: null
+                        effect: null,
+                        effectName: effect.name // Pass the effect name for condition checking
                     });
                 }
             } catch (error) {

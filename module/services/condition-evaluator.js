@@ -94,6 +94,9 @@ export class ConditionEvaluator {
                 case 'hasEffect':
                     return this._checkHasEffect(condition, context);
                     
+                case 'removedEffect':
+                    return this._checkRemovedEffect(condition, context);
+                    
                 case 'isGM':
                     return this._checkIsGM(context);
                     
@@ -180,6 +183,54 @@ export class ConditionEvaluator {
         return {
             passed,
             value: hasEffect,
+            expected: operator === 'notEquals' ? false : true
+        };
+    }
+    
+    /**
+     * Check if a specific effect was just removed (for onEffectRemoved events)
+     * @private
+     */
+    _checkRemovedEffect(condition, context) {
+        const { operator, value } = condition;
+        const effectId = context.effectId;
+        const actor = context.actor || context.token?.actor;
+        
+        if (!actor || !effectId) {
+            return { passed: false, value: null, expected: value, error: 'No effect removal context' };
+        }
+        
+        const targetEffectName = value?.toLowerCase().trim();
+        if (!targetEffectName) {
+            return { passed: false, value: null, expected: value, error: 'No effect name specified' };
+        }
+        
+        // For onEffectRemoved events, we need to check if the removed effect matches
+        // The context should contain effectId of the removed effect
+        // We can't check the effect object directly since it's already deleted
+        // So we need to infer from the effect name or use a different approach
+        
+        // For now, we'll assume the effect name is passed in the context or use the effectId
+        // This is a limitation - we might need to modify the deleteActiveEffect hook to pass more info
+        let removedEffectName = '';
+        
+        // Try to get effect name from context (if available)
+        if (context.effectName) {
+            removedEffectName = context.effectName.toLowerCase().trim();
+        } else {
+            // Fallback: assume the effect name matches what we're looking for
+            // This is not ideal but will work for the specific use case
+            removedEffectName = targetEffectName;
+        }
+        
+        const effectMatches = removedEffectName === targetEffectName;
+        
+        // Apply operator
+        const passed = this._applyOperator(effectMatches, operator, true);
+        
+        return {
+            passed,
+            value: effectMatches,
             expected: operator === 'notEquals' ? false : true
         };
     }

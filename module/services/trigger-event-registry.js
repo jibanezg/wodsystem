@@ -236,6 +236,14 @@ export class TriggerEventRegistry {
                 requiresValue: true,
                 valueType: 'effectName'
             },
+            removedEffect: {
+                id: 'removedEffect',
+                label: 'Removed Effect',
+                description: 'Checks if a specific effect was just removed (for onEffectRemoved events)',
+                category: 'effect',
+                requiresValue: true,
+                valueType: 'effectName'
+            },
             isGM: {
                 id: 'isGM',
                 label: 'Is GM',
