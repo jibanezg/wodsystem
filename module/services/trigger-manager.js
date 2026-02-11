@@ -1618,6 +1618,10 @@ export class TriggerManager {
         
         if (this._debugMode) {
             console.log(`WoD TriggerManager | Checking ${sceneTriggers.length} scene triggers for event: ${eventType}`);
+            // Log the actual trigger data to debug storage issues
+            sceneTriggers.forEach((trigger, index) => {
+                console.log(`WoD TriggerManager | Trigger ${index}: "${trigger.name}" - Event: ${trigger.execution?.event}, Mode: ${trigger.execution?.mode}`);
+            });
         }
         
         for (const trigger of sceneTriggers) {
