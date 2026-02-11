@@ -1644,54 +1644,31 @@ export class WodTriggerConfigDialog extends FormApplication {
                         }
                     }
                 }
-            }
         }
         
         return Array.from(effects).sort();
     }
-
-    async _onSubmit(event) {
-        event.preventDefault();
-        
-        console.log('WoD TriggerConfig | _onSubmit called');
-        
-        const form = event.target;
-        const formData = new FormData(form);
-        
-        // Force extraction of all trigger fields
-        this._forceExtractAllFields(formData);
-        
-        console.log('WoD TriggerConfig | Form data before expansion:', Object.fromEntries(formData));
-        
-        // Expand nested fields
-        const expanded = this._expandFormData(formData);
-        console.log('WoD TriggerConfig | Expanded form data:', expanded);
-        
-        // Parse trigger data
-        const triggerData = this._parseTriggerData(expanded);
-        console.log('WoD TriggerConfig | Parsed trigger data:', triggerData);
-        
-        // Validate trigger
-        const validation = this._validateTrigger(triggerData);
-        if (!validation.valid) {
-            ui.notifications.error(validation.errors.join(', '));
-            return;
-        }
-        
-        // Save trigger
-        await this._saveTrigger(triggerData);
+    
+    _getAvailableAttributes() {
+        // Standard WoD attributes (from wizard config)
+        const attributes = [
+            // Physical attributes
+            'Strength', 'Dexterity', 'Stamina',
+            // Social attributes
+            'Charisma', 'Manipulation', 'Appearance', 
+            // Mental attributes
+            'Perception', 'Intelligence', 'Wits'
+        ];
+        return attributes;
     }
 
     _getAvailableAbilities() {
         // Standard WoD abilities (from wizard config)
         const abilities = [
-            // Talents
-            'Alertness', 'Athletics', 'Awareness', 'Brawl', 'Dodge', 'Empathy', 'Expression',
-            'Intimidation', 'Intuition', 'Leadership', 'Streetwise', 'Subterfuge',
-            // Skills  
+            // Physical abilities
             'Animal Ken', 'Crafts', 'Drive', 'Etiquette', 'Firearms', 'Larceny', 'Melee',
             'Performance', 'Ride', 'Stealth', 'Survival', 'Swimming',
-            // Knowledges
+            // Social abilities
             'Academics', 'Computer', 'Finance', 'Investigation', 'Law', 'Linguistics',
             'Medicine', 'Occult', 'Politics', 'Science', 'Technology'
         ];
