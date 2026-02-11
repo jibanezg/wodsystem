@@ -1326,12 +1326,15 @@ export class WodTriggerConfigDialog extends FormApplication {
         console.log('WoD TriggerConfig | Final trigger object before save:', JSON.stringify(next, null, 2));
 
         if (triggerIndex >= 0) {
+            console.log('WoD TriggerConfig | BEFORE assignment - triggers[', triggerIndex, ']:', JSON.stringify(triggers[triggerIndex], null, 2));
             triggers[triggerIndex] = next;
+            console.log('WoD TriggerConfig | AFTER assignment - triggers[', triggerIndex, ']:', JSON.stringify(triggers[triggerIndex], null, 2));
         } else {
             triggers.push(next);
         }
 
         console.log('WoD Trigger Config Dialog | Saving triggers count:', triggers.length);
+        console.log('WoD Trigger Config Dialog | Full triggers array before save:', JSON.stringify(triggers, null, 2));
         await this.document.setFlag('wodsystem', flagPath, triggers);
         console.log('WoD Trigger Config Dialog | Save completed');
     }
