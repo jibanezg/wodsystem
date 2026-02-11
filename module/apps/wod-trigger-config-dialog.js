@@ -223,7 +223,22 @@ export class WodTriggerConfigDialog extends FormApplication {
                     type: 'tile',
                     target: null,
                     tile: { boundary: 'enter' },
-                    region: { boundary: 'enter' },
+                    region: { boundary: 'enter' }
+                },
+                conditions: [],
+                execution: {
+                    mode: 'event',
+                    event: 'onEnter',
+                    timing: {
+                        delay: 0,
+                        repeat: 0,
+                        duration: null
+                    }
+                }
+            },
+            actions: {
+                always: [],
+                success: [],
                 failure: []
             }
         };
