@@ -1644,6 +1644,7 @@ export class WodTriggerConfigDialog extends FormApplication {
                         }
                     }
                 }
+            }
         }
         
         return Array.from(effects).sort();
