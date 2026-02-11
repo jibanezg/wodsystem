@@ -59,6 +59,21 @@ export class EffectAutocomplete {
             }
         }
         
+        // Get all status effect templates from WoD StatusEffectManager
+        const statusEffectTemplates = [];
+        if (game.wod?.statusEffectManager) {
+            const templates = game.wod.statusEffectManager.getAllEffectTemplates();
+            for (const template of templates) {
+                statusEffectTemplates.push({
+                    name: template.name,
+                    id: template.id,
+                    source: 'template',
+                    icon: template.icon,
+                    description: template.description
+                });
+            }
+        }
+        
         // Combine all effects and deduplicate
         const allEffects = new Map();
         
@@ -104,11 +119,27 @@ export class EffectAutocomplete {
             }
         }
         
+        // Add status effect templates
+        for (const effect of statusEffectTemplates) {
+            const name = effect.name || '';
+            if (name) {
+                allEffects.set(name.toLowerCase(), {
+                    name: name,
+                    id: effect.id,
+                    source: 'template',
+                    icon: effect.icon,
+                    description: effect.description
+                });
+            }
+        }
+        
         // Insert all effects into trie
         for (const [key, effectData] of allEffects) {
             this.trie.insert(effectData.name, effectData);
             this.currentEffects.add(effectData.name.toLowerCase());
         }
+        
+        console.log(`WoD EffectAutocomplete | Loaded ${allEffects.size} effects into trie:`, Array.from(allEffects.keys()));
     }
     
     /**
