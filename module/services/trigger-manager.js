@@ -970,7 +970,7 @@ export class TriggerManager {
      * @param {Object} context - The execution context
      */
     async _executeTriggerV2(trigger, context) {
-        const execution = trigger.execution || {};
+        const execution = trigger.trigger?.execution || trigger.execution || {};
         const timing = execution.timing || {};
         const delay = timing.delay || 0;
         const repeat = timing.repeat || 0;
@@ -1660,12 +1660,15 @@ export class TriggerManager {
             const fullContext = {
                 eventType: eventType,
                 scene: canvas.scene,
+                document: canvas.scene,
+                documentType: 'scene',
                 ...context
             };
             
             // Evaluate conditions
-            if (trigger.conditions && trigger.conditions.length > 0) {
-                const result = this._conditionEvaluator.evaluateConditions(trigger.conditions, fullContext);
+            const conditions = trigger.trigger?.conditions || trigger.conditions || [];
+            if (conditions.length > 0) {
+                const result = this._conditionEvaluator.evaluateConditions(conditions, fullContext);
                 if (!result.passed) continue;
             }
             
