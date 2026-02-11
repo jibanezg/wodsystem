@@ -202,7 +202,8 @@ export class TriggerActionExecutor {
         
         switch (mode) {
             case 'self':
-                // Target is the document the trigger is anchored to
+            case 'source':
+                // Target is the document the trigger is anchored to (the source)
                 return context.document;
                 
             case 'triggering':

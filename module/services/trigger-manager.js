@@ -1689,18 +1689,45 @@ export class TriggerManager {
         const actorTypes = trigger.trigger?.actorTypes || [];
         if (actorTypes.length === 0) return true; // No target restriction
         
-        // For scene triggers, we need to determine relevant actors based on the event type
+        // Check for special target type keywords first
+        const joinedTypes = actorTypes.join(',').toLowerCase();
+        
+        // "any" matches everything — skip all filtering
+        if (joinedTypes.includes('any:') || joinedTypes === 'any') {
+            return true;
+        }
+        
+        // "source" matches the trigger host element — always pass for scene triggers
+        if (joinedTypes.includes('source')) {
+            return true;
+        }
+        
+        // "door" prefix matches door-based events
+        if (joinedTypes.includes('door:') || joinedTypes.includes('door')) {
+            const isDoorEvent = ['onAnyDoorOpened', 'onAnyDoorClosed', 'onAnyDoorLocked', 'onAnyDoorUnlocked', 'onAnyDoorStateChanged',
+                                 'onDoorOpened', 'onDoorClosed', 'onDoorLocked', 'onDoorUnlocked'].includes(eventType);
+            if (isDoorEvent) return true;
+        }
+        
+        // For actor-based target types, determine relevant actors based on the event type
         let relevantActors = [];
         
         switch (eventType) {
             case 'onEffectApplied':
             case 'onEffectRemoved':
-                // For effect events, check all actors in the scene
-                relevantActors = canvas.scene.tokens.map(t => t.actor).filter(a => a);
+                // For effect events, use the actor from context first, then fall back to all scene actors
+                if (context.actor) {
+                    relevantActors = [context.actor];
+                } else {
+                    relevantActors = canvas.scene.tokens.map(t => t.actor).filter(a => a);
+                }
                 break;
                 
             case 'onAnyDoorOpened':
             case 'onAnyDoorClosed':
+            case 'onAnyDoorLocked':
+            case 'onAnyDoorUnlocked':
+            case 'onAnyDoorStateChanged':
                 // For door events, no actors are directly involved
                 // But we should check if the trigger targets doors
                 const targetTypeMatches = this._checkTargetTypeMatch(actorTypes, 'doors', context);
@@ -1710,7 +1737,7 @@ export class TriggerManager {
                     }
                     return false;
                 }
-                return true; // Door target matches, continue
+                return true;
                 
             case 'onCombatStart':
             case 'onCombatEnd':

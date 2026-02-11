@@ -221,6 +221,7 @@
                         <div class="grid-cell">
                             <label>Target Mode</label>
                             <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                                <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
                                 <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Door</option>
                                 <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Doors in Scene</option>
                             </select>
@@ -298,6 +299,7 @@
                         <div class="grid-cell">
                             <label>Target Mode</label>
                             <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                                <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
                                 <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering Actor</option>
                                 <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Element</option>
                                 <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All in Scene</option>
@@ -346,6 +348,7 @@
                     {{#if (eq this.type "door")}}
                     <div class="action-grid compact">
                         <select name="actions.success.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source</option>
                             <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Door</option>
                             <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Doors in Scene</option>
                         </select>
@@ -367,6 +370,7 @@
                             <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
                         </select>
                         <select name="actions.success.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source</option>
                             <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
                             <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
                             <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>
@@ -399,6 +403,7 @@
                     {{#if (eq this.type "door")}}
                     <div class="action-grid compact">
                         <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source</option>
                             <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Door</option>
                             <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Doors in Scene</option>
                         </select>
@@ -420,6 +425,7 @@
                             <option value="toggleCoreEffect" {{#if (eq this.type "toggleCoreEffect")}}selected{{/if}}>Toggle</option>
                         </select>
                         <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source</option>
                             <option value="triggering" {{#if (eq this.target.mode "triggering")}}selected{{/if}}>Triggering</option>
                             <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific</option>
                             <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All</option>

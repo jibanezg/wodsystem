@@ -497,8 +497,8 @@ export class WodTriggerConfigDialog extends FormApplication {
                 idInput.hide();
             }
             
-            // Show/hide element type for non-triggering modes
-            if (mode === 'triggering') {
+            // Show/hide element type based on mode
+            if (mode === 'triggering' || mode === 'source') {
                 typeCell.hide();
             } else {
                 typeCell.show();
