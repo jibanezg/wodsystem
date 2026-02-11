@@ -1623,7 +1623,8 @@ export class TriggerManager {
                 id: trigger.id,
                 name: trigger.name,
                 execution: trigger.execution,
-                trigger: trigger.trigger
+                trigger: trigger.trigger,
+                fullTrigger: JSON.stringify(trigger, null, 2)
             });
         });
         
