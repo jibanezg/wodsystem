@@ -1510,6 +1510,8 @@ export class WodTriggerConfigDialog extends FormApplication {
         const eventTypeValue = $form.find('select[name="trigger.eventType"]').val();
         console.log('WoD TriggerConfig | _updateObject - Raw eventType value from UI:', eventTypeValue);
         console.log('WoD TriggerConfig | _updateObject - Available eventType selects:', $form.find('select[name="trigger.eventType"]').length);
+        console.log('WoD TriggerConfig | _updateObject - All select options:', $form.find('select[name="trigger.eventType"] option').map((i, el) => $(el).val()).get());
+        console.log('WoD TriggerConfig | _updateObject - Currently selected option:', $form.find('select[name="trigger.eventType"] option:selected').val());
         
         formData['trigger.eventType'] = eventTypeValue;
         formData.name = $form.find('input[name="name"]').val();
