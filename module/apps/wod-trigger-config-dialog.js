@@ -1508,7 +1508,11 @@ export class WodTriggerConfigDialog extends FormApplication {
         
         
         // Force UI values for critical fields that might not be in formData
-        formData['trigger.eventType'] = $form.find('select[name="trigger.eventType"]').val();
+        const eventTypeValue = $form.find('select[name="trigger.eventType"]').val();
+        console.log('WoD TriggerConfig | _updateObject - Raw eventType value from UI:', eventTypeValue);
+        console.log('WoD TriggerConfig | _updateObject - Available eventType selects:', $form.find('select[name="trigger.eventType"]').length);
+        
+        formData['trigger.eventType'] = eventTypeValue;
         formData.name = $form.find('input[name="name"]').val();
         
         // Force action type values
