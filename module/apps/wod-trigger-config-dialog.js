@@ -440,7 +440,7 @@ export class WodTriggerConfigDialog extends FormApplication {
             const valueInput = conditionRow.querySelector('.condition-value');
             const index = conditionRow.dataset.index;
             
-            if (conditionType === 'hasEffect') {
+            if (conditionType === 'hasEffect' || conditionType === 'removedEffect') {
                 this._setupEffectAutocomplete(valueInput, index);
             } else {
                 this._removeEffectAutocomplete(valueInput);
@@ -1057,7 +1057,7 @@ export class WodTriggerConfigDialog extends FormApplication {
             const conditionType = row.querySelector('.condition-type')?.value;
             const valueInput = row.querySelector('.condition-value');
             
-            if (conditionType === 'hasEffect' && valueInput) {
+            if ((conditionType === 'hasEffect' || conditionType === 'removedEffect') && valueInput) {
                 this._setupEffectAutocomplete(valueInput, index);
             }
         });
