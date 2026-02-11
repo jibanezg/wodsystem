@@ -1625,9 +1625,6 @@ export class TriggerManager {
                 execution: trigger.execution,
                 trigger: trigger.trigger
             });
-            // Log the full structure separately to avoid truncation
-            console.log(`WoD TriggerManager | Trigger ${index} full structure:`);
-            console.log(JSON.stringify(trigger, null, 2));
         });
         
         if (this._debugMode) {
