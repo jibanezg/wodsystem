@@ -374,7 +374,12 @@ export class WodTriggerConfigDialog extends FormApplication {
         html.find('select[name="targetCsv"]').on('change', this._onTargetChange.bind(this));
 
         // Handle event type changes to show/hide effect configuration
-        html.find('select[name="trigger.eventType"]').on('change', this._onEventTypeChange.bind(this));
+        html.find('select[name="trigger.eventType"]').on('change', (event) => {
+            const newValue = $(event.currentTarget).val();
+            console.log('WoD TriggerConfig | Event type changed to:', newValue);
+            console.log('WoD TriggerConfig | Event type changed - select element:', event.currentTarget);
+            this._onEventTypeChange(event);
+        });
 
         // Initialize effect field visibility
         this._updateEffectFieldVisibility(html);
