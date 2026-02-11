@@ -1616,6 +1616,17 @@ export class TriggerManager {
             return;
         }
         
+        // Debug: Log the raw trigger data to see what's actually stored
+        console.log(`WoD TriggerManager | Raw scene triggers data:`, sceneTriggers);
+        sceneTriggers.forEach((trigger, index) => {
+            console.log(`WoD TriggerManager | Trigger ${index} raw data:`, {
+                id: trigger.id,
+                name: trigger.name,
+                execution: trigger.execution,
+                trigger: trigger.trigger
+            });
+        });
+        
         if (this._debugMode) {
             console.log(`WoD TriggerManager | Checking ${sceneTriggers.length} scene triggers for event: ${eventType}`);
             // Log the actual trigger data to debug storage issues
