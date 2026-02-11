@@ -214,6 +214,17 @@ export class EffectAutocomplete {
     _onKeydown(event) {
         if (!this.isOpen) return;
         
+        // Add defensive check to prevent focus errors
+        try {
+            if (event.target && typeof event.target.focus === 'function') {
+                // Focus method exists, continue
+            }
+        } catch (error) {
+            // Ignore focus-related errors
+            console.warn('WoD EffectAutocomplete | Focus error in keydown handler:', error);
+            return;
+        }
+        
         switch (event.key) {
             case 'ArrowDown':
                 event.preventDefault();

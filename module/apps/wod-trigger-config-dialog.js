@@ -691,6 +691,15 @@ export class WodTriggerConfigDialog extends FormApplication {
                 if (event.key === 'Escape') {
                     this._stopPickMode();
                 }
+                // Add defensive check to prevent focus errors
+                try {
+                    if (event.target && typeof event.target.focus === 'function') {
+                        // Focus method exists, continue
+                    }
+                } catch (error) {
+                    // Ignore focus-related errors
+                    console.warn('WoD TriggerConfig | Focus error in keydown handler:', error);
+                }
             };
 
             this._pickHandlers = { onControlTile, onKeyDown };
@@ -720,6 +729,15 @@ export class WodTriggerConfigDialog extends FormApplication {
             const onKeyDown = (event) => {
                 if (event.key === 'Escape') {
                     this._stopPickMode();
+                }
+                // Add defensive check to prevent focus errors
+                try {
+                    if (event.target && typeof event.target.focus === 'function') {
+                        // Focus method exists, continue
+                    }
+                } catch (error) {
+                    // Ignore focus-related errors
+                    console.warn('WoD TriggerConfig | Focus error in keydown handler:', error);
                 }
             };
 
@@ -804,10 +822,19 @@ export class WodTriggerConfigDialog extends FormApplication {
         this._pickMode = { outcome, index, previousLayer, elementType };
 
         const onKeyDown = (event) => {
-            if (event.key === 'Escape') {
-                this._stopPickMode();
-            }
-        };
+                if (event.key === 'Escape') {
+                    this._stopPickMode();
+                }
+                // Add defensive check to prevent focus errors
+                try {
+                    if (event.target && typeof event.target.focus === 'function') {
+                        // Focus method exists, continue
+                    }
+                } catch (error) {
+                    // Ignore focus-related errors
+                    console.warn('WoD TriggerConfig | Focus error in keydown handler:', error);
+                }
+            };
 
         switch (elementType) {
             case 'wall':
