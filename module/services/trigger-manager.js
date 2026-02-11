@@ -1640,7 +1640,12 @@ export class TriggerManager {
             
             // Check if this trigger responds to this event
             if (trigger.execution?.mode === 'event') {
-                if (trigger.execution.event !== eventType) continue;
+                const triggerEvent = trigger.execution?.event;
+                console.log(`WoD TriggerManager | Event mode trigger "${trigger.name}" - triggerEvent: ${triggerEvent}, eventType: ${eventType}`);
+                if (triggerEvent !== eventType) {
+                    console.log(`WoD TriggerManager | Event mismatch - skipping trigger "${trigger.name}"`);
+                    continue;
+                }
             }
             
             // Check target filtering for scene triggers
