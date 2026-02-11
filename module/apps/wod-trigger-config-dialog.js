@@ -1292,6 +1292,13 @@ export class WodTriggerConfigDialog extends FormApplication {
 
                 
         console.log('WoD TriggerConfig | Building final trigger object...');
+        
+        // Debug: Check if we're updating an existing trigger
+        if (triggerIndex >= 0) {
+            console.log('WoD TriggerConfig | Updating existing trigger at index:', triggerIndex);
+            console.log('WoD TriggerConfig | Existing trigger data:', JSON.stringify(triggers[triggerIndex], null, 2));
+        }
+        
         const next = {
             id: this.triggerId,
             name: formData.name || 'Unnamed Trigger',
