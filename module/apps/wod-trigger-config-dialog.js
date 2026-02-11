@@ -1335,6 +1335,15 @@ export class WodTriggerConfigDialog extends FormApplication {
 
         console.log('WoD Trigger Config Dialog | Saving triggers count:', triggers.length);
         console.log('WoD Trigger Config Dialog | Full triggers array before save:', JSON.stringify(triggers, null, 2));
+        
+        // Debug: Log the specific trigger we're saving
+        console.log('WoD Trigger Config Dialog | SAVING TRIGGER:', {
+            id: next.id,
+            name: next.name,
+            event: next.trigger?.execution?.event,
+            mode: next.trigger?.execution?.mode
+        });
+        
         await this.document.setFlag('wodsystem', flagPath, triggers);
         console.log('WoD Trigger Config Dialog | Save completed');
     }
