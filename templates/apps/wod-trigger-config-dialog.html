@@ -123,6 +123,11 @@
             <div class="conditions-list" id="conditions-list">
                 {{#each trigger.trigger.conditions}}
                 <div class="condition-row" data-index="{{@index}}">
+                    <select name="trigger.conditions.{{@index}}.target" class="condition-target" title="Condition Target">
+                        <option value="" {{#unless this.target}}selected{{/unless}}>Default</option>
+                        <option value="source" {{#if (eq this.target "source")}}selected{{/if}}>Source</option>
+                        <option value="triggering" {{#if (eq this.target "triggering")}}selected{{/if}}>Triggering</option>
+                    </select>
                     <select name="trigger.conditions.{{@index}}.type" class="condition-type">
                         {{#each ../conditionTypes}}
                         <option value="{{this.id}}" {{#if (eq ../this.type this.id)}}selected{{/if}}>{{this.label}}</option>

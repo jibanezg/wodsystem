@@ -83,34 +83,37 @@ export class ConditionEvaluator {
     _evaluateSingleCondition(condition, context) {
         const { type, operator, value } = condition;
         
+        // Resolve condition target if specified — enriches context with the resolved target
+        const resolvedContext = this._resolveConditionTarget(condition, context);
+        
         try {
             switch (type) {
                 case 'tokenEnter':
-                    return this._checkTokenEnter(context);
+                    return this._checkTokenEnter(resolvedContext);
                     
                 case 'tokenExit':
-                    return this._checkTokenExit(context);
+                    return this._checkTokenExit(resolvedContext);
                     
                 case 'hasEffect':
-                    return this._checkHasEffect(condition, context);
+                    return this._checkHasEffect(condition, resolvedContext);
                     
                 case 'removedEffect':
-                    return this._checkRemovedEffect(condition, context);
+                    return this._checkRemovedEffect(condition, resolvedContext);
                     
                 case 'isGM':
-                    return this._checkIsGM(context);
+                    return this._checkIsGM(resolvedContext);
                     
                 case 'isPlayer':
-                    return this._checkIsPlayer(context);
+                    return this._checkIsPlayer(resolvedContext);
                     
                 case 'doorState':
-                    return this._checkDoorState(condition, context);
+                    return this._checkDoorState(condition, resolvedContext);
                     
                 case 'healthPercent':
-                    return this._checkHealthPercent(condition, context);
+                    return this._checkHealthPercent(condition, resolvedContext);
                     
                 case 'tokenAttribute':
-                    return this._checkTokenAttribute(condition, context);
+                    return this._checkTokenAttribute(condition, resolvedContext);
                     
                 default:
                     console.warn(`ConditionEvaluator | Unknown condition type: ${type}`);
@@ -119,6 +122,47 @@ export class ConditionEvaluator {
         } catch (error) {
             console.error(`ConditionEvaluator | Error evaluating condition ${type}:`, error);
             return { passed: false, value: null, expected: null, error: error.message };
+        }
+    }
+    
+    /**
+     * Resolve condition target and return enriched context
+     * If condition.target is not set, returns the original context unchanged.
+     * @param {Object} condition - The condition with optional target field
+     * @param {Object} context - The original evaluation context
+     * @returns {Object} The context, possibly enriched with resolved target
+     * @private
+     */
+    _resolveConditionTarget(condition, context) {
+        const target = condition.target;
+        if (!target) return context; // No target override — use original context
+        
+        switch (target) {
+            case 'source':
+                // Evaluate against the trigger host element (context.document)
+                const sourceDoc = context.document;
+                if (!sourceDoc) return context;
+                
+                // If source is a wall/door, enrich context with it
+                if (sourceDoc.documentName === 'Wall') {
+                    return { ...context, wall: sourceDoc, door: sourceDoc };
+                }
+                // If source is an actor, enrich context with it
+                if (sourceDoc.documentName === 'Actor') {
+                    return { ...context, actor: sourceDoc };
+                }
+                // If source is a token, enrich context with token and actor
+                if (sourceDoc.documentName === 'Token' || sourceDoc.actor) {
+                    return { ...context, token: sourceDoc, actor: sourceDoc.actor || context.actor };
+                }
+                return context;
+                
+            case 'triggering':
+                // Evaluate against the triggering actor/token — this is already the default
+                return context;
+                
+            default:
+                return context;
         }
     }
     

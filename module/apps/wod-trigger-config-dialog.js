@@ -948,7 +948,8 @@ export class WodTriggerConfigDialog extends FormApplication {
                 type: 'hasEffect',
                 operator: 'equals',
                 value: '',
-                logic: 'none'
+                logic: 'none',
+                target: ''
             });
             
             // Store the updated data in memory (only the trigger part)
@@ -969,7 +970,8 @@ export class WodTriggerConfigDialog extends FormApplication {
             type: 'hasEffect',
             operator: 'equals',
             value: '',
-            logic: 'none'
+            logic: 'none',
+            target: ''
         });
         
         triggers[triggerIndex] = trigger;
@@ -1158,11 +1160,13 @@ export class WodTriggerConfigDialog extends FormApplication {
             
             // Only add condition if type is specified
             if (conditionType) {
+                const target = $row.find('.condition-target').val();
                 conditions.push({
                     type: conditionType,
                     operator: operator || 'equals',
                     value: value || '',
-                    logic: logic || 'none'
+                    logic: logic || 'none',
+                    target: target || ''
                 });
             }
         });
