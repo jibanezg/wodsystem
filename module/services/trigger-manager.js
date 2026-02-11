@@ -1634,7 +1634,7 @@ export class TriggerManager {
             console.log(`WoD TriggerManager | Checking ${sceneTriggers.length} scene triggers for event: ${eventType}`);
             // Log the actual trigger data to debug storage issues
             sceneTriggers.forEach((trigger, index) => {
-                console.log(`WoD TriggerManager | Trigger ${index}: "${trigger.name}" - Event: ${trigger.execution?.event}, Mode: ${trigger.execution?.mode}`);
+                console.log(`WoD TriggerManager | Trigger ${index}: "${trigger.name}" - Event: ${trigger.trigger?.execution?.event}, Mode: ${trigger.trigger?.execution?.mode}`);
             });
         }
         
@@ -1642,8 +1642,8 @@ export class TriggerManager {
             if (!trigger.enabled) continue;
             
             // Check if this trigger responds to this event
-            if (trigger.execution?.mode === 'event') {
-                const triggerEvent = trigger.execution?.event;
+            if (trigger.trigger?.execution?.mode === 'event') {
+                const triggerEvent = trigger.trigger?.execution?.event;
                 console.log(`WoD TriggerManager | Event mode trigger "${trigger.name}" - triggerEvent: ${triggerEvent}, eventType: ${eventType}`);
                 if (triggerEvent !== eventType) {
                     console.log(`WoD TriggerManager | Event mismatch - skipping trigger "${trigger.name}"`);
