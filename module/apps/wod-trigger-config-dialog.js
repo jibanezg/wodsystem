@@ -1236,6 +1236,11 @@ export class WodTriggerConfigDialog extends FormApplication {
     _parseExecutionFromFormData(formData) {
         const executionMode = formData['trigger.execution.mode'] || 'event';
         
+        console.log('WoD TriggerConfig | _parseExecutionFromFormData called with:', {
+            executionMode: formData['trigger.execution.mode'],
+            eventType: formData['trigger.eventType']
+        });
+        
         const execution = {
             mode: executionMode,
             timing: {
@@ -1249,8 +1254,12 @@ export class WodTriggerConfigDialog extends FormApplication {
         // Only include event field for event mode
         if (executionMode === 'event') {
             execution.event = formData['trigger.eventType'] || 'onEnter';
+            console.log('WoD TriggerConfig | Event mode - setting event to:', execution.event);
+        } else {
+            console.log('WoD TriggerConfig | Non-event mode - no event field set');
         }
         
+        console.log('WoD TriggerConfig | Final execution object:', execution);
         return execution;
     }
 
@@ -1283,6 +1292,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
 
                 
+        console.log('WoD TriggerConfig | Building final trigger object...');
         const next = {
             id: this.triggerId,
             name: formData.name || 'Unnamed Trigger',
@@ -1306,6 +1316,8 @@ export class WodTriggerConfigDialog extends FormApplication {
             },
             actions: this._normalizeActions(parsedActions, triggerIndex >= 0 ? triggers[triggerIndex]?.actions : null)
         };
+
+        console.log('WoD TriggerConfig | Final trigger object before save:', JSON.stringify(next, null, 2));
 
         if (triggerIndex >= 0) {
             triggers[triggerIndex] = next;
@@ -1638,14 +1650,36 @@ export class WodTriggerConfigDialog extends FormApplication {
         return Array.from(effects).sort();
     }
 
-    _getAvailableAttributes() {
-        // Standard WoD attributes (from wizard config)
-        const attributes = [
-            'Strength', 'Dexterity', 'Stamina',
-            'Charisma', 'Manipulation', 'Appearance', 
-            'Perception', 'Intelligence', 'Wits'
-        ];
-        return attributes;
+    async _onSubmit(event) {
+        event.preventDefault();
+        
+        console.log('WoD TriggerConfig | _onSubmit called');
+        
+        const form = event.target;
+        const formData = new FormData(form);
+        
+        // Force extraction of all trigger fields
+        this._forceExtractAllFields(formData);
+        
+        console.log('WoD TriggerConfig | Form data before expansion:', Object.fromEntries(formData));
+        
+        // Expand nested fields
+        const expanded = this._expandFormData(formData);
+        console.log('WoD TriggerConfig | Expanded form data:', expanded);
+        
+        // Parse trigger data
+        const triggerData = this._parseTriggerData(expanded);
+        console.log('WoD TriggerConfig | Parsed trigger data:', triggerData);
+        
+        // Validate trigger
+        const validation = this._validateTrigger(triggerData);
+        if (!validation.valid) {
+            ui.notifications.error(validation.errors.join(', '));
+            return;
+        }
+        
+        // Save trigger
+        await this._saveTrigger(triggerData);
     }
 
     _getAvailableAbilities() {
