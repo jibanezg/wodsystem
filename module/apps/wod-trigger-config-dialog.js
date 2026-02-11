@@ -224,27 +224,6 @@ export class WodTriggerConfigDialog extends FormApplication {
                     target: null,
                     tile: { boundary: 'enter' },
                     region: { boundary: 'enter' },
-                    proximity: { distance: 5, unit: 'grid', shape: 'circle' }
-                },
-                conditions: [],
-                execution: {
-                    mode: 'event',
-                    event: 'onEnter',  // Only for event mode
-                    timing: { delay: 0, repeat: 0, duration: null }
-                }
-            },
-            roll: {
-                enabled: false,
-                type: 'attribute+ability',
-                attribute: '',
-                ability: '',
-                poolName: '',
-                difficulty: 6,
-                successThreshold: 1
-            },
-            actions: {
-                always: [],
-                success: [],
                 failure: []
             }
         };
