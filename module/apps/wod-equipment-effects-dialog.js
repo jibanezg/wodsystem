@@ -442,22 +442,8 @@ export class WodEquipmentEffectsDialog extends FormApplication {
             };
         }
 
-        // Update the item
+        // Update the item — the updateItem hook in EquipmentEffectsManager will handle
+        // applying/removing effects on the originating client only (userId check).
         await this.item.update({ "system.equipmentEffects": effects });
-        
-        // CRITICAL: Get fresh item data after update to ensure we have the latest values
-        const updatedItem = this.item.actor.items.get(this.item.id) || this.item;
-        
-        // If item is equipped, apply effects immediately
-        if (updatedItem.system?.equipped && game.wod?.equipmentEffectsManager) {
-            const manager = game.wod.equipmentEffectsManager;
-            const hasEffects = effects.light !== null || effects.visibility !== null || effects.sound !== null;
-            
-            if (hasEffects) {
-                await manager._applyItemEffects(updatedItem.actor, updatedItem, effects);
-            } else {
-                await manager._removeItemEffects(updatedItem.actor, updatedItem.id);
-            }
-        }
     }
 }

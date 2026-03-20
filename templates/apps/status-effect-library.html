@@ -161,6 +161,31 @@
                     </div>
                     {{/if}}
                     
+                    {{#if selectedEffect.tokenEffects}}
+                    <div class="effect-token-effects-display">
+                        <h4><i class="fas fa-lightbulb"></i> Token Effects</h4>
+                        <ul>
+                            {{#if selectedEffect.tokenEffects.light}}
+                            <li>
+                                <i class="fas fa-sun"></i> <strong>Light:</strong>
+                                Dim {{selectedEffect.tokenEffects.light.dim}},
+                                Bright {{selectedEffect.tokenEffects.light.bright}}
+                                {{#if selectedEffect.tokenEffects.light.color}}
+                                    <span class="light-color-swatch" style="background-color: {{selectedEffect.tokenEffects.light.color}}; display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: middle;"></span>
+                                {{/if}}
+                            </li>
+                            {{/if}}
+                            {{#if selectedEffect.tokenEffects.vision}}
+                            <li>
+                                <i class="fas fa-eye"></i> <strong>Vision:</strong>
+                                {{selectedEffect.tokenEffects.vision.visionMode}}
+                                (Range: {{selectedEffect.tokenEffects.vision.dimSight}})
+                            </li>
+                            {{/if}}
+                        </ul>
+                    </div>
+                    {{/if}}
+                    
                     <div class="effect-actions">
                         <button type="button" class="icon-btn edit-effect-btn" title="{{i18n 'WODSYSTEM.Common.Edit'}}">
                             <i class="fas fa-edit"></i>

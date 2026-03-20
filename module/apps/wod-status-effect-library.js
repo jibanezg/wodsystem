@@ -560,6 +560,15 @@ export class WodStatusEffectLibrary extends FormApplication {
                         </ul>
                     </div>
                 ` : ''}
+                ${effect.tokenEffects ? `
+                    <div class="effect-token-effects">
+                        <strong>Token Effects:</strong>
+                        <ul>
+                            ${effect.tokenEffects.light ? `<li><i class="fas fa-sun"></i> Light: Dim ${effect.tokenEffects.light.dim}, Bright ${effect.tokenEffects.light.bright}</li>` : ''}
+                            ${effect.tokenEffects.vision ? `<li><i class="fas fa-eye"></i> Vision: ${effect.tokenEffects.vision.visionMode || 'basic'} (range ${Math.max(effect.tokenEffects.vision.dimSight || 0, effect.tokenEffects.vision.brightSight || 0)})</li>` : ''}
+                        </ul>
+                    </div>
+                ` : ''}
                 ${effect.tags && effect.tags.length > 0 ? `
                     <div class="effect-tags">
                         <strong>Tags:</strong> ${effect.tags.join(', ')}

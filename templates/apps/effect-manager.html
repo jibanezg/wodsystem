@@ -159,6 +159,89 @@
         <button type="button" class="add-modifier-row" title="{{i18n 'EffectManager.AddModifier'}}"><i class="fas fa-plus"></i></button>
     </section>
     
+    <!-- Token Effects Section (Light & Vision) -->
+    <section class="effect-token-effects-section">
+        <h3><i class="fas fa-lightbulb"></i> Token Effects</h3>
+        <p class="help-text"><small>Configure light emission and vision capabilities granted by this effect.</small></p>
+        
+        <!-- Light Emission -->
+        <div class="token-effect-group">
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" class="toggle-light-section" name="tokenEffects.lightEnabled" {{#if effect.tokenEffects.light}}checked{{/if}} />
+                    <i class="fas fa-sun"></i> Light Emission
+                </label>
+                <small>This effect causes the token to emit light.</small>
+            </div>
+            <div class="light-config-fields" {{#unless effect.tokenEffects.light}}style="display:none"{{/unless}}>
+                <div class="form-group">
+                    <label>Dim Radius</label>
+                    <input type="number" name="tokenEffects.light.dim" value="{{effect.tokenEffects.light.dim}}" min="0" step="1" placeholder="0" />
+                    <small>Total radius of dim light (in grid units).</small>
+                </div>
+                <div class="form-group">
+                    <label>Bright Radius</label>
+                    <input type="number" name="tokenEffects.light.bright" value="{{effect.tokenEffects.light.bright}}" min="0" step="1" placeholder="0" />
+                    <small>Radius of bright light within the dim radius.</small>
+                </div>
+                <div class="form-group">
+                    <label>Angle</label>
+                    <input type="number" name="tokenEffects.light.angle" value="{{#if effect.tokenEffects.light.angle}}{{effect.tokenEffects.light.angle}}{{else}}360{{/if}}" min="0" max="360" step="1" />
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <div class="color-picker-group">
+                        <input type="color" name="tokenEffects.light.color" value="{{#if effect.tokenEffects.light.color}}{{effect.tokenEffects.light.color}}{{else}}#ffffff{{/if}}" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Opacity</label>
+                    <input type="number" name="tokenEffects.light.alpha" value="{{#if effect.tokenEffects.light.alpha}}{{effect.tokenEffects.light.alpha}}{{else}}0.5{{/if}}" min="0" max="1" step="0.1" />
+                </div>
+            </div>
+        </div>
+        
+        <!-- Vision -->
+        <div class="token-effect-group">
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" class="toggle-vision-section" name="tokenEffects.visionEnabled" {{#if effect.tokenEffects.vision}}checked{{/if}} />
+                    <i class="fas fa-eye"></i> Vision
+                </label>
+                <small>This effect grants special vision capabilities.</small>
+            </div>
+            <div class="vision-config-fields" {{#unless effect.tokenEffects.vision}}style="display:none"{{/unless}}>
+                <div class="form-group">
+                    <label>Vision Mode</label>
+                    <select name="tokenEffects.vision.visionMode">
+                        <option value="basic" {{#if (eq effect.tokenEffects.vision.visionMode "basic")}}selected{{/if}}>Basic</option>
+                        <option value="darkvision" {{#if (eq effect.tokenEffects.vision.visionMode "darkvision")}}selected{{/if}}>Darkvision</option>
+                        <option value="lowlight" {{#if (eq effect.tokenEffects.vision.visionMode "lowlight")}}selected{{/if}}>Low-light Vision</option>
+                        <option value="tremorsense" {{#if (eq effect.tokenEffects.vision.visionMode "tremorsense")}}selected{{/if}}>Tremorsense</option>
+                        <option value="blindsight" {{#if (eq effect.tokenEffects.vision.visionMode "blindsight")}}selected{{/if}}>Blindsight</option>
+                        <option value="truesight" {{#if (eq effect.tokenEffects.vision.visionMode "truesight")}}selected{{/if}}>Truesight</option>
+                        <option value="xray" {{#if (eq effect.tokenEffects.vision.visionMode "xray")}}selected{{/if}}>X-Ray Vision</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dim Sight Range</label>
+                    <input type="number" name="tokenEffects.vision.dimSight" value="{{effect.tokenEffects.vision.dimSight}}" min="0" step="1" placeholder="0" />
+                    <small>Range of dim sight (in grid units).</small>
+                </div>
+                <div class="form-group">
+                    <label>Bright Sight Range</label>
+                    <input type="number" name="tokenEffects.vision.brightSight" value="{{effect.tokenEffects.vision.brightSight}}" min="0" step="1" placeholder="0" />
+                    <small>Range of bright sight (in grid units).</small>
+                </div>
+                <div class="form-group vision-angle-group">
+                    <label>Angle</label>
+                    <input type="number" name="tokenEffects.vision.angle" value="{{#if effect.tokenEffects.vision.angle}}{{effect.tokenEffects.vision.angle}}{{else}}360{{/if}}" min="0" max="360" step="1" />
+                    <small>Only applies to Basic and Low-light vision modes.</small>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <!-- Action Buttons -->
     <footer class="dialog-buttons">
         <button type="button" class="save-effect">

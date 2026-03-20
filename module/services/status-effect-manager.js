@@ -107,11 +107,67 @@ export class StatusEffectManager {
 
     /**
      * Register hooks for syncing effect templates to actor effects
+     * and applying/removing token effects (light, vision) when status effects change
      * @private
      */
     _registerSyncHooks() {
-        // When an effect template is updated, sync to all actors with that effect
-        // This is handled internally when templates are modified
+        const manager = this;
+        console.log("WoD StatusEffectManager | _registerSyncHooks called - registering ActiveEffect hooks");
+
+        // When an ActiveEffect is created on an actor, apply token effects if configured
+        Hooks.on("createActiveEffect", async (effect, options, userId) => {
+            console.log(`WoD StatusEffectManager | createActiveEffect hook FIRED - effect: ${effect.name}, userId: ${userId}, myId: ${game.user.id}, parent: ${effect.parent?.documentName}`);
+            
+            // Only process on the originating client
+            if (userId !== game.user.id) return;
+
+            const parent = effect.parent;
+            if (!parent || parent.documentName !== 'Actor') return;
+
+            const tokenEffects = effect.getFlag('wodsystem', 'tokenEffects');
+            console.log(`WoD StatusEffectManager | createActiveEffect - effect: ${effect.name}, hasTokenEffects: ${!!tokenEffects}`, tokenEffects);
+            if (!tokenEffects) return;
+
+            await manager._applyTokenEffectsForActor(parent);
+        });
+
+        // When an ActiveEffect is deleted from an actor, remove/recalculate token effects
+        Hooks.on("deleteActiveEffect", async (effect, options, userId) => {
+            console.log(`WoD StatusEffectManager | deleteActiveEffect hook FIRED - effect: ${effect.name}, userId: ${userId}, myId: ${game.user.id}`);
+            
+            // Only process on the originating client
+            if (userId !== game.user.id) return;
+
+            const parent = effect.parent;
+            if (!parent || parent.documentName !== 'Actor') return;
+
+            const tokenEffects = effect.getFlag('wodsystem', 'tokenEffects');
+            console.log(`WoD StatusEffectManager | deleteActiveEffect - effect: ${effect.name}, hadTokenEffects: ${!!tokenEffects}`);
+            if (!tokenEffects) return;
+
+            // Recalculate remaining token effects from all active effects on this actor
+            await manager._applyTokenEffectsForActor(parent);
+        });
+
+        // When an ActiveEffect is updated (e.g. disabled/enabled or flags changed), recalculate token effects
+        Hooks.on("updateActiveEffect", async (effect, changes, options, userId) => {
+            // Only process on the originating client
+            if (userId !== game.user.id) return;
+
+            const parent = effect.parent;
+            if (!parent || parent.documentName !== 'Actor') return;
+
+            // Care about disabled state changes OR flag changes (tokenEffects updated via sync)
+            const hasDisabledChange = changes.disabled !== undefined;
+            const hasFlagChange = changes.flags?.wodsystem?.tokenEffects !== undefined;
+            if (!hasDisabledChange && !hasFlagChange) return;
+
+            const tokenEffects = effect.getFlag('wodsystem', 'tokenEffects');
+            console.log(`WoD StatusEffectManager | updateActiveEffect hook - effect: ${effect.name}, disabledChange: ${hasDisabledChange}, flagChange: ${hasFlagChange}, hasTokenEffects: ${!!tokenEffects}`);
+            if (!tokenEffects) return;
+
+            await manager._applyTokenEffectsForActor(parent);
+        });
     }
 
     /**
@@ -223,6 +279,7 @@ export class StatusEffectManager {
             conditionScope: effectData.conditionScope || 'always',
             conditionTargets: effectData.conditionTargets || [],
             changes: effectData.changes || [],
+            tokenEffects: effectData.tokenEffects || null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
@@ -383,7 +440,8 @@ export class StatusEffectManager {
                     mandatory: template.mandatory,
                     sourceTemplateId: templateId,
                     conditionScope: template.conditionScope,
-                    conditionTargets: template.conditionTargets
+                    conditionTargets: template.conditionTargets,
+                    tokenEffects: template.tokenEffects || null
                 }
             },
             origin: `StatusEffectManager.${templateId}`,
@@ -749,8 +807,13 @@ export class StatusEffectManager {
                         changes: template.changes || [],
                         'flags.wodsystem.mandatory': template.mandatory,
                         'flags.wodsystem.conditionScope': template.conditionScope,
-                        'flags.wodsystem.conditionTargets': template.conditionTargets
+                        'flags.wodsystem.conditionTargets': template.conditionTargets,
+                        'flags.wodsystem.tokenEffects': template.tokenEffects || null
                     });
+                    // If tokenEffects changed, reapply to tokens
+                    if (template.tokenEffects) {
+                        await this._applyTokenEffectsForActor(actor);
+                    }
                     syncCount++;
                 } catch (error) {
                     console.error(`WoD StatusEffectManager | Failed to sync effect on ${actor.name}:`, error);
@@ -809,6 +872,337 @@ export class StatusEffectManager {
                 } catch (error) {
                     console.error(`WoD StatusEffectManager | Failed to sync flag effect on scene:`, error);
                 }
+            }
+        }
+    }
+
+    // ==================== Token Effects (Light & Vision) ====================
+
+    /**
+     * Gather all active (non-disabled) status effects on an actor that have tokenEffects,
+     * compute the combined best light and vision, and apply to all tokens.
+     * Called on createActiveEffect, deleteActiveEffect, and updateActiveEffect.
+     * @param {Actor} actor
+     * @private
+     */
+    async _applyTokenEffectsForActor(actor) {
+        if (!actor) return;
+
+        console.log(`WoD StatusEffectManager | _applyTokenEffectsForActor - actor: ${actor.name}, effects count: ${actor.effects.size}`);
+
+        // Collect tokenEffects from all enabled ActiveEffects on this actor
+        let bestLight = null;
+        let bestVision = null;
+        let maxBright = 0;
+        let maxSightRange = 0;
+
+        for (const effect of actor.effects) {
+            if (effect.disabled) continue;
+            const te = effect.getFlag('wodsystem', 'tokenEffects');
+            if (!te) continue;
+
+            console.log(`WoD StatusEffectManager | Found tokenEffects on effect "${effect.name}":`, te);
+
+            // Light: pick the strongest (highest bright value)
+            if (te.light) {
+                const bright = parseFloat(te.light.bright) || 0;
+                const dim = parseFloat(te.light.dim) || 0;
+                if (bright > maxBright || (bright === maxBright && dim > (bestLight?.dim || 0))) {
+                    maxBright = bright;
+                    bestLight = te.light;
+                }
+            }
+
+            // Vision: pick the best (highest range, prefer advanced modes over basic)
+            if (te.vision) {
+                const range = Math.max(
+                    parseFloat(te.vision.dimSight) || 0,
+                    parseFloat(te.vision.brightSight) || 0
+                );
+                const visionMode = te.vision.visionMode || 'basic';
+                // Prefer non-basic vision modes, then highest range
+                const isBetter = range > maxSightRange ||
+                    (range === maxSightRange && visionMode !== 'basic' && (!bestVision || bestVision.visionMode === 'basic'));
+                if (isBetter) {
+                    maxSightRange = range;
+                    bestVision = te.vision;
+                }
+            }
+        }
+
+        console.log(`WoD StatusEffectManager | Best light:`, bestLight, `Best vision:`, bestVision);
+
+        // Get tokens for this actor
+        const tokens = await this._getActorTokens(actor);
+        console.log(`WoD StatusEffectManager | Found ${tokens.length} tokens for actor ${actor.name}`);
+
+        if (bestLight) {
+            await this._applyLightToTokens(tokens, actor, bestLight);
+        } else {
+            // No light effects remain — reset to default
+            await this._resetLightOnTokens(tokens, actor);
+        }
+
+        if (bestVision) {
+            await this._applyVisionToTokens(tokens, actor, bestVision);
+        } else {
+            // No vision effects remain — reset to default
+            await this._resetVisionOnTokens(tokens, actor);
+        }
+    }
+
+    /**
+     * Get all tokens for an actor (active scene tokens + stored token fallback)
+     * @param {Actor} actor
+     * @returns {Promise<Array>}
+     * @private
+     */
+    async _getActorTokens(actor) {
+        // First try ALL active tokens (linked and unlinked) on the current scene
+        let tokens = actor.getActiveTokens();
+        if (tokens.length > 0) {
+            console.log(`WoD StatusEffectManager | _getActorTokens - found ${tokens.length} active tokens for ${actor.name}`);
+            return tokens;
+        }
+
+        // Fallback: check stored token location from EquipmentEffectsManager
+        const location = actor.flags?.wodsystem?.tokenLocation;
+        if (location?.tokenId && location?.sceneId) {
+            const scene = game.scenes.get(location.sceneId);
+            if (scene && (game.user.isGM || scene.testUserPermission(game.user, "LIMITED"))) {
+                const tokenDoc = scene.tokens.get(location.tokenId);
+                if (tokenDoc) {
+                    console.log(`WoD StatusEffectManager | _getActorTokens - found stored token for ${actor.name}`);
+                    return [tokenDoc];
+                }
+                // Search by actor id
+                const found = Array.from(scene.tokens.values()).find(t =>
+                    (t.actorId || t.data?.actorId) === actor.id
+                );
+                if (found) {
+                    console.log(`WoD StatusEffectManager | _getActorTokens - found token by actor ID search for ${actor.name}`);
+                    return [found];
+                }
+            }
+        }
+
+        // Last resort: search current scene for any token belonging to this actor
+        if (canvas?.scene) {
+            const sceneToken = Array.from(canvas.scene.tokens.values()).find(t =>
+                (t.actorId || t.data?.actorId) === actor.id
+            );
+            if (sceneToken) {
+                console.log(`WoD StatusEffectManager | _getActorTokens - found token via canvas scene search for ${actor.name}`);
+                return [sceneToken];
+            }
+        }
+
+        console.warn(`WoD StatusEffectManager | _getActorTokens - NO tokens found for ${actor.name}`);
+        return [];
+    }
+
+    /**
+     * Apply light data to tokens
+     * @private
+     */
+    async _applyLightToTokens(tokens, actor, lightConfig) {
+        const lightData = {
+            dim: parseFloat(lightConfig.dim) || 0,
+            bright: parseFloat(lightConfig.bright) || 0,
+            angle: parseFloat(lightConfig.angle) || 360,
+            color: lightConfig.color || "#ffffff",
+            alpha: lightConfig.alpha !== undefined ? parseFloat(lightConfig.alpha) : 0.5,
+            darkness: lightConfig.darkness || { min: 0, max: 1 }
+        };
+        if (lightConfig.animation) lightData.animation = lightConfig.animation;
+
+        if (tokens.length === 0) {
+            // No tokens — update prototype token so new tokens get the light
+            if (game.user.isGM || actor.isOwner) {
+                await actor.update({ "prototypeToken.light": lightData });
+            }
+            return;
+        }
+
+        for (const token of tokens) {
+            try {
+                const tokenDoc = token.document || token;
+                const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                if (tokenActorId !== actor.id) continue;
+
+                const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
+                if (!game.user.isGM && tokenActor && !tokenActor.isOwner) continue;
+
+                if (token.document) {
+                    await token.document.update({ light: lightData });
+                } else if (token.update) {
+                    await token.update({ light: lightData });
+                }
+            } catch (error) {
+                console.error("WoD StatusEffectManager | Error applying light to token:", error);
+            }
+        }
+    }
+
+    /**
+     * Reset light to defaults on tokens
+     * @private
+     */
+    async _resetLightOnTokens(tokens, actor) {
+        const defaultLight = {
+            dim: 0, bright: 0, angle: 360,
+            color: "#000000", alpha: 0.5,
+            darkness: { min: 0, max: 1 }, animation: null
+        };
+
+        // Also check if equipment effects are providing light — don't reset if so
+        const equipMgr = game.wod?.equipmentEffectsManager;
+        if (equipMgr?.activeEffects?.has(actor.id)) {
+            // Equipment effects manager is tracking light for this actor — let it handle the reset
+            return;
+        }
+
+        if (tokens.length === 0) {
+            if (game.user.isGM || actor.isOwner) {
+                await actor.update({ "prototypeToken.light": defaultLight });
+            }
+            return;
+        }
+
+        for (const token of tokens) {
+            try {
+                const tokenDoc = token.document || token;
+                const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                if (tokenActorId !== actor.id) continue;
+
+                const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
+                if (!game.user.isGM && tokenActor && !tokenActor.isOwner) continue;
+
+                if (token.document) {
+                    await token.document.update({ light: defaultLight });
+                } else if (token.update) {
+                    await token.update({ light: defaultLight });
+                }
+            } catch (error) {
+                console.error("WoD StatusEffectManager | Error resetting light on token:", error);
+            }
+        }
+    }
+
+    /**
+     * Apply vision data to tokens
+     * @private
+     */
+    async _applyVisionToTokens(tokens, actor, visionConfig) {
+        const dimSight = parseFloat(visionConfig.dimSight) || 0;
+        const brightSight = parseFloat(visionConfig.brightSight) || 0;
+        const statusRange = Math.max(dimSight, brightSight);
+        const visionMode = visionConfig.visionMode || "basic";
+
+        console.log(`WoD StatusEffectManager | _applyVisionToTokens - mode: ${visionMode}, range: ${statusRange}, tokens: ${tokens.length}`);
+
+        // Angle: 360 for omnidirectional modes, configurable for directional
+        const directionalModes = ["basic", "lowlight", "darkvision"];
+        const angle = directionalModes.includes(visionMode)
+            ? (parseFloat(visionConfig.angle) || 360)
+            : 360;
+
+        if (tokens.length === 0) {
+            // No tokens — update prototype token so new tokens get the vision
+            if (game.user.isGM || actor.isOwner) {
+                console.log(`WoD StatusEffectManager | No tokens found, updating prototype token vision`);
+                await actor.update({
+                    "prototypeToken.sight.range": statusRange,
+                    "prototypeToken.sight.visionMode": visionMode,
+                    "prototypeToken.sight.angle": angle
+                });
+            }
+            return;
+        }
+
+        for (const token of tokens) {
+            try {
+                const tokenDoc = token.document || token;
+                const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                if (tokenActorId !== actor.id) continue;
+
+                const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
+                if (!game.user.isGM && tokenActor && !tokenActor.isOwner) continue;
+
+                // Get current sight.range (may be set by equipment effects) and take the MAX
+                const currentRange = tokenDoc.sight?.range ?? tokenDoc.data?.sight?.range ?? 0;
+                const finalRange = Math.max(statusRange, currentRange);
+
+                const updates = {
+                    "sight.range": finalRange,
+                    "sight.visionMode": visionMode,
+                    "sight.angle": angle
+                };
+
+                console.log(`WoD StatusEffectManager | Applying vision to token ${tokenDoc.name || tokenDoc.id}: currentRange=${currentRange}, statusRange=${statusRange}, finalRange=${finalRange}, mode=${visionMode}`);
+
+                if (token.document) {
+                    await token.document.update(updates);
+                } else if (token.update) {
+                    await token.update(updates);
+                }
+            } catch (error) {
+                console.error("WoD StatusEffectManager | Error applying vision to token:", error);
+            }
+        }
+    }
+
+    /**
+     * Reset vision to defaults on tokens
+     * @private
+     */
+    async _resetVisionOnTokens(tokens, actor) {
+        // Check if equipment effects are providing vision — don't reset if so
+        const equipMgr = game.wod?.equipmentEffectsManager;
+        if (equipMgr?.activeEffects?.has(actor.id)) {
+            const actorEffects = equipMgr.activeEffects.get(actor.id);
+            for (const [, effects] of actorEffects.entries()) {
+                if (effects.visibility) {
+                    console.log(`WoD StatusEffectManager | Not resetting vision - equipment effects still providing vision for ${actor.name}`);
+                    return;
+                }
+            }
+        }
+
+        const defaultVision = {
+            "sight.range": 0,
+            "sight.angle": 360,
+            "sight.visionMode": "basic"
+        };
+
+        if (tokens.length === 0) {
+            // No tokens — reset prototype token vision
+            if (game.user.isGM || actor.isOwner) {
+                await actor.update({
+                    "prototypeToken.sight.range": 0,
+                    "prototypeToken.sight.visionMode": "basic",
+                    "prototypeToken.sight.angle": 360
+                });
+            }
+            return;
+        }
+
+        for (const token of tokens) {
+            try {
+                const tokenDoc = token.document || token;
+                const tokenActorId = tokenDoc.actorId || tokenDoc.data?.actorId;
+                if (tokenActorId !== actor.id) continue;
+
+                const tokenActor = tokenDoc.actor || (tokenDoc.actorId ? game.actors.get(tokenDoc.actorId) : null);
+                if (!game.user.isGM && tokenActor && !tokenActor.isOwner) continue;
+
+                if (token.document) {
+                    await token.document.update(defaultVision);
+                } else if (token.update) {
+                    await token.update(defaultVision);
+                }
+            } catch (error) {
+                console.error("WoD StatusEffectManager | Error resetting vision on token:", error);
             }
         }
     }

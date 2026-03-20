@@ -133,7 +133,13 @@ export class WodEffectEditor extends FormApplication {
                     key: c.key,
                     value: c.value,
                     mode: c.mode
-                })) || []
+                })) || [],
+                tokenEffects: (() => {
+                    const te = (this.mode === 'template')
+                        ? (this.effect.tokenEffects || null)
+                        : (this.effect.getFlag?.('wodsystem', 'tokenEffects') || null);
+                    return te || { light: null, vision: null };
+                })()
             };
         } else {
             // New effect defaults
@@ -158,7 +164,8 @@ export class WodEffectEditor extends FormApplication {
                 docTypeTile: false,
                 docTypeRegion: false,
                 docTypeScene: false,
-                changes: []
+                changes: [],
+                tokenEffects: { light: null, vision: null }
             };
         }
         
@@ -371,6 +378,20 @@ export class WodEffectEditor extends FormApplication {
         html.find('.save-effect').click(this._onSaveEffect.bind(this));
         html.find('.cancel-effect').click(() => this.close());
         
+        // Token effects toggle listeners
+        html.find('.toggle-light-section').on('change', (ev) => {
+            html.find('.light-config-fields').toggle(ev.currentTarget.checked);
+        });
+        html.find('.toggle-vision-section').on('change', (ev) => {
+            html.find('.vision-config-fields').toggle(ev.currentTarget.checked);
+            if (ev.currentTarget.checked) {
+                this._updateVisionAngleVisibility(html);
+            }
+        });
+        html.find('select[name="tokenEffects.vision.visionMode"]').on('change', () => {
+            this._updateVisionAngleVisibility(html);
+        });
+        
         // File picker for icons - simplified to avoid offsetWidth errors
         html.find('.file-picker').on('click', (ev) => {
             const target = ev.currentTarget.dataset.target;
@@ -529,6 +550,65 @@ export class WodEffectEditor extends FormApplication {
         });
     }
     
+    /**
+     * Parse tokenEffects (light & vision) from form data
+     * @param {Object} formData - The form data object
+     * @returns {Object|null} tokenEffects object or null if nothing configured
+     * @private
+     */
+    _parseTokenEffects(formData) {
+        const $form = this.element.find('form');
+        const lightEnabled = $form.find('.toggle-light-section').prop('checked');
+        const visionEnabled = $form.find('.toggle-vision-section').prop('checked');
+
+        if (!lightEnabled && !visionEnabled) return null;
+
+        const tokenEffects = {};
+
+        if (lightEnabled) {
+            const dim = parseFloat($form.find('input[name="tokenEffects.light.dim"]').val()) || 0;
+            const bright = parseFloat($form.find('input[name="tokenEffects.light.bright"]').val()) || 0;
+            if (dim > 0 || bright > 0) {
+                tokenEffects.light = {
+                    dim: dim,
+                    bright: bright,
+                    angle: parseFloat($form.find('input[name="tokenEffects.light.angle"]').val()) || 360,
+                    color: $form.find('input[name="tokenEffects.light.color"]').val() || "#ffffff",
+                    alpha: parseFloat($form.find('input[name="tokenEffects.light.alpha"]').val()) || 0.5,
+                    darkness: { min: 0, max: 1 }
+                };
+            }
+        }
+
+        if (visionEnabled) {
+            const dimSight = parseFloat($form.find('input[name="tokenEffects.vision.dimSight"]').val()) || 0;
+            const brightSight = parseFloat($form.find('input[name="tokenEffects.vision.brightSight"]').val()) || 0;
+            const visionMode = $form.find('select[name="tokenEffects.vision.visionMode"]').val() || 'basic';
+            if (dimSight > 0 || brightSight > 0 || visionMode !== 'basic') {
+                tokenEffects.vision = {
+                    dimSight: dimSight,
+                    brightSight: brightSight,
+                    visionMode: visionMode,
+                    angle: parseFloat($form.find('input[name="tokenEffects.vision.angle"]').val()) || 360
+                };
+            }
+        }
+
+        // Return null if neither section produced data
+        if (!tokenEffects.light && !tokenEffects.vision) return null;
+        return tokenEffects;
+    }
+
+    /**
+     * Update visibility of vision angle field based on vision mode
+     * @private
+     */
+    _updateVisionAngleVisibility(html) {
+        const visionMode = html.find('select[name="tokenEffects.vision.visionMode"]').val() || 'basic';
+        const directionalModes = ['basic', 'lowlight'];
+        html.find('.vision-angle-group').toggle(directionalModes.includes(visionMode));
+    }
+
     async _onSaveEffect(event) {
         event.preventDefault();
         
@@ -582,6 +662,9 @@ export class WodEffectEditor extends FormApplication {
         }
         documentTypes = documentTypes.filter(dt => dt !== null && dt !== undefined && dt !== '');
         
+        // Build tokenEffects from form data
+        const tokenEffects = this._parseTokenEffects(formData);
+
         if (this.mode === 'template') {
             // Template mode - return template data
             const templateData = {
@@ -594,7 +677,8 @@ export class WodEffectEditor extends FormApplication {
                 mandatory: formData.mandatory === true || formData.mandatory === 'true',
                 conditionScope: formData.conditionScope || 'always',
                 conditionTargets: conditionTargets,
-                changes: changes
+                changes: changes,
+                tokenEffects: tokenEffects
             };
             
             // Call the template save callback if provided
@@ -618,7 +702,8 @@ export class WodEffectEditor extends FormApplication {
                         conditionTargets: conditionTargets,
                         category: formData.category || '',
                         tags: selectedTags,
-                        documentTypes: documentTypes
+                        documentTypes: documentTypes,
+                        tokenEffects: tokenEffects
                     }
                 }
             };

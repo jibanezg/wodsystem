@@ -18,10 +18,13 @@ export class EquipmentEffectsManager {
 
         // Hook into item updates to detect equipment changes and effect configuration changes
         Hooks.on("updateItem", async (item, updateData, options, userId) => {
+            // CRITICAL: Only process on the client that initiated the change.
+            // Without this, ALL clients with permissions (GM + owner) race to update
+            // the same token, causing duplicate/flickering effects for other players.
+            if (userId !== game.user.id) return;
+            
             const actor = item.actor || (item.actorId ? game.actors.get(item.actorId) : null);
-            if (!actor || (!game.user.isGM && !actor.isOwner)) {
-                return;
-            }
+            if (!actor) return;
 
             // Wait for the update to complete, then get the fresh item
             await new Promise(resolve => setTimeout(resolve, 0));
@@ -49,8 +52,10 @@ export class EquipmentEffectsManager {
 
         // Hook into item creation (in case item is created as equipped)
         Hooks.on("createItem", (item, options, userId) => {
+            // Only process on the originating client
+            if (userId !== game.user.id) return;
+            
             if (item.system?.equipped) {
-                // Get actor from item - try multiple methods
                 let actor = item.actor;
                 if (!actor && item.parent) {
                     actor = item.parent;
@@ -59,15 +64,8 @@ export class EquipmentEffectsManager {
                     actor = game.actors.get(item.actorId);
                 }
                 
-                // CRITICAL: Only process if the current user is the one who created the item
-                // or if they are GM/owner of the actor
-                if (actor && (game.user.isGM || actor.isOwner)) {
+                if (actor) {
                     manager._handleEquipmentChange(item, true);
-                } else {
-                    console.debug("WoD Equipment Effects: Skipping equipment change on create - user does not have permission", {
-                        userId: game.user.id,
-                        actorId: actor?.id
-                    });
                 }
             }
         });
@@ -75,9 +73,10 @@ export class EquipmentEffectsManager {
         // Hook into item deletion to clean up effects
         // CRITICAL: Use "preDeleteItem" to capture item data before deletion
         Hooks.on("preDeleteItem", async (item, options, userId) => {
-            // CRITICAL: Only process if item was equipped and had effects
+            // Only process on the originating client
+            if (userId !== game.user.id) return;
+            
             if (item.system?.equipped) {
-                // Get actor from item - try multiple methods
                 let actor = item.actor;
                 if (!actor && item.parent) {
                     actor = item.parent;
@@ -86,21 +85,10 @@ export class EquipmentEffectsManager {
                     actor = game.actors.get(item.actorId);
                 }
                 
-                // CRITICAL: Only process if the current user is the one who deleted the item
-                // or if they are GM/owner of the actor
-                if (actor && (game.user.isGM || actor.isOwner)) {
-                    // CRITICAL: Capture item effects BEFORE the item is deleted
-                    // This ensures we can remove only the effects from this specific item
+                if (actor) {
                     const itemId = item.id;
                     const effects = item.system?.equipmentEffects || {};
-                    
-                    // Remove effects directly (bypassing _handleEquipmentChange since item will be gone)
                     await manager._removeItemEffectsDirectly(actor, itemId, effects);
-                } else {
-                    console.debug("WoD Equipment Effects: Skipping equipment change on delete - user does not have permission", {
-                        userId: game.user.id,
-                        actorId: actor?.id
-                    });
                 }
             }
         });
@@ -118,29 +106,17 @@ export class EquipmentEffectsManager {
 
         // Track token location for actors (only when token is created, not on every movement)
         Hooks.on("createToken", async (token, options, userId) => {
-            // CRITICAL: Only process if the current user is the one who created the token
-            // or if they are GM/owner of the actor
+            // Only process on the originating client
+            if (userId !== game.user.id) return;
+            
             const actor = getActorFromToken(token);
             if (actor) {
-                // Verify permissions before updating
-                if (game.user.isGM || actor.isOwner) {
-                    // Store token location in actor flags
-                    await manager._updateTokenLocation(actor, token);
-                    
-                    // CRITICAL: Wait a moment for token to be fully initialized in the scene
-                    // Then apply all effects from equipped items when token is created
-                    // This ensures effects work immediately when token is added to scene
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    
-                                        await manager._applyActorEffects(actor, token);
-                } else {
-                    console.debug("WoD Equipment Effects: User does not have permission to update token location on create", {
-                        userId: game.user.id,
-                        userName: game.user.name,
-                        actorId: actor.id,
-                        actorName: actor.name
-                    });
-                }
+                await manager._updateTokenLocation(actor, token);
+                
+                // Wait a moment for token to be fully initialized in the scene
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                await manager._applyActorEffects(actor, token);
             }
         });
 
