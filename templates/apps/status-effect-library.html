@@ -59,6 +59,14 @@
                             <span class="effect-category">{{this.category}}</span>
                             {{/if}}
                         </div>
+                        <div class="effect-doc-types">
+                            {{#if this.docTypeActor}}<i class="fas fa-user" title="Actor"></i>{{/if}}
+                            {{#if this.docTypeWall}}<i class="fas fa-door-open" title="Door/Wall"></i>{{/if}}
+                            {{#if this.docTypeTile}}<i class="fas fa-image" title="Tile"></i>{{/if}}
+                            {{#if this.docTypeRegion}}<i class="fas fa-draw-polygon" title="Region"></i>{{/if}}
+                            {{#if this.docTypeScene}}<i class="fas fa-map" title="Scene"></i>{{/if}}
+                            {{#if this.isUniversal}}<i class="fas fa-globe" title="Universal (all types)"></i>{{/if}}
+                        </div>
                         {{#if this.tags.length}}
                         <div class="effect-tags">
                             {{#each this.tags}}
@@ -119,6 +127,21 @@
                         <div class="meta-item">
                             <label>{{i18n 'WODSYSTEM.StatusEffects.ConditionScope'}}:</label>
                             <span>{{selectedEffect.conditionScope}}</span>
+                        </div>
+                        
+                        <div class="meta-item">
+                            <label>{{i18n 'WODSYSTEM.StatusEffects.AppliesTo'}}:</label>
+                            <span class="applies-to-icons">
+                                {{#if selectedEffect.isUniversal}}
+                                    <i class="fas fa-globe" title="Universal"></i> All Types
+                                {{else}}
+                                    {{#if selectedEffect.docTypeActor}}<i class="fas fa-user" title="Actor"></i> {{/if}}
+                                    {{#if selectedEffect.docTypeWall}}<i class="fas fa-door-open" title="Door/Wall"></i> {{/if}}
+                                    {{#if selectedEffect.docTypeTile}}<i class="fas fa-image" title="Tile"></i> {{/if}}
+                                    {{#if selectedEffect.docTypeRegion}}<i class="fas fa-draw-polygon" title="Region"></i> {{/if}}
+                                    {{#if selectedEffect.docTypeScene}}<i class="fas fa-map" title="Scene"></i> {{/if}}
+                                {{/if}}
+                            </span>
                         </div>
                     </div>
                     

@@ -18,8 +18,8 @@
                 <td>{{#if this.roll.enabled}}<i class="fas fa-dice" title="Roll required"></i>{{else}}<i class="fas fa-minus" title="No roll"></i>{{/if}}</td>
                 <td>{{#if this.enabled}}<i class="fas fa-check" style="color: green;" title="Enabled"></i>{{else}}<i class="fas fa-times" style="color: red;" title="Disabled"></i>{{/if}}</td>
                 <td class="trigger-controls">
-                    <button type="button" class="trigger-edit" data-action="edit-trigger" data-trigger-id="{{this.id}}" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="trigger-delete" data-action="delete-trigger" data-trigger-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
+                    <button type="button" form="noform" class="trigger-edit" data-action="edit-trigger" data-trigger-id="{{this.id}}" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" form="noform" class="trigger-delete" data-action="delete-trigger" data-trigger-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
             {{/each}}

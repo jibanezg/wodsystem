@@ -6,6 +6,12 @@ import { Trie } from '../services/trie.js';
 
 export class EffectAutocomplete {
     constructor(inputElement, options = {}) {
+        // Safety check - ensure input element exists
+        if (!inputElement) {
+            console.error('EffectAutocomplete | Input element is required');
+            throw new Error('EffectAutocomplete requires a valid input element');
+        }
+        
         this.input = inputElement;
         this.options = {
             maxResults: options.maxResults || 10,
@@ -130,6 +136,48 @@ export class EffectAutocomplete {
                     icon: effect.icon,
                     description: effect.description
                 });
+            }
+        }
+        
+        // Add flag-based effects from scene documents (walls, tiles, regions, scene)
+        if (canvas?.scene) {
+            const sceneCollections = [
+                canvas.scene.walls,
+                canvas.scene.tiles,
+                canvas.scene.regions
+            ].filter(Boolean);
+            
+            for (const collection of sceneCollections) {
+                for (const doc of collection) {
+                    const appliedEffects = doc.getFlag?.('wodsystem', 'appliedEffects') || [];
+                    for (const effect of appliedEffects) {
+                        const name = effect.name || '';
+                        if (name && !allEffects.has(name.toLowerCase())) {
+                            allEffects.set(name.toLowerCase(), {
+                                name: name,
+                                id: effect.templateId,
+                                source: 'document',
+                                icon: effect.icon,
+                                description: ''
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // Scene itself
+            const sceneEffects = canvas.scene.getFlag?.('wodsystem', 'appliedEffects') || [];
+            for (const effect of sceneEffects) {
+                const name = effect.name || '';
+                if (name && !allEffects.has(name.toLowerCase())) {
+                    allEffects.set(name.toLowerCase(), {
+                        name: name,
+                        id: effect.templateId,
+                        source: 'document',
+                        icon: effect.icon,
+                        description: ''
+                    });
+                }
             }
         }
         

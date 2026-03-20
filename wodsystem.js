@@ -21,6 +21,8 @@ import { coreEffectsManager } from "./module/services/core-effects-manager.js"; 
 import { TriggerManager } from "./module/services/trigger-manager.js"; // Tile/Region trigger system
 import { registerWodTriggerTabs } from "./module/ui/wod-trigger-tabs.js"; // Tile/Region config UI tabs
 import { StatusEffectManager } from "./module/services/status-effect-manager.js"; // Status effect management
+import { canvasEffectIndicators } from "./module/ui/canvas-effect-indicators.js"; // Canvas effect indicators
+import { loginVideoSplash } from "./module/ui/login-video-splash.js"; // Login video splash screen
 
 // Import Item Classes
 import { WodItem, WodWeapon, WodArmor, WodGear } from "./module/items/wod-item.js";
@@ -31,6 +33,34 @@ Hooks.once("init", async function() {
     game.settings.register('wodsystem', 'debugMode', {
         name: 'Debug Mode',
         hint: 'Enable debug logging for WoD system',
+        scope: 'world',
+        config: true,
+        default: false,
+        type: Boolean
+    });
+    
+    // Login Video Splash settings
+    game.settings.register('wodsystem', 'loginVideoEnabled', {
+        name: 'Enable Login Video',
+        hint: 'Show a video splash screen when players log in',
+        scope: 'world',
+        config: true,
+        default: false,
+        type: Boolean
+    });
+    
+    game.settings.register('wodsystem', 'loginVideoUrl', {
+        name: 'Login Video URL',
+        hint: 'URL of the video to show on login (must be accessible to all players)',
+        scope: 'world',
+        config: true,
+        default: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        type: String
+    });
+    
+    game.settings.register('wodsystem', 'loginVideoForGM', {
+        name: 'Show Login Video for GM',
+        hint: 'Also show the login video to Game Masters (not just players)',
         scope: 'world',
         config: true,
         default: false,
@@ -271,6 +301,12 @@ Hooks.on("ready", async () => {
     
     // Initialize Minimap Manager
     MinimapManager.initialize();
+    
+    // Initialize Canvas Effect Indicators (visual overlays for non-actor effects)
+    canvasEffectIndicators.initialize();
+    
+    // Initialize Login Video Splash (shows video when players log in)
+    loginVideoSplash.initialize();
     
         
     // Load Minimap dialogs and make them globally available
@@ -845,6 +881,54 @@ Hooks.on("createActor", async (actor, options, userId) => {
         await game.wod.coreEffectsManager.checkAndApplyCoreEffects(actor);
     }
 });
+
+// ==================== Non-Actor Effect Event Hooks ====================
+// Fire trigger events when flag-based effects change on scene documents
+
+/**
+ * Helper: detect appliedEffects flag changes and fire trigger events
+ * @param {Document} doc - The updated document
+ * @param {Object} changes - The update delta
+ * @param {string} docType - Document type label for logging
+ */
+function _checkFlagEffectChanges(doc, changes) {
+    const flagChanges = changes?.flags?.wodsystem;
+    if (!flagChanges || !('appliedEffects' in flagChanges)) return;
+    
+    const triggerManager = game.wod?.triggerManager;
+    if (!triggerManager) return;
+    
+    const newEffects = flagChanges.appliedEffects || [];
+    const oldEffects = doc._priorAppliedEffects || [];
+    
+    // Detect added effects
+    const added = newEffects.filter(ne => !oldEffects.some(oe => oe.templateId === ne.templateId));
+    for (const effect of added) {
+        Hooks.callAll('wodEffectApplied', doc, effect);
+    }
+    
+    // Detect removed effects
+    const removed = oldEffects.filter(oe => !newEffects.some(ne => ne.templateId === oe.templateId));
+    for (const effect of removed) {
+        Hooks.callAll('wodEffectRemoved', doc, effect);
+    }
+}
+
+// Cache prior effects before update so we can diff
+for (const hookName of ['preUpdateWall', 'preUpdateTile', 'preUpdateRegion', 'preUpdateScene']) {
+    Hooks.on(hookName, (doc, changes) => {
+        if (changes?.flags?.wodsystem && 'appliedEffects' in changes.flags.wodsystem) {
+            doc._priorAppliedEffects = doc.getFlag('wodsystem', 'appliedEffects') || [];
+        }
+    });
+}
+
+// Fire events after update
+for (const hookName of ['updateWall', 'updateTile', 'updateRegion', 'updateScene']) {
+    Hooks.on(hookName, (doc, changes) => {
+        _checkFlagEffectChanges(doc, changes);
+    });
+}
 
 // Also check when an actor is loaded (ready hook)
 Hooks.on("ready", async () => {

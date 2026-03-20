@@ -1,10 +1,49 @@
 <form class="flexcol">
+    <style>
+    .wod-trigger-config .action-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .wod-trigger-config .action-buttons button {
+        background: linear-gradient(to bottom, #5cb85c, #4cae4c);
+        color: white;
+        border: 1px solid #4cae4c;
+        border-radius: 4px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 36px;
+    }
+    .wod-trigger-config .action-buttons button:hover {
+        background: linear-gradient(to bottom, #6ec06e, #5cb85c);
+        border-color: #398439;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+        transform: translateY(-1px);
+    }
+    .wod-trigger-config .action-buttons button:active {
+        background: linear-gradient(to bottom, #4cae4c, #449d44);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        transform: translateY(0);
+    }
+    .wod-trigger-config .action-buttons button i {
+        margin: 0;
+        font-size: 14px;
+    }
+    </style>
     <section class="trigger-basics">
         <div class="basics-two-column">
             <div class="basics-labels">
                 <label>Name</label>
                 <label>Enabled</label>
-                <label>Target</label>
                 <label>Require Roll</label>
             </div>
             <div class="basics-fields">
@@ -15,43 +54,6 @@
                     <input type="checkbox" name="enabled" {{#if trigger.enabled}}checked{{/if}} />
                 </div>
                 <div class="field-row">
-                    <select name="targetCsv">
-                        <option value="">-- All Targets --</option>
-                        <optgroup label="Universal">
-                            <option value="any" {{#if (eq targetCsv "any")}}selected{{/if}}>Any Actor</option>
-                        </optgroup>
-                        <optgroup label="Player Characters">
-                            <option value="any:Mortal,Technocrat,Mage,Demon,Earthbound" {{#if (eq targetCsv "any:Mortal,Technocrat,Mage,Demon,Earthbound")}}selected{{/if}}>All Player Types</option>
-                            <option value="Mortal" {{#if (eq targetCsv "Mortal")}}selected{{/if}}>Mortal</option>
-                            <option value="Technocrat" {{#if (eq targetCsv "Technocrat")}}selected{{/if}}>Technocrat</option>
-                            <option value="Mage" {{#if (eq targetCsv "Mage")}}selected{{/if}}>Mage</option>
-                            <option value="Spirit" {{#if (eq targetCsv "Spirit")}}selected{{/if}}>Spirit</option>
-                            <option value="Demon" {{#if (eq targetCsv "Demon")}}selected{{/if}}>Demon</option>
-                            <option value="Earthbound" {{#if (eq targetCsv "Earthbound")}}selected{{/if}}>Earthbound</option>
-                        </optgroup>
-                        <optgroup label="Non-Player Characters">
-                            <option value="any:Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC" {{#if (eq targetCsv "any:Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC")}}selected{{/if}}>All NPC Types</option>
-                            <option value="Mortal-NPC" {{#if (eq targetCsv "Mortal-NPC")}}selected{{/if}}>Mortal NPC</option>
-                            <option value="Technocrat-NPC" {{#if (eq targetCsv "Technocrat-NPC")}}selected{{/if}}>Technocrat NPC</option>
-                            <option value="Mage-NPC" {{#if (eq targetCsv "Mage-NPC")}}selected{{/if}}>Mage NPC</option>
-                            <option value="Demon-NPC" {{#if (eq targetCsv "Demon-NPC")}}selected{{/if}}>Demon NPC</option>
-                        </optgroup>
-                        <optgroup label="Element Types">
-                            <option value="tokens" {{#if (eq targetCsv "tokens")}}selected{{/if}}>All Tokens</option>
-                            <option value="doors" {{#if (eq targetCsv "doors")}}selected{{/if}}>All Doors</option>
-                            <option value="walls" {{#if (eq targetCsv "walls")}}selected{{/if}}>All Walls</option>
-                            <option value="tiles" {{#if (eq targetCsv "tiles")}}selected{{/if}}>All Tiles</option>
-                            <option value="regions" {{#if (eq targetCsv "regions")}}selected{{/if}}>All Regions</option>
-                        </optgroup>
-                        <optgroup label="Special Conditions">
-                            <option value="hasEffect" {{#if (eq targetCsv "hasEffect")}}selected{{/if}}>Has Any Effect</option>
-                            <option value="isGM" {{#if (eq targetCsv "isGM")}}selected{{/if}}>Is GM</option>
-                            <option value="isPlayer" {{#if (eq targetCsv "isPlayer")}}selected{{/if}}>Is Player</option>
-                            <option value="isOwner" {{#if (eq targetCsv "isOwner")}}selected{{/if}}>Is Owner</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div class="field-row">
                     <input type="checkbox" name="roll.enabled" data-action="toggle-roll" {{#if trigger.roll.enabled}}checked{{/if}} />
                 </div>
             </div>
@@ -59,6 +61,68 @@
         
         <!-- Hidden field to store auto-detected scope type -->
         <input type="hidden" name="trigger.scope.type" value="{{currentScopeType}}" />
+        
+        <!-- Target Filter Section -->
+        <div class="target-filter-section">
+            <h4>Target Filter</h4>
+            <p class="notes">What elements to monitor. Conditions evaluate against these targets.</p>
+            
+            <div class="form-group horizontal">
+                <label>Target Type</label>
+                <select name="targetFilter.type">
+                    <option value="">-- All Targets --</option>
+                    <optgroup label="Universal">
+                        <option value="self" {{#if (eq targetFilterType "self")}}selected{{/if}}>Self (Trigger Host)</option>
+                        <option value="any" {{#if (eq targetFilterType "any")}}selected{{/if}}>Any Actor</option>
+                    </optgroup>
+                    <optgroup label="Player Characters">
+                        <option value="any:Mortal,Technocrat,Mage,Demon,Earthbound" {{#if (eq targetFilterType "any:Mortal,Technocrat,Mage,Demon,Earthbound")}}selected{{/if}}>All Player Types</option>
+                        <option value="Mortal" {{#if (eq targetFilterType "Mortal")}}selected{{/if}}>Mortal</option>
+                        <option value="Technocrat" {{#if (eq targetFilterType "Technocrat")}}selected{{/if}}>Technocrat</option>
+                        <option value="Mage" {{#if (eq targetFilterType "Mage")}}selected{{/if}}>Mage</option>
+                        <option value="Spirit" {{#if (eq targetFilterType "Spirit")}}selected{{/if}}>Spirit</option>
+                        <option value="Demon" {{#if (eq targetFilterType "Demon")}}selected{{/if}}>Demon</option>
+                        <option value="Earthbound" {{#if (eq targetFilterType "Earthbound")}}selected{{/if}}>Earthbound</option>
+                    </optgroup>
+                    <optgroup label="Non-Player Characters">
+                        <option value="any:Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC" {{#if (eq targetFilterType "any:Mortal-NPC,Technocrat-NPC,Mage-NPC,Demon-NPC")}}selected{{/if}}>All NPC Types</option>
+                        <option value="Mortal-NPC" {{#if (eq targetFilterType "Mortal-NPC")}}selected{{/if}}>Mortal NPC</option>
+                        <option value="Technocrat-NPC" {{#if (eq targetFilterType "Technocrat-NPC")}}selected{{/if}}>Technocrat NPC</option>
+                        <option value="Mage-NPC" {{#if (eq targetFilterType "Mage-NPC")}}selected{{/if}}>Mage NPC</option>
+                        <option value="Demon-NPC" {{#if (eq targetFilterType "Demon-NPC")}}selected{{/if}}>Demon NPC</option>
+                    </optgroup>
+                    <optgroup label="Element Types">
+                        <option value="tokens" {{#if (eq targetFilterType "tokens")}}selected{{/if}}>Tokens</option>
+                        <option value="doors" {{#if (eq targetFilterType "doors")}}selected{{/if}}>Doors</option>
+                        <option value="walls" {{#if (eq targetFilterType "walls")}}selected{{/if}}>Walls</option>
+                        <option value="tiles" {{#if (eq targetFilterType "tiles")}}selected{{/if}}>Tiles</option>
+                        <option value="regions" {{#if (eq targetFilterType "regions")}}selected{{/if}}>Regions</option>
+                    </optgroup>
+                    <optgroup label="Special Conditions">
+                        <option value="hasEffect" {{#if (eq targetFilterType "hasEffect")}}selected{{/if}}>Has Any Effect</option>
+                        <option value="isGM" {{#if (eq targetFilterType "isGM")}}selected{{/if}}>Is GM</option>
+                        <option value="isPlayer" {{#if (eq targetFilterType "isPlayer")}}selected{{/if}}>Is Player</option>
+                        <option value="isOwner" {{#if (eq targetFilterType "isOwner")}}selected{{/if}}>Is Owner</option>
+                    </optgroup>
+                </select>
+            </div>
+            
+            <div class="form-group horizontal">
+                <label>Match Mode</label>
+                <select name="targetFilter.match">
+                    <option value="any" {{#if (eq targetFilterMatch "any")}}selected{{/if}}>Any Target Matches</option>
+                    <option value="all" {{#if (eq targetFilterMatch "all")}}selected{{/if}}>All Targets Must Match</option>
+                </select>
+            </div>
+            
+            <div class="form-group horizontal">
+                <label>Specific IDs</label>
+                <div class="field-row">
+                    <input type="text" name="trigger.targetFilter.ids" value="{{trigger.trigger.targetFilter.ids}}" placeholder="Leave empty to monitor all, or enter specific IDs (comma-separated)" />
+                    <button type="button" class="pick-target-filter" data-action="pick-target-filter" title="Pick from scene"><i class="fas fa-crosshairs"></i></button>
+                </div>
+            </div>
+        </div>
         
         <!-- Proximity Configuration (shown when scope type is proximity) -->
         <div class="proximity-config" id="proximity-config" {{#unless (eq currentScopeType "proximity")}}style="display:none"{{/unless}}>
@@ -84,9 +148,9 @@
             </div>
         </div>
         
-        <!-- Execution Timing Section -->
-        <div class="execution-timing-section">
-            <h4>Execution Timing</h4>
+        <!-- Conditions Section (includes execution mode + event + condition list) -->
+        <div class="conditions-section">
+            <h4>Conditions</h4>
             <div class="form-group horizontal">
                 <label>Execution Mode</label>
                 <select name="trigger.execution.mode">
@@ -99,35 +163,17 @@
                 <label>Event</label>
                 <select name="trigger.eventType">
                     {{#each availableEvents}}
-                    <option value="{{this.id}}" {{#if (eq ../trigger.trigger.execution.event this.id)}}selected{{/if}}>{{this.label}}</option>
+                    <option value="{{this.id}}" {{#if (eq ../eventType this.id)}}selected{{/if}}>{{this.label}}</option>
                     {{/each}}
                 </select>
             </div>
-            <div class="form-group horizontal">
-                <label>Delay (seconds)</label>
-                <input type="number" name="trigger.execution.timing.delay" value="{{trigger.trigger.execution.timing.delay}}" min="0" step="0.1" />
+            <div class="conditions-list-header">
+                <label>Additional Conditions</label>
+                <button type="button" class="add-condition" data-action="add-condition" title="Add Condition"><i class="fas fa-plus"></i></button>
             </div>
-            <div class="form-group horizontal">
-                <label>Repeat Interval (seconds, 0 = no repeat)</label>
-                <input type="number" name="trigger.execution.timing.repeat" value="{{trigger.trigger.execution.timing.repeat}}" min="0" step="0.1" />
-            </div>
-            <div class="form-group horizontal">
-                <label>Duration (seconds, null = indefinite)</label>
-                <input type="number" name="trigger.execution.timing.duration" value="{{trigger.trigger.execution.timing.duration}}" min="0" step="0.1" placeholder="Indefinite" />
-            </div>
-        </div>
-        
-        <!-- Conditions Section -->
-        <div class="conditions-section">
-            <h4>Conditions <button type="button" class="add-condition" data-action="add-condition" title="Add Condition"><i class="fas fa-plus"></i></button></h4>
             <div class="conditions-list" id="conditions-list">
                 {{#each trigger.trigger.conditions}}
                 <div class="condition-row" data-index="{{@index}}">
-                    <select name="trigger.conditions.{{@index}}.target" class="condition-target" title="Condition Target">
-                        <option value="" {{#unless this.target}}selected{{/unless}}>Default</option>
-                        <option value="source" {{#if (eq this.target "source")}}selected{{/if}}>Source</option>
-                        <option value="triggering" {{#if (eq this.target "triggering")}}selected{{/if}}>Triggering</option>
-                    </select>
                     <select name="trigger.conditions.{{@index}}.type" class="condition-type">
                         {{#each ../conditionTypes}}
                         <option value="{{this.id}}" {{#if (eq ../this.type this.id)}}selected{{/if}}>{{this.label}}</option>
@@ -150,12 +196,46 @@
                 </div>
                 {{/each}}
                 {{#unless trigger.trigger.conditions.length}}
-                <p class="no-conditions">No conditions configured. Add conditions or use legacy event type.</p>
+                <p class="no-conditions">No conditions configured.</p>
                 {{/unless}}
             </div>
         </div>
         
+        <!-- Execution Timing Section (simplified: just delay/repeat/duration) -->
+        <div class="execution-timing-section">
+            <h4>Execution Timing</h4>
+            <div class="form-group horizontal">
+                <label>Delay (seconds)</label>
+                <input type="number" name="trigger.execution.timing.delay" value="{{trigger.trigger.execution.timing.delay}}" min="0" step="0.1" />
+            </div>
+            <div class="form-group horizontal">
+                <label>Repeat Interval (seconds, 0 = no repeat)</label>
+                <input type="number" name="trigger.execution.timing.repeat" value="{{trigger.trigger.execution.timing.repeat}}" min="0" step="0.1" />
+            </div>
+            <div class="form-group horizontal">
+                <label>Duration (seconds, null = indefinite)</label>
+                <input type="number" name="trigger.execution.timing.duration" value="{{trigger.trigger.execution.timing.duration}}" min="0" step="0.1" placeholder="Indefinite" />
+            </div>
+        </div>
+        
         <div class="roll-config" {{#unless trigger.roll.enabled}}style="display:none"{{/unless}}>
+            <div class="form-group">
+                <label>Who Rolls?</label>
+                <select name="roll.source" data-action="change-roll-source">
+                    <option value="triggeringEntity" {{#if (eq trigger.roll.source "triggeringEntity")}}selected{{/if}}>Triggering Entity (entering player, etc.)</option>
+                    <option value="triggerHost" {{#if (eq trigger.roll.source "triggerHost")}}selected{{/if}}>Trigger Host (the object this trigger is on)</option>
+                    <option value="specificActor" {{#if (eq trigger.roll.source "specificActor")}}selected{{/if}}>Specific Actor</option>
+                </select>
+            </div>
+            <div class="form-group roll-specific-actor" {{#unless (eq trigger.roll.source "specificActor")}}style="display:none"{{/unless}}>
+                <label>Actor</label>
+                <select name="roll.specificActorId" class="roll-actor-select">
+                    <option value="">-- Select Actor --</option>
+                    {{#each availableActors}}
+                    <option value="{{this.id}}" {{#if (eq ../trigger.roll.specificActorId this.id)}}selected{{/if}}>{{this.name}}</option>
+                    {{/each}}
+                </select>
+            </div>
             <div class="form-group">
                 <label>Roll Type</label>
                 <select name="roll.type" data-action="change-roll-type">
@@ -256,6 +336,78 @@
                         </div>
                     </div>
                     {{else}}
+                    {{#if (eq this.type "enableRegionBehavior")}}
+                    <div class="action-grid compact">
+                        <select name="actions.always.{{@index}}.target.mode" class="target-mode behavior-target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Region</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Regions in Scene</option>
+                        </select>
+                        <select name="actions.always.{{@index}}.target.elementId" class="behavior-region-select" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <option value="">-- Select Region --</option>
+                        </select>
+                        <input type="hidden" name="actions.always.{{@index}}.target.elementType" value="region" />
+                        <select name="actions.always.{{@index}}.behaviorId" class="behavior-search-select">
+                            <option value="">-- Select Behavior --</option>
+                        </select>
+                        <input type="hidden" class="behavior-saved-id" value="{{this.behaviorId}}" />
+                        <input type="hidden" class="behavior-saved-region" value="{{this.target.elementId}}" />
+                        <select name="actions.always.{{@index}}.type" class="behavior-action-type">
+                            <option value="enableRegionBehavior" {{#if (eq this.type "enableRegionBehavior")}}selected{{/if}}>Enable</option>
+                            <option value="disableRegionBehavior" {{#if (eq this.type "disableRegionBehavior")}}selected{{/if}}>Disable</option>
+                            <option value="toggleRegionBehavior" {{#if (eq this.type "toggleRegionBehavior")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (eq this.type "disableRegionBehavior")}}
+                    <div class="action-grid compact">
+                        <select name="actions.always.{{@index}}.target.mode" class="target-mode behavior-target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Region</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Regions in Scene</option>
+                        </select>
+                        <select name="actions.always.{{@index}}.target.elementId" class="behavior-region-select" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <option value="">-- Select Region --</option>
+                        </select>
+                        <input type="hidden" name="actions.always.{{@index}}.target.elementType" value="region" />
+                        <select name="actions.always.{{@index}}.behaviorId" class="behavior-search-select">
+                            <option value="">-- Select Behavior --</option>
+                        </select>
+                        <input type="hidden" class="behavior-saved-id" value="{{this.behaviorId}}" />
+                        <input type="hidden" class="behavior-saved-region" value="{{this.target.elementId}}" />
+                        <select name="actions.always.{{@index}}.type" class="behavior-action-type">
+                            <option value="enableRegionBehavior">Enable</option>
+                            <option value="disableRegionBehavior" selected>Disable</option>
+                            <option value="toggleRegionBehavior">Toggle</option>
+                        </select>
+                        <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (eq this.type "toggleRegionBehavior")}}
+                    <div class="action-grid compact">
+                        <select name="actions.always.{{@index}}.target.mode" class="target-mode behavior-target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Region</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Regions in Scene</option>
+                        </select>
+                        <select name="actions.always.{{@index}}.target.elementId" class="behavior-region-select" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <option value="">-- Select Region --</option>
+                        </select>
+                        <input type="hidden" name="actions.always.{{@index}}.target.elementType" value="region" />
+                        <select name="actions.always.{{@index}}.behaviorId" class="behavior-search-select">
+                            <option value="">-- Select Behavior --</option>
+                        </select>
+                        <input type="hidden" class="behavior-saved-id" value="{{this.behaviorId}}" />
+                        <input type="hidden" class="behavior-saved-region" value="{{this.target.elementId}}" />
+                        <select name="actions.always.{{@index}}.type" class="behavior-action-type">
+                            <option value="enableRegionBehavior">Enable</option>
+                            <option value="disableRegionBehavior">Disable</option>
+                            <option value="toggleRegionBehavior" selected>Toggle</option>
+                        </select>
+                        <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
                     {{#if (eq this.type "changeTileAsset")}}
                     <div class="action-grid">
                         <div class="grid-cell">
@@ -315,6 +467,10 @@
                             <select name="actions.always.{{@index}}.target.elementType" class="target-element-type">
                                 <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
                                 <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                                <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
+                                <option value="tile" {{#if (eq this.target.elementType "tile")}}selected{{/if}}>Tile</option>
+                                <option value="region" {{#if (eq this.target.elementType "region")}}selected{{/if}}>Region</option>
+                                <option value="scene" {{#if (eq this.target.elementType "scene")}}selected{{/if}}>Scene</option>
                             </select>
                         </div>
                         <div class="grid-cell target-id-cell" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
@@ -326,12 +482,15 @@
                         </div>
                         <div class="grid-cell">
                             <label>Effect Name</label>
-                            <input type="text" name="actions.always.{{@index}}.effectId" value="{{this.effectId}}" placeholder="wounded" />
+                            <input type="text" name="actions.always.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" class="effect-action-name" />
                         </div>
                         <div class="grid-cell">
                             <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
+                    {{/if}}
+                    {{/if}}
+                    {{/if}}
                     {{/if}}
                 {{/if}}
                 </div>
@@ -341,6 +500,7 @@
                 <button type="button" data-action="add-action" data-outcome="always" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
                 <button type="button" data-action="add-action" data-outcome="always" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
                 <button type="button" data-action="add-action" data-outcome="always" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="regionBehavior" title="Add Region Behavior Action"><i class="fas fa-draw-polygon"></i></button>
             </div>
         </fieldset>
 
@@ -383,9 +543,13 @@
                         <select name="actions.success.{{@index}}.target.elementType" class="target-element-type">
                             <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
                             <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                            <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
+                            <option value="tile" {{#if (eq this.target.elementType "tile")}}selected{{/if}}>Tile</option>
+                            <option value="region" {{#if (eq this.target.elementType "region")}}selected{{/if}}>Region</option>
+                            <option value="scene" {{#if (eq this.target.elementType "scene")}}selected{{/if}}>Scene</option>
                         </select>
                         <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
-                        <input type="text" name="actions.success.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" />
+                        <input type="text" name="actions.success.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" class="effect-action-name" />
                         <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                     {{/if}}
@@ -396,6 +560,7 @@
                 <button type="button" data-action="add-action" data-outcome="success" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
                 <button type="button" data-action="add-action" data-outcome="success" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
                 <button type="button" data-action="add-action" data-outcome="success" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="regionBehavior" title="Add Region Behavior Action"><i class="fas fa-draw-polygon"></i></button>
             </div>
         </fieldset>
 
@@ -438,9 +603,13 @@
                         <select name="actions.failure.{{@index}}.target.elementType" class="target-element-type">
                             <option value="actor" {{#if (eq this.target.elementType "actor")}}selected{{/if}}>Actor</option>
                             <option value="token" {{#if (eq this.target.elementType "token")}}selected{{/if}}>Token</option>
+                            <option value="wall" {{#if (eq this.target.elementType "wall")}}selected{{/if}}>Door</option>
+                            <option value="tile" {{#if (eq this.target.elementType "tile")}}selected{{/if}}>Tile</option>
+                            <option value="region" {{#if (eq this.target.elementType "region")}}selected{{/if}}>Region</option>
+                            <option value="scene" {{#if (eq this.target.elementType "scene")}}selected{{/if}}>Scene</option>
                         </select>
                         <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
-                        <input type="text" name="actions.failure.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" />
+                        <input type="text" name="actions.failure.{{@index}}.effectId" value="{{this.effectId}}" placeholder="effect name" class="effect-action-name" />
                         <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                     {{/if}}
@@ -451,6 +620,7 @@
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="regionBehavior" title="Add Region Behavior Action"><i class="fas fa-draw-polygon"></i></button>
             </div>
         </fieldset>
     </section>

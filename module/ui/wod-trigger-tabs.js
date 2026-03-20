@@ -9,22 +9,18 @@ export function registerWodTriggerTabs() {
     
     // Global context menu interception - catch all contextmenu events
     Hooks.on('ready', () => {
-        console.log('WoD Trigger Tabs | Setting up global context menu interception');
         
         // Add global context menu listener
         document.addEventListener('contextmenu', (e) => {
-            console.log('WoD Trigger Tabs | Global contextmenu event triggered');
             // Check if this is a right-click on a scene item
             const sceneItem = e.target.closest('.directory-item.scene');
             if (sceneItem && game.user.isGM) {
-                console.log('WoD Trigger Tabs | Scene right-click detected globally');
                 
                 // Get scene data
                 const sceneId = sceneItem.dataset.entryId;
                 const scene = game.scenes.get(sceneId);
                 
                 if (scene) {
-                    console.log('WoD Trigger Tabs | Found scene:', scene.name);
                     
                     // Store the scene for later use
                     window._wodCurrentScene = scene;
@@ -33,16 +29,13 @@ export function registerWodTriggerTabs() {
                     setTimeout(() => {
                         // Look for any context menu
                         const contextMenus = document.querySelectorAll('.context-menu, .dropdown-menu, [data-context-menu], .menu, .encounter-context-menu, .scene-context, [class*="context"]');
-                        console.log('WoD Trigger Tabs | Found context menus:', contextMenus.length);
                         
                         contextMenus.forEach((menu, index) => {
-                            console.log(`WoD Trigger Tabs | Menu ${index}:`, menu.className, menu.tagName);
                             
                             // Only add to the main context menu container, not individual menu items
                             if (menu.tagName === 'MENU' && menu.classList.contains('context-items')) {
                                 // Check if this is a scene context menu (has Configure option)
                                 if (menu.textContent.includes('Configure') || menu.textContent.includes('Generate Thumbnail')) {
-                                    console.log('WoD Trigger Tabs | Found scene context menu container, adding WoD Triggers');
                                     
                                     // Add our WoD Triggers option
                                     const wodOption = document.createElement('li');
@@ -61,15 +54,12 @@ export function registerWodTriggerTabs() {
                                         border-bottom: 1px solid #eee;
                                     `;
                                     wodOption.addEventListener('click', () => {
-                                        console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                         const scene = window._wodCurrentScene;
                                         if (scene) {
                                             WodUnifiedTriggersDialog.create(scene, {
                                                 documentType: 'scene',
                                                 title: `WoD Triggers - ${scene.name}`,
-                                                onClose: () => {
-                                                    console.log('WoD Trigger Tabs | Scene triggers dialog closed');
-                                                }
+                                                onClose: () => {}
                                             });
                                         }
                                         // Close the context menu
@@ -78,30 +68,22 @@ export function registerWodTriggerTabs() {
                                     
                                     // Add to the menu
                                     menu.appendChild(wodOption);
-                                    console.log('WoD Trigger Tabs | WoD Triggers added to main context menu');
                                     return; // Stop after finding the right menu
-                                } else {
-                                    console.log(`WoD Trigger Tabs | Menu ${index} is not a scene context menu, skipping`);
                                 }
-                            } else {
-                                console.log(`WoD Trigger Tabs | Menu ${index} is not a menu container (is ${menu.tagName}), skipping`);
                             }
                         });
                         
                         // If no suitable menu found, keep checking
                         if (contextMenus.length === 0) {
-                            console.log('WoD Trigger Tabs | No context menus found yet, will keep checking...');
                             let attempts = 0;
                             const checkInterval = setInterval(() => {
                                 attempts++;
                                 const menus = document.querySelectorAll('.context-menu, .dropdown-menu, [data-context-menu], .menu, .encounter-context-menu, .scene-context, [class*="context"]');
                                 if (menus.length > 0) {
-                                    console.log(`WoD Trigger Tabs | Found ${menus.length} context menus on attempt ${attempts}`);
                                     clearInterval(checkInterval);
                                     
                                     menus.forEach((menu, index) => {
                                         if (menu.textContent.includes('Configure') || menu.textContent.includes('Generate Thumbnail')) {
-                                            console.log('WoD Trigger Tabs | Adding WoD Triggers to delayed context menu');
                                             
                                             const wodOption = document.createElement('li');
                                             wodOption.className = 'context-item';
@@ -119,22 +101,18 @@ export function registerWodTriggerTabs() {
                                                 border-bottom: 1px solid #eee;
                                             `;
                                             wodOption.addEventListener('click', () => {
-                                                console.log('WoD Trigger Tabs | WoD Triggers option clicked');
                                                 const scene = window._wodCurrentScene;
                                                 if (scene) {
                                                     WodUnifiedTriggersDialog.create(scene, {
                                                         documentType: 'scene',
                                                         title: `WoD Triggers - ${scene.name}`,
-                                                        onClose: () => {
-                                                            console.log('WoD Trigger Tabs | Scene triggers dialog closed');
-                                                        }
+                                                        onClose: () => {}
                                                     });
                                                 }
                                                 menu.remove();
                                             });
                                             
                                             menu.appendChild(wodOption);
-                                            console.log('WoD Trigger Tabs | WoD Triggers added to delayed context menu');
                                             return;
                                         }
                                     });
@@ -142,7 +120,6 @@ export function registerWodTriggerTabs() {
                                 
                                 if (attempts > 10) {
                                     clearInterval(checkInterval);
-                                    console.log('WoD Trigger Tabs | Gave up waiting for context menu');
                                 }
                             }, 50);
                         }
@@ -152,94 +129,102 @@ export function registerWodTriggerTabs() {
         }, true); // Use capture to catch the event early
     });
     
-    // V12/V13 compatible: renderTileConfig fires for both Application and ApplicationV2
-    Hooks.on('renderTileConfig', async (app, html) => {
-        _handleRenderHook(app, html, 'TileConfig');
-    });
+    // Tile configuration support (v2 architecture) - DISABLED - using context menu instead
+    // Hooks.on('renderTileConfig', async (app, html) => {
+    //     _handleRenderHook(app, html, 'TileConfig');
+    // });
 
-    Hooks.on('renderRegionConfig', async (app, html) => {
-        _handleRenderHook(app, html, 'RegionConfig');
-    });
+    // Region configuration support (v2 architecture) - DISABLED - using context menu instead
+    // Hooks.on('renderRegionConfig', async (app, html) => {
+    //     _handleRenderHook(app, html, 'RegionConfig');
+    // });
 
     // Wall/Door configuration support (v2 architecture) - DISABLED - using context menu instead
     // Hooks.on('renderWallConfig', async (app, html) => {
     //     // Handle Wall Config - DISABLED - using context menu approach instead
     // });
 
-    // Add wall right-click context menu support using a different approach
+    // Add wall and tile right-click context menu support
     Hooks.on('canvasReady', () => {
         if (!game.user.isGM) return;
         
-        // Add right-click listener to canvas for walls
         const canvas = game.canvas;
         if (!canvas) return;
         
         // Listen for right-click events on the canvas
         canvas.stage.on('rightclick', (event) => {
             // Check if we're clicking on a wall
-            const wall = canvas.walls.placeables.find(w => {
+            const wall = canvas.walls?.placeables.find(w => {
                 const bounds = w.getBounds();
                 return event.global.x >= bounds.x && event.global.x <= bounds.x + bounds.width &&
                        event.global.y >= bounds.y && event.global.y <= bounds.y + bounds.height;
             });
             
             if (wall) {
-                _showWallContextMenu(wall, event);
+                _showPlaceableContextMenu(wall.document, 'wall', `Wall ${wall.id}`, event);
+                return;
+            }
+            
+            // Check if we're clicking on a tile
+            const tile = canvas.tiles?.placeables.find(t => {
+                const bounds = t.getBounds();
+                return event.global.x >= bounds.x && event.global.x <= bounds.x + bounds.width &&
+                       event.global.y >= bounds.y && event.global.y <= bounds.y + bounds.height;
+            });
+            
+            if (tile) {
+                _showPlaceableContextMenu(tile.document, 'tile', tile.document.texture?.src ? `Tile ${tile.id}` : `Tile ${tile.id}`, event);
+                return;
+            }
+            
+            // Check if we're clicking on a region
+            const region = canvas.regions?.placeables.find(r => {
+                const bounds = r.getBounds();
+                return event.global.x >= bounds.x && event.global.x <= bounds.x + bounds.width &&
+                       event.global.y >= bounds.y && event.global.y <= bounds.y + bounds.height;
+            });
+            
+            if (region) {
+                _showPlaceableContextMenu(region.document, 'region', region.document.name || `Region ${region.id}`, event);
             }
         });
     });
     
-    // Function to show wall context menu
-    function _showWallContextMenu(wall, event) {
-        // Create a simple context menu using Foundry's Application
-        const menuItems = [
-            {
-                name: "WoD Triggers",
-                icon: '<i class="fa-solid fa-shield-halved"></i>',
-                callback: () => {
-                    WodUnifiedTriggersDialog.create(wall.document, {
-                        documentType: 'wall',
-                        title: `WoD Triggers - Wall ${wall.id}`,
-                        onClose: () => {
-                            console.log('WoD Trigger Tabs | Wall triggers dialog closed');
-                        }
-                    });
-                }
-            }
-        ];
+    // Unified context menu for canvas placeables (walls, tiles, etc.)
+    function _showPlaceableContextMenu(doc, documentType, label, event) {
+        // Remove any existing WoD context menus
+        $('.wod-placeable-context-menu').remove();
         
-        // Create a simple dropdown menu
-        const menuHtml = `
-            <div class="context-menu" style="position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
-                ${menuItems.map(item => `
-                    <div class="context-item" style="padding: 8px 12px; cursor: pointer; color: #dc3545; border-bottom: 1px solid #eee;">
-                        ${item.icon} ${item.name}
-                    </div>
-                `).join('')}
+        const $menu = $(`
+            <div class="wod-placeable-context-menu" style="position: fixed; background: white; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 1000; min-width: 200px;">
+                <div class="context-item" style="padding: 8px 12px; cursor: pointer; color: #dc3545; border-bottom: 1px solid #eee;">
+                    <i class="fa-solid fa-shield-halved"></i> WoD Triggers
+                </div>
             </div>
-        `;
+        `);
         
-        // Create and show menu
-        const $menu = $(menuHtml);
         $('body').append($menu);
         
-        // Position menu at mouse location
         $menu.css({
             left: event.clientX + 'px',
             top: event.clientY + 'px'
         });
         
-        // Handle menu item clicks
-        $menu.find('.context-item').on('click', (e) => {
-            const index = $(e.currentTarget).index();
-            menuItems[index].callback();
+        $menu.find('.context-item').on('click', () => {
+            WodUnifiedTriggersDialog.create(doc, {
+                documentType: documentType,
+                title: `WoD Triggers - ${label}`,
+                onClose: () => {}
+            });
             $menu.remove();
         });
         
         // Close menu when clicking outside
-        $(document).one('click', () => {
-            $menu.remove();
-        });
+        setTimeout(() => {
+            $(document).one('click', () => {
+                $menu.remove();
+            });
+        }, 0);
     }
 
     // Additional wall configuration hooks for different Foundry versions - DISABLED
@@ -303,7 +288,7 @@ export function registerWodTriggerTabs() {
     // ApplicationV2 in V13 may also fire these hooks with different arguments
     Hooks.on('renderDocumentSheetV2', async (app, html) => {
         const docName = app?.document?.documentName;
-        if (docName === 'Tile' || docName === 'Region' || docName === 'Wall' || docName === 'Scene' || docName === 'Actor') {
+        if (docName === 'Wall' || docName === 'Scene' || docName === 'Actor') {
             _handleRenderHook(app, html, 'DocumentSheetV2');
         }
     });
@@ -332,8 +317,8 @@ function _handleRenderHook(app, html, source) {
         if (source === 'ActorSheet' || source === 'ActorSheetV2' || source === 'BaseActorSheet' || source === 'Sheet') {
             // For actor sheets, use the original context menu approach
             _injectWodTriggersTab(app, $html, doc).catch(() => {});
-        } else if (source === 'TileConfig' || source === 'RegionConfig' || source === 'SceneConfig') {
-            // For these configuration dialogs, use the new tab approach
+        } else if (source === 'SceneConfig') {
+            // For scene configuration dialogs, use the tab approach
             _addWodTriggersTabToConfigDialog(app, $html, doc);
         }
         // Wall/Door sources are excluded - they use context menu approach instead
@@ -516,9 +501,7 @@ async function _injectWodTriggersTab(app, html, doc) {
             WodUnifiedTriggersDialog.create(doc, {
                 documentType: 'actor',
                 title: `WoD Triggers - ${doc.name}`,
-                onClose: () => {
-                    console.log('WoD Trigger Tabs | Actor triggers dialog closed');
-                }
+                onClose: () => {}
             });
         }
         
@@ -875,17 +858,13 @@ function _attachConfigDialogEventListeners($content, app, doc) {
         ev.preventDefault();
         ev.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Add trigger button clicked in config dialog');
         ui.notifications.info('Opening trigger configuration...');
         
         // Open unified dialog for this document
         WodUnifiedTriggersDialog.create(doc, {
             documentType: doc.documentName || 'actor',
             title: `WoD Triggers - ${doc.name}`,
-            onClose: () => {
-                // Optional callback when dialog closes
-                console.log('WoD Trigger Tabs | Config dialog triggers closed');
-            }
+            onClose: () => {}
         });
     });
     
@@ -959,17 +938,13 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
         ev.preventDefault();
         ev.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Add trigger button clicked in config dialog');
         ui.notifications.info('Opening trigger configuration...');
         
         // Open unified dialog for this document
         WodUnifiedTriggersDialog.create(doc, {
             documentType: doc.documentName || 'actor',
             title: `WoD Triggers - ${doc.name}`,
-            onClose: () => {
-                // Optional callback when dialog closes
-                console.log('WoD Trigger Tabs | Config dialog triggers closed');
-            }
+            onClose: () => {}
         });
     });
     
@@ -1045,9 +1020,6 @@ function _refreshConfigDialogContent(dialogRef, doc) {
         'systems/wodsystem/templates/apps/wod-triggers-tab.html',
         templateData
     ).then(rendered => {
-        console.log('WoD Trigger Tabs | Rendered content length:', rendered.length);
-        console.log('WoD Trigger Tabs | Rendered content preview:', rendered.substring(0, 200));
-        
         // Double check that dialogRef still exists before trying to use it
         if (!dialogRef || !dialogRef.element) {
             console.warn('WoD Trigger Tabs | dialogRef disappeared during render, skipping content update');
@@ -1474,15 +1446,10 @@ async function _showWallTriggersContent(wall) {
     
     const triggers = wall.getFlag('wodsystem', 'triggers') || [];
     
-    // Debug: Check trigger IDs for corruption
-    triggers.forEach((trigger, index) => {
-        console.log(`WoD Trigger Tabs | Wall trigger ${index}:`, trigger);
-        console.log(`WoD Trigger Tabs | Wall trigger ${index} ID:`, trigger.id);
-        console.log(`WoD Trigger Tabs | Wall trigger ${index} ID type:`, typeof trigger.id);
+    // Fix corrupted trigger IDs
+    triggers.forEach((trigger) => {
         if (typeof trigger.id === 'object') {
-            console.warn(`WoD Trigger Tabs | CORRUPTED TRIGGER ID DETECTED - fixing...`);
             trigger.id = foundry.utils.randomID();
-            console.log(`WoD Trigger Tabs | Fixed trigger ID to:`, trigger.id);
         }
     });
     
@@ -2058,10 +2025,7 @@ function _showSceneTriggersContent(scene) {
         const $button = dialogElement.find('.add-trigger-btn');
         
         if ($button.length) {
-            console.log('WoD Trigger Tabs | Found add trigger button in scene dialog');
-            
             $button.off('click.sceneTrigger').on('click.sceneTrigger', (event) => {
-                console.log('WoD Trigger Tabs | Scene add trigger button clicked');
                 event.preventDefault();
                 event.stopPropagation();
 
@@ -2133,14 +2097,8 @@ function _showSceneTriggersContent(scene) {
 function _addSceneContextMenuFallback(sceneDirectoryElement) {
     if (!game.user.isGM) return;
     
-    console.log('WoD Trigger Tabs | Adding fallback context menu to scene directory');
-    
     // Convert to jQuery if needed
     const $sceneDirectory = $(sceneDirectoryElement);
-    
-    // Debug: Log what's actually in the scene directory
-    console.log('WoD Trigger Tabs | Scene directory HTML structure:');
-    console.log($sceneDirectory.html());
     
     // Try multiple selectors for scene items
     const sceneSelectors = [
@@ -2160,21 +2118,7 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
     for (const selector of sceneSelectors) {
         $sceneItems = $sceneDirectory.find(selector);
         if ($sceneItems.length > 0) {
-            console.log(`WoD Trigger Tabs | Found ${$sceneItems.length} items with selector: ${selector}`);
             workingSelector = selector;
-            
-            // Log details of first few items
-            $sceneItems.slice(0, 3).each((index, el) => {
-                console.log(`WoD Trigger Tabs | Item ${index} (${selector}):`, {
-                    tagName: el.tagName,
-                    className: el.className,
-                    id: el.id,
-                    textContent: el.textContent?.substring(0, 50),
-                    dataSceneId: $(el).data('scene-id'),
-                    dataDocumentId: $(el).data('document-id'),
-                    dataEntity: $(el).data('entity')
-                });
-            });
             break;
         }
     }
@@ -2189,9 +2133,6 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('WoD Trigger Tabs | Scene right-click detected on:', e.currentTarget);
-        console.log('WoD Trigger Tabs | Working selector was:', workingSelector);
-        
         // Get scene ID from the element
         const sceneElement = $(e.currentTarget);
         const sceneId = sceneElement.data('entryId') ||           // Foundry uses data-entry-id
@@ -2202,28 +2143,11 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
                         sceneElement.attr('id')?.replace('scene-', '') ||
                         sceneElement.attr('id')?.replace('scene-', '');
         
-        console.log('WoD Trigger Tabs | Scene ID:', sceneId);
-        console.log('WoD Trigger Tabs | Scene element data:', sceneElement.data());
-        
-        // Safely get attributes
-        const attributes = {};
-        try {
-            for (const attr of e.currentTarget.attributes) {
-                attributes[attr.name] = attr.value;
-            }
-            console.log('WoD Trigger Tabs | Scene element attributes:', attributes);
-        } catch (error) {
-            console.warn('WoD Trigger Tabs | Error getting attributes:', error);
-        }
-        
         if (!sceneId) {
-            console.warn('WoD Trigger Tabs | Could not extract scene ID from element');
             // Try to get scene from text content as last resort
             const sceneName = sceneElement.text().trim();
-            console.log('WoD Trigger Tabs | Trying to find scene by name:', sceneName);
             const scene = game.scenes.find(s => s.name === sceneName);
             if (scene) {
-                console.log('WoD Trigger Tabs | Found scene by name:', scene.name);
                 _showSceneContextMenu(scene, e);
             }
             return;
@@ -2235,11 +2159,8 @@ function _addSceneContextMenuFallback(sceneDirectoryElement) {
             return;
         }
         
-        console.log('WoD Trigger Tabs | Found scene:', scene.name);
-        
         // Create context menu
         _showSceneContextMenu(scene, e);
     });
     
-    console.log('WoD Trigger Tabs | Fallback context menu attached to', $sceneItems.length, 'elements');
 }

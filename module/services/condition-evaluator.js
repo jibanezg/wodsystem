@@ -4,7 +4,7 @@
  */
 export class ConditionEvaluator {
     constructor() {
-        this._debugMode = true;
+        this._debugMode = false;
         this._adapters = new Map();
     }
     
@@ -115,6 +115,12 @@ export class ConditionEvaluator {
                 case 'tokenAttribute':
                     return this._checkTokenAttribute(condition, resolvedContext);
                     
+                case 'actorType':
+                    return this._checkActorType(condition, resolvedContext);
+                    
+                case 'distance':
+                    return this._checkDistance(condition, resolvedContext);
+                    
                 default:
                     console.warn(`ConditionEvaluator | Unknown condition type: ${type}`);
                     return { passed: false, value: null, expected: null, error: `Unknown type: ${type}` };
@@ -200,18 +206,34 @@ export class ConditionEvaluator {
      */
     _checkHasEffect(condition, context) {
         const { operator, value } = condition;
-        const actor = context.actor || context.token?.actor;
-        
-        if (!actor || !actor.effects) {
-            return { passed: false, value: null, expected: value, error: 'No actor or effects' };
-        }
         
         const effectName = value?.toLowerCase().trim();
         if (!effectName) {
             return { passed: false, value: null, expected: value, error: 'No effect name specified' };
         }
         
-        // Search through effects
+        // Try universal check via StatusEffectManager first
+        const manager = game.wod?.statusEffectManager;
+        // Prioritize actor for effect checks — context.document may be a wall/tile (trigger host)
+        const doc = context.actor || context.token?.actor || context.document;
+        
+        if (manager && doc) {
+            // Check by name across any document type
+            const hasEffect = manager.hasEffectByName(doc, effectName);
+            const passed = this._applyOperator(hasEffect, operator, true);
+            return {
+                passed,
+                value: hasEffect,
+                expected: operator === 'notEquals' ? false : true
+            };
+        }
+        
+        // Fallback: actor-only check
+        const actor = context.actor || context.token?.actor;
+        if (!actor || !actor.effects) {
+            return { passed: false, value: null, expected: value, error: 'No actor or effects' };
+        }
+        
         let hasEffect = false;
         for (const effect of actor.effects) {
             const name = (effect.name || effect.label || '').toLowerCase().trim();
@@ -221,7 +243,6 @@ export class ConditionEvaluator {
             }
         }
         
-        // Apply operator
         const passed = this._applyOperator(hasEffect, operator, true);
         
         return {
@@ -442,6 +463,92 @@ export class ConditionEvaluator {
         
         const passed = this._applyOperator(attrValue, operator, value);
         return { passed, value: attrValue, expected: value };
+    }
+    
+    /**
+     * Check actor type
+     * @private
+     */
+    _checkActorType(condition, context) {
+        const { operator, value } = condition;
+        const actor = context.actor || context.token?.actor;
+        
+        if (!actor) {
+            return { passed: false, value: null, expected: value, error: 'No actor' };
+        }
+        
+        const actorType = actor.type || '';
+        const passed = this._applyOperator(actorType, operator, value);
+        
+        return {
+            passed,
+            value: actorType,
+            expected: value
+        };
+    }
+    
+    /**
+     * Check distance from token to trigger host (in grid squares)
+     * Value is specified in grid squares (e.g., 5 = 5 grid squares away).
+     * Use with operators like lessThan, greaterThan, equals.
+     * @private
+     */
+    _checkDistance(condition, context) {
+        const { operator, value } = condition;
+        const token = context.token || context.tokenDoc;
+        const triggerHost = context.triggerHost || context.document;
+        
+        if (!token) {
+            return { passed: false, value: null, expected: value, error: 'No token in context' };
+        }
+        if (!triggerHost) {
+            return { passed: false, value: null, expected: value, error: 'No trigger host in context' };
+        }
+        
+        const gridSize = canvas?.grid?.size || 100;
+        
+        // Token center
+        const tokenX = (token.x ?? 0) + ((token.width || 1) * gridSize) / 2;
+        const tokenY = (token.y ?? 0) + ((token.height || 1) * gridSize) / 2;
+        
+        // Trigger host position (tile, region, wall, etc.)
+        let distancePx;
+        if (triggerHost.c) {
+            // Wall — nearest point on segment [x1, y1, x2, y2]
+            const [x1, y1, x2, y2] = triggerHost.c;
+            const segDx = x2 - x1;
+            const segDy = y2 - y1;
+            const lenSq = segDx * segDx + segDy * segDy;
+            let t = 0;
+            if (lenSq > 0) {
+                t = Math.max(0, Math.min(1, ((tokenX - x1) * segDx + (tokenY - y1) * segDy) / lenSq));
+            }
+            const nearX = x1 + t * segDx;
+            const nearY = y1 + t * segDy;
+            distancePx = Math.sqrt((tokenX - nearX) ** 2 + (tokenY - nearY) ** 2);
+        } else {
+            // Tile, region, or other — distance to center
+            let hostX, hostY;
+            if (triggerHost.x !== undefined && triggerHost.width !== undefined) {
+                hostX = triggerHost.x + (triggerHost.width || 0) / 2;
+                hostY = triggerHost.y + (triggerHost.height || 0) / 2;
+            } else {
+                hostX = triggerHost.x ?? 0;
+                hostY = triggerHost.y ?? 0;
+            }
+            distancePx = Math.sqrt((tokenX - hostX) ** 2 + (tokenY - hostY) ** 2);
+        }
+        
+        const distanceGrid = distancePx / gridSize;
+        
+        const expectedValue = parseFloat(value) || 0;
+        const passed = this._applyOperator(distanceGrid, operator, expectedValue);
+        
+        return {
+            passed,
+            value: Math.round(distanceGrid * 100) / 100,
+            expected: expectedValue
+        };
     }
     
     // ==================== Helper Methods ====================

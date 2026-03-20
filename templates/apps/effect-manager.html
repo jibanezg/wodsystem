@@ -59,6 +59,33 @@
                 </label>
             </div>
         </div>
+        
+        <div class="form-group">
+            <label>{{i18n 'WODSYSTEM.StatusEffects.AppliesTo'}}</label>
+            <div class="document-types-checkboxes">
+                <label class="doc-type-checkbox">
+                    <input type="checkbox" name="documentTypes" value="actor" {{#if effect.docTypeActor}}checked{{/if}} />
+                    <span><i class="fas fa-user"></i> Actor</span>
+                </label>
+                <label class="doc-type-checkbox">
+                    <input type="checkbox" name="documentTypes" value="wall" {{#if effect.docTypeWall}}checked{{/if}} />
+                    <span><i class="fas fa-door-open"></i> Door/Wall</span>
+                </label>
+                <label class="doc-type-checkbox">
+                    <input type="checkbox" name="documentTypes" value="tile" {{#if effect.docTypeTile}}checked{{/if}} />
+                    <span><i class="fas fa-image"></i> Tile</span>
+                </label>
+                <label class="doc-type-checkbox">
+                    <input type="checkbox" name="documentTypes" value="region" {{#if effect.docTypeRegion}}checked{{/if}} />
+                    <span><i class="fas fa-draw-polygon"></i> Region</span>
+                </label>
+                <label class="doc-type-checkbox">
+                    <input type="checkbox" name="documentTypes" value="scene" {{#if effect.docTypeScene}}checked{{/if}} />
+                    <span><i class="fas fa-map"></i> Scene</span>
+                </label>
+            </div>
+            <small>{{i18n 'WODSYSTEM.StatusEffects.AppliesToHelp'}}</small>
+        </div>
         {{/if}}
     </section>
     

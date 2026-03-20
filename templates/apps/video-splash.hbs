@@ -1,0 +1,19 @@
+<div class="video-splash-container" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+">
+    <video autoplay muted loop style="max-width: 100vw; max-height: 100vh; object-fit: contain;">
+        <source src="{{videoUrl}}" type="video/mp4">
+    </video>
+    <div style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: white; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 25px; font-family: Arial, sans-serif;">
+        Press any key to dismiss
+    </div>
+</div>

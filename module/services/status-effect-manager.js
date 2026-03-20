@@ -217,6 +217,7 @@ export class StatusEffectManager {
             description: effectData.description || '',
             category: effectData.category || '',
             tags: effectData.tags || [],
+            documentTypes: effectData.documentTypes || [],
             createdBy: 'storyteller',
             mandatory: effectData.mandatory !== undefined ? effectData.mandatory : true,
             conditionScope: effectData.conditionScope || 'always',
@@ -267,8 +268,8 @@ export class StatusEffectManager {
         
         await this._saveEffectTemplates();
         
-        // Sync to all actors with this effect
-        await this._syncEffectToActors(id, updatedTemplate);
+        // Sync to all documents with this effect
+        await this._syncEffectToDocuments(id, updatedTemplate);
         return updatedTemplate;
     }
 
@@ -314,6 +315,19 @@ export class StatusEffectManager {
      */
     getAllEffectTemplates() {
         return Array.from(this.effectTemplates.values());
+    }
+
+    /**
+     * Get effect templates applicable to a specific document type
+     * @param {string} docType - The document type ('actor', 'wall', 'tile', 'region', 'scene')
+     * @returns {Array} Filtered effect templates
+     */
+    getTemplatesForDocumentType(docType) {
+        return this.getAllEffectTemplates().filter(e => {
+            // Empty or missing documentTypes = universal (applies to all)
+            if (!e.documentTypes || e.documentTypes.length === 0) return true;
+            return e.documentTypes.includes(docType);
+        });
     }
 
     /**
@@ -455,17 +469,273 @@ export class StatusEffectManager {
         return results;
     }
 
+    // ==================== Universal Document Effect Methods ====================
+
+    /**
+     * Determine the document type key for routing
+     * @param {Document} doc - Any Foundry document
+     * @returns {string} The document type key ('actor', 'wall', 'tile', 'region', 'scene')
+     * @private
+     */
+    _getDocumentTypeKey(doc) {
+        if (!doc) return null;
+        const docName = doc.documentName || doc.constructor?.documentName;
+        switch (docName) {
+            case 'Actor': return 'actor';
+            case 'Item': return 'actor'; // Items use actor-like ActiveEffect path
+            case 'Wall': return 'wall';
+            case 'Tile': return 'tile';
+            case 'Region': return 'region';
+            case 'Scene': return 'scene';
+            default: return null;
+        }
+    }
+
+    /**
+     * Check if a document supports ActiveEffect embedding (actor/item)
+     * @param {Document} doc
+     * @returns {boolean}
+     * @private
+     */
+    _supportsActiveEffects(doc) {
+        const docName = doc.documentName || doc.constructor?.documentName;
+        return docName === 'Actor' || docName === 'Item';
+    }
+
+    /**
+     * Apply an effect template to any document (universal method)
+     * Routes to ActiveEffect for actors/items, flag storage for others
+     * @param {string} templateId - The effect template ID
+     * @param {Document} doc - Any Foundry document
+     * @returns {Object|ActiveEffect|null} The created effect or null if failed
+     */
+    async applyEffectToDocument(templateId, doc) {
+        if (!doc) return null;
+        
+        if (this._supportsActiveEffects(doc)) {
+            return this.applyEffectToActor(templateId, doc);
+        }
+        return this._applyEffectToFlag(templateId, doc);
+    }
+
+    /**
+     * Remove an effect template from any document (universal method)
+     * @param {string} templateId - The effect template ID
+     * @param {Document} doc - Any Foundry document
+     * @returns {boolean} True if removed
+     */
+    async removeEffectFromDocument(templateId, doc) {
+        if (!doc) return false;
+        
+        if (this._supportsActiveEffects(doc)) {
+            return this.removeEffectFromActor(templateId, doc);
+        }
+        return this._removeEffectFromFlag(templateId, doc);
+    }
+
+    /**
+     * Check if a document has an effect applied
+     * @param {Document} doc - Any Foundry document
+     * @param {string} templateId - The effect template ID
+     * @returns {boolean}
+     */
+    hasEffect(doc, templateId) {
+        if (!doc || !templateId) return false;
+        
+        if (this._supportsActiveEffects(doc)) {
+            return !!doc.effects?.find(e => 
+                e.getFlag('wodsystem', 'sourceTemplateId') === templateId
+            );
+        }
+        const appliedEffects = doc.getFlag('wodsystem', 'appliedEffects') || [];
+        return appliedEffects.some(e => e.templateId === templateId);
+    }
+
+    /**
+     * Check if a document has an effect by name
+     * @param {Document} doc - Any Foundry document
+     * @param {string} effectName - The effect name to search for
+     * @returns {boolean}
+     */
+    hasEffectByName(doc, effectName) {
+        if (!doc || !effectName) return false;
+        const lowerName = effectName.toLowerCase().trim();
+        
+        if (this._supportsActiveEffects(doc)) {
+            for (const effect of (doc.effects || [])) {
+                const name = (effect.name || effect.label || '').toLowerCase().trim();
+                if (name === lowerName) return true;
+            }
+            return false;
+        }
+        const appliedEffects = doc.getFlag('wodsystem', 'appliedEffects') || [];
+        return appliedEffects.some(e => (e.name || '').toLowerCase().trim() === lowerName);
+    }
+
+    /**
+     * Toggle an effect on a document (apply if missing, remove if present)
+     * @param {string} templateId - The effect template ID
+     * @param {Document} doc - Any Foundry document
+     * @returns {Object} { action: 'applied'|'removed', result }
+     */
+    async toggleEffect(templateId, doc) {
+        if (this.hasEffect(doc, templateId)) {
+            const result = await this.removeEffectFromDocument(templateId, doc);
+            return { action: 'removed', result };
+        } else {
+            const result = await this.applyEffectToDocument(templateId, doc);
+            return { action: 'applied', result };
+        }
+    }
+
+    /**
+     * Get all effects applied to a document (universal)
+     * @param {Document} doc - Any Foundry document
+     * @returns {Array} Array of effect data objects
+     */
+    getDocumentEffects(doc) {
+        if (!doc) return [];
+        
+        if (this._supportsActiveEffects(doc)) {
+            return Array.from(doc.effects || []).map(effect => ({
+                templateId: effect.getFlag('wodsystem', 'sourceTemplateId') || null,
+                name: effect.name,
+                icon: effect.img || effect.icon || 'icons/svg/aura.svg',
+                changes: effect.changes?.map(c => ({ key: c.key, value: c.value, mode: c.mode })) || [],
+                conditionScope: effect.getFlag('wodsystem', 'conditionScope') || 'always',
+                conditionTargets: effect.getFlag('wodsystem', 'conditionTargets') || [],
+                isActiveEffect: true,
+                effectId: effect.id
+            }));
+        }
+        return (doc.getFlag('wodsystem', 'appliedEffects') || []).map(e => ({
+            ...e,
+            isActiveEffect: false
+        }));
+    }
+
+    /**
+     * Apply effect templates to multiple documents (universal bulk)
+     * @param {Array<string>} templateIds - Array of effect template IDs
+     * @param {Array<Document>} docs - Array of documents to apply effects to
+     * @returns {Object} Results summary { applied, skipped, failed }
+     */
+    async applyEffectsToDocuments(templateIds, docs) {
+        const results = { applied: 0, skipped: 0, failed: 0 };
+        for (const doc of docs) {
+            for (const templateId of templateIds) {
+                const result = await this.applyEffectToDocument(templateId, doc);
+                if (result) {
+                    results.applied++;
+                } else {
+                    results.failed++;
+                }
+            }
+        }
+        return results;
+    }
+
+    /**
+     * Remove effect templates from multiple documents (universal bulk)
+     * @param {Array<string>} templateIds - Array of effect template IDs
+     * @param {Array<Document>} docs - Array of documents to remove effects from
+     * @returns {Object} Results summary { removed, notFound, failed }
+     */
+    async removeEffectsFromDocuments(templateIds, docs) {
+        const results = { removed: 0, notFound: 0, failed: 0 };
+        for (const doc of docs) {
+            for (const templateId of templateIds) {
+                const removed = await this.removeEffectFromDocument(templateId, doc);
+                if (removed) {
+                    results.removed++;
+                } else {
+                    results.notFound++;
+                }
+            }
+        }
+        return results;
+    }
+
+    // ==================== Flag-Based Effect Storage (Non-Actor) ====================
+
+    /**
+     * Apply an effect to a non-actor document via flags
+     * @param {string} templateId - The effect template ID
+     * @param {Document} doc - The document to apply the effect to
+     * @returns {Object|null} The applied effect data or null
+     * @private
+     */
+    async _applyEffectToFlag(templateId, doc) {
+        const template = this.effectTemplates.get(templateId);
+        if (!template) {
+            console.warn(`WoD StatusEffectManager | Effect template not found: ${templateId}`);
+            return null;
+        }
+        
+        const appliedEffects = doc.getFlag('wodsystem', 'appliedEffects') || [];
+        
+        // Check if already applied
+        if (appliedEffects.some(e => e.templateId === templateId)) {
+            return appliedEffects.find(e => e.templateId === templateId);
+        }
+        
+        const effectEntry = {
+            templateId,
+            name: template.name,
+            icon: template.icon || 'icons/svg/aura.svg',
+            changes: template.changes || [],
+            conditionScope: template.conditionScope || 'always',
+            conditionTargets: template.conditionTargets || [],
+            appliedAt: Date.now(),
+            appliedBy: game.user?.id || null
+        };
+        
+        try {
+            await doc.setFlag('wodsystem', 'appliedEffects', [...appliedEffects, effectEntry]);
+            return effectEntry;
+        } catch (error) {
+            console.error(`WoD StatusEffectManager | Failed to apply effect to document:`, error);
+            return null;
+        }
+    }
+
+    /**
+     * Remove an effect from a non-actor document via flags
+     * @param {string} templateId - The effect template ID
+     * @param {Document} doc - The document to remove the effect from
+     * @returns {boolean} True if removed
+     * @private
+     */
+    async _removeEffectFromFlag(templateId, doc) {
+        const appliedEffects = doc.getFlag('wodsystem', 'appliedEffects') || [];
+        const filtered = appliedEffects.filter(e => e.templateId !== templateId);
+        
+        if (filtered.length === appliedEffects.length) {
+            return false; // Not found
+        }
+        
+        try {
+            await doc.setFlag('wodsystem', 'appliedEffects', filtered);
+            return true;
+        } catch (error) {
+            console.error(`WoD StatusEffectManager | Failed to remove effect from document:`, error);
+            return false;
+        }
+    }
+
     // ==================== Effect Sync ====================
 
     /**
-     * Sync an updated effect template to all actors that have it
+     * Sync an updated effect template to all documents that have it
+     * Handles both ActiveEffect actors and flag-based documents
      * @param {string} templateId - The effect template ID
      * @param {Object} template - The updated template data
      * @private
      */
-    async _syncEffectToActors(templateId, template) {
+    async _syncEffectToDocuments(templateId, template) {
         let syncCount = 0;
         
+        // Sync to actors (ActiveEffect)
         for (const actor of game.actors) {
             const effect = actor.effects.find(e => 
                 e.getFlag('wodsystem', 'sourceTemplateId') === templateId
@@ -484,6 +754,60 @@ export class StatusEffectManager {
                     syncCount++;
                 } catch (error) {
                     console.error(`WoD StatusEffectManager | Failed to sync effect on ${actor.name}:`, error);
+                }
+            }
+        }
+        
+        // Sync to scene documents (flag-based)
+        if (canvas?.scene) {
+            const sceneCollections = [
+                canvas.scene.walls,
+                canvas.scene.tiles,
+                canvas.scene.regions
+            ].filter(Boolean);
+            
+            for (const collection of sceneCollections) {
+                for (const doc of collection) {
+                    const appliedEffects = doc.getFlag('wodsystem', 'appliedEffects') || [];
+                    const idx = appliedEffects.findIndex(e => e.templateId === templateId);
+                    if (idx >= 0) {
+                        const updated = [...appliedEffects];
+                        updated[idx] = {
+                            ...updated[idx],
+                            name: template.name,
+                            icon: template.icon,
+                            changes: template.changes || [],
+                            conditionScope: template.conditionScope || 'always',
+                            conditionTargets: template.conditionTargets || []
+                        };
+                        try {
+                            await doc.setFlag('wodsystem', 'appliedEffects', updated);
+                            syncCount++;
+                        } catch (error) {
+                            console.error(`WoD StatusEffectManager | Failed to sync flag effect on document:`, error);
+                        }
+                    }
+                }
+            }
+            
+            // Sync to scene itself
+            const sceneEffects = canvas.scene.getFlag('wodsystem', 'appliedEffects') || [];
+            const sceneIdx = sceneEffects.findIndex(e => e.templateId === templateId);
+            if (sceneIdx >= 0) {
+                const updated = [...sceneEffects];
+                updated[sceneIdx] = {
+                    ...updated[sceneIdx],
+                    name: template.name,
+                    icon: template.icon,
+                    changes: template.changes || [],
+                    conditionScope: template.conditionScope || 'always',
+                    conditionTargets: template.conditionTargets || []
+                };
+                try {
+                    await canvas.scene.setFlag('wodsystem', 'appliedEffects', updated);
+                    syncCount++;
+                } catch (error) {
+                    console.error(`WoD StatusEffectManager | Failed to sync flag effect on scene:`, error);
                 }
             }
         }

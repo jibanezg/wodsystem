@@ -27,17 +27,12 @@ export class WodUnifiedTriggersDialog extends Dialog {
                     label: "Close",
                     callback: () => {}
                 }
-            },
-            default: "close",
-            ...options
+            }
         });
         
         this.document = document;
-        this.context = options.context || {};
         this.onClose = options.onClose;
         this.documentType = options.documentType || 'actor';
-        
-        console.log('WoD Unified Triggers Dialog | Constructor called for:', this.documentType, document.name || document.id);
     }
     
     /**
@@ -53,6 +48,24 @@ export class WodUnifiedTriggersDialog extends Dialog {
      */
     async getData() {
         const triggers = this._getTriggers();
+        
+        // Add IDs to triggers that don't have them (legacy data fix)
+        const triggersWithIds = triggers.map((trigger, index) => {
+            if (!trigger.id) {
+                const newId = foundry.utils.randomID();
+                const triggerWithId = {
+                    ...trigger,
+                    id: newId
+                };
+                
+                // Save the updated trigger with ID back to the database
+                this._saveTriggerWithId(trigger, newId);
+                
+                return triggerWithId;
+            }
+            return trigger;
+        });
+        
         const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
         
         if (typeof renderFn !== 'function') {
@@ -67,7 +80,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
         const rendered = await renderFn(
             'systems/wodsystem/templates/apps/wod-triggers-tab.html',
             {
-                triggers: Array.isArray(triggers) ? triggers : [],
+                triggers: Array.isArray(triggersWithIds) ? triggersWithIds : [],
                 documentType: this.documentType,
                 docTypeInfo: docTypeInfo,
                 documentName: this.document.name || this.document.id,
@@ -78,7 +91,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
         );
         
         return {
-            triggers: Array.isArray(triggers) ? triggers : [],
+            triggers: Array.isArray(triggersWithIds) ? triggersWithIds : [],
             documentType: this.documentType,
             docTypeInfo: docTypeInfo,
             documentName: this.document.name || this.document.id,
@@ -95,9 +108,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
      */
     _getTriggers() {
         const flagPath = this._getFlagPath();
-        console.log('WoD Unified Triggers Dialog | Getting triggers from flag path:', flagPath);
         const triggers = this.document.getFlag('wodsystem', flagPath) || [];
-        console.log('WoD Unified Triggers Dialog | Raw triggers from flag:', triggers);
         return triggers;
         
         switch (this.documentType) {
@@ -141,6 +152,25 @@ export class WodUnifiedTriggersDialog extends Dialog {
     }
     
     /**
+     * Save trigger with generated ID
+     */
+    async _saveTriggerWithId(trigger, id) {
+        try {
+            const triggers = this._getTriggers();
+            const triggerIndex = triggers.findIndex(t => t.id === id || t === trigger);
+            
+            if (triggerIndex !== -1) {
+                triggers[triggerIndex] = { ...trigger, id };
+                
+                const flagPath = this._getFlagPath();
+                await this.document.setFlag('wodsystem', flagPath, triggers);
+            }
+        } catch (error) {
+            console.error('WoD Unified Triggers Dialog | Error saving trigger with ID:', error);
+        }
+    }
+    
+    /**
      * Get document title for display
      */
     _getDocumentTitle() {
@@ -163,10 +193,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
         const $addButton = dialogElement.find('.add-trigger-btn');
         
         if ($addButton.length) {
-            console.log('WoD Unified Triggers Dialog | Found add trigger button');
-            
             $addButton.off('click.unifiedTrigger').on('click.unifiedTrigger', (event) => {
-                console.log('WoD Unified Triggers Dialog | Add trigger button clicked');
                 event.preventDefault();
                 event.stopPropagation();
                 
@@ -174,7 +201,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 this._openTriggerConfigDialog();
             });
         } else {
-            console.warn('WoD Unified Triggers Dialog | Could not find add trigger button');
+            console.warn('Could not find add trigger button');
         }
         
         // Trigger action buttons (edit, delete, etc.)
@@ -239,17 +266,14 @@ export class WodUnifiedTriggersDialog extends Dialog {
 
         // Add click listeners for trigger edit and delete buttons
         const triggerButtons = contentElement.find('.trigger-edit, .trigger-delete');
-        console.log('WoD Unified Triggers Dialog | Found trigger buttons:', triggerButtons.length);
         
         triggerButtons.off('click.unifiedAction').on('click.unifiedAction', (event) => {
-            console.log('WoD Unified Triggers Dialog | Trigger button clicked');
             event.preventDefault();
             event.stopPropagation();
             
-            const action = $(event.currentTarget).data('action');
-            const triggerId = $(event.currentTarget).data('triggerId');
-            
-            console.log('WoD Unified Triggers Dialog | Action:', action, 'Trigger ID:', triggerId);
+            const $button = $(event.currentTarget);
+            const action = $button.data('action');
+            const triggerId = $button.attr('data-trigger-id');
             
             this._handleTriggerAction(action, triggerId);
         });
@@ -266,7 +290,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
                     title: triggerId ? `Edit Trigger - ${this._getDocumentTitle()}` : `Add Trigger - ${this._getDocumentTitle()}`,
                     documentType: this.documentType,
                     onClose: () => {
-                        console.log('WoD Unified Triggers Dialog | Config dialog closed, refreshing content');
+                        console.log('WoD Unified Triggers Dialog | Config dialog closed by user, refreshing content');
                         // Refresh the dialog content using the same pattern as scene dialog
                         this._refreshDialogContent();
                     }
@@ -284,9 +308,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
      */
     async _refreshDialogContent() {
         try {
-            console.log('WoD Unified Triggers Dialog | Refreshing dialog content for:', this.documentType);
             const data = await this.getData();
-            console.log('WoD Unified Triggers Dialog | Got triggers:', data.triggers?.length || 0);
             const renderFn = foundry?.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
             
             // Render the triggers list
@@ -333,22 +355,17 @@ export class WodUnifiedTriggersDialog extends Dialog {
                     const trigger = triggers.find(t => t.id === triggerId);
                     if (trigger) {
                         this._openTriggerConfigDialog(triggerId);
+                    } else {
+                        console.warn('Trigger not found for ID:', triggerId);
                     }
+                } else {
+                    this._openTriggerConfigDialog();
                 }
                 break;
                 
             case 'delete-trigger':
                 if (triggerId) {
-                    const next = triggers.filter(t => t.id !== triggerId);
-                    await this._saveTriggers(next);
-                    this._refreshDialogContent();
-                    ui.notifications.info('Trigger deleted');
-                }
-                break;
-                
-            case 'toggle-trigger':
-                if (triggerId) {
-                    const trigger = triggers.find(t => t.id === triggerId);
+                    await this._deleteTrigger(triggerId);
                     if (trigger) {
                         trigger.enabled = !trigger.enabled;
                         await this._saveTriggers(triggers);

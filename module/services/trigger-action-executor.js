@@ -51,6 +51,11 @@ export class TriggerActionExecutor {
         
         // Macro action
         this.registerActionHandler('macro', this._executeMacroAction.bind(this));
+        
+        // Region behavior actions
+        this.registerActionHandler('enableRegionBehavior', this._executeRegionBehaviorAction.bind(this));
+        this.registerActionHandler('disableRegionBehavior', this._executeRegionBehaviorAction.bind(this));
+        this.registerActionHandler('toggleRegionBehavior', this._executeRegionBehaviorAction.bind(this));
     }
     
     /**
@@ -262,6 +267,8 @@ export class TriggerActionExecutor {
                     return canvas.scene?.tiles?.get(elementId) || null;
                 case 'token':
                     return canvas.scene?.tokens?.get(elementId) || null;
+                case 'region':
+                    return canvas.scene?.regions?.get(elementId) || null;
                 case 'actor':
                     return game.actors?.get(elementId) || null;
                 case 'scene':
@@ -293,9 +300,13 @@ export class TriggerActionExecutor {
                     return Array.from(canvas.scene?.tiles?.values() || []);
                 case 'token':
                     return Array.from(canvas.scene?.tokens?.values() || []);
+                case 'region':
+                    return Array.from(canvas.scene?.regions?.values() || []);
                 case 'actor':
                     // Return all actors (global, not scene-specific)
                     return Array.from(game.actors?.values() || []);
+                case 'scene':
+                    return canvas.scene ? [canvas.scene] : [];
                 default:
                     return [];
             }
@@ -314,8 +325,6 @@ export class TriggerActionExecutor {
      */
     async _executeDoorAction(action, context) {
         const state = action.state || action.parameters?.state || 'open';
-        
-        console.log(`WoD ActionExecutor | Executing door action:`, { state, action, context });
         
         // Use resolvedTarget as primary source (set by _resolveTarget)
         let wall = context.resolvedTarget;
@@ -364,35 +373,26 @@ export class TriggerActionExecutor {
     }
     
     /**
+     * Get door state name for debugging
+     * @private
+     */
+    _getDoorStateName(state) {
+        switch (state) {
+            case CONST.WALL_DOOR_STATES.OPEN: return 'OPEN';
+            case CONST.WALL_DOOR_STATES.CLOSED: return 'CLOSED';
+            case CONST.WALL_DOOR_STATES.LOCKED: return 'LOCKED';
+            default: return 'UNKNOWN';
+        }
+    }
+    
+    /**
      * Execute an effect toggle action
-     * Uses resolvedTarget from context - handles Actor, Token, or TokenDocument
+     * Uses resolvedTarget from context - handles Actor, Token, TokenDocument, or any document
+     * Routes through StatusEffectManager for universal document support
      * @private
      */
     async _executeEffectAction(action, context) {
-        // Resolve actor from resolvedTarget (handles Actor, Token, TokenDocument)
-        let actor = null;
         const target = context.resolvedTarget;
-        
-        if (target) {
-            // Direct Actor document
-            if (target.documentName === 'Actor') {
-                actor = target;
-            }
-            // Token or TokenDocument - get linked actor
-            else if (target.documentName === 'Token' || target.actor) {
-                actor = target.actor;
-            }
-        }
-        
-        // Fallback to context actor
-        if (!actor) {
-            actor = context.actor;
-        }
-        
-        if (!actor) {
-            console.warn('WoD ActionExecutor | Effect action: No valid actor target');
-            return;
-        }
         
         // Get effect name from action - support both effectId and effectName
         const effectName = action.effectId || action.effectName || action.parameters?.effectName;
@@ -401,8 +401,73 @@ export class TriggerActionExecutor {
             return;
         }
         
-        // Get the CoreEffectsManager
-        const coreEffectsManager = game.wodsystem?.coreEffectsManager;
+        // Try StatusEffectManager first (universal document support)
+        const statusEffectManager = game.wod?.statusEffectManager;
+        if (statusEffectManager) {
+            // Resolve the target document
+            let doc = null;
+            if (target) {
+                const docName = target.documentName || target.constructor?.documentName;
+                if (docName === 'Actor') {
+                    doc = target;
+                } else if (docName === 'Token' || target.actor) {
+                    doc = target.actor;
+                } else {
+                    // Non-actor document (Wall, Tile, Region, Scene)
+                    doc = target;
+                }
+            }
+            if (!doc) doc = context.actor || context.document;
+            
+            if (!doc) {
+                console.warn('WoD ActionExecutor | Effect action: No valid target document');
+                return;
+            }
+            
+            // Find template by name or ID
+            let templateId = effectName;
+            const template = statusEffectManager.getEffectTemplate(effectName);
+            if (!template) {
+                // Try finding by name
+                const byName = statusEffectManager.getAllEffectTemplates().find(
+                    e => e.name.toLowerCase() === effectName.toLowerCase()
+                );
+                if (byName) templateId = byName.id;
+            }
+            
+            switch (action.type) {
+                case 'enableCoreEffect':
+                    await statusEffectManager.applyEffectToDocument(templateId, doc);
+                    break;
+                case 'disableCoreEffect':
+                    await statusEffectManager.removeEffectFromDocument(templateId, doc);
+                    break;
+                case 'toggleCoreEffect':
+                    await statusEffectManager.toggleEffect(templateId, doc);
+                    break;
+            }
+            
+            if (this._debugMode) {
+                const docLabel = doc.name || doc.id;
+                console.log(`WoD ActionExecutor | Effect "${effectName}" ${action.type} on "${docLabel}"`);
+            }
+            return;
+        }
+        
+        // Fallback: CoreEffectsManager (actor-only, legacy)
+        let actor = null;
+        if (target) {
+            if (target.documentName === 'Actor') actor = target;
+            else if (target.documentName === 'Token' || target.actor) actor = target.actor;
+        }
+        if (!actor) actor = context.actor;
+        
+        if (!actor) {
+            console.warn('WoD ActionExecutor | Effect action: No valid actor target');
+            return;
+        }
+        
+        const coreEffectsManager = game.wod?.coreEffectsManager;
         if (!coreEffectsManager) {
             console.warn('WoD ActionExecutor | CoreEffectsManager not available');
             return;
@@ -434,12 +499,20 @@ export class TriggerActionExecutor {
         let tile = null;
         
         // Check useCurrentTile flag first (overrides target resolution)
-        if (action.useCurrentTile && context.document?.documentName === 'Tile') {
-            tile = context.document;
+        if (action.useCurrentTile) {
+            if (context.triggerHost?.documentName === 'Tile') {
+                tile = context.triggerHost;
+            } else if (context.document?.documentName === 'Tile') {
+                tile = context.document;
+            }
         }
         // Use resolvedTarget as primary source
         else if (context.resolvedTarget?.documentName === 'Tile') {
             tile = context.resolvedTarget;
+        }
+        // Fallback to triggerHost if it's a tile (cross-document triggers)
+        else if (context.triggerHost?.documentName === 'Tile') {
+            tile = context.triggerHost;
         }
         // Fallback to context document if it's a tile
         else if (context.document?.documentName === 'Tile') {
@@ -504,6 +577,83 @@ export class TriggerActionExecutor {
         
         if (this._debugMode) {
             console.log(`WoD ActionExecutor | Notification (${type}): ${message}`);
+        }
+    }
+    
+    /**
+     * Execute a region behavior enable/disable/toggle action.
+     * Supports target modes: source (trigger host), specific region, all regions.
+     * @private
+     */
+    async _executeRegionBehaviorAction(action, context) {
+        const behaviorId = action.behaviorId;
+        if (!behaviorId) {
+            console.warn('WoD ActionExecutor | Region behavior action: No behavior ID specified');
+            return;
+        }
+        
+        // Collect target regions based on target mode
+        const targetMode = action.target?.mode || 'source';
+        let regions = [];
+        
+        if (targetMode === 'all') {
+            // All regions in the scene
+            if (canvas.scene?.regions) {
+                regions = Array.from(canvas.scene.regions);
+            }
+        } else if (targetMode === 'specific') {
+            // Specific region by ID
+            const regionId = action.target?.elementId;
+            if (regionId) {
+                const region = canvas.scene?.regions?.get(regionId);
+                if (region) regions.push(region);
+            }
+        } else {
+            // Source — the trigger host region
+            const resolved = context.resolvedTarget;
+            if (resolved?.documentName === 'Region') {
+                regions.push(resolved);
+            } else if (context.triggerHost?.documentName === 'Region') {
+                regions.push(context.triggerHost);
+            } else if (context.document?.documentName === 'Region') {
+                regions.push(context.document);
+            }
+        }
+        
+        if (regions.length === 0) {
+            console.warn('WoD ActionExecutor | Region behavior action: No valid region(s) found');
+            return;
+        }
+        
+        for (const region of regions) {
+            const behavior = region.behaviors?.get(behaviorId);
+            if (!behavior) {
+                if (this._debugMode) {
+                    console.log(`WoD ActionExecutor | Behavior "${behaviorId}" not found on region "${region.name || region.id}", skipping`);
+                }
+                continue;
+            }
+            
+            let newDisabled;
+            switch (action.type) {
+                case 'enableRegionBehavior':
+                    newDisabled = false;
+                    break;
+                case 'disableRegionBehavior':
+                    newDisabled = true;
+                    break;
+                case 'toggleRegionBehavior':
+                    newDisabled = !behavior.disabled;
+                    break;
+                default:
+                    continue;
+            }
+            
+            await behavior.update({ disabled: newDisabled });
+            
+            if (this._debugMode) {
+                console.log(`WoD ActionExecutor | Region behavior "${behavior.name}" on region "${region.name || region.id}" set to ${newDisabled ? 'disabled' : 'enabled'}`);
+            }
         }
     }
     

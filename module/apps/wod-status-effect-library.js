@@ -53,6 +53,21 @@ export class WodStatusEffectLibrary extends FormApplication {
         // Sort by name
         effects.sort((a, b) => a.name.localeCompare(b.name));
         
+        // Add document type flags for template rendering
+        effects = effects.map(e => {
+            const dt = e.documentTypes || [];
+            const isUniversal = !dt || dt.length === 0;
+            return {
+                ...e,
+                docTypeActor: dt.includes('actor'),
+                docTypeWall: dt.includes('wall'),
+                docTypeTile: dt.includes('tile'),
+                docTypeRegion: dt.includes('region'),
+                docTypeScene: dt.includes('scene'),
+                isUniversal
+            };
+        });
+        
         data.effects = effects;
         data.categories = this.manager.getAllCategories();
         data.tags = this.manager.getAllTags();
@@ -64,7 +79,20 @@ export class WodStatusEffectLibrary extends FormApplication {
         
         // Get selected effect details
         if (this.selectedEffectId) {
-            data.selectedEffect = this.manager.getEffectTemplate(this.selectedEffectId);
+            const sel = this.manager.getEffectTemplate(this.selectedEffectId);
+            if (sel) {
+                const dt = sel.documentTypes || [];
+                const isUniversal = !dt || dt.length === 0;
+                data.selectedEffect = {
+                    ...sel,
+                    docTypeActor: dt.includes('actor'),
+                    docTypeWall: dt.includes('wall'),
+                    docTypeTile: dt.includes('tile'),
+                    docTypeRegion: dt.includes('region'),
+                    docTypeScene: dt.includes('scene'),
+                    isUniversal
+                };
+            }
         }
         
         return data;

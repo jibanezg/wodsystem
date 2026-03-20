@@ -9,7 +9,7 @@
             <div class="wizard-step-connector {{#if (gt currentStep 1)}}completed{{/if}}"></div>
             <div class="wizard-step {{#if (eq currentStep 2)}}active{{/if}}" data-step="2">
                 <span class="step-number">2</span>
-                <span class="step-label">{{i18n 'WODSYSTEM.StatusEffects.SelectActors'}}</span>
+                <span class="step-label">Select Targets</span>
             </div>
         </div>
     </div>
@@ -84,11 +84,74 @@
             </div>
         </div>
 
-        <!-- Step 2: Select Actors -->
+        <!-- Step 2: Select Targets -->
         <div class="wizard-page {{#unless (eq currentStep 2)}}hidden{{/unless}}" data-step="2">
-            <!-- Actor Filters -->
-            <div class="toolbar-section">
+            <!-- Selected Effects Summary -->
+            <div class="selected-effects-summary">
+                <span class="summary-label">Applying:</span>
+                {{#each selectedEffects}}
+                <span class="selected-effect-badge">
+                    <img src="{{this.icon}}" alt="{{this.name}}" onerror="this.src='icons/svg/aura.svg'" />
+                    {{this.name}}
+                </span>
+                {{/each}}
+            </div>
+
+            <!-- Target Type Tabs -->
+            <div class="target-type-tabs">
+                {{#each targetTypes}}
+                <button type="button" class="target-type-tab {{#if this.active}}active{{/if}}" data-target-type="{{this.id}}">
+                    <i class="fas {{this.icon}}"></i> {{this.label}}
+                </button>
+                {{/each}}
+            </div>
+
+            {{#if isPickerType}}
+            <!-- Picker Mode: Doors / Tiles / Regions -->
+            <div class="target-picker-bar">
+                <select class="target-picker-select">
+                    <option value="">-- Select to add --</option>
+                    {{#each availableTargets}}
+                    <option value="{{this.id}}">{{this.name}}{{#if this.subtitle}} ({{this.subtitle}}){{/if}}</option>
+                    {{/each}}
+                </select>
+                <button type="button" class="pick-from-canvas-btn" title="Pick from canvas">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+            </div>
+
+            <div class="selected-target-cards">
+                {{#if selectedTargetCards.length}}
+                {{#each selectedTargetCards}}
+                <div class="target-card {{#if this.hasEffects}}has-effects{{/if}}">
+                    <img src="{{this.img}}" alt="{{this.name}}" class="target-card-img" onerror="this.src='icons/svg/mystery-man.svg'" />
+                    <div class="target-card-info">
+                        <span class="target-card-name">{{this.name}}</span>
+                        {{#if this.subtitle}}<span class="target-card-subtitle">{{this.subtitle}}</span>{{/if}}
+                    </div>
+                    {{#if this.hasEffects}}
+                    <span class="has-effect-badge" title="Already has: {{this.existingEffects}}">
+                        <i class="fas fa-check-circle"></i>
+                    </span>
+                    {{/if}}
+                    <button type="button" class="remove-target-card" data-target-id="{{this.id}}" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {{/each}}
+                {{else}}
+                <div class="no-targets">
+                    <i class="fas fa-crosshairs"></i>
+                    <p>Use the picker above to add targets.</p>
+                </div>
+                {{/if}}
+            </div>
+
+            {{else}}
+            <!-- List Mode: Actors / Scene -->
+            <div class="toolbar-section target-toolbar">
                 <div class="toolbar-row">
+                    {{#if isActorType}}
                     <div class="toolbar-group">
                         <label>{{i18n 'WODSYSTEM.StatusEffects.Type'}}:</label>
                         <select class="filter-actor-type">
@@ -104,57 +167,46 @@
                             {{i18n 'WODSYSTEM.StatusEffects.InCurrentScene'}}
                         </label>
                     </div>
-                    <div class="toolbar-group">
-                        <label>{{i18n 'WODSYSTEM.Common.Search'}}:</label>
-                        <input type="text" class="actor-search-input" placeholder="{{i18n 'WODSYSTEM.StatusEffects.SearchActors'}}" value="{{searchQuery}}" />
+                    {{/if}}
+                    <div class="toolbar-group search-group-flex">
+                        <input type="text" class="target-search-input" placeholder="Search targets..." value="{{searchQuery}}" />
+                    </div>
+                    <div class="toolbar-group toolbar-actions">
+                        <button type="button" class="icon-btn select-all-targets" title="{{i18n 'WODSYSTEM.Common.SelectAll'}}">
+                            <i class="fas fa-check-double"></i>
+                        </button>
+                        <button type="button" class="icon-btn deselect-all-targets" title="{{i18n 'WODSYSTEM.Common.DeselectAll'}}">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 </div>
             </div>
-            
-            <div class="panel-actions">
-                <button type="button" class="icon-btn select-all-actors" title="{{i18n 'WODSYSTEM.Common.SelectAll'}}">
-                    <i class="fas fa-check-double"></i>
-                </button>
-                <button type="button" class="icon-btn deselect-all-actors" title="{{i18n 'WODSYSTEM.Common.DeselectAll'}}">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <!-- Selected Effects Summary -->
-            <div class="selected-effects-summary">
-                <span class="summary-label">{{i18n 'WODSYSTEM.StatusEffects.SelectedEffects'}}:</span>
-                {{#each selectedEffects}}
-                <span class="selected-effect-badge">
-                    <img src="{{this.icon}}" alt="{{this.name}}" onerror="this.src='icons/svg/aura.svg'" />
-                    {{this.name}}
-                </span>
-                {{/each}}
-            </div>
-            
-            <div class="actors-list">
-                {{#if actors.length}}
-                {{#each actors}}
-                <div class="actor-item {{#if this.selected}}selected{{/if}} {{#if this.hasEffects}}has-effects{{/if}}" data-actor-id="{{this.id}}">
-                    <input type="checkbox" class="actor-checkbox" data-actor-id="{{this.id}}" {{#if this.selected}}checked{{/if}} />
-                    <img src="{{this.img}}" alt="{{this.name}}" class="actor-img" onerror="this.src='icons/svg/mystery-man.svg'" />
-                    <div class="actor-info">
-                        <span class="actor-name">{{this.name}}</span>
-                        <span class="actor-type">{{this.type}}</span>
+
+            <div class="targets-list">
+                {{#if targets.length}}
+                {{#each targets}}
+                <div class="target-item {{#if this.selected}}selected{{/if}} {{#if this.hasEffects}}has-effects{{/if}}" data-target-id="{{this.id}}">
+                    <input type="checkbox" class="target-checkbox" data-target-id="{{this.id}}" {{#if this.selected}}checked{{/if}} />
+                    <img src="{{this.img}}" alt="{{this.name}}" class="target-img" onerror="this.src='icons/svg/mystery-man.svg'" />
+                    <div class="target-info">
+                        <span class="target-name">{{this.name}}</span>
+                        {{#if this.subtitle}}<span class="target-subtitle">{{this.subtitle}}</span>{{/if}}
                     </div>
                     {{#if this.hasEffects}}
-                    <span class="has-effect-badge" title="{{i18n 'WODSYSTEM.StatusEffects.AlreadyHas'}}: {{this.existingEffects}}">
+                    <span class="has-effect-badge" title="Already has: {{this.existingEffects}}">
                         <i class="fas fa-check-circle"></i>
                     </span>
                     {{/if}}
                 </div>
                 {{/each}}
                 {{else}}
-                <div class="no-actors">
-                    <i class="fas fa-users"></i>
-                    <p>{{i18n 'WODSYSTEM.StatusEffects.NoActorsMatch'}}</p>
+                <div class="no-targets">
+                    <i class="fas fa-crosshairs"></i>
+                    <p>No targets found for this type.</p>
                 </div>
                 {{/if}}
             </div>
+            {{/if}}
         </div>
     </div>
 
@@ -165,7 +217,7 @@
                 <i class="fas fa-magic"></i> {{effectCount}} {{i18n 'WODSYSTEM.StatusEffects.EffectsSelected'}}
             </span>
             <span class="summary-item">
-                <i class="fas fa-users"></i> {{selectedCount}} {{i18n 'WODSYSTEM.StatusEffects.ActorsSelected'}}
+                <i class="fas fa-crosshairs"></i> {{selectedCount}} Targets Selected
             </span>
         </div>
         

@@ -526,6 +526,22 @@ hr {
 }
 
 
+/* Target Filter Section - scoped to trigger config */
+.wod-trigger-config .target-filter-section {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.wod-trigger-config .target-filter-section h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
 /* Conditions Section - scoped to trigger config */
 .wod-trigger-config .conditions-section {
     background: #f0f4f8;

@@ -121,6 +121,19 @@ export class MinimapManager {
         Hooks.on("getSceneControlButtons", (controls) => {
             if (!game.user.isGM) return;
             
+            // Debug logging to help diagnose issues
+            if (game.settings.get('wodsystem', 'debugMode')) {
+                console.log('WoD Minimap | getSceneControlButtons called with:', typeof controls, controls);
+            }
+            
+            // Ensure controls is an array before calling find
+            if (!Array.isArray(controls)) {
+                if (game.settings.get('wodsystem', 'debugMode')) {
+                    console.warn('WoD Minimap | Controls is not an array:', typeof controls, controls);
+                }
+                return;
+            }
+            
             // Add minimap button to the navigation control group
             const navigationControl = controls.find(c => c.name === "navigation");
             if (navigationControl) {

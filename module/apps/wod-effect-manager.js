@@ -103,6 +103,10 @@ export class WodEffectEditor extends FormApplication {
                 conditionTargets = [conditionTargets];
             }
             
+            const documentTypes = (this.mode === 'template') 
+                ? (this.effect.documentTypes || []) 
+                : (this.effect.getFlag?.('wodsystem', 'documentTypes') || []);
+            
             data.effect = {
                 id: this.effect.id,
                 name: this.effect.name,
@@ -119,6 +123,12 @@ export class WodEffectEditor extends FormApplication {
                 tagAutomatic: tags.includes('Automatic'),
                 tagPlayer: tags.includes('Player'),
                 tagStoryteller: tags.includes('Storyteller'),
+                documentTypes: documentTypes,
+                docTypeActor: documentTypes.includes('actor'),
+                docTypeWall: documentTypes.includes('wall'),
+                docTypeTile: documentTypes.includes('tile'),
+                docTypeRegion: documentTypes.includes('region'),
+                docTypeScene: documentTypes.includes('scene'),
                 changes: this.effect.changes?.map(c => ({
                     key: c.key,
                     value: c.value,
@@ -142,6 +152,12 @@ export class WodEffectEditor extends FormApplication {
                 tagAutomatic: false,
                 tagPlayer: false,
                 tagStoryteller: false,
+                documentTypes: [],
+                docTypeActor: false,
+                docTypeWall: false,
+                docTypeTile: false,
+                docTypeRegion: false,
+                docTypeScene: false,
                 changes: []
             };
         }
@@ -554,10 +570,17 @@ export class WodEffectEditor extends FormApplication {
         conditionTargets = conditionTargets.filter(target => target !== null && target !== undefined && target !== '');
         
         // Parse tags from checkboxes
-        const selectedTags = formData.tags || [];
+        let selectedTags = formData.tags || [];
         if (typeof selectedTags === 'string') {
             selectedTags = [selectedTags];
         }
+        
+        // Parse documentTypes from checkboxes
+        let documentTypes = formData.documentTypes || [];
+        if (typeof documentTypes === 'string') {
+            documentTypes = [documentTypes];
+        }
+        documentTypes = documentTypes.filter(dt => dt !== null && dt !== undefined && dt !== '');
         
         if (this.mode === 'template') {
             // Template mode - return template data
@@ -567,6 +590,7 @@ export class WodEffectEditor extends FormApplication {
                 description: formData.description || '',
                 category: formData.category || '',
                 tags: selectedTags,
+                documentTypes: documentTypes,
                 mandatory: formData.mandatory === true || formData.mandatory === 'true',
                 conditionScope: formData.conditionScope || 'always',
                 conditionTargets: conditionTargets,
@@ -593,7 +617,8 @@ export class WodEffectEditor extends FormApplication {
                         conditionScope: formData.conditionScope || 'always',
                         conditionTargets: conditionTargets,
                         category: formData.category || '',
-                        tags: selectedTags
+                        tags: selectedTags,
+                        documentTypes: documentTypes
                     }
                 }
             };
@@ -609,7 +634,7 @@ export class WodEffectEditor extends FormApplication {
         }
         
         // Force actor sheet to re-render
-        if (this.actor.sheet.rendered) {
+        if (this.actor?.sheet?.rendered) {
             this.actor.sheet.render(false);
         }
         

@@ -120,6 +120,42 @@ export class CoreEffectsManager {
         }
     }
 
+    /**
+     * Check and apply core effects for any document type
+     * Routes through StatusEffectManager for non-actor documents
+     * @param {Document} doc - Any Foundry document
+     * @returns {Promise<void>}
+     */
+    async checkAndApplyCoreEffectsForDocument(doc) {
+        if (!doc) return;
+        const docName = doc.documentName || doc.constructor?.documentName;
+        
+        if (docName === 'Actor') {
+            return this.checkAndApplyCoreEffects(doc);
+        }
+        
+        // For non-actor documents, check core effects applicable to this doc type
+        const manager = game.wod?.statusEffectManager;
+        if (!manager) return;
+        
+        const docTypeKey = manager._getDocumentTypeKey(doc);
+        if (!docTypeKey) return;
+        
+        const coreTemplates = manager.getAllEffectTemplates().filter(e => 
+            (e.isCore === true || e.category === 'Core') &&
+            (!e.documentTypes || e.documentTypes.length === 0 || e.documentTypes.includes(docTypeKey))
+        );
+        
+        for (const template of coreTemplates) {
+            // Non-actor core effects are applied/removed via flag-based storage
+            // Currently core effects are actor-only (Wounded), so this is future-proofing
+            const hasIt = manager.hasEffect(doc, template.id);
+            if (!hasIt) {
+                await manager.applyEffectToDocument(template.id, doc);
+            }
+        }
+    }
+
     _resolveCoreEffectState(actor, effectId, effectConfig) {
         const baseConditionResult = effectConfig.condition?.check ? effectConfig.condition.check(actor) : null;
         const baseWants = baseConditionResult !== null;
