@@ -882,6 +882,72 @@ Hooks.on("createActor", async (actor, options, userId) => {
     }
 });
 
+// ==================== Copy-Paste Trigger Sanitization ====================
+// When tiles, regions, or walls are copy-pasted, sanitize their WoD triggers:
+// - Generate new trigger IDs (prevent conflicts with original)
+// - Clear element-specific IDs (stale references to doors, tiles, etc.)
+
+/**
+ * Sanitize triggers on a newly created document (copy-paste).
+ * Only runs when the document has existing triggers (i.e. was copied from another).
+ * @param {Document} doc - The pre-create document
+ * @param {Object} data - The creation data
+ * @param {Object} options - Creation options
+ */
+function _sanitizeCopiedTriggers(doc, data, options) {
+    // Check both the source data and the document for triggers
+    const triggers = data?.flags?.wodsystem?.triggers 
+        || doc.getFlag?.('wodsystem', 'triggers');
+    if (!Array.isArray(triggers) || triggers.length === 0) return;
+
+    const sanitized = triggers.map(trigger => {
+        const t = foundry.utils.deepClone(trigger);
+
+        // New unique ID for the copied trigger
+        t.id = foundry.utils.randomID();
+
+        // Clear anchor documentId (will be the new document)
+        if (t.anchor) {
+            t.anchor.documentId = null;
+        }
+
+        // Clear element-specific IDs in actions so user can re-pick targets
+        for (const outcome of ['always', 'success', 'failure']) {
+            if (!Array.isArray(t.actions?.[outcome])) continue;
+            for (const action of t.actions[outcome]) {
+                if (action.target && typeof action.target === 'object') {
+                    if (action.target.elementId) action.target.elementId = '';
+                }
+                // Legacy fields
+                if (action.tileId) action.tileId = '';
+                if (typeof action.target === 'string') action.target = '';
+            }
+        }
+
+        // Clear target filter specific IDs
+        if (t.trigger?.targetFilter?.ids) {
+            t.trigger.targetFilter.ids = '';
+        }
+
+        return t;
+    });
+
+    // Use updateSource (Foundry v11+ recommended API for preCreate hooks)
+    doc.updateSource({ 'flags.wodsystem.triggers': sanitized });
+
+    console.log(`WoD Triggers | Sanitized ${sanitized.length} trigger(s) on copied document - new IDs assigned, element IDs cleared`);
+}
+
+for (const hookName of ['preCreateTile', 'preCreateRegion', 'preCreateWall']) {
+    Hooks.on(hookName, (doc, data, options) => {
+        try {
+            _sanitizeCopiedTriggers(doc, data, options);
+        } catch (error) {
+            console.error(`WoD Triggers | Error sanitizing copied triggers on ${hookName}:`, error);
+        }
+    });
+}
+
 // ==================== Non-Actor Effect Event Hooks ====================
 // Fire trigger events when flag-based effects change on scene documents
 

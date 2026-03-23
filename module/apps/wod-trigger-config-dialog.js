@@ -7,7 +7,7 @@ export class WodTriggerConfigDialog extends FormApplication {
         super({}, options);
         this.document = document;
         this.triggerId = triggerId || foundry.utils.randomID();
-        this.documentType = options.documentType || 'actor'; // Store document type
+        this.documentType = (options.documentType || 'actor').toLowerCase(); // Store document type
         this._currentTriggerData = null; // Store in-memory trigger data
         this._onCloseCb = options?.onClose || null;
         this._closeCallbackCalled = false; // Track if callback was already called
@@ -503,7 +503,9 @@ export class WodTriggerConfigDialog extends FormApplication {
             const outcome = ev.currentTarget.dataset.outcome;
             const index = Number(ev.currentTarget.dataset.index);
             const actionRow = $(ev.currentTarget).closest('.action-row');
-            const elementType = actionRow.find('.target-element-type').val() || 'wall';
+            const elementType = actionRow.find('.target-element-type').val()
+                || actionRow.find('input[name$=".target.elementType"]').val()
+                || 'wall';
             this._startPickElement(outcome, index, elementType);
         });
 
@@ -541,9 +543,8 @@ export class WodTriggerConfigDialog extends FormApplication {
             }
         });
 
-        // Pick asset from file browser
-        const assetButtons = html.find('button[data-action="pick-asset"]');
-        assetButtons.on('click', (ev) => {
+        // Pick asset from file browser (event delegation for dynamic content)
+        html.on('click', 'button[data-action="pick-asset"]', (ev) => {
             ev.preventDefault();
             const outcome = ev.currentTarget.dataset.outcome;
             const index = Number(ev.currentTarget.dataset.index);
@@ -1758,12 +1759,15 @@ export class WodTriggerConfigDialog extends FormApplication {
 
     async _saveTrigger(formData, _) {
         
+        try {
         const parsedActions = this._parseActionsFromFormData(formData);
         
         // Use context-aware flag path like the unified dialog
         const flagPath = this._getFlagPath();
         const triggers = this.document.getFlag('wodsystem', flagPath) || [];
         const triggerIndex = triggers.findIndex(t => t?.id === this.triggerId);
+        
+        console.log(`WoD TriggerConfig | Save: docType=${this.documentType}, flagPath=${flagPath}, existingCount=${triggers.length}, editing=${triggerIndex >= 0}, triggerId=${this.triggerId}`);
         
         const next = {
             id: this.triggerId,
@@ -1802,7 +1806,14 @@ export class WodTriggerConfigDialog extends FormApplication {
             triggers.push(next);
         }
 
+        // Safe flag replacement: unset first, then set to prevent Foundry array merge issues
+        await this.document.unsetFlag('wodsystem', flagPath);
         await this.document.setFlag('wodsystem', flagPath, triggers);
+        console.log(`WoD TriggerConfig | Save successful: totalCount=${triggers.length}`);
+        } catch (error) {
+            console.error('WoD TriggerConfig | SAVE FAILED:', error);
+            ui.notifications?.error('Failed to save trigger - check console for details');
+        }
     }
 
     /**
@@ -1963,8 +1974,17 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
 
     async _updateObject(event, formData) {
-        const $form = $(event?.currentTarget);
-        if (!$form.length) return formData;
+        console.log('WoD TriggerConfig | _updateObject called, event:', !!event, 'formData keys:', Object.keys(formData || {}).length);
+        let $form = $(event?.currentTarget);
+        if (!$form.length) {
+            console.warn('WoD TriggerConfig | _updateObject: $form not found from event.currentTarget, trying this.form');
+            $form = $(this.form);
+            if (!$form.length) {
+                console.error('WoD TriggerConfig | _updateObject: No form found at all - save ABORTED');
+                ui.notifications?.error('Save failed - form not found');
+                return formData;
+            }
+        }
         
         // Force UI values for critical fields that might not be in formData
         formData.name = this._cachedName || $form.find('input[name="name"]').val();
@@ -2001,6 +2021,13 @@ export class WodTriggerConfigDialog extends FormApplication {
             const $select = $(el);
             const name = $select.attr('name');
             formData[name] = $select.val();
+        });
+        
+        // Also capture hidden inputs for target.elementType (used by changeTileAsset)
+        $form.find('input[type="hidden"][name$=".target.elementType"]').each((i, el) => {
+            const $input = $(el);
+            const name = $input.attr('name');
+            formData[name] = $input.val();
         });
         
         $form.find('input[name$=".target.elementId"]').each((i, el) => {

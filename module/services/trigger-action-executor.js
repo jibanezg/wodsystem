@@ -200,6 +200,8 @@ export class TriggerActionExecutor {
         let elementType = targetConfig.elementType;
         if (action.type === 'door') {
             elementType = 'wall'; // Door actions always target walls (doors)
+        } else if (action.type === 'changeTileAsset') {
+            elementType = 'tile'; // Tile asset actions always target tiles
         } else {
             elementType = elementType || 'actor'; // Default for other actions
         }
@@ -507,33 +509,47 @@ export class TriggerActionExecutor {
             }
         }
         // Use resolvedTarget as primary source
-        else if (context.resolvedTarget?.documentName === 'Tile') {
+        if (!tile && context.resolvedTarget?.documentName === 'Tile') {
             tile = context.resolvedTarget;
         }
+        // Direct lookup by tile ID from action target config
+        if (!tile && action.target?.elementId && canvas?.scene) {
+            tile = canvas.scene.tiles?.get(action.target.elementId) || null;
+            if (this._debugMode && tile) {
+                console.log(`WoD ActionExecutor | Tile resolved via direct ID lookup: ${action.target.elementId}`);
+            }
+        }
+        // Fallback: legacy tileId field
+        if (!tile && action.tileId && canvas?.scene) {
+            tile = canvas.scene.tiles?.get(action.tileId) || null;
+        }
         // Fallback to triggerHost if it's a tile (cross-document triggers)
-        else if (context.triggerHost?.documentName === 'Tile') {
+        if (!tile && context.triggerHost?.documentName === 'Tile') {
             tile = context.triggerHost;
         }
         // Fallback to context document if it's a tile
-        else if (context.document?.documentName === 'Tile') {
+        if (!tile && context.document?.documentName === 'Tile') {
             tile = context.document;
         }
         
         if (!tile) {
-            console.warn('WoD ActionExecutor | Tile asset action: No valid tile target');
+            console.warn('WoD ActionExecutor | Tile asset action: No valid tile target found.', {
+                useCurrentTile: action.useCurrentTile,
+                resolvedTarget: context.resolvedTarget?.documentName,
+                targetElementId: action.target?.elementId,
+                triggerHost: context.triggerHost?.documentName,
+                document: context.document?.documentName
+            });
             return;
         }
         
-        const newImg = action.tileImg || action.parameters?.tileImg;
-        if (!newImg) {
-            console.warn('WoD ActionExecutor | Tile asset action: No image path specified');
-            return;
-        }
+        const newImg = action.tileImg || action.parameters?.tileImg || '';
         
+        // Empty string clears the tile image (makes it blank/invisible)
         await tile.update({ 'texture.src': newImg });
         
         if (this._debugMode) {
-            console.log(`WoD ActionExecutor | Tile "${tile.id}" asset changed to: ${newImg}`);
+            console.log(`WoD ActionExecutor | Tile "${tile.id}" asset changed to: ${newImg || '(blank)'}`);
         }
     }
     

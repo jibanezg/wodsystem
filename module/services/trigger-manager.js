@@ -356,35 +356,42 @@ export class TriggerManager {
         
         if (!filterType) return true; // No filter = match all
         
-        // For non-actor document events (door, tile, region), skip actor-based target filtering.
-        // The trigger is on the document itself — there's no "triggering actor" to filter against.
+        // For non-actor document events (door, tile, region), skip actor-based TYPE filtering
+        // but still check specific IDs — the user may want to filter by a specific door/wall ID.
         const nonActorEvents = ['onDoorOpened', 'onDoorClosed', 'onDoorLocked', 'onDoorUnlocked'];
         const docType = context.documentType;
-        if ((docType === 'wall' || docType === 'tile' || docType === 'region') && nonActorEvents.includes(context.eventType)) {
-            return true;
+        const isNonActorDocEvent = (docType === 'wall' || docType === 'tile' || docType === 'region') 
+            && nonActorEvents.includes(context.eventType);
+        
+        if (!isNonActorDocEvent) {
+            // "All must match" mode
+            if (matchMode === 'all' && filterType) {
+                return this._evaluateAllTargetsMatch(trigger, context);
+            }
+            
+            const category = this._getFilterCategory(filterType);
+            
+            if (category === 'actor') {
+                if (!context.actor?.type) return false;
+                if (!this._checkTargetTypeMatch([filterType], context.actor.type, context)) return false;
+            } else {
+                if (!this._checkTargetTypeMatch([filterType], category, context)) return false;
+            }
         }
         
-        // "All must match" mode
-        if (matchMode === 'all' && filterType) {
-            return this._evaluateAllTargetsMatch(trigger, context);
-        }
-        
-        const category = this._getFilterCategory(filterType);
-        
-        if (category === 'actor') {
-            if (!context.actor?.type) return false;
-            if (!this._checkTargetTypeMatch([filterType], context.actor.type, context)) return false;
-        } else {
-            if (!this._checkTargetTypeMatch([filterType], category, context)) return false;
-        }
-        
-        // Check specific IDs filter
+        // Always check specific IDs filter (applies to door events too)
         const targetFilterIds = trigger.trigger?.targetFilter?.ids;
         if (targetFilterIds && typeof targetFilterIds === 'string' && targetFilterIds.trim().length > 0) {
             const allowedIds = targetFilterIds.split(',').map(id => id.trim()).filter(Boolean);
             if (allowedIds.length > 0) {
-                const triggeringId = context.document?.id || context.token?.id || context.actor?.id || '';
-                if (!allowedIds.includes(triggeringId)) return false;
+                // For door events, match against the wall/door ID from context
+                const triggeringId = context.wall?.id || context.document?.id || context.token?.id || context.actor?.id || '';
+                if (!allowedIds.includes(triggeringId)) {
+                    if (this._debugMode) {
+                        console.log(`WoD TriggerManager | Target filter ID mismatch: triggering="${triggeringId}" not in allowed=[${allowedIds.join(',')}]`);
+                    }
+                    return false;
+                }
             }
         }
         

@@ -32,7 +32,7 @@ export class WodUnifiedTriggersDialog extends Dialog {
         
         this.document = document;
         this.onClose = options.onClose;
-        this.documentType = options.documentType || 'actor';
+        this.documentType = (options.documentType || 'actor').toLowerCase();
     }
     
     /**
@@ -130,9 +130,13 @@ export class WodUnifiedTriggersDialog extends Dialog {
     /**
      * Save triggers based on document type and context
      */
-    _saveTriggers(triggers) {
+    async _saveTriggers(triggers) {
         const flagPath = this._getFlagPath();
-        return this.document.setFlag('wodsystem', flagPath, triggers);
+        // Safe flag replacement: unset first to prevent Foundry array merge issues
+        await this.document.unsetFlag('wodsystem', flagPath);
+        if (triggers && triggers.length > 0) {
+            await this.document.setFlag('wodsystem', flagPath, triggers);
+        }
     }
     
     /**
@@ -334,10 +338,6 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 this._attachWorkingEventListeners();
             }
             
-            // Call the onClose callback if it exists
-            if (this.onClose) {
-                this.onClose();
-            }
         } catch (error) {
             console.error('WoD Unified Triggers Dialog | Error refreshing content:', error);
         }
@@ -365,10 +365,27 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 
             case 'delete-trigger':
                 if (triggerId) {
-                    await this._deleteTrigger(triggerId);
-                    if (trigger) {
-                        trigger.enabled = !trigger.enabled;
-                        await this._saveTriggers(triggers);
+                    const triggerToDelete = triggers.find(t => t?.id === triggerId);
+                    const triggerName = triggerToDelete?.name || 'Unnamed Trigger';
+                    
+                    const confirmed = await Dialog.confirm({
+                        title: 'Delete Trigger',
+                        content: `<p>Are you sure you want to delete the trigger "<strong>${triggerName}</strong>"?</p>`,
+                        yes: () => true,
+                        no: () => false,
+                        defaultYes: false
+                    });
+                    
+                    if (confirmed) {
+                        console.log(`WoD Unified | Delete: triggerId=${triggerId}, before=${triggers.length}, triggerIds=`, triggers.map(t => t?.id));
+                        const next = triggers.filter(t => t?.id !== triggerId);
+                        console.log(`WoD Unified | Delete: after=${next.length}`);
+                        // Use unsetFlag + setFlag for safe array replacement
+                        const flagPath = this._getFlagPath();
+                        await this.document.unsetFlag('wodsystem', flagPath);
+                        if (next.length > 0) {
+                            await this.document.setFlag('wodsystem', flagPath, next);
+                        }
                         this._refreshDialogContent();
                     }
                 }

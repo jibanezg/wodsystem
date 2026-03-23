@@ -952,8 +952,19 @@ export class WodActorSheet extends ActorSheet {
             try {
                 const FilePickerClass = foundry.applications?.apps?.FilePicker?.implementation ?? FilePicker;
                 
-                // Upload directly to the Data folder root (always exists)
-                const response = await FilePickerClass.upload("data", "", file, {});
+                // Try to upload to a portraits folder, fall back to root
+                let uploadDir = "";
+                try {
+                    await FilePickerClass.createDirectory("data", "portraits");
+                    uploadDir = "portraits";
+                } catch(e) {
+                    // Directory may already exist or creation failed - check if it exists
+                    try {
+                        const result = await FilePickerClass.browse("data", "portraits");
+                        if (result) uploadDir = "portraits";
+                    } catch(e2) { /* fall back to root */ }
+                }
+                const response = await FilePickerClass.upload("data", uploadDir, file, {});
                 
                 if (response?.path) {
                     urlInput.value = response.path;
@@ -978,14 +989,22 @@ export class WodActorSheet extends ActorSheet {
         
         // Save handler
         modal.querySelector('.wod-image-picker-save').addEventListener('click', async () => {
-            await this.actor.update({ [target]: urlInput.value.trim() });
+            const imagePath = urlInput.value.trim();
+            await this.actor.update({ [target]: imagePath });
+            if (target === 'system.biography.image') {
+                await this._syncBiographyImageToToken(imagePath);
+            }
             closeModal();
         });
         
         // Keyboard shortcuts
         urlInput.addEventListener('keydown', async (e) => {
             if (e.key === 'Enter') {
-                await this.actor.update({ [target]: urlInput.value.trim() });
+                const imagePath = urlInput.value.trim();
+                await this.actor.update({ [target]: imagePath });
+                if (target === 'system.biography.image') {
+                    await this._syncBiographyImageToToken(imagePath);
+                }
                 closeModal();
             } else if (e.key === 'Escape') {
                 closeModal();
@@ -998,6 +1017,53 @@ export class WodActorSheet extends ActorSheet {
         const button = event.currentTarget;
         const target = button.dataset.target;
         await this.actor.update({ [target]: "" });
+        if (target === 'system.biography.image') {
+            await this._syncBiographyImageToToken("");
+        }
+    }
+
+    /**
+     * Sync biography image to actor sidebar image, prototype token, and active tokens
+     * This allows players to set their token/actor image from the biography tab
+     * @param {string} imagePath - The image path to sync, or empty string to reset
+     * @private
+     */
+    async _syncBiographyImageToToken(imagePath) {
+        const textureSrc = imagePath || 'icons/svg/mystery-man.svg';
+        
+        // Update actor sidebar image and prototype token
+        await this.actor.update({
+            'img': textureSrc,
+            'prototypeToken.texture.src': textureSrc
+        });
+        
+        // Update active tokens on the current canvas
+        const activeTokens = this.actor.getActiveTokens();
+        console.log(`WoD | _syncBiographyImageToToken - found ${activeTokens.length} active tokens for ${this.actor.name}`);
+        
+        for (const token of activeTokens) {
+            try {
+                const tokenDoc = token.document || token;
+                console.log(`WoD | Updating token ${tokenDoc.id} texture to: ${textureSrc}`);
+                await tokenDoc.update({ 'texture.src': textureSrc });
+            } catch (error) {
+                console.error('WoD | Error updating token image:', error);
+            }
+        }
+        
+        // Fallback: search canvas scene tokens directly if getActiveTokens missed any
+        if (canvas?.scene) {
+            const sceneTokens = canvas.scene.tokens.filter(t => t.actorId === this.actor.id);
+            for (const tokenDoc of sceneTokens) {
+                if (activeTokens.some(t => (t.document || t).id === tokenDoc.id)) continue;
+                try {
+                    console.log(`WoD | Updating scene token ${tokenDoc.id} (fallback) texture to: ${textureSrc}`);
+                    await tokenDoc.update({ 'texture.src': textureSrc });
+                } catch (error) {
+                    console.error('WoD | Error updating scene token image:', error);
+                }
+            }
+        }
     }
 
     /**

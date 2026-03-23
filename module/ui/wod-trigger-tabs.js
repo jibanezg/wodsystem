@@ -846,6 +846,7 @@ function _attachConfigDialogEventListeners($content, app, doc) {
             const DialogClass = module.WodTriggerConfigDialog || module.default;
             if (DialogClass) {
                 const configDialog = new DialogClass(doc, triggerId, { 
+                    documentType: doc.documentName || 'actor',
                     onClose: () => _refreshConfigDialogContent(dialogRef, doc)
                 });
                 configDialog.render(true);
@@ -898,8 +899,24 @@ function _attachConfigDialogEventListeners($content, app, doc) {
             return;
         }
         
+        const triggerToDelete = triggers.find(t => t?.id === triggerId);
+        const triggerName = triggerToDelete?.name || 'Unnamed Trigger';
+        
+        const confirmed = await Dialog.confirm({
+            title: 'Delete Trigger',
+            content: `<p>Are you sure you want to delete "<strong>${triggerName}</strong>"?</p>`,
+            yes: () => true,
+            no: () => false,
+            defaultYes: false
+        });
+        if (!confirmed) return;
+        
         const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
-        await doc.setFlag('wodsystem', 'triggers', next);
+        console.log(`WoD Trigger Tabs | Delete (config): before=${triggers.length}, after=${next.length}`);
+        await doc.unsetFlag('wodsystem', 'triggers');
+        if (next.length > 0) {
+            await doc.setFlag('wodsystem', 'triggers', next);
+        }
         
         // Refresh the dialog content
         _refreshConfigDialogContent(dialogRef, doc);
@@ -926,6 +943,7 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
             const DialogClass = module.WodTriggerConfigDialog || module.default;
             if (DialogClass) {
                 const configDialog = new DialogClass(doc, triggerId, { 
+                    documentType: doc.documentName || 'actor',
                     onClose: () => _refreshConfigDialogContent(dialogRef, doc)
                 });
                 configDialog.render(true);
@@ -978,8 +996,24 @@ function _attachConfigDialogEventListenersOnly($content, dialogRef, doc) {
             return;
         }
         
+        const triggerToDelete = triggers.find(t => t?.id === triggerId);
+        const triggerName = triggerToDelete?.name || 'Unnamed Trigger';
+        
+        const confirmed = await Dialog.confirm({
+            title: 'Delete Trigger',
+            content: `<p>Are you sure you want to delete "<strong>${triggerName}</strong>"?</p>`,
+            yes: () => true,
+            no: () => false,
+            defaultYes: false
+        });
+        if (!confirmed) return;
+        
         const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
-        await doc.setFlag('wodsystem', 'triggers', next);
+        console.log(`WoD Trigger Tabs | Delete (configOnly): before=${triggers.length}, after=${next.length}`);
+        await doc.unsetFlag('wodsystem', 'triggers');
+        if (next.length > 0) {
+            await doc.setFlag('wodsystem', 'triggers', next);
+        }
         
         // Refresh the dialog content
         _refreshConfigDialogContent(dialogRef, doc);
@@ -1319,9 +1353,10 @@ async function _showWodTriggersContent(app, html, doc) {
             const triggerId = ev.currentTarget.dataset.triggerId;
             if (!triggerId) return;
             import('../apps/wod-trigger-config-dialog.js').then(module => {
-                const DialogClass = module.WoDTriggerConfigDialog || module.default;
+                const DialogClass = module.WodTriggerConfigDialog || module.default;
                 if (DialogClass) {
                     const configDialog = new DialogClass(doc, triggerId, { 
+                        documentType: doc.documentName || 'actor',
                         onClose: refreshDialogContent
                     });
                     configDialog.render(true);
@@ -1359,8 +1394,24 @@ async function _showWodTriggersContent(app, html, doc) {
                 return;
             }
             
+            const triggerToDelete = triggers.find(t => t?.id === triggerId);
+            const triggerName = triggerToDelete?.name || 'Unnamed Trigger';
+            
+            const confirmed = await Dialog.confirm({
+                title: 'Delete Trigger',
+                content: `<p>Are you sure you want to delete "<strong>${triggerName}</strong>"?</p>`,
+                yes: () => true,
+                no: () => false,
+                defaultYes: false
+            });
+            if (!confirmed) return;
+            
             const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
-            await doc.setFlag('wodsystem', 'triggers', next);
+            console.log(`WoD Trigger Tabs | Delete (dialog): before=${triggers.length}, after=${next.length}`);
+            await doc.unsetFlag('wodsystem', 'triggers');
+            if (next.length > 0) {
+                await doc.setFlag('wodsystem', 'triggers', next);
+            }
             
             // Refresh the dialog content
             refreshDialogContent(dialogRef);
@@ -1681,17 +1732,30 @@ function _attachWallTriggerEventListeners(dialogElement, wall) {
         } else if (action === 'delete-trigger' && triggerId) {
             // Handle trigger deletion
             const triggers = wall.getFlag('wodsystem', 'triggers') || [];
-            const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
+            const triggerToDelete = triggers.find(t => t?.id === triggerId);
+            const triggerName = triggerToDelete?.name || 'Unnamed Trigger';
             
-            await wall.setFlag('wodsystem', 'triggers', next);
+            const confirmed = await Dialog.confirm({
+                title: 'Delete Trigger',
+                content: `<p>Are you sure you want to delete "<strong>${triggerName}</strong>"?</p>`,
+                yes: () => true,
+                no: () => false,
+                defaultYes: false
+            });
+            if (!confirmed) return;
+            
+            const next = Array.isArray(triggers) ? triggers.filter(t => t?.id !== triggerId) : [];
+            console.log(`WoD Trigger Tabs | Delete (wall): before=${triggers.length}, after=${next.length}`);
+            await wall.unsetFlag('wodsystem', 'triggers');
+            if (next.length > 0) {
+                await wall.setFlag('wodsystem', 'triggers', next);
+            }
             
             // Refresh the dialog content instead of creating a new one
             const existingDialog = $content.closest('.app.window-app');
             if (existingDialog.length) {
-                // Re-render the content in the existing dialog
                 _refreshWallTriggersContent(existingDialog, wall);
             } else {
-                // Fallback: create new dialog if we can't find the existing one
                 _showWallTriggersContent(wall);
             }
         }
