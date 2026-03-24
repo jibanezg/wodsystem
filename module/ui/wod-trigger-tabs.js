@@ -263,6 +263,11 @@ export function registerWodTriggerTabs() {
     //     _handleRenderHook(app, html, 'SceneConfig');
     // });
 
+    // Token config support for per-token visual rules
+    Hooks.on('renderTokenConfig', async (app, html) => {
+        _handleRenderHook(app, html, 'TokenConfig');
+    });
+
     // Actor sheet support for global actor-level triggers (v2 architecture)
     Hooks.on('renderActorSheet', async (app, html) => {
         _handleRenderHook(app, html, 'ActorSheet');
@@ -317,6 +322,9 @@ function _handleRenderHook(app, html, source) {
         if (source === 'ActorSheet' || source === 'ActorSheetV2' || source === 'BaseActorSheet' || source === 'Sheet') {
             // For actor sheets, use the original context menu approach
             _injectWodTriggersTab(app, $html, doc).catch(() => {});
+        } else if (source === 'TokenConfig') {
+            // For token config, inject a Visual Rules button
+            _injectVisualRulesButton(app, $html, doc);
         } else if (source === 'SceneConfig') {
             // For scene configuration dialogs, use the tab approach
             _addWodTriggersTabToConfigDialog(app, $html, doc);
@@ -472,6 +480,9 @@ async function _injectWodTriggersTab(app, html, doc) {
             <div class="wod-context-item" data-action="wod-triggers" style="padding: 8px 12px; cursor: pointer; color: #dc3545; border-bottom: 1px solid #eee;">
                 <i class="fa-solid fa-shield-halved"></i> WoD Triggers
             </div>
+            <div class="wod-context-item" data-action="wod-visual-rules" style="padding: 8px 12px; cursor: pointer; color: #6f42c1;">
+                <i class="fa-solid fa-user-gear"></i> Token Management
+            </div>
         </div>
     `);
     
@@ -503,10 +514,59 @@ async function _injectWodTriggersTab(app, html, doc) {
                 title: `WoD Triggers - ${doc.name}`,
                 onClose: () => {}
             });
+        } else if (action === 'wod-visual-rules') {
+            import('../apps/wod-visual-rules-dialog.js').then(module => {
+                const DialogClass = module.WodVisualRulesDialog;
+                if (DialogClass) {
+                    new DialogClass(doc).render(true);
+                }
+            }).catch(err => {
+                console.error('WoD Trigger Tabs | Failed to load visual rules dialog:', err);
+                ui.notifications?.error('Failed to open Visual Rules dialog');
+            });
         }
         
         gmContextMenu.hide();
     });
+}
+
+// Inject a "Visual Rules" button into token configuration dialogs
+function _injectVisualRulesButton(app, html, doc) {
+    if (!game.user.isGM) return;
+
+    // Avoid double injection
+    if (html.find('.wod-visual-rules-btn').length) return;
+
+    // The doc from TokenConfig is the token document
+    const tokenDoc = doc;
+
+    const btn = $(`
+        <button type="button" class="wod-visual-rules-btn" style="background: #6f42c1; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin: 6px 0;">
+            <i class="fa-solid fa-user-gear"></i> Token Management
+        </button>
+    `);
+
+    btn.on('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        import('../apps/wod-visual-rules-dialog.js').then(module => {
+            const DialogClass = module.WodVisualRulesDialog;
+            if (DialogClass) {
+                new DialogClass(tokenDoc).render(true);
+            }
+        }).catch(err => {
+            console.error('WoD Trigger Tabs | Failed to load visual rules dialog:', err);
+            ui.notifications?.error('Failed to open Visual Rules dialog');
+        });
+    });
+
+    // Try to insert before the form footer/submit, or append to form
+    const footer = html.find('footer, .sheet-footer, button[type="submit"]').first();
+    if (footer.length) {
+        footer.before(btn);
+    } else {
+        html.find('form').first().append(btn);
+    }
 }
 
 // NEW: Function to add WoD Triggers tab to configuration dialogs

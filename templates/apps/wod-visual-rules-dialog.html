@@ -1,0 +1,144 @@
+<form class="wod-token-management-dialog">
+    {{!-- Section: Visual Rules --}}
+    <div class="visual-rules-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #6f42c1;">
+        <h3 style="margin: 0; color: #6f42c1;"><i class="fa-solid fa-eye"></i> Visual Rules</h3>
+        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+            <button type="button" class="add-rule-btn" style="background: #6f42c1; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                <i class="fa-solid fa-plus"></i> Add Rule
+            </button>
+            <button type="button" class="save-rules-btn" style="background: #28a745; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                <i class="fa-solid fa-save"></i> Save All
+            </button>
+        </div>
+    </div>
+
+    {{#if rules.length}}
+    <div class="visual-rules-list" style="max-height: 500px; overflow-y: auto;">
+        {{#each rules}}
+        <div class="visual-rule-row" data-rule-id="{{this.id}}" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 8px; background: #fafafa;">
+            {{!-- Header row: enabled toggle + delete --}}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="display: flex; align-items: center; gap: 6px; font-weight: bold; color: #333;">
+                    <input type="checkbox" class="rule-enabled-toggle" {{#if this.enabled}}checked{{/if}} />
+                    Rule {{@index}}
+                </label>
+                <button type="button" class="delete-rule-btn" style="background: #dc3545; color: white; border: none; padding: 2px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </div>
+
+            {{!-- Condition row --}}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                <div>
+                    <label style="font-size: 11px; color: #666;">Condition</label>
+                    <select class="condition-type-select" style="width: 100%;">
+                        {{#each ../conditionTypes}}
+                        <option value="{{this.value}}" {{#if (eq this.value ../condition.type)}}selected{{/if}}>{{this.label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #666;">Property</label>
+                    <select class="property-type-select" style="width: 100%;">
+                        {{#each ../propertyTypes}}
+                        <option value="{{this.value}}" {{#if (eq this.value ../property)}}selected{{/if}}>{{this.label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+
+            {{!-- Condition params: isIlluminated --}}
+            <div class="condition-params condition-params-isIlluminated" style="margin-bottom: 6px; padding: 6px; background: #f0f0f0; border-radius: 4px; {{#unless (eq this.condition.type 'isIlluminated')}}display: none;{{/unless}}">
+                <label style="font-size: 11px; display: flex; align-items: center; gap: 4px;">
+                    <input type="checkbox" class="param-ignore-self" {{#if this.condition.params.ignoreSelf}}checked{{/if}} {{#unless this.condition.params}}checked{{/unless}} />
+                    Ignore token's own light
+                </label>
+            </div>
+
+            {{!-- Condition params: hasEffect --}}
+            <div class="condition-params condition-params-hasEffect" style="margin-bottom: 6px; padding: 6px; background: #f0f0f0; border-radius: 4px; {{#unless (eq this.condition.type 'hasEffect')}}display: none;{{/unless}}">
+                <label style="font-size: 11px; color: #666;">Effect Name</label>
+                <input type="text" class="param-effect-name" value="{{this.condition.params.effectName}}" placeholder="e.g. Rage, Invisible..." style="width: 100%;" />
+            </div>
+
+            {{!-- Condition params: attributeThreshold --}}
+            <div class="condition-params condition-params-attributeThreshold" style="margin-bottom: 6px; padding: 6px; background: #f0f0f0; border-radius: 4px; {{#unless (eq this.condition.type 'attributeThreshold')}}display: none;{{/unless}}">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px;">
+                    <div>
+                        <label style="font-size: 11px; color: #666;">Attribute Path</label>
+                        <input type="text" class="param-attr-path" value="{{this.condition.params.path}}" placeholder="system.health.value" style="width: 100%;" />
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #666;">Operator</label>
+                        <select class="param-attr-operator" style="width: 100%;">
+                            {{#each ../operatorTypes}}
+                            <option value="{{this.value}}" {{#if (eq this.value ../condition.params.operator)}}selected{{/if}}>{{this.label}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #666;">Value</label>
+                        <input type="number" class="param-attr-value" value="{{this.condition.params.value}}" placeholder="0" style="width: 100%;" />
+                    </div>
+                </div>
+            </div>
+
+            {{!-- Values row --}}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                <div>
+                    <label style="font-size: 11px; color: #666;">Value when Condition Met</label>
+                    {{#if (eq this.property 'tint')}}
+                    <input type="color" class="active-value-input" value="{{this.activeValue}}" style="width: 100%; height: 28px;" />
+                    {{else}}
+                    <input type="number" class="active-value-input" value="{{this.activeValue}}" step="0.1" min="0" max="{{#if (eq this.property 'scale')}}5{{else}}1{{/if}}" style="width: 100%;" />
+                    {{/if}}
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #666;">Value when Condition Not Met</label>
+                    {{#if (eq this.property 'tint')}}
+                    <input type="color" class="inactive-value-input" value="{{this.inactiveValue}}" style="width: 100%; height: 28px;" />
+                    {{else}}
+                    <input type="number" class="inactive-value-input" value="{{this.inactiveValue}}" step="0.1" min="0" max="{{#if (eq this.property 'scale')}}5{{else}}1{{/if}}" style="width: 100%;" />
+                    {{/if}}
+                </div>
+            </div>
+            {{!-- Transition speed --}}
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label style="font-size: 11px; color: #666; white-space: nowrap;">Fade Speed</label>
+                <input type="range" class="transition-duration-range" value="{{this.transition.duration}}" min="0" max="5000" step="100" style="flex: 1;" />
+                <input type="number" class="transition-duration" value="{{this.transition.duration}}" min="0" max="10000" step="100" style="width: 65px; text-align: center;" />
+                <span style="font-size: 10px; color: #999;">ms</span>
+            </div>
+            <div style="font-size: 10px; color: #999; margin-top: 2px;">0 = instant, 500 = half second, 2000 = slow fade</div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div style="text-align: center; padding: 20px; color: #888;">
+        <i class="fa-solid fa-eye-slash" style="font-size: 28px; margin-bottom: 8px; display: block; opacity: 0.4;"></i>
+        <p>No visual rules configured yet.</p>
+        <p style="font-size: 12px;">Visual rules change token appearance (opacity, tint, scale) based on conditions like illumination, active effects, or attribute thresholds.</p>
+        <p style="font-size: 12px;"><strong>Example:</strong> Fade a token in when light is shed on it.</p>
+    </div>
+    {{/if}}
+
+    {{#if isActor}}
+    <p style="font-size: 11px; color: #888; margin-top: 8px; border-top: 1px solid #eee; padding-top: 6px;">
+        <i class="fa-solid fa-info-circle"></i> Rules on actors apply to all their tokens. For per-token rules, configure on the token document directly.
+    </p>
+    {{/if}}
+
+    {{!-- Diagnostics toolbar --}}
+    <div style="display: flex; gap: 4px; margin-top: 10px; padding-top: 8px; border-top: 1px solid #ddd;">
+        <button type="button" class="diagnose-btn" style="background: #6c757d; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">
+            <i class="fa-solid fa-stethoscope"></i> Diagnose
+        </button>
+        <button type="button" class="evaluate-btn" style="background: #17a2b8; color: white; border: none; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-size: 11px;">
+            <i class="fa-solid fa-rotate"></i> Re-evaluate All Tokens
+        </button>
+    </div>
+
+    {{!-- Future sections placeholder --}}
+    {{!-- <h3><i class="fa-solid fa-fist-raised"></i> Combat Maneuvers</h3> --}}
+    {{!-- <h3><i class="fa-solid fa-suitcase"></i> Item Integration</h3> --}}
+</form>

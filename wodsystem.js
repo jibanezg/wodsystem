@@ -21,6 +21,7 @@ import { coreEffectsManager } from "./module/services/core-effects-manager.js"; 
 import { TriggerManager } from "./module/services/trigger-manager.js"; // Tile/Region trigger system
 import { registerWodTriggerTabs } from "./module/ui/wod-trigger-tabs.js"; // Tile/Region config UI tabs
 import { StatusEffectManager } from "./module/services/status-effect-manager.js"; // Status effect management
+import { WodTokenManager } from "./module/services/wod-token-manager.js"; // Token management service
 import { canvasEffectIndicators } from "./module/ui/canvas-effect-indicators.js"; // Canvas effect indicators
 import { loginVideoSplash } from "./module/ui/login-video-splash.js"; // Login video splash screen
 
@@ -135,6 +136,8 @@ Hooks.once("init", async function() {
         game.wod.triggerManager.initialize();
         game.wod.statusEffectManager = new StatusEffectManager();
         await game.wod.statusEffectManager.initialize();
+        game.wod.tokenManager = WodTokenManager.getInstance();
+        game.wod.tokenManager.initialize();
         registerWodTriggerTabs();
         await game.wod.referenceDataService.initialize();
     } catch (error) {
@@ -156,6 +159,8 @@ Hooks.once("init", async function() {
         game.wod.triggerManager.initialize();
         game.wod.statusEffectManager = new StatusEffectManager();
         game.wod.statusEffectManager.initialize();
+        game.wod.tokenManager = WodTokenManager.getInstance();
+        game.wod.tokenManager.initialize();
         registerWodTriggerTabs();
     }
     
@@ -221,6 +226,7 @@ Hooks.once("init", async function() {
         "systems/wodsystem/templates/apps/minimap-marker-dialog.html",
         "systems/wodsystem/templates/apps/status-effect-library.html",
         "systems/wodsystem/templates/apps/effect-assignment.html",
+        "systems/wodsystem/templates/apps/wod-visual-rules-dialog.html",
         "systems/wodsystem/templates/dice/roll-card.html",
         "systems/wodsystem/templates/chat/reference-card.html",
         "systems/wodsystem/templates/chat/background-reference-card.html",
