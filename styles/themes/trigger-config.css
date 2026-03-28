@@ -48,6 +48,10 @@ section.trigger-actions h3 {
     gap: 4px;
 }
 
+.wod-trigger-config .wod-hidden {
+    display: none !important;
+}
+
 .wod-trigger-config .form-group label {
     font-size: 12px;
     font-weight: 600;

@@ -14,27 +14,54 @@ import { TriggerActionExecutor } from './trigger-action-executor.js';
  */
 export class TriggerManager {
     constructor() {
-        // Token state tracking for movement detection
-        this._tokenState = new Map(); // tokenUuid -> {x,y,width,height, sceneId, tiles:Set, regions:Set}
-        this._movementMonitors = new Map(); // tokenUuid -> animationFrame
-        
-        // Rate limiting
-        this._processingQueue = new Set();
-        this._lastProcessTime = new Map();
-        this._PROCESS_COOLDOWN = 50;
-        
-        // Active timing intervals
-        this._activeIntervals = new Map();
-        
-        // Debug mode - default to false during early initialization
-        this._debugMode = false;
-        
-        // Initialize services
-        this._triggerAPI = TriggerAPI.getInstance();
-        this._registry = TriggerEventRegistry.getInstance();
-        this._conditionEvaluator = new ConditionEvaluator();
-        this._conditionEvaluator.setDebugMode(this._debugMode);
-        this._actionExecutor = TriggerActionExecutor.getInstance();
+        console.log('[TRIGGER] TriggerManager constructor starting...');
+        try {
+            // Token state tracking for movement detection
+            this._tokenState = new Map(); // tokenUuid -> {x,y,width,height, sceneId, tiles:Set, regions:Set}
+            this._movementMonitors = new Map(); // tokenUuid -> animationFrame
+            
+            // Rate limiting
+            this._processingQueue = new Set();
+            this._lastProcessTime = new Map();
+            this._PROCESS_COOLDOWN = 50;
+            
+            // Active timing intervals
+            this._activeIntervals = new Map();
+            
+            // Execution tracking for one-shot triggers: Map<"triggerId:actorId", count>
+            this._executionCounts = new Map();
+
+            // Snapshot of token state captured in preUpdateToken (before position is committed).
+            // Used by updateToken / _onTokenMovement to get accurate before/after region diff.
+            this._preMoveSnapshot = new Map();
+
+            // Set of trigger IDs currently being reset.
+            // setFlag on a Region doc causes Foundry to re-fire tokenEnterRegion for tokens
+            // already inside the region. We suppress execution counting during that window
+            // so the just-cleared count is not immediately consumed.
+            this._resettingTriggers = new Set();
+
+            // Deduplication for region enter/exit events.
+            // When _onTokenMovement fires a region event, we record it here so that the
+            // tokenEnterRegion / tokenExitRegion hooks (which may also fire in environments
+            // without the Levels module) don't double-fire the same trigger.
+            this._recentRegionTransitions = new Map(); // `enter/exit:regionId:tokenId` → timestamp
+
+            // Debug mode - default to false during early initialization
+            this._debugMode = false;
+            
+            // Initialize services
+            this._triggerAPI = TriggerAPI.getInstance();
+            this._registry = TriggerEventRegistry.getInstance();
+            this._conditionEvaluator = new ConditionEvaluator();
+            this._conditionEvaluator.setDebugMode(this._debugMode);
+            this._actionExecutor = TriggerActionExecutor.getInstance();
+            
+            this.initialize();
+            console.log('[TRIGGER] TriggerManager initialized successfully');
+        } catch (error) {
+            console.error('[TRIGGER] TriggerManager initialization failed:', error);
+        }
     }
 
     initialize() {
@@ -119,6 +146,22 @@ export class TriggerManager {
             }
         });
 
+        // ==================== Ambient Light Events ====================
+        Hooks.on('updateAmbientLight', (lightDoc, changes, options, userId) => {
+            try {
+                if (!canvas.ready) return;
+                if (changes.hidden === true) {
+                    this._fireEvent('onLightDisabled', lightDoc, { light: lightDoc, changes });
+                } else if (changes.hidden === false) {
+                    this._fireEvent('onLightEnabled', lightDoc, { light: lightDoc, changes });
+                } else if (Object.keys(changes).some(k => k !== '_id')) {
+                    this._fireEvent('onLightChanged', lightDoc, { light: lightDoc, changes });
+                }
+            } catch (error) {
+                console.error('WoD TriggerManager | Error in updateAmbientLight:', error);
+            }
+        });
+
         // ==================== Combat Events ====================
         Hooks.on('combatStart', (combat) => {
             try {
@@ -144,7 +187,88 @@ export class TriggerManager {
             }
         });
 
+        // ==================== Region Entry/Exit Events (Foundry v12 native) ====================
+        // These are far more reliable than manual bounds-based computation.
+        Hooks.on('tokenEnterRegion', (arg0, arg1) => {
+            console.log(`[TRIGGER] tokenEnterRegion FIRED — canvas.ready=${canvas.ready}`);
+            try {
+                if (!canvas.ready) {
+                    console.log(`[TRIGGER] tokenEnterRegion blocked (canvas not ready)`);
+                    return;
+                }
+                let tokenRaw = arg0, regionRaw = arg1;
+                if (arg0?.documentName === 'Region' || arg0?.document?.documentName === 'Region') {
+                    tokenRaw = arg1; regionRaw = arg0;
+                }
+                const tokenDoc = tokenRaw?.document ?? tokenRaw;
+                const regionDoc = regionRaw?.document ?? regionRaw;
+                if (!regionDoc) return;
+                // Dedup: _onTokenMovement may have already fired this event via regions diff.
+                const dedupKey = `enter:${regionDoc.id}:${tokenDoc?.id}`;
+                const recent = this._recentRegionTransitions.get(dedupKey);
+                if (recent && (Date.now() - recent) < 500) {
+                    console.log(`[TRIGGER] tokenEnterRegion dedup — already fired by movement detection`);
+                    return;
+                }
+                this._fireEvent('onEnter', regionDoc, {
+                    token: tokenDoc,
+                    actor: tokenDoc?.actor,
+                    entered: true
+                });
+            } catch (error) {
+                console.error('WoD TriggerManager | Error in tokenEnterRegion:', error);
+            }
+        });
+
+        Hooks.on('tokenExitRegion', (arg0, arg1) => {
+            try {
+                if (!canvas.ready) return;
+                let tokenRaw = arg0, regionRaw = arg1;
+                if (arg0?.documentName === 'Region' || arg0?.document?.documentName === 'Region') {
+                    tokenRaw = arg1; regionRaw = arg0;
+                }
+                const tokenDoc = tokenRaw?.document ?? tokenRaw;
+                const regionDoc = regionRaw?.document ?? regionRaw;
+                if (!regionDoc) return;
+                // Dedup: _onTokenMovement may have already fired this event via regions diff.
+                const dedupKey = `exit:${regionDoc.id}:${tokenDoc?.id}`;
+                const recent = this._recentRegionTransitions.get(dedupKey);
+                if (recent && (Date.now() - recent) < 500) {
+                    console.log(`[TRIGGER] tokenExitRegion dedup — already fired by movement detection`);
+                    return;
+                }
+                this._fireEvent('onExit', regionDoc, {
+                    token: tokenDoc,
+                    actor: tokenDoc?.actor,
+                    exited: true
+                });
+            } catch (error) {
+                console.error('WoD TriggerManager | Error in tokenExitRegion:', error);
+            }
+        });
+
         // ==================== Token Movement Events ====================
+        // preUpdateToken fires BEFORE the position is committed to the document.
+        // At this point tokenDoc.x/y and tokenDoc.regions still reflect the OLD state.
+        // We snapshot it here so updateToken can compute an accurate before/after diff.
+        Hooks.on('preUpdateToken', (tokenDoc, changes, options, userId) => {
+            try {
+                if (changes.x === undefined && changes.y === undefined) return;
+                if (!canvas?.scene) return;
+                // canvas.ready is false during Canvas#draw() (before canvasReady fires).
+                // Modules like Roofs call tokenDoc.update(x,y) in this window before the
+                // RegionLayer has populated tokenDoc.regions, so any snapshot taken here
+                // would have empty regions and produce a false onEnter.
+                // Skip the snapshot; updateToken will see no pair and do a silent update.
+                if (!canvas.ready) return;
+                const snap = this._computeTokenState(tokenDoc);
+                console.log(`[WOD TRIGGER] preUpdateToken: "${tokenDoc.name}" moving to (${changes.x ?? tokenDoc.x}, ${changes.y ?? tokenDoc.y}) — regions in snapshot: [${Array.from(snap.regions).join(',')}]`);
+                this._preMoveSnapshot.set(tokenDoc.uuid, snap);
+            } catch (error) {
+                console.error('WoD TriggerManager | Error in preUpdateToken:', error);
+            }
+        });
+
         Hooks.on('updateToken', (tokenDoc, changes, options, userId) => {
             try {
                 if (changes.x !== undefined || changes.y !== undefined) {
@@ -157,7 +281,10 @@ export class TriggerManager {
 
         // ==================== Canvas/Scene Events ====================
         Hooks.on('canvasReady', () => {
-            try { this._primeInitialTokenState(); }
+            try {
+                console.log(`[TRIGGER] canvasReady fired — canvas.ready=${canvas.ready}`);
+                this._primeInitialTokenState();
+            }
             catch (error) { console.error('WoD TriggerManager | Error priming token state:', error); }
         });
 
@@ -173,6 +300,7 @@ export class TriggerManager {
         for (const tokenDoc of canvas.scene.tokens) {
             const state = this._computeTokenState(tokenDoc);
             this._tokenState.set(tokenDoc.uuid, state);
+            console.log(`[TRIGGER] Token "${tokenDoc.name}" at (${tokenDoc.x},${tokenDoc.y}) is in regions: [${Array.from(state.regions).join(', ')}]`);
         }
     }
 
@@ -237,47 +365,31 @@ export class TriggerManager {
      */
     async _processTriggers(doc, eventType, context) {
         const triggers = doc.getFlag('wodsystem', 'triggers') || [];
+        console.log(`[WOD TRIGGER] _processTriggers: doc="${doc?.name || doc?.id}" (${doc?.documentName}) event=${eventType} triggerCount=${triggers.length}`);
         if (!Array.isArray(triggers) || triggers.length === 0) return;
-        
-        if (this._debugMode) {
-            console.log(`WoD TriggerManager | Processing ${triggers.length} triggers on ${context.documentType} for event: ${eventType}`);
-        }
-        
+
         for (const trigger of triggers) {
             if (!trigger || trigger.enabled === false) continue;
-            
+
             // Step 1: Check event match
-            if (!this._matchesEvent(trigger, eventType, context)) {
-                if (this._debugMode) {
-                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" event mismatch, skipping`);
-                }
-                continue;
-            }
-            
+            const eventMatch = this._matchesEvent(trigger, eventType, context);
+            console.log(`[WOD TRIGGER] Trigger "${trigger.name}" eventMatch=${eventMatch} (scopeType=${trigger.trigger?.scope?.type} execEvent=${trigger.trigger?.execution?.event})`);
+            if (!eventMatch) continue;
+
             // Step 2: Check target filter
-            if (!this._matchesTargetFilter(trigger, context)) {
-                if (this._debugMode) {
-                    console.log(`WoD TriggerManager | Trigger "${trigger.name}" target filter mismatch, skipping`);
-                }
-                continue;
-            }
-            
+            const targetMatch = this._matchesTargetFilter(trigger, context);
+            console.log(`[WOD TRIGGER] Trigger "${trigger.name}" targetMatch=${targetMatch} (filterType=${trigger.trigger?.targetFilter?.type} actor=${context.actor?.name})`);
+            if (!targetMatch) continue;
+
             // Step 3: Evaluate conditions
             const conditions = trigger.trigger?.conditions || trigger.conditions || [];
             if (conditions.length > 0) {
                 const result = this._conditionEvaluator.evaluateConditions(conditions, context);
-                if (!result.passed) {
-                    if (this._debugMode) {
-                        console.log(`WoD TriggerManager | Trigger "${trigger.name}" conditions not met, skipping`);
-                    }
-                    continue;
-                }
+                console.log(`[WOD TRIGGER] Trigger "${trigger.name}" conditionsPass=${result.passed}`);
+                if (!result.passed) continue;
             }
-            
-            if (this._debugMode) {
-                console.log(`WoD TriggerManager | Executing trigger "${trigger.name}"`);
-            }
-            
+
+            console.log(`[WOD TRIGGER] Trigger "${trigger.name}" executing...`);
             // Step 4: Execute
             await this._executeTrigger(trigger, context);
         }
@@ -303,11 +415,21 @@ export class TriggerManager {
         const spatialEvents = ['onEnter', 'onExit', 'onProximity', 'onEffect'];
         const isSpatialEvent = spatialEvents.includes(eventType);
         
+        // execution.event is a non-spatial override: if explicitly set to something outside
+        // the standard spatial boundary events, always defer to execution.event matching.
+        const execEvent = execution.event;
+        const spatialBoundaryEvents = ['onEnter', 'onExit', 'onProximity', 'onEffect'];
+        const hasNonSpatialExecEvent = execEvent && !spatialBoundaryEvents.includes(execEvent);
+
         if (mode === 'event') {
-            if (isSpatialHost && isSpatialEvent) {
+            if (isSpatialHost && isSpatialEvent && !hasNonSpatialExecEvent) {
                 // Spatial triggers on spatial hosts: use scope boundary
                 if (scopeType === 'tile' || scopeType === 'region') {
-                    const boundary = trigger.trigger?.scope?.[scopeType]?.boundary || 'both';
+                    // If boundary not explicitly saved, infer from execEvent so a trigger
+                    // configured with execEvent='onEnter' doesn't also fire on onExit.
+                    const inferredBoundary = execEvent === 'onEnter' ? 'enter'
+                        : execEvent === 'onExit' ? 'exit' : 'both';
+                    const boundary = trigger.trigger?.scope?.[scopeType]?.boundary || inferredBoundary;
                     if (boundary === 'enter') return eventType === 'onEnter';
                     if (boundary === 'exit') return eventType === 'onExit';
                     if (boundary === 'both') return eventType === 'onEnter' || eventType === 'onExit';
@@ -320,15 +442,15 @@ export class TriggerManager {
                 }
                 if (eventType === 'onEffect') return true;
             }
-            
+
             // All other cases: use execution.event
             if (scopeType === 'global') return eventType === 'onGlobal';
-            const triggerEvent = execution.event || 'onEnter';
+            const triggerEvent = execEvent || 'onEnter';
             return triggerEvent === eventType;
         }
-        
+
         // State/continuous modes
-        if (isSpatialHost && isSpatialEvent) {
+        if (isSpatialHost && isSpatialEvent && !hasNonSpatialExecEvent) {
             if (scopeType === 'proximity') return eventType === 'onProximity';
             if (scopeType === 'tile' || scopeType === 'region') {
                 const boundary = trigger.trigger?.scope?.[scopeType]?.boundary || 'both';
@@ -405,51 +527,51 @@ export class TriggerManager {
      * @param {Object} context - The execution context
      */
     async _executeTrigger(trigger, context) {
-        this._triggerAPI.notifyTriggerFired(trigger.id, { passed: true }, context);
-        
-        const execution = trigger.trigger?.execution || {};
-        const timing = execution.timing || {};
-        const delay = timing.delay || 0;
-        const repeat = timing.repeat || 0;
-        const duration = timing.duration || null;
-        
-        if (this._debugMode) {
-            console.log(`WoD TriggerManager | Trigger "${trigger.name}" timing:`, { delay, repeat, duration });
-        }
-        
-        // Apply delay
-        if (delay > 0) {
-            await new Promise(resolve => setTimeout(resolve, delay * 1000));
-        }
-        
-        // Execute actions
-        await this._executeTriggerActionsUnified(trigger, context);
-        
-        // Handle repeat
-        if (repeat > 0) {
-            const startTime = Date.now();
-            const mode = execution.mode || 'event';
-            
-            const repeatInterval = setInterval(async () => {
-                if (duration && (Date.now() - startTime) >= duration * 1000) {
-                    clearInterval(repeatInterval);
-                    this._activeIntervals.delete(trigger.id);
-                    return;
-                }
-                
-                // For continuous mode, re-evaluate conditions
-                if (mode === 'continuous') {
-                    const conditions = trigger.trigger?.conditions || [];
-                    if (conditions.length > 0) {
-                        const result = this._conditionEvaluator.evaluateConditions(conditions, context);
-                        if (!result.passed) return;
+        try {
+            this._triggerAPI.notifyTriggerFired(trigger.id, { passed: true }, context);
+
+            const execution = trigger.trigger?.execution || {};
+            const timing = execution.timing || {};
+            const delay = timing.delay || 0;
+            const repeat = timing.repeat || 0;
+            const duration = timing.duration || null;
+
+            // Apply delay
+            if (delay > 0) {
+                await new Promise(resolve => setTimeout(resolve, delay * 1000));
+            }
+
+            // Execute actions
+            await this._executeTriggerActionsUnified(trigger, context);
+
+            // Handle repeat
+            if (repeat > 0) {
+                const startTime = Date.now();
+                const mode = execution.mode || 'event';
+
+                const repeatInterval = setInterval(async () => {
+                    if (duration && (Date.now() - startTime) >= duration * 1000) {
+                        clearInterval(repeatInterval);
+                        this._activeIntervals.delete(trigger.id);
+                        return;
                     }
-                }
-                
-                await this._executeTriggerActionsUnified(trigger, context);
-            }, repeat * 1000);
-            
-            this._activeIntervals.set(trigger.id, repeatInterval);
+
+                    // For continuous mode, re-evaluate conditions
+                    if (mode === 'continuous') {
+                        const conditions = trigger.trigger?.conditions || [];
+                        if (conditions.length > 0) {
+                            const result = this._conditionEvaluator.evaluateConditions(conditions, context);
+                            if (!result.passed) return;
+                        }
+                    }
+
+                    await this._executeTriggerActionsUnified(trigger, context);
+                }, repeat * 1000);
+
+                this._activeIntervals.set(trigger.id, repeatInterval);
+            }
+        } catch(err) {
+            console.error(`[WOD TRIGGER] _executeTrigger ERROR for "${trigger.name}":`, err);
         }
     }
     
@@ -460,15 +582,39 @@ export class TriggerManager {
      * @param {Object} context - The execution context
      */
     async _executeTriggerActionsUnified(trigger, context) {
+        // When resetTriggerExecutions clears the persistent flag via setFlag, Foundry v13
+        // re-evaluates region memberships and fires tokenEnterRegion for any token already
+        // inside the region. Since canvas.ready=true during gameplay, that spurious fire
+        // would immediately re-consume the count we just reset.
+        // The _resettingTriggers set is active for 500ms after setFlag so we can ignore it.
+        if (this._resettingTriggers.has(trigger.id)) {
+            console.log(`[TRIGGER COUNT] "${trigger.name}" suppressed (reset in progress)`);
+            return;
+        }
+
         let rollPassed = true;
         if (trigger.roll?.enabled) {
+            // One-shot / max-executions check
+            const maxExec = Number(trigger.roll.maxExecutions ?? 1);
+            if (maxExec > 0) {
+                const actorId = context.actor?.id || context.token?.actor?.id || 'unknown';
+                const trackingKey = `${trigger.id}:${actorId}`;
+                const persistence = trigger.roll.executionPersistence || 'persistent';
+                const currentCount = await this._getExecutionCount(trackingKey, persistence, context);
+                console.log(`[TRIGGER COUNT] "${trigger.name}" key=${trackingKey} count=${currentCount}/${maxExec} persistence=${persistence}`);
+                if (currentCount >= maxExec) {
+                    console.log(`[TRIGGER COUNT] "${trigger.name}" maxExecutions reached (${currentCount}/${maxExec}) — skipping`);
+                    return; // Skip entire trigger execution
+                }
+                await this._incrementExecutionCount(trackingKey, persistence, context, currentCount);
+            }
+
             const rollActor = this._resolveRollActor(trigger.roll, context);
+            console.log(`[WOD TRIGGER] rollActor resolved: ${rollActor?.name || 'NULL'} (source=${trigger.roll.source || 'triggeringEntity'})`);
             if (rollActor) {
                 rollPassed = await this._executeRoll(rollActor, trigger.roll);
             } else {
-                if (this._debugMode) {
-                    console.warn(`WoD TriggerManager | Roll skipped: no valid actor for source "${trigger.roll.source || 'triggeringEntity'}"`);
-                }
+                console.warn(`[WOD TRIGGER] Roll skipped: no valid actor for source "${trigger.roll.source || 'triggeringEntity'}"`);
                 rollPassed = false;
             }
         }
@@ -488,6 +634,147 @@ export class TriggerManager {
         }
     }
     
+    /**
+     * Reset execution counts for a trigger, clearing both runtime cache and persistent flags.
+     * @param {string} triggerId - The trigger ID to reset
+     * @param {Document} doc - The host document that stores the persistent flags
+     * @param {string|null} actorId - If provided, only reset for that actor. If null, reset for all actors.
+     */
+    async resetTriggerExecutions(triggerId, doc, actorId = null) {
+        console.log(`[TRIGGER RESET] Starting reset: triggerId=${triggerId} docId=${doc?.id} actorId=${actorId || 'ALL'}`);
+        
+        // Set runtime Map entries to 0 (NOT delete).
+        // After reset, the runtime Map is the authoritative source for this session.
+        // Setting to 0 (rather than deleting) ensures _getExecutionCount returns 0
+        // even if a canvas refresh restores a stale count=1 from the server flags.
+        let clearedRuntime = [];
+        if (actorId) {
+            const key = `${triggerId}:${actorId}`;
+            this._executionCounts.set(key, 0);
+            clearedRuntime.push(key);
+        } else {
+            // Update any keys already in runtime Map
+            for (const key of this._executionCounts.keys()) {
+                if (key.startsWith(`${triggerId}:`)) {
+                    this._executionCounts.set(key, 0);
+                    clearedRuntime.push(key);
+                }
+            }
+            // Also zero-out keys that exist in flags but not yet in runtime Map
+            // (e.g. after a page reload, the runtime Map starts empty)
+            if (doc) {
+                const flagCounts = doc.getFlag('wodsystem', 'triggerExecutions') || {};
+                for (const key of Object.keys(flagCounts)) {
+                    if (key.startsWith(`${triggerId}:`) && !this._executionCounts.has(key)) {
+                        this._executionCounts.set(key, 0);
+                        clearedRuntime.push(key);
+                    }
+                }
+            }
+        }
+        console.log(`[TRIGGER RESET] Runtime set to 0 for: [${clearedRuntime.join(', ')}]`);
+
+        // Clear from persistent flags
+        if (doc) {
+            const counts = foundry.utils.duplicate(doc.getFlag('wodsystem', 'triggerExecutions') || {});
+            console.log(`[TRIGGER RESET] Current flags before reset:`, Object.keys(counts));
+            let clearedFlags = [];
+            if (actorId) {
+                const key = `${triggerId}:${actorId}`;
+                if (key in counts) {
+                    delete counts[key];
+                    clearedFlags.push(key);
+                }
+            } else {
+                for (const key of Object.keys(counts)) {
+                    if (key.startsWith(`${triggerId}:`)) {
+                        delete counts[key];
+                        clearedFlags.push(key);
+                    }
+                }
+            }
+
+            // Suppress execution of this trigger for 500ms after setFlag.
+            // setFlag causes Foundry v13 to re-evaluate region memberships and fires
+            // tokenEnterRegion for any token currently inside — which would immediately
+            // re-consume the count we just cleared. The suppression window prevents that.
+            this._resettingTriggers.add(triggerId);
+            await doc.setFlag('wodsystem', 'triggerExecutions', counts);
+            setTimeout(() => {
+                this._resettingTriggers.delete(triggerId);
+                console.log(`[TRIGGER RESET] Suppression window ended for trigger ${triggerId}`);
+            }, 500);
+
+            console.log(`[TRIGGER RESET] Cleared from flags: [${clearedFlags.join(', ')}]`);
+            console.log(`[TRIGGER RESET] Final flags after reset:`, Object.keys(counts));
+        } else {
+            console.log(`[TRIGGER RESET] WARNING: No document provided to clear persistent flags`);
+        }
+
+        console.log(`[TRIGGER RESET] Reset complete for trigger ${triggerId}`);
+    }
+
+    /**
+     * Get execution count for a trigger+actor key.
+     * @param {string} trackingKey - "triggerId:actorId"
+     * @param {string} persistence - 'session' or 'persistent'
+     * @param {Object} context - Execution context (has triggerHost document)
+     * @returns {number}
+     */
+    async _getExecutionCount(trackingKey, persistence, context) {
+        if (persistence === 'session') {
+            const count = this._executionCounts.get(trackingKey) || 0;
+            console.log(`[TRIGGER COUNT] read key=${trackingKey} count=${count} source=session-memory`);
+            return count;
+        }
+
+        // Persistent: runtime Map is authoritative for the current session.
+        // After a reset, the key is explicitly set to 0 in the runtime Map so it
+        // overrides any stale flag value that a canvas refresh might restore from
+        // the server (which re-emits the old document state after any setFlag call).
+        // On a fresh page load the runtime Map is empty, so we fall through to flags.
+        const memCount = this._executionCounts.get(trackingKey);
+        if (memCount !== undefined) {
+            console.log(`[TRIGGER COUNT] read key=${trackingKey} count=${memCount} source=session-memory`);
+            return memCount;
+        }
+
+        // First access this session — load from flags
+        const doc = context.triggerHost || context.document;
+        if (!doc) {
+            console.log(`[TRIGGER COUNT] read key=${trackingKey} count=0 source=no-doc`);
+            return 0;
+        }
+        const counts = doc.getFlag('wodsystem', 'triggerExecutions') || {};
+        const count = counts[trackingKey] || 0;
+        console.log(`[TRIGGER COUNT] read key=${trackingKey} count=${count} source=flags docId=${doc.id}`);
+        return count;
+    }
+
+    /**
+     * Increment execution count for a trigger+actor key.
+     * @param {string} trackingKey - "triggerId:actorId"
+     * @param {string} persistence - 'session' or 'persistent'
+     * @param {Object} context - Execution context (has triggerHost document)
+     * @param {number} currentCount - Current count before increment
+     */
+    async _incrementExecutionCount(trackingKey, persistence, context, currentCount) {
+        const newCount = currentCount + 1;
+        this._executionCounts.set(trackingKey, newCount);
+
+        if (persistence === 'persistent') {
+            const doc = context.triggerHost || context.document;
+            if (doc) {
+                const counts = foundry.utils.duplicate(doc.getFlag('wodsystem', 'triggerExecutions') || {});
+                counts[trackingKey] = newCount;
+                await doc.setFlag('wodsystem', 'triggerExecutions', counts);
+                console.log(`[TRIGGER COUNT] wrote key=${trackingKey} newCount=${newCount} to flags docId=${doc.id}`);
+            }
+        } else {
+            console.log(`[TRIGGER COUNT] wrote key=${trackingKey} newCount=${newCount} to session-memory`);
+        }
+    }
+
     /**
      * Resolve which actor should make the roll based on roll.source configuration.
      * @param {Object} rollConfig - The roll configuration object
@@ -550,6 +837,7 @@ export class TriggerManager {
             case 'Tile': return 'tile';
             case 'Region': return 'region';
             case 'Scene': return 'scene';
+            case 'AmbientLight': return 'light';
             default: return 'unknown';
         }
     }
@@ -592,8 +880,6 @@ export class TriggerManager {
      */
     _onTokenMovement(tokenDoc, changes) {
         if (!canvas?.scene) return;
-
-        // Only care about movement
         if (changes.x === undefined && changes.y === undefined) return;
 
         if (this._debugMode) {
@@ -601,27 +887,25 @@ export class TriggerManager {
         }
 
         const tokenUuid = tokenDoc.uuid;
+
+        // Retrieve and immediately clear the pre-move snapshot set by preUpdateToken.
+        // If there is no snapshot, this updateToken fired without a paired preUpdateToken
+        // (canvas init placement, module cosmetic update, etc.). Treat as a silent
+        // baseline update — do NOT fire spatial events.
+        const snapshot = this._preMoveSnapshot.get(tokenUuid);
+        this._preMoveSnapshot.delete(tokenUuid);
+
+        const nextState = this._computeTokenState(tokenDoc);
+        this._tokenState.set(tokenUuid, nextState);
+
+        if (!snapshot) return;
+
         const now = Date.now();
         const lastProcess = this._lastProcessTime.get(tokenUuid) || 0;
-        
-        // Rate limit
-        if (now - lastProcess < this._PROCESS_COOLDOWN) {
-            return;
-        }
+        if (now - lastProcess < this._PROCESS_COOLDOWN) return;
         this._lastProcessTime.set(tokenUuid, now);
 
-        const prevState = this._tokenState.get(tokenUuid);
-        const nextState = this._computeTokenState(tokenDoc);
-
-        // If no previous state, create an empty one
-        const emptyState = {
-            sceneId: canvas.scene.id,
-            rect: nextState.rect,
-            tiles: new Set(),
-            regions: new Set()
-        };
-
-        const actualPrevState = prevState || emptyState;
+        const actualPrevState = snapshot;
 
         // Check which tiles were crossed during movement (path-based detection)
         const crossedTiles = this._getCrossedTiles(actualPrevState.rect, nextState.rect);
@@ -632,15 +916,11 @@ export class TriggerManager {
         // Determine exit: tiles that token was on before but not on after (original onExit logic)
         const exitedTiles = this._setDiff(actualPrevState.tiles, nextState.tiles);
         
-        const enteredRegions = this._setDiff(nextState.regions, actualPrevState.regions);
-        const exitedRegions = this._setDiff(actualPrevState.regions, nextState.regions);
-
         if (this._debugMode) {
             console.log(`WoD TriggerManager | MOVEMENT: from (${actualPrevState.rect.x}, ${actualPrevState.rect.y}) to (${nextState.rect.x}, ${nextState.rect.y})`);
             console.log(`WoD TriggerManager | TILES: entered=[${Array.from(enteredTiles).join(', ')}] exited=[${Array.from(exitedTiles).join(', ')}]`);
         }
 
-        
         for (const tileId of enteredTiles) {
             const tileDoc = canvas.scene.tiles.get(tileId);
             if (tileDoc) {
@@ -655,15 +935,29 @@ export class TriggerManager {
             }
         }
 
-        if (canvas.scene.regions) {
-            for (const regionId of enteredRegions) {
-                const regionDoc = canvas.scene.regions.get(regionId);
-                if (regionDoc) this._fireEvent('onEnter', regionDoc, { token: tokenDoc, actor: tokenDoc?.actor, entered: true });
-            }
+        // Region entry/exit via tokenDoc.regions diff.
+        // We no longer rely exclusively on the tokenEnterRegion / tokenExitRegion hooks because
+        // the Levels module suppresses those hooks entirely. tokenDoc.regions is authoritative
+        // and is always updated before updateToken fires, so diffing snapshot vs nextState is
+        // reliable. The tokenEnterRegion handler still runs as a fallback (e.g. for token
+        // creation) but deduplicates against events fired here.
+        const enteredRegions = this._setDiff(nextState.regions, snapshot.regions);
+        const exitedRegions = this._setDiff(snapshot.regions, nextState.regions);
 
-            for (const regionId of exitedRegions) {
-                const regionDoc = canvas.scene.regions.get(regionId);
-                if (regionDoc) this._fireEvent('onExit', regionDoc, { token: tokenDoc, actor: tokenDoc?.actor, exited: true });
+        console.log(`[WOD TRIGGER] REGIONS: entered=[${Array.from(enteredRegions).join(', ')}] exited=[${Array.from(exitedRegions).join(', ')}] (snapshot=${Array.from(snapshot.regions)} → next=${Array.from(nextState.regions)})`);
+
+        for (const regionId of enteredRegions) {
+            const regionDoc = canvas.scene.regions?.get(regionId);
+            if (regionDoc) {
+                this._recentRegionTransitions.set(`enter:${regionId}:${tokenDoc.id}`, Date.now());
+                this._fireEvent('onEnter', regionDoc, { token: tokenDoc, actor: tokenDoc?.actor, entered: true });
+            }
+        }
+        for (const regionId of exitedRegions) {
+            const regionDoc = canvas.scene.regions?.get(regionId);
+            if (regionDoc) {
+                this._recentRegionTransitions.set(`exit:${regionId}:${tokenDoc.id}`, Date.now());
+                this._fireEvent('onExit', regionDoc, { token: tokenDoc, actor: tokenDoc?.actor, exited: true });
             }
         }
 
@@ -699,6 +993,9 @@ export class TriggerManager {
             console.log(`WoD TriggerManager | Checking proximity triggers for token ${tokenDoc.name}`);
         }
         this._checkProximityTriggers(tokenDoc);
+
+        // Update stored state so next movement computes correct enter/exit diffs
+        this._tokenState.set(tokenUuid, nextState);
     }
     
     /**
@@ -1093,26 +1390,13 @@ export class TriggerManager {
             }
         }
 
-        // Use spatial indexing for regions too
+        // Use Foundry's own token.regions Set as the authoritative source for
+        // region membership. This is reliable even when modules like Levels alter
+        // elevation semantics and break RegionDocument#testPoint.
         const regions = new Set();
-        if (canvas.scene.regions) {
-            let nearbyRegions = [];
-            if (canvas.scene.regions.quadtree) {
-                nearbyRegions = canvas.scene.regions.quadtree.getObjects(tokenRect);
-            } else {
-                nearbyRegions = canvas.scene.regions.filter(region => {
-                    return region.bounds && 
-                           region.bounds.x < tokenRect.x + tokenRect.width &&
-                           region.bounds.x + region.bounds.width > tokenRect.x &&
-                           region.bounds.y < tokenRect.y + tokenRect.height &&
-                           region.bounds.y + region.bounds.height > tokenRect.y;
-                });
-            }
-            
-            for (const region of nearbyRegions) {
-                if (this._rectIntersectsRegion(tokenRect, region)) {
-                    regions.add(region.id);
-                }
+        if (tokenDoc.regions instanceof Set) {
+            for (const r of tokenDoc.regions) {
+                if (r?.id) regions.add(r.id);
             }
         }
 
@@ -1527,6 +1811,8 @@ export class TriggerManager {
     async _executeRoll(actor, rollConfig) {
         if (!actor) return false;
 
+        console.log(`[WOD TRIGGER] _executeRoll: actor=${actor.name} type=${rollConfig.type} attr=${rollConfig.attribute} ability=${rollConfig.ability} poolName=${rollConfig.poolName}`);
+
         const difficulty = Number(rollConfig.difficulty ?? 6);
         const successThreshold = Number(rollConfig.successThreshold ?? 1);
 
@@ -1539,6 +1825,7 @@ export class TriggerManager {
             const ability = rollConfig.ability;
 
             if (!attribute || !ability) {
+                console.warn(`[WOD TRIGGER] _executeRoll: missing attribute="${attribute}" or ability="${ability}"`);
                 ui.notifications?.warn('WoD TriggerManager | Roll missing attribute or ability');
                 return false;
             }
@@ -1552,6 +1839,7 @@ export class TriggerManager {
         } else if (rollConfig.type === 'single') {
             const poolNameConfig = rollConfig.poolName || '';
             if (!poolNameConfig) {
+                console.warn(`[WOD TRIGGER] _executeRoll: single roll missing poolName`);
                 ui.notifications?.warn('WoD TriggerManager | Single roll missing pool name');
                 return false;
             }
@@ -1579,20 +1867,25 @@ export class TriggerManager {
 
             traits = [{ name: poolNameConfig, value: poolSize, type: 'pool', category: 'pool' }];
         } else {
+            console.warn(`[WOD TRIGGER] _executeRoll: unknown type="${rollConfig.type}"`);
             ui.notifications?.warn(`WoD TriggerManager | Unknown roll type: ${rollConfig.type}`);
             return false;
         }
 
+        console.log(`[WOD TRIGGER] _executeRoll: poolSize=${poolSize} poolName="${poolName}"`);
         if (poolSize <= 0) {
+            console.warn(`[WOD TRIGGER] _executeRoll: poolSize is 0 for "${poolName}", skipping roll`);
             ui.notifications?.warn(`WoD TriggerManager | Pool size is 0 for ${poolName}`);
             return false;
         }
 
+        const gmOnly = rollConfig.gmOnly !== false; // Default to true (GM-only)
         const result = await actor.rollPool(poolName, poolSize, {
             difficulty,
             specialty: false,
             modifiers: [],
-            traits
+            traits,
+            gmOnly
         });
 
         return (result?.successes ?? 0) >= successThreshold && !result?.isBotch;

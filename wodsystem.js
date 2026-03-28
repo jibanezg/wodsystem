@@ -132,8 +132,7 @@ Hooks.once("init", async function() {
         game.wod.referenceDataService = new GameDataService();
         game.wod.gameDataService = game.wod.referenceDataService;
         game.wod.coreEffectsManager = coreEffectsManager; // Add core effects manager
-        game.wod.triggerManager = new TriggerManager();
-        game.wod.triggerManager.initialize();
+        game.wod.triggerManager = new TriggerManager(); // constructor calls initialize() internally
         game.wod.statusEffectManager = new StatusEffectManager();
         await game.wod.statusEffectManager.initialize();
         game.wod.tokenManager = WodTokenManager.getInstance();
@@ -155,8 +154,7 @@ Hooks.once("init", async function() {
         };
         game.wod.gameDataService = game.wod.referenceDataService;
         game.wod.coreEffectsManager = coreEffectsManager; // Add core effects manager even on error
-        game.wod.triggerManager = new TriggerManager();
-        game.wod.triggerManager.initialize();
+        game.wod.triggerManager = new TriggerManager(); // constructor calls initialize() internally
         game.wod.statusEffectManager = new StatusEffectManager();
         game.wod.statusEffectManager.initialize();
         game.wod.tokenManager = WodTokenManager.getInstance();
@@ -276,19 +274,28 @@ Hooks.on("getActorTypes", (actorTypes) => {
 
 // Hook to recalculate Essence for Spirits after actor update (backup to _preUpdate)
 Hooks.on("updateActor", async (actor, updateData, options, userId) => {
-    // Only process for Spirit actors and skip if this update already includes essence changes (to avoid loops)
-    if (actor.type === "Spirit" && 
+    // Only process for Spirit actors when willpower/rage/gnosis attributes actually changed.
+    // _preUpdate already handles essence calculation inline, but this is a safety net.
+    // Guard: skip if essence is already being updated (prevents loops), and only run when
+    // the attributes that drive essence (willpower/rage/gnosis) actually changed.
+    if (actor.type === "Spirit" &&
         !updateData.system?.advantages?.essence && // Skip if essence is already being updated
-        !updateData.system?.advantages?.willpower) { // Skip if willpower is already being updated
-        
-        const newEssence = actor._calculateEssence();
-        const currentEssence = actor.system.advantages?.essence?.max || 0;
-        
-        if (newEssence !== currentEssence) {
-                        await actor.update({ 
-                "system.advantages.essence.max": newEssence,
-                "system.advantages.essence.value": Math.min(actor.system.advantages?.essence?.value || 0, newEssence)
-            });
+        updateData.system?.attributes &&            // Only when attributes changed
+        (updateData.system.attributes.willpower !== undefined ||
+         updateData.system.attributes.rage !== undefined ||
+         updateData.system.attributes.gnosis !== undefined)) {
+
+        const willpowerCurrent = Number(actor.system.attributes?.willpower?.current) || 1;
+        const rageCurrent = Number(actor.system.attributes?.rage?.current) || 1;
+        const gnosisCurrent = Number(actor.system.attributes?.gnosis?.current) || 1;
+        const newEssence = willpowerCurrent + rageCurrent + gnosisCurrent;
+        const currentEssenceMax = Number(actor.system.advantages?.essence?.maximum) || 0;
+
+        if (newEssence !== currentEssenceMax) {
+            await actor.update({
+                "system.advantages.essence.maximum": newEssence,
+                "system.advantages.essence.current": Math.min(Number(actor.system.advantages?.essence?.current) || 0, newEssence)
+            }, { render: false });
         }
     }
     

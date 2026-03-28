@@ -7,6 +7,7 @@
         <a class="item" data-tab="main">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Main'}}</a>
         <a class="item" data-tab="spheres">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Spheres'}}</a>
         <a class="item" data-tab="charms">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Charms'}}</a>
+        <a class="item" data-tab="biography">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Biography'}}</a>
         <a class="item" data-tab="effects">{{i18n 'WODSYSTEM.CharacterSheet.Tabs.Effects'}}</a>
     </nav>
 
@@ -90,6 +91,11 @@
         <!-- Charms Tab (includes Charms and Special Advantages) -->
         <div class="tab" data-group="primary" data-tab="charms">
             {{> "systems/wodsystem/templates/actor/partials/spirit-charms.html"}}
+        </div>
+
+        <!-- Biography Tab -->
+        <div class="tab" data-group="primary" data-tab="biography">
+            {{> "systems/wodsystem/templates/actor/partials/biography.html"}}
         </div>
 
         <!-- Effects Tab -->

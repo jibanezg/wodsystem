@@ -44,6 +44,14 @@ export class TriggerActionExecutor {
         
         // Tile actions
         this.registerActionHandler('changeTileAsset', this._executeTileAssetAction.bind(this));
+        this.registerActionHandler('showTile', this._executeTileVisibilityAction.bind(this));
+        this.registerActionHandler('hideTile', this._executeTileVisibilityAction.bind(this));
+        this.registerActionHandler('toggleTileVisibility', this._executeTileVisibilityAction.bind(this));
+        
+        // Ambient light actions
+        this.registerActionHandler('enableLight', this._executeLightAction.bind(this));
+        this.registerActionHandler('disableLight', this._executeLightAction.bind(this));
+        this.registerActionHandler('toggleLight', this._executeLightAction.bind(this));
         
         // Chat/notification actions
         this.registerActionHandler('chatMessage', this._executeChatMessageAction.bind(this));
@@ -196,14 +204,22 @@ export class TriggerActionExecutor {
         }
         
         const mode = targetConfig.mode || 'triggering';
-        // For specific action types, auto-resolve elementType
+        // For specific action types, auto-resolve elementType so the lookup is never wrong
+        // even if the stored target config is missing elementType.
         let elementType = targetConfig.elementType;
         if (action.type === 'door') {
-            elementType = 'wall'; // Door actions always target walls (doors)
-        } else if (action.type === 'changeTileAsset') {
-            elementType = 'tile'; // Tile asset actions always target tiles
+            elementType = 'wall';
+        } else if (action.type === 'changeTileAsset' ||
+                   action.type === 'showTile' ||
+                   action.type === 'hideTile' ||
+                   action.type === 'toggleTileVisibility') {
+            elementType = 'tile';
+        } else if (action.type === 'enableLight' ||
+                   action.type === 'disableLight' ||
+                   action.type === 'toggleLight') {
+            elementType = 'light';
         } else {
-            elementType = elementType || 'actor'; // Default for other actions
+            elementType = elementType || 'actor';
         }
         const elementId = targetConfig.elementId || '';
         
@@ -271,6 +287,8 @@ export class TriggerActionExecutor {
                     return canvas.scene?.tokens?.get(elementId) || null;
                 case 'region':
                     return canvas.scene?.regions?.get(elementId) || null;
+                case 'light':
+                    return canvas.scene?.lights?.get(elementId) || null;
                 case 'actor':
                     return game.actors?.get(elementId) || null;
                 case 'scene':
@@ -304,6 +322,8 @@ export class TriggerActionExecutor {
                     return Array.from(canvas.scene?.tokens?.values() || []);
                 case 'region':
                     return Array.from(canvas.scene?.regions?.values() || []);
+                case 'light':
+                    return Array.from(canvas.scene?.lights?.values() || []);
                 case 'actor':
                     // Return all actors (global, not scene-specific)
                     return Array.from(game.actors?.values() || []);
@@ -665,11 +685,112 @@ export class TriggerActionExecutor {
                     continue;
             }
             
-            await behavior.update({ disabled: newDisabled });
-            
+            try {
+                await behavior.update({ disabled: newDisabled });
+            } catch (err) {
+                // Third-party module scripts (e.g. the Levels "elevator" behavior) may throw
+                // when a RegionBehavior is updated without a triggering token, because they
+                // expect event.data.token to be defined. That is a bug in those modules.
+                // Log a warning and continue so our action chain is not interrupted.
+                console.warn(`WoD ActionExecutor | Region behavior "${behavior.name}" update raised a non-fatal error (likely a third-party module script incompatibility): ${err?.message ?? err}`);
+            }
+
             if (this._debugMode) {
                 console.log(`WoD ActionExecutor | Region behavior "${behavior.name}" on region "${region.name || region.id}" set to ${newDisabled ? 'disabled' : 'enabled'}`);
             }
+        }
+    }
+    
+    /**
+     * Execute a tile visibility (show/hide/toggle) action.
+     * Uses resolvedTarget from context or falls back to trigger host.
+     * @private
+     */
+    async _executeTileVisibilityAction(action, context) {
+        let tile = context.resolvedTarget;
+        
+        // Validate target is a tile
+        if (!tile || tile.documentName !== 'Tile') {
+            // Fallback: trigger host if it's a tile
+            if (context.triggerHost?.documentName === 'Tile') {
+                tile = context.triggerHost;
+            } else if (context.document?.documentName === 'Tile') {
+                tile = context.document;
+            }
+        }
+        
+        // Direct lookup by element ID
+        if (!tile && action.target?.elementId && canvas?.scene) {
+            tile = canvas.scene.tiles?.get(action.target.elementId) || null;
+        }
+        
+        if (!tile) {
+            console.warn('WoD ActionExecutor | Tile visibility action: No valid tile target');
+            return;
+        }
+        
+        let newHidden;
+        switch (action.type) {
+            case 'showTile':
+                newHidden = false;
+                break;
+            case 'hideTile':
+                newHidden = true;
+                break;
+            case 'toggleTileVisibility':
+                newHidden = !tile.hidden;
+                break;
+            default:
+                return;
+        }
+        
+        await tile.update({ hidden: newHidden });
+        
+        if (this._debugMode) {
+            console.log(`WoD ActionExecutor | Tile "${tile.id}" visibility set to ${newHidden ? 'hidden' : 'visible'}`);
+        }
+    }
+    
+    /**
+     * Execute an ambient light enable/disable/toggle action.
+     * Uses resolvedTarget from context or falls back to trigger host.
+     * @private
+     */
+    async _executeLightAction(action, context) {
+        let light = context.resolvedTarget;
+        
+        // Validate target is an ambient light
+        if (!light || light.documentName !== 'AmbientLight') {
+            // Direct lookup by element ID
+            if (action.target?.elementId && canvas?.scene) {
+                light = canvas.scene.lights?.get(action.target.elementId) || null;
+            }
+        }
+        
+        if (!light) {
+            console.warn('WoD ActionExecutor | Light action: No valid light target');
+            return;
+        }
+        
+        let newHidden;
+        switch (action.type) {
+            case 'enableLight':
+                newHidden = false;
+                break;
+            case 'disableLight':
+                newHidden = true;
+                break;
+            case 'toggleLight':
+                newHidden = !light.hidden;
+                break;
+            default:
+                return;
+        }
+        
+        await light.update({ hidden: newHidden });
+        
+        if (this._debugMode) {
+            console.log(`WoD ActionExecutor | Light "${light.id}" set to ${newHidden ? 'hidden/disabled' : 'visible/enabled'}`);
         }
     }
     

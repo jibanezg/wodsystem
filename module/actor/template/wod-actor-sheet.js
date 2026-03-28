@@ -396,7 +396,10 @@ export class WodActorSheet extends ActorSheet {
         // Identity field handlers
         html.find('input[name^="system.identity"]').change(this._onIdentityChange.bind(this));
         html.find('select[name^="system.identity"]').change(this._onIdentityChange.bind(this));
-        
+
+        // Disposition handler - dedicated to avoid full form submit re-render
+        html.find('select[name="system.miscellaneous.disposition"]').change(this._onDispositionChange.bind(this));
+
         // Merit/Flaw handlers
         html.find('.add-merit').click(this._onAddMerit.bind(this));
         html.find('.delete-merit').click(this._onDeleteMerit.bind(this));
@@ -820,13 +823,40 @@ export class WodActorSheet extends ActorSheet {
     }
 
     /**
-     * Handle identity field changes
+     * Guard against re-entrant change events fired by re-renders.
+     * Returns true if the field was processed within the last 500ms (i.e. skip it).
+     */
+    _isRecentChange(fieldName) {
+        const now = Date.now();
+        const last = this._recentChanges?.get(fieldName);
+        return last !== undefined && (now - last) < 500;
+    }
+
+    _recordChange(fieldName) {
+        if (!this._recentChanges) this._recentChanges = new Map();
+        this._recentChanges.set(fieldName, Date.now());
+    }
+
+    /**
+     * Handle identity field changes.
+     * Same pattern as _onBackgroundNameChange: stopPropagation + actor.update(render:false).
      */
     async _onIdentityChange(event) {
         event.preventDefault();
+        event.stopPropagation();
         const field = event.currentTarget.name;
         const value = event.currentTarget.value;
-        await this.actor.update({ [field]: value });
+        await this.actor.update({ [field]: value }, { render: false });
+    }
+
+    /**
+     * Handle disposition field changes.
+     * Same pattern as _onBackgroundNameChange: stopPropagation + actor.update(render:false).
+     */
+    async _onDispositionChange(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        await this.actor.update({ 'system.miscellaneous.disposition': event.currentTarget.value }, { render: false });
     }
 
     /**
@@ -848,7 +878,7 @@ export class WodActorSheet extends ActorSheet {
                             instruments: ["", "", "", "", "", "", ""],
                             practices: ""
                         }
-                    });
+                    }, { render: false });
                     ui.notifications.info('Focus section initialized.');
                 }
                 return;
@@ -857,9 +887,9 @@ export class WodActorSheet extends ActorSheet {
             const index = parseInt(event.currentTarget.dataset.index);
             const instruments = foundry.utils.duplicate(this.actor.system.biography.focus.instruments);
             instruments[index] = value;
-            await this.actor.update({ 'system.biography.focus.instruments': instruments });
+            await this.actor.update({ 'system.biography.focus.instruments': instruments }, { render: false });
         } else {
-            await this.actor.update({ [field]: value });
+            await this.actor.update({ [field]: value }, { render: false });
         }
     }
 
@@ -2740,43 +2770,31 @@ export class WodActorSheet extends ActorSheet {
      * Update an attribute
      */
     async _updateAttribute(category, key, value) {
-        // Check if this is a Spirit attribute (willpower, rage, gnosis)
-        const isSpiritAttribute = this.actor.type === "Spirit" &&
-                                  (category === "willpower" || category === "rage" || category === "gnosis") &&
-                                  key === "current";
-        
+        // Check if this is a Spirit attribute category (willpower, rage, gnosis).
+        // NOTE: This check is intentionally independent of `key` so that both
+        // "current" (permanent) and "maximum" (temporary) tracks correctly allow
+        // values up to 10 for Spirit actors.
+        const isSpiritAttributeCategory = this.actor.type === "Spirit" &&
+                                           (category === "willpower" || category === "rage" || category === "gnosis");
+
         const updateData = {};
-        // For Spirit attributes, allow values up to 10, otherwise max 5
-        const maxValue = isSpiritAttribute ? 10 : 5;
+        const maxValue = isSpiritAttributeCategory ? 10 : 5;
         const newValue = Math.min(Math.max(value, 1), maxValue);
         updateData[`system.attributes.${category}.${key}`] = newValue;
-        
+
         await this.actor.update(updateData, { render: false });
-        
-        // For Spirit attributes, also update the temporary (maximum) dots if permanent changed
-        if (isSpiritAttribute && key === "current") {
-            const tempContainer = this.element.find(`.dot-container[data-attribute="${category}"][data-key="maximum"]`)[0];
-            if (tempContainer) {
-                const tempValue = Number(this.actor.system.attributes?.[category]?.maximum ?? newValue);
-                this._updateDotVisuals(tempContainer, tempValue);
-            }
+
+        // For Spirit current (permanent) attributes, re-render to update Essence display.
+        // The render rebuilds the full DOM so no need for a separate visual update.
+        if (isSpiritAttributeCategory && key === "current") {
+            await this.render();
+            return;
         }
-        
-        // Update visual dots
+
+        // For all other cases, update visual dots in-place (no full re-render needed).
         const container = this.element.find(`.dot-container[data-attribute="${category}"][data-key="${key}"]`)[0];
         if (container) {
             this._updateDotVisuals(container, newValue);
-        }
-        
-        // Update the label's data-value attribute
-        const label = this.element.find(`.trait-label[data-trait="${key}"][data-attribute-type="${category}"]`)[0];
-        if (label) {
-            label.setAttribute('data-value', newValue);
-        }
-        
-        // For Spirit attributes, force a re-render to update Essence display
-        if (isSpiritAttribute && key === "current") {
-            await this.render();
         }
     }
 
@@ -3799,7 +3817,7 @@ export class WodActorSheet extends ActorSheet {
         }
         
         // Ignore modal selects - they have their own handlers
-        if (targetClass.includes("select-bg-category") || 
+        if (targetClass.includes("select-bg-category") ||
             targetClass.includes("select-background-to-expand")) {
             setTimeout(() => {
                 const newSheetBody = this.element.find('.sheet-body');
@@ -3808,9 +3826,68 @@ export class WodActorSheet extends ActorSheet {
             return;
         }
 
-        // Call parent method to handle non-background updates
-        await super._onChangeInput(event);
-        
+        // Ignore identity and biography fields - handled by _onIdentityChange / _onBiographyChange
+        // to prevent double-update when submitOnChange=true
+        if (fieldName.startsWith("system.identity.") || fieldName.startsWith("system.biography.")) {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+
+        // Ignore disposition - handled by _onDispositionChange to prevent re-render loop
+        if (fieldName === "system.miscellaneous.disposition") {
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        }
+
+        // Update the actor directly with render:false to prevent re-render loops.
+        // Bypasses super._onChangeInput() / _onSubmit() which always triggers a full re-render.
+        const element = event.target;
+        const name = element?.name;
+        if (!name) {
+            // No field name — handle only special input types that aren't actor data.
+            // DO NOT call super._onChangeInput() here: with submitOnChange=true it calls _onSubmit()
+            // which does a full form update WITHOUT render:false, causing a re-render loop.
+            if (element?.type === 'color' && element?.dataset?.edit) this._onChangeColorPicker(event);
+            else if (element?.type === 'range') this._onChangeRange(event);
+            else if (event.currentTarget?.matches?.('prose-mirror')) await super._onChangeInput(event);
+            // All other nameless elements (UI selects, etc.) — just restore scroll and return.
+            setTimeout(() => {
+                const newSheetBody = this.element.find('.sheet-body');
+                if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+            }, 0);
+            return;
+        } else {
+            // Guard: if this exact field was processed within the last 500ms, skip.
+            // This breaks loops caused by re-renders re-firing change events.
+            if (this._isRecentChange(name)) {
+                // Still restore scroll
+                setTimeout(() => {
+                    const newSheetBody = this.element.find('.sheet-body');
+                    if (newSheetBody.length) newSheetBody.scrollTop(scrollPos);
+                }, 0);
+                return;
+            }
+            this._recordChange(name);
+
+            let value;
+            if (element.type === 'checkbox') {
+                value = element.checked;
+            } else if (element.type === 'number' || element.type === 'range') {
+                value = element.value !== '' ? Number(element.value) : null;
+            } else {
+                value = element.value;
+            }
+            if (value !== undefined && value !== null) {
+                await this.actor.update({ [name]: value }, { render: false });
+            }
+        }
+
         // Restore scroll position after update
         setTimeout(() => {
             const newSheetBody = this.element.find('.sheet-body');

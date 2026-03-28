@@ -1546,10 +1546,18 @@ export class WodActor extends Actor {
         );
         
         // Send to chat - toMessage() automatically triggers Dice So Nice! if installed
-        await result.roll.toMessage({
+        const messageData = {
             speaker: ChatMessage.getSpeaker({actor: this}),
             flavor: `<div class="wod-roll-flavor">${rollName} - ${options.rollType || 'Roll'}</div>` + html
-        });
+        };
+
+        // If gmOnly, whisper the roll to GM only
+        if (options.gmOnly) {
+            messageData.whisper = game.users.filter(u => u.isGM).map(u => u.id);
+            messageData.blind = false;
+        }
+
+        await result.roll.toMessage(messageData);
     }
 
     /**

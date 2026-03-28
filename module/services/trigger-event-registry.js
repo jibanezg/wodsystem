@@ -61,6 +61,14 @@ export class TriggerEventRegistry {
                 flagPath: 'wodsystem.triggers',
                 icon: 'fa-user'
             },
+            light: {
+                id: 'light',
+                label: 'Ambient Light',
+                description: 'Triggers anchored to ambient lights',
+                supportsProximity: false,
+                flagPath: 'wodsystem.triggers',
+                icon: 'fa-lightbulb'
+            },
             scene: {
                 id: 'scene',
                 label: 'Scene',
@@ -139,6 +147,29 @@ export class TriggerEventRegistry {
                 category: 'door'
             },
             
+            // Ambient Light events
+            onLightEnabled: {
+                id: 'onLightEnabled',
+                label: 'Light Enabled',
+                description: 'Fires when an ambient light is made visible',
+                documentTypes: ['light'],
+                category: 'light'
+            },
+            onLightDisabled: {
+                id: 'onLightDisabled',
+                label: 'Light Disabled',
+                description: 'Fires when an ambient light is hidden',
+                documentTypes: ['light'],
+                category: 'light'
+            },
+            onLightChanged: {
+                id: 'onLightChanged',
+                label: 'Light Changed',
+                description: 'Fires when an ambient light property changes',
+                documentTypes: ['light'],
+                category: 'light'
+            },
+
             // Actor events (global)
             onEffectApplied: {
                 id: 'onEffectApplied',
@@ -372,6 +403,9 @@ export class TriggerEventRegistry {
         }
         if (className === 'Actor' || document.documentName === 'Actor') {
             return 'actor';
+        }
+        if (className === 'AmbientLightDocument' || document.documentName === 'AmbientLight') {
+            return 'light';
         }
         if (className === 'Scene' || document.documentName === 'Scene') {
             return 'scene';

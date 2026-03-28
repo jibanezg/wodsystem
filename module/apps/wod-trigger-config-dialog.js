@@ -126,8 +126,25 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
         
         switch (targetType) {
-            case 'actor':
-                return registry.getEventsForDocumentType('actor');
+            case 'actor': {
+                const actorEvents = registry.getEventsForDocumentType('actor');
+                // If the trigger is hosted on a spatial document (tile/region), also expose
+                // movement events so the user can choose "Token Enters" / "Token Exits"
+                // for triggers that target actor types but are anchored to a region or tile.
+                if (this.documentType === 'region' || this.documentType === 'tile') {
+                    const spatialEvents = registry.getEventsForDocumentType(this.documentType);
+                    const seen = new Set(actorEvents.map(e => e.id));
+                    const merged = [...actorEvents];
+                    for (const event of spatialEvents) {
+                        if (!seen.has(event.id)) {
+                            seen.add(event.id);
+                            merged.push(event);
+                        }
+                    }
+                    return merged;
+                }
+                return actorEvents;
+            }
                 
             case 'doors':
             case 'walls':
@@ -255,6 +272,15 @@ export class WodTriggerConfigDialog extends FormApplication {
         }
         if (!trigger.roll.specificActorId) {
             trigger.roll.specificActorId = '';
+        }
+        if (trigger.roll.maxExecutions === undefined) {
+            trigger.roll.maxExecutions = 1;
+        }
+        if (!trigger.roll.executionPersistence) {
+            trigger.roll.executionPersistence = 'persistent';
+        }
+        if (trigger.roll.gmOnly === undefined) {
+            trigger.roll.gmOnly = true;
         }
         
         // Ensure new format fields exist
@@ -412,6 +438,15 @@ export class WodTriggerConfigDialog extends FormApplication {
             this.close();
         });
 
+        // Reset execution count button
+        html.find('button[data-action="reset-execution-count"]').on('click', async (ev) => {
+            ev.preventDefault();
+            const tm = game.wod?.triggerManager;
+            if (!tm) return ui.notifications?.warn('TriggerManager not available');
+            await tm.resetTriggerExecutions(this.triggerId, this.document);
+            ui.notifications?.info('Execution count reset — the trigger can fire again for all actors.');
+        });
+
         // Toggle roll section visibility
         html.find('input[data-action="toggle-roll"]').on('change', (ev) => {
             const checked = ev.currentTarget.checked;
@@ -426,11 +461,14 @@ export class WodTriggerConfigDialog extends FormApplication {
             html.find('.roll-single').toggle(type === 'single');
         });
 
-        // Toggle roll source actor picker
+        // Toggle roll source actor picker (use class toggle — inline display:none is overridden by .form-group display:flex)
         html.find('select[data-action="change-roll-source"]').on('change', (ev) => {
             const source = ev.currentTarget.value;
-            html.find('.roll-specific-actor').toggle(source === 'specificActor');
+            html.find('.roll-specific-actor').toggleClass('wod-hidden', source !== 'specificActor');
         });
+        // Enforce initial visibility of actor picker based on current roll source value
+        const currentRollSource = html.find('select[data-action="change-roll-source"]').val();
+        html.find('.roll-specific-actor').toggleClass('wod-hidden', currentRollSource !== 'specificActor');
 
         // Handle execution mode changes to show/hide event field
         html.find('select[name="trigger.execution.mode"]').on('change', (ev) => {
@@ -665,6 +703,49 @@ export class WodTriggerConfigDialog extends FormApplication {
                     <button type="button" data-action="pick-asset" data-outcome="${outcome}" data-index="${index}" title="Browse"><i class="fas fa-folder-open"></i></button>
                     <label><input type="checkbox" name="actions.${outcome}.${index}.useCurrentTile" checked /> Use current tile</label>
                     <input type="number" name="actions.${outcome}.${index}.delay" value="0" min="0" step="0.1" style="width:60px" />
+                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="${outcome}" data-index="${index}" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        } else if (type === 'tileVisibility') {
+            actionHtml = `
+            <div class="action-row flexrow" data-index="${index}">
+                <div class="action-grid compact">
+                    <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-eye"></i> Tile:</span>
+                    <select name="actions.${outcome}.${index}.type" class="tile-visibility-action-type">
+                        <option value="showTile" selected>Show</option>
+                        <option value="hideTile">Hide</option>
+                        <option value="toggleTileVisibility">Toggle</option>
+                    </select>
+                    <select name="actions.${outcome}.${index}.target.mode" class="target-mode">
+                        <option value="source" selected>Source (Trigger Host)</option>
+                        <option value="specific">Specific Tile</option>
+                        <option value="all">All Tiles in Scene</option>
+                    </select>
+                    <input type="hidden" name="actions.${outcome}.${index}.target.elementType" value="tile" />
+                    <input type="text" name="actions.${outcome}.${index}.target.elementId" value="" placeholder="Tile ID" class="target-input" style="display:none" />
+                    <button type="button" class="pick-target" data-action="pick-element" data-outcome="${outcome}" data-index="${index}" title="Pick" style="display:none"><i class="fas fa-crosshairs"></i></button>
+                    <input type="number" name="actions.${outcome}.${index}.delay" value="0" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                    <button type="button" class="remove-action" data-action="remove-action" data-outcome="${outcome}" data-index="${index}" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`;
+        } else if (type === 'light') {
+            actionHtml = `
+            <div class="action-row flexrow" data-index="${index}">
+                <div class="action-grid compact">
+                    <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-lightbulb"></i> Light:</span>
+                    <select name="actions.${outcome}.${index}.type" class="light-action-type">
+                        <option value="enableLight" selected>Enable</option>
+                        <option value="disableLight">Disable</option>
+                        <option value="toggleLight">Toggle</option>
+                    </select>
+                    <select name="actions.${outcome}.${index}.target.mode" class="target-mode">
+                        <option value="specific" selected>Specific Light</option>
+                        <option value="all">All Lights in Scene</option>
+                    </select>
+                    <input type="hidden" name="actions.${outcome}.${index}.target.elementType" value="light" />
+                    <input type="text" name="actions.${outcome}.${index}.target.elementId" value="" placeholder="Light ID" class="target-input" />
+                    <button type="button" class="pick-target" data-action="pick-element" data-outcome="${outcome}" data-index="${index}" title="Pick"><i class="fas fa-crosshairs"></i></button>
+                    <input type="number" name="actions.${outcome}.${index}.delay" value="0" min="0" step="0.1" style="width:60px" placeholder="Delay" />
                     <button type="button" class="remove-action" data-action="remove-action" data-outcome="${outcome}" data-index="${index}" title="Remove"><i class="fas fa-trash"></i></button>
                 </div>
             </div>`;
@@ -1056,6 +1137,9 @@ export class WodTriggerConfigDialog extends FormApplication {
         if (this._pickHandlers?.onControlToken) {
             Hooks.off('controlToken', this._pickHandlers.onControlToken);
         }
+        if (this._pickHandlers?.onControlAmbientLight) {
+            Hooks.off('controlAmbientLight', this._pickHandlers.onControlAmbientLight);
+        }
         if (this._pickHandlers?.onKeyDown) {
             document.removeEventListener('keydown', this._pickHandlers.onKeyDown);
         }
@@ -1179,6 +1263,21 @@ export class WodTriggerConfigDialog extends FormApplication {
                 };
                 this._pickHandlers = { onControlToken, onKeyDown };
                 Hooks.on('controlToken', onControlToken);
+                break;
+
+            case 'light':
+                ui.notifications?.info('Click an ambient light on the canvas. Press Escape to cancel.');
+                try { canvas.lighting?.activate(); } catch (e) { /* ignore */ }
+
+                const onControlAmbientLight = (light, controlled) => {
+                    if (!controlled || !this._pickMode) return;
+                    const lightId = light?.document?.id;
+                    if (!lightId) return;
+                    this._setElementTarget(this._pickMode.outcome, this._pickMode.index, lightId);
+                    this._stopPickMode();
+                };
+                this._pickHandlers = { onControlAmbientLight, onKeyDown };
+                Hooks.on('controlAmbientLight', onControlAmbientLight);
                 break;
 
             case 'actor':
@@ -1794,7 +1893,10 @@ export class WodTriggerConfigDialog extends FormApplication {
                 ability: formData.roll?.ability || '',
                 poolName: formData.roll?.poolName || '',
                 difficulty: Number(formData.roll?.difficulty ?? 6),
-                successThreshold: Number(formData.roll?.successThreshold ?? 1)
+                successThreshold: Number(formData.roll?.successThreshold ?? 1),
+                maxExecutions: Number(formData.roll?.maxExecutions ?? 1),
+                executionPersistence: formData.roll?.executionPersistence || 'persistent',
+                gmOnly: formData.roll?.gmOnly !== false
             }
         };
         
@@ -1956,9 +2058,21 @@ export class WodTriggerConfigDialog extends FormApplication {
                     behaviorId: a?.behaviorId || '',
                     delay: delay
                 };
+            } else if (actionType === 'showTile' || actionType === 'hideTile' || actionType === 'toggleTileVisibility') {
+                return {
+                    type: actionType,
+                    target: normalizeTarget(a?.target, 'source', 'tile'),
+                    delay: delay
+                };
+            } else if (actionType === 'enableLight' || actionType === 'disableLight' || actionType === 'toggleLight') {
+                return {
+                    type: actionType,
+                    target: normalizeTarget(a?.target, 'specific', 'light'),
+                    delay: delay
+                };
             } else {
-                return { 
-                    type: actionType, 
+                return {
+                    type: actionType,
                     target: normalizeTarget(a?.target, 'triggering', 'actor'),
                     effectId: a?.effectId || '',
                     delay: delay
@@ -2048,17 +2162,20 @@ export class WodTriggerConfigDialog extends FormApplication {
             if (name) formData[name] = $select.val();
         });
         
-        // Force roll source values
-        const rollSourceVal = $form.find('select[name="roll.source"]').val();
-        if (rollSourceVal) {
-            if (!formData.roll) formData.roll = {};
-            formData.roll.source = rollSourceVal;
-        }
-        const rollActorVal = $form.find('select[name="roll.specificActorId"]').val();
-        if (rollActorVal !== undefined) {
-            if (!formData.roll) formData.roll = {};
-            formData.roll.specificActorId = rollActorVal;
-        }
+        // Force-extract ALL roll configuration values
+        if (!formData.roll) formData.roll = {};
+        formData.roll.enabled = $form.find('input[name="roll.enabled"]').is(':checked');
+        formData.roll.source = $form.find('select[name="roll.source"]').val() || 'triggeringEntity';
+        formData.roll.specificActorId = $form.find('select[name="roll.specificActorId"]').val() || '';
+        formData.roll.type = $form.find('select[name="roll.type"]').val() || 'attribute+ability';
+        formData.roll.attribute = $form.find('select[name="roll.attribute"]').val() || '';
+        formData.roll.ability = $form.find('select[name="roll.ability"]').val() || '';
+        formData.roll.poolName = $form.find('select[name="roll.poolName"]').val() || '';
+        formData.roll.difficulty = $form.find('input[name="roll.difficulty"]').val() || 6;
+        formData.roll.successThreshold = $form.find('input[name="roll.successThreshold"]').val() || 1;
+        formData.roll.maxExecutions = $form.find('input[name="roll.maxExecutions"]').val() || 1;
+        formData.roll.executionPersistence = $form.find('select[name="roll.executionPersistence"]').val() || 'persistent';
+        formData.roll.gmOnly = $form.find('input[name="roll.gmOnly"]').is(':checked');
         
         // Force event type value
         formData['trigger.eventType'] = $form.find('select[name="trigger.eventType"]').val();
@@ -2177,29 +2294,49 @@ export class WodTriggerConfigDialog extends FormApplication {
     }
     
     _getAvailableAttributes() {
-        // Standard WoD attributes (from wizard config)
-        const attributes = [
-            // Physical attributes
-            'Strength', 'Dexterity', 'Stamina',
-            // Social attributes
-            'Charisma', 'Manipulation', 'Appearance', 
-            // Mental attributes
-            'Perception', 'Intelligence', 'Wits'
-        ];
-        return attributes;
+        // Standard WoD attributes matching template.json, grouped for optgroup rendering
+        return {
+            groups: [
+                { label: 'Physical', items: ['Strength', 'Dexterity', 'Stamina'] },
+                { label: 'Social', items: ['Charisma', 'Manipulation', 'Appearance'] },
+                { label: 'Mental', items: ['Perception', 'Intelligence', 'Wits'] }
+            ]
+        };
     }
 
     _getAvailableAbilities() {
-        // Standard WoD abilities (from wizard config)
-        const abilities = [
-            // Physical abilities
-            'Animal Ken', 'Crafts', 'Drive', 'Etiquette', 'Firearms', 'Larceny', 'Melee',
-            'Performance', 'Ride', 'Stealth', 'Survival', 'Swimming',
-            // Social abilities
-            'Academics', 'Computer', 'Finance', 'Investigation', 'Law', 'Linguistics',
-            'Medicine', 'Occult', 'Politics', 'Science', 'Technology'
+        // Canonical abilities matching template.json and _migrateAbilitiesBetweenCategories in wod-actor.js
+        const groups = [
+            { label: 'Talents', items: ['Alertness', 'Art', 'Athletics', 'Awareness', 'Brawl', 'Empathy', 'Expression', 'Intimidation', 'Leadership', 'Streetwise', 'Subterfuge'] },
+            { label: 'Skills', items: ['Crafts', 'Drive', 'Etiquette', 'Firearms', 'Martial Arts', 'Meditation', 'Melee', 'Research', 'Stealth', 'Survival', 'Technology'] },
+            { label: 'Knowledges', items: ['Academics', 'Computer', 'Cosmology', 'Enigmas', 'Esoterica', 'Investigation', 'Law', 'Medicine', 'Occult', 'Politics', 'Science'] }
         ];
-        return abilities;
+
+        // Collect all standard ability names for dedup
+        const standardNames = new Set(groups.flatMap(g => g.items));
+
+        // Also include secondary abilities from existing actors in the game
+        const secondaryItems = [];
+        game.actors?.forEach(actor => {
+            if (actor.system?.secondaryAbilities) {
+                for (const category of Object.values(actor.system.secondaryAbilities)) {
+                    if (Array.isArray(category)) {
+                        category.forEach(a => {
+                            if (a?.name && !standardNames.has(a.name)) {
+                                standardNames.add(a.name);
+                                secondaryItems.push(a.name);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        if (secondaryItems.length > 0) {
+            groups.push({ label: 'Secondary', items: secondaryItems.sort() });
+        }
+
+        return { groups };
     }
 
     _getAvailablePools() {

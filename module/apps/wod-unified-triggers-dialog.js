@@ -7,6 +7,9 @@ import { WodTriggerConfigDialog } from './wod-trigger-config-dialog.js';
  * Updated: 2025-02-10 - RESTORED ORIGINAL SCENE DIALOG STRUCTURE
  */
 export class WodUnifiedTriggersDialog extends Dialog {
+
+    /** @type {Object|null} Trigger clipboard shared across all dialog instances (session-only). */
+    static _clipboard = null;
     
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
@@ -268,18 +271,31 @@ export class WodUnifiedTriggersDialog extends Dialog {
             console.warn('WoD Unified Triggers Dialog | Could not find add trigger button for:', this.documentType);
         }
 
-        // Add click listeners for trigger edit and delete buttons
-        const triggerButtons = contentElement.find('.trigger-edit, .trigger-delete');
-        
+        // Add click listeners for trigger edit, copy, and delete buttons
+        const triggerButtons = contentElement.find('.trigger-edit, .trigger-copy, .trigger-delete');
+
         triggerButtons.off('click.unifiedAction').on('click.unifiedAction', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            
+
             const $button = $(event.currentTarget);
             const action = $button.data('action');
             const triggerId = $button.attr('data-trigger-id');
-            
+
             this._handleTriggerAction(action, triggerId);
+        });
+
+        // Paste button — show only when clipboard has content
+        const $pasteBtn = contentElement.find('.wod-paste-trigger-btn');
+        if (WodUnifiedTriggersDialog._clipboard) {
+            $pasteBtn.css('display', 'inline-flex');
+        } else {
+            $pasteBtn.hide();
+        }
+        $pasteBtn.off('click.unifiedPaste').on('click.unifiedPaste', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            this._handleTriggerAction('paste-trigger', null);
         });
     }
     
@@ -391,6 +407,35 @@ export class WodUnifiedTriggersDialog extends Dialog {
                 }
                 break;
                 
+            case 'copy-trigger': {
+                const trigger = triggers.find(t => t.id === triggerId);
+                if (trigger) {
+                    WodUnifiedTriggersDialog._clipboard = foundry.utils.deepClone(trigger);
+                    ui.notifications.info(`Trigger "${trigger.name || 'Unnamed'}" copied to clipboard.`);
+                    // Reveal the paste button immediately (no full refresh needed)
+                    const $pasteBtn = $(this.element).find('.wod-paste-trigger-btn');
+                    $pasteBtn.css('display', 'inline-flex');
+                }
+                break;
+            }
+
+            case 'paste-trigger': {
+                const src = WodUnifiedTriggersDialog._clipboard;
+                if (!src) {
+                    ui.notifications.warn('Nothing in trigger clipboard.');
+                    break;
+                }
+                const newTrigger = foundry.utils.deepClone(src);
+                newTrigger.id = foundry.utils.randomID();
+                newTrigger.name = `Copy of ${newTrigger.name || 'Unnamed'}`;
+                const flagPath = this._getFlagPath();
+                const updatedTriggers = [...triggers, newTrigger];
+                await this.document.setFlag('wodsystem', flagPath, updatedTriggers);
+                this._refreshDialogContent();
+                ui.notifications.info(`Trigger "${newTrigger.name}" pasted.`);
+                break;
+            }
+
             default:
                 console.warn(`WoD Unified Triggers Dialog | Unknown action: ${action}`);
         }

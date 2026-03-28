@@ -249,8 +249,12 @@
                     <label>Attribute</label>
                     <select name="roll.attribute">
                         <option value="">-- Select Attribute --</option>
-                        {{#each availableAttributes}}
-                        <option value="{{this}}" {{#if (eq ../trigger.roll.attribute this)}}selected{{/if}}>{{this}}</option>
+                        {{#each availableAttributes.groups}}
+                        <optgroup label="{{this.label}}">
+                            {{#each this.items}}
+                            <option value="{{this}}" {{#if (eq ../../trigger.roll.attribute this)}}selected{{/if}}>{{this}}</option>
+                            {{/each}}
+                        </optgroup>
                         {{/each}}
                     </select>
                 </div>
@@ -258,8 +262,12 @@
                     <label>Ability</label>
                     <select name="roll.ability">
                         <option value="">-- Select Ability --</option>
-                        {{#each availableAbilities}}
-                        <option value="{{this}}" {{#if (eq ../trigger.roll.ability this)}}selected{{/if}}>{{this}}</option>
+                        {{#each availableAbilities.groups}}
+                        <optgroup label="{{this.label}}">
+                            {{#each this.items}}
+                            <option value="{{this}}" {{#if (eq ../../trigger.roll.ability this)}}selected{{/if}}>{{this}}</option>
+                            {{/each}}
+                        </optgroup>
                         {{/each}}
                     </select>
                 </div>
@@ -285,6 +293,33 @@
             <div class="form-group horizontal">
                 <label>Successes</label>
                 <input type="number" name="roll.successThreshold" value="{{trigger.roll.successThreshold}}" min="1" />
+            </div>
+
+            <div class="form-group horizontal">
+                <label>Max Executions per Actor (0 = unlimited)</label>
+                <input type="number" name="roll.maxExecutions" value="{{trigger.roll.maxExecutions}}" min="0" />
+            </div>
+
+            <div class="form-group horizontal">
+                <label>Reset Count</label>
+                <button type="button" data-action="reset-execution-count" title="Clears the execution count for all actors, letting the trigger fire again">
+                    Reset Execution Count
+                </button>
+            </div>
+
+            <div class="form-group horizontal">
+                <label>Execution Tracking</label>
+                <select name="roll.executionPersistence">
+                    <option value="persistent" {{#if (eq trigger.roll.executionPersistence "persistent")}}selected{{/if}}>Persistent (survives reload)</option>
+                    <option value="session" {{#if (eq trigger.roll.executionPersistence "session")}}selected{{/if}}>Session Only (resets on reload)</option>
+                </select>
+            </div>
+
+            <div class="form-group horizontal">
+                <label>
+                    <input type="checkbox" name="roll.gmOnly" {{#if trigger.roll.gmOnly}}checked{{/if}} />
+                    GM Only (whisper roll to GM)
+                </label>
             </div>
         </div>
     </section>
@@ -444,6 +479,45 @@
                         </div>
                     </div>
                     {{else}}
+                    {{#if (or (eq this.type "showTile") (or (eq this.type "hideTile") (eq this.type "toggleTileVisibility")))}}
+                    <div class="action-grid compact">
+                        <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-eye"></i> Tile:</span>
+                        <select name="actions.always.{{@index}}.type" class="tile-visibility-action-type">
+                            <option value="showTile" {{#if (eq this.type "showTile")}}selected{{/if}}>Show</option>
+                            <option value="hideTile" {{#if (eq this.type "hideTile")}}selected{{/if}}>Hide</option>
+                            <option value="toggleTileVisibility" {{#if (eq this.type "toggleTileVisibility")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Tile</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Tiles in Scene</option>
+                        </select>
+                        <input type="hidden" name="actions.always.{{@index}}.target.elementType" value="tile" />
+                        <input type="text" name="actions.always.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Tile ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="always" data-index="{{@index}}" title="Pick" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}><i class="fas fa-crosshairs"></i></button>
+                        <input type="number" name="actions.always.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                        <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "enableLight") (or (eq this.type "disableLight") (eq this.type "toggleLight")))}}
+                    <div class="action-grid compact">
+                        <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-lightbulb"></i> Light:</span>
+                        <select name="actions.always.{{@index}}.type" class="light-action-type">
+                            <option value="enableLight" {{#if (eq this.type "enableLight")}}selected{{/if}}>Enable</option>
+                            <option value="disableLight" {{#if (eq this.type "disableLight")}}selected{{/if}}>Disable</option>
+                            <option value="toggleLight" {{#if (eq this.type "toggleLight")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.always.{{@index}}.target.mode" class="target-mode">
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Light</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Lights in Scene</option>
+                        </select>
+                        <input type="hidden" name="actions.always.{{@index}}.target.elementType" value="light" />
+                        <input type="text" name="actions.always.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Light ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="always" data-index="{{@index}}" title="Pick" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}><i class="fas fa-crosshairs"></i></button>
+                        <input type="number" name="actions.always.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                        <button type="button" class="action-button delete-action" data-action="remove-action" data-outcome="always" data-index="{{@index}}" title="Delete Action"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
                     <div class="action-grid">
                         <div class="grid-cell">
                             <label>Effect Action</label>
@@ -492,6 +566,8 @@
                     {{/if}}
                     {{/if}}
                     {{/if}}
+                    {{/if}}
+                    {{/if}}
                 {{/if}}
                 </div>
                 {{/each}}
@@ -500,6 +576,8 @@
                 <button type="button" data-action="add-action" data-outcome="always" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
                 <button type="button" data-action="add-action" data-outcome="always" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
                 <button type="button" data-action="add-action" data-outcome="always" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="tileVisibility" title="Show/Hide Tile"><i class="fas fa-eye"></i></button>
+                <button type="button" data-action="add-action" data-outcome="always" data-type="light" title="Enable/Disable Light"><i class="fas fa-lightbulb"></i></button>
                 <button type="button" data-action="add-action" data-outcome="always" data-type="regionBehavior" title="Add Region Behavior Action"><i class="fas fa-draw-polygon"></i></button>
             </div>
         </fieldset>
@@ -524,6 +602,69 @@
                             <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
                             <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
                             <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
+                        </select>
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "showTile") (or (eq this.type "hideTile") (eq this.type "toggleTileVisibility")))}}
+                    <div class="action-grid compact">
+                        <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-eye"></i> Tile:</span>
+                        <select name="actions.success.{{@index}}.type" class="tile-visibility-action-type">
+                            <option value="showTile" {{#if (eq this.type "showTile")}}selected{{/if}}>Show</option>
+                            <option value="hideTile" {{#if (eq this.type "hideTile")}}selected{{/if}}>Hide</option>
+                            <option value="toggleTileVisibility" {{#if (eq this.type "toggleTileVisibility")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.success.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Tile</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Tiles in Scene</option>
+                        </select>
+                        <input type="hidden" name="actions.success.{{@index}}.target.elementType" value="tile" />
+                        <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Tile ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="success" data-index="{{@index}}" title="Pick" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}><i class="fas fa-crosshairs"></i></button>
+                        <input type="number" name="actions.success.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "enableLight") (or (eq this.type "disableLight") (eq this.type "toggleLight")))}}
+                    <div class="action-grid compact">
+                        <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-lightbulb"></i> Light:</span>
+                        <select name="actions.success.{{@index}}.type" class="light-action-type">
+                            <option value="enableLight" {{#if (eq this.type "enableLight")}}selected{{/if}}>Enable</option>
+                            <option value="disableLight" {{#if (eq this.type "disableLight")}}selected{{/if}}>Disable</option>
+                            <option value="toggleLight" {{#if (eq this.type "toggleLight")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.success.{{@index}}.target.mode" class="target-mode">
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Light</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Lights in Scene</option>
+                        </select>
+                        <input type="hidden" name="actions.success.{{@index}}.target.elementType" value="light" />
+                        <input type="text" name="actions.success.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Light ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="success" data-index="{{@index}}" title="Pick" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}><i class="fas fa-crosshairs"></i></button>
+                        <input type="number" name="actions.success.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "enableRegionBehavior") (or (eq this.type "disableRegionBehavior") (eq this.type "toggleRegionBehavior")))}}
+                    <div class="action-grid compact">
+                        <select name="actions.success.{{@index}}.target.mode" class="target-mode behavior-target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Region</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Regions in Scene</option>
+                        </select>
+                        <select name="actions.success.{{@index}}.target.elementId" class="behavior-region-select" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <option value="">-- Select Region --</option>
+                        </select>
+                        <input type="hidden" name="actions.success.{{@index}}.target.elementType" value="region" />
+                        <select name="actions.success.{{@index}}.behaviorId" class="behavior-search-select">
+                            <option value="">-- Select Behavior --</option>
+                        </select>
+                        <input type="hidden" class="behavior-saved-id" value="{{this.behaviorId}}" />
+                        <input type="hidden" class="behavior-saved-region" value="{{this.target.elementId}}" />
+                        <select name="actions.success.{{@index}}.type" class="behavior-action-type">
+                            <option value="enableRegionBehavior" {{#if (eq this.type "enableRegionBehavior")}}selected{{/if}}>Enable</option>
+                            <option value="disableRegionBehavior" {{#if (eq this.type "disableRegionBehavior")}}selected{{/if}}>Disable</option>
+                            <option value="toggleRegionBehavior" {{#if (eq this.type "toggleRegionBehavior")}}selected{{/if}}>Toggle</option>
                         </select>
                         <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
@@ -553,6 +694,9 @@
                         <button type="button" class="remove-action" data-action="remove-action" data-outcome="success" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                     {{/if}}
+                    {{/if}}
+                    {{/if}}
+                    {{/if}}
                 </div>
                 {{/each}}
             </div>
@@ -560,6 +704,8 @@
                 <button type="button" data-action="add-action" data-outcome="success" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
                 <button type="button" data-action="add-action" data-outcome="success" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
                 <button type="button" data-action="add-action" data-outcome="success" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="tileVisibility" title="Show/Hide Tile"><i class="fas fa-eye"></i></button>
+                <button type="button" data-action="add-action" data-outcome="success" data-type="light" title="Enable/Disable Light"><i class="fas fa-lightbulb"></i></button>
                 <button type="button" data-action="add-action" data-outcome="success" data-type="regionBehavior" title="Add Region Behavior Action"><i class="fas fa-draw-polygon"></i></button>
             </div>
         </fieldset>
@@ -584,6 +730,69 @@
                             <option value="open" {{#if (eq this.state "open")}}selected{{/if}}>Open</option>
                             <option value="closed" {{#if (eq this.state "closed")}}selected{{/if}}>Close</option>
                             <option value="locked" {{#if (eq this.state "locked")}}selected{{/if}}>Lock</option>
+                        </select>
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "showTile") (or (eq this.type "hideTile") (eq this.type "toggleTileVisibility")))}}
+                    <div class="action-grid compact">
+                        <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-eye"></i> Tile:</span>
+                        <select name="actions.failure.{{@index}}.type" class="tile-visibility-action-type">
+                            <option value="showTile" {{#if (eq this.type "showTile")}}selected{{/if}}>Show</option>
+                            <option value="hideTile" {{#if (eq this.type "hideTile")}}selected{{/if}}>Hide</option>
+                            <option value="toggleTileVisibility" {{#if (eq this.type "toggleTileVisibility")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Tile</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Tiles in Scene</option>
+                        </select>
+                        <input type="hidden" name="actions.failure.{{@index}}.target.elementType" value="tile" />
+                        <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Tile ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="failure" data-index="{{@index}}" title="Pick" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}><i class="fas fa-crosshairs"></i></button>
+                        <input type="number" name="actions.failure.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "enableLight") (or (eq this.type "disableLight") (eq this.type "toggleLight")))}}
+                    <div class="action-grid compact">
+                        <span class="action-type-label" style="font-weight:bold; white-space:nowrap;"><i class="fas fa-lightbulb"></i> Light:</span>
+                        <select name="actions.failure.{{@index}}.type" class="light-action-type">
+                            <option value="enableLight" {{#if (eq this.type "enableLight")}}selected{{/if}}>Enable</option>
+                            <option value="disableLight" {{#if (eq this.type "disableLight")}}selected{{/if}}>Disable</option>
+                            <option value="toggleLight" {{#if (eq this.type "toggleLight")}}selected{{/if}}>Toggle</option>
+                        </select>
+                        <select name="actions.failure.{{@index}}.target.mode" class="target-mode">
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Light</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Lights in Scene</option>
+                        </select>
+                        <input type="hidden" name="actions.failure.{{@index}}.target.elementType" value="light" />
+                        <input type="text" name="actions.failure.{{@index}}.target.elementId" value="{{this.target.elementId}}" placeholder="Light ID" class="target-input" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}} />
+                        <button type="button" class="pick-target" data-action="pick-element" data-outcome="failure" data-index="{{@index}}" title="Pick" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}><i class="fas fa-crosshairs"></i></button>
+                        <input type="number" name="actions.failure.{{@index}}.delay" value="{{this.delay}}" min="0" step="0.1" style="width:60px" placeholder="Delay" />
+                        <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
+                    </div>
+                    {{else}}
+                    {{#if (or (eq this.type "enableRegionBehavior") (or (eq this.type "disableRegionBehavior") (eq this.type "toggleRegionBehavior")))}}
+                    <div class="action-grid compact">
+                        <select name="actions.failure.{{@index}}.target.mode" class="target-mode behavior-target-mode">
+                            <option value="source" {{#if (eq this.target.mode "source")}}selected{{/if}}>Source (Trigger Host)</option>
+                            <option value="specific" {{#if (eq this.target.mode "specific")}}selected{{/if}}>Specific Region</option>
+                            <option value="all" {{#if (eq this.target.mode "all")}}selected{{/if}}>All Regions in Scene</option>
+                        </select>
+                        <select name="actions.failure.{{@index}}.target.elementId" class="behavior-region-select" {{#unless (eq this.target.mode "specific")}}style="display:none"{{/unless}}>
+                            <option value="">-- Select Region --</option>
+                        </select>
+                        <input type="hidden" name="actions.failure.{{@index}}.target.elementType" value="region" />
+                        <select name="actions.failure.{{@index}}.behaviorId" class="behavior-search-select">
+                            <option value="">-- Select Behavior --</option>
+                        </select>
+                        <input type="hidden" class="behavior-saved-id" value="{{this.behaviorId}}" />
+                        <input type="hidden" class="behavior-saved-region" value="{{this.target.elementId}}" />
+                        <select name="actions.failure.{{@index}}.type" class="behavior-action-type">
+                            <option value="enableRegionBehavior" {{#if (eq this.type "enableRegionBehavior")}}selected{{/if}}>Enable</option>
+                            <option value="disableRegionBehavior" {{#if (eq this.type "disableRegionBehavior")}}selected{{/if}}>Disable</option>
+                            <option value="toggleRegionBehavior" {{#if (eq this.type "toggleRegionBehavior")}}selected{{/if}}>Toggle</option>
                         </select>
                         <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
@@ -613,6 +822,9 @@
                         <button type="button" class="remove-action" data-action="remove-action" data-outcome="failure" data-index="{{@index}}" title="Remove"><i class="fas fa-trash"></i></button>
                     </div>
                     {{/if}}
+                    {{/if}}
+                    {{/if}}
+                    {{/if}}
                 </div>
                 {{/each}}
             </div>
@@ -620,6 +832,8 @@
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="door" title="Add Door Action"><i class="fas fa-door-open"></i></button>
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="coreEffect" title="Add Effect Action"><i class="fas fa-magic"></i></button>
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="tileAsset" title="Add Tile Asset Action"><i class="fas fa-image"></i></button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="tileVisibility" title="Show/Hide Tile"><i class="fas fa-eye"></i></button>
+                <button type="button" data-action="add-action" data-outcome="failure" data-type="light" title="Enable/Disable Light"><i class="fas fa-lightbulb"></i></button>
                 <button type="button" data-action="add-action" data-outcome="failure" data-type="regionBehavior" title="Add Region Behavior Action"><i class="fas fa-draw-polygon"></i></button>
             </div>
         </fieldset>

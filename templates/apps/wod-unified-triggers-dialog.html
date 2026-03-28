@@ -104,6 +104,51 @@
     border-color: #8b1a1a;
     box-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
+.wod-triggers-dialog .trigger-copy {
+    background: linear-gradient(to bottom, #f0ad4e, #ec971f);
+    color: white;
+    border: 1px solid #d58512;
+    border-radius: 3px;
+    padding: 4px 8px;
+    margin-right: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+}
+.wod-triggers-dialog .trigger-copy:hover {
+    background: linear-gradient(to bottom, #f5c26b, #f0ad4e);
+    border-color: #b8761d;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.wod-triggers-container .wod-paste-trigger-btn {
+    background: linear-gradient(to bottom, #5bc0de, #31b0d5);
+    color: white;
+    border: 1px solid #269abc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 8px;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+.wod-triggers-container .wod-paste-trigger-btn:hover {
+    background: linear-gradient(to bottom, #72cce3, #5bc0de);
+    border-color: #1f7a96;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+    transform: scale(1.1);
+}
+.wod-triggers-container .wod-paste-trigger-btn:active {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    transform: scale(0.95);
+}
 </style>
 
 <div class="wod-triggers-container">
@@ -119,6 +164,9 @@
     <div class="wod-add-trigger-container">
         <button type="button" class="wod-add-trigger-btn" title="Add Trigger">
             <i class="fas fa-plus"></i>
+        </button>
+        <button type="button" class="wod-paste-trigger-btn" title="Paste Trigger">
+            <i class="fas fa-paste"></i>
         </button>
     </div>
 </div>

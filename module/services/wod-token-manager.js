@@ -41,12 +41,18 @@ export class WodTokenManager {
         this._pendingTransitions = new Map();
 
         this._initialized = false;
-        this._debugMode = true; // ON by default during development
+        this._debugMode = false;
         this._canvasReady = false; // Set true once canvasReady fires and states are built
 
         // Throttle lighting refresh evaluations
         this._lightingRefreshThrottle = null;
-        this._LIGHTING_REFRESH_DELAY = 100; // ms
+        this._LIGHTING_REFRESH_DELAY = 150; // ms
+
+        // Suppress lighting-refresh re-evaluations triggered by our own token.document.update()
+        // calls inside _evaluateToken (e.g. opacity/tint changes). Without this guard the
+        // evaluation fires 2-3 times per genuine lighting change.
+        this._postEvalCooldown = false;
+        this._postEvalCooldownTimer = null;
     }
 
     // ==================== Initialization ====================
@@ -254,12 +260,37 @@ export class WodTokenManager {
         // Don't evaluate before canvas is fully ready (avoids race with canvasReady)
         if (!this._canvasReady) return;
 
+        // Suppress refreshes triggered by our own token.document.update() calls
+        // (e.g. opacity/tint changes applied during a previous evaluation cycle).
+        if (this._postEvalCooldown) return;
+
         // Throttle: lighting refreshes can fire very rapidly
         if (this._lightingRefreshThrottle) return;
         this._lightingRefreshThrottle = setTimeout(() => {
             this._lightingRefreshThrottle = null;
-            this._evaluateAllTokens('isIlluminated');
+            this._runEvaluation('isIlluminated');
         }, this._LIGHTING_REFRESH_DELAY);
+    }
+
+    /**
+     * Run a full token evaluation and suppress re-entry from the lighting refreshes
+     * that our own token.document.update() calls will trigger.
+     * @param {string} conditionFilter
+     */
+    async _runEvaluation(conditionFilter) {
+        // Set cooldown immediately so any lighting fires during evaluation are ignored
+        this._postEvalCooldown = true;
+
+        const promises = canvas.tokens?.placeables?.map(t => this._evaluateToken(t, conditionFilter)) ?? [];
+        await Promise.allSettled(promises);
+
+        // Keep suppression for one more throttle cycle to absorb the lighting refreshes
+        // that the document.update() calls above have queued in Foundry's event loop.
+        clearTimeout(this._postEvalCooldownTimer);
+        this._postEvalCooldownTimer = setTimeout(() => {
+            this._postEvalCooldown = false;
+            this._postEvalCooldownTimer = null;
+        }, this._LIGHTING_REFRESH_DELAY * 2);
     }
 
     _onTokenCreated(tokenDoc) {
