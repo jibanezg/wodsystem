@@ -5,7 +5,8 @@
       "Bash(python -c \"import json; d=json.load\\(open\\(''template.json''\\)\\); print\\(json.dumps\\(d.get\\(''Actor'',{}\\).get\\(''system'',{}\\), indent=2\\)\\)\")",
       "Bash(python -c \"import json; d=json.load\\(open\\(''template.json''\\)\\); print\\(json.dumps\\(d.get\\(''Actor'',{}\\), indent=2\\)\\)\")",
       "Bash(python -c \"import json; d=json.load\\(open\\(''template.json''\\)\\); ct=d.get\\(''Actor'',{}\\).get\\(''creatureTypes'',{}\\); print\\(json.dumps\\(ct.get\\(''Spirit'',{}\\), indent=2\\)\\)\")",
-      "Bash(node -e \"const fs=require\\(''fs''\\); const s=JSON.parse\\(fs.readFileSync\\(''system.json'',''utf8''\\)\\); console.log\\(''styles:'', s.styles\\); console.log\\(''esmodules:'', s.esmodules?.slice\\(0,3\\)\\);\")"
+      "Bash(node -e \"const fs=require\\(''fs''\\); const s=JSON.parse\\(fs.readFileSync\\(''system.json'',''utf8''\\)\\); console.log\\(''styles:'', s.styles\\); console.log\\(''esmodules:'', s.esmodules?.slice\\(0,3\\)\\);\")",
+      "Bash(wc -l /c/Users/Grimg/AppData/Local/FoundryVTT/Data/systems/wodsystem/module/services/*.js)"
     ]
   }
 }
