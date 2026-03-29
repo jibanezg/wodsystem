@@ -5,20 +5,19 @@ import { i18n as i18nHelper } from "../helpers/i18n.js";
  * Allows GM to configure minimap settings for a scene
  */
 export class WodMinimapConfigDialog extends FormApplication {
-    constructor(scene, options = {}) {
+    constructor(options = {}) {
         if (!options.title) {
             if (game?.i18n) {
                 const localized = game.i18n.localize("WODSYSTEM.Minimap.Config.Title");
-                options.title = (localized !== "WODSYSTEM.Minimap.Config.Title") 
-                    ? localized 
+                options.title = (localized !== "WODSYSTEM.Minimap.Config.Title")
+                    ? localized
                     : "Minimap Configuration";
             } else {
                 options.title = "Minimap Configuration";
             }
         }
-        
+
         super({}, options);
-        this.scene = scene;
         this.activeTab = "general";
     }
 
@@ -40,15 +39,16 @@ export class WodMinimapConfigDialog extends FormApplication {
         // Get base data from FormApplication
         const data = await super.getData();
         
-        const config = this.scene.flags?.wodsystem?.minimap || this._getDefaultConfig();
+        const config = game.settings.get('wodsystem', 'minimapConfig') || this._getDefaultConfig();
         const manager = game.wod?.minimapManager;
-        
+        const scene = canvas?.scene;
+
         // Get walls and generate contour preview
         let contourPoints = [];
         let boundingBox = { minX: 0, minY: 0, maxX: 0, maxY: 0 };
-        
-        if (manager && this.scene.walls) {
-            const walls = manager.readSceneWalls(this.scene, config);
+
+        if (manager && scene?.walls) {
+            const walls = manager.readSceneWalls(scene, config);
             if (walls.length > 0) {
                 contourPoints = manager.generateMapContour(walls);
                 const allPoints = [];
@@ -77,7 +77,6 @@ export class WodMinimapConfigDialog extends FormApplication {
 
         // Merge our data with base data
         return foundry.utils.mergeObject(data, {
-            scene: this.scene,
             config: config,
             contourPoints: contourPoints,
             boundingBox: boundingBox,
@@ -179,8 +178,8 @@ export class WodMinimapConfigDialog extends FormApplication {
 
     /** @override */
     async _updateObject(event, formData) {
-        const config = this.scene.flags?.wodsystem?.minimap || this._getDefaultConfig();
-        
+        const config = foundry.utils.deepClone(game.settings.get('wodsystem', 'minimapConfig') || this._getDefaultConfig());
+
         // Update enabled
         if (formData["enabled"] !== undefined) {
             config.enabled = formData["enabled"] === true || formData["enabled"] === "on";
@@ -283,17 +282,16 @@ export class WodMinimapConfigDialog extends FormApplication {
         if (game.user.isGM && game.modules.get("levels")?.active) {
             const manager = game.wod?.minimapManager;
             if (manager) {
-                await manager._precalculateWallsByLevel(this.scene, config);
-            } else {
+                await manager._precalculateWallsByLevel(canvas.scene, config);
             }
         }
 
-        // Save configuration (including wallsByLevel)
-        await this.scene.setFlag("wodsystem", "minimap", config);
+        // Save to world setting
+        await game.settings.set('wodsystem', 'minimapConfig', config);
 
         // Update minimap display
         if (game.wod?.minimapManager) {
-            await game.wod.minimapManager._updateMinimapDisplay(this.scene);
+            await game.wod.minimapManager._updateMinimapDisplay(canvas.scene);
         }
     }
 
@@ -307,11 +305,10 @@ export class WodMinimapConfigDialog extends FormApplication {
             return;
         }
 
-        const marker = markerId ? 
-            (this.scene.flags?.wodsystem?.minimap?.markers || []).find(m => m.id === markerId) : 
-            null;
+        const config = game.settings.get('wodsystem', 'minimapConfig') || {};
+        const marker = markerId ? (config.markers || []).find(m => m.id === markerId) : null;
 
-        const dialog = new game.wod.MinimapMarkerDialog(this.scene, marker);
+        const dialog = new game.wod.MinimapMarkerDialog(marker);
         dialog.render(true);
     }
 
@@ -332,7 +329,7 @@ export class WodMinimapConfigDialog extends FormApplication {
         if (confirmed) {
             const manager = game.wod?.minimapManager;
             if (manager) {
-                await manager.deleteMarker(this.scene, markerId);
+                await manager.deleteMarker(null, markerId);
                 this.render();
             }
         }
@@ -357,7 +354,7 @@ export class WodMinimapConfigDialog extends FormApplication {
         if (contourPoints.length < 3) return;
 
         const boundingBox = this.boundingBox || { minX: 0, minY: 0, maxX: width, maxY: height };
-        const config = this.scene.flags?.wodsystem?.minimap || this._getDefaultConfig();
+        const config = game.settings.get('wodsystem', 'minimapConfig') || this._getDefaultConfig();
         const manager = game.wod?.minimapManager;
         if (!manager) return;
 

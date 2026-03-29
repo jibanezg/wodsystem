@@ -17,6 +17,7 @@ import { WodCharacterWizard } from "./module/character-creation/wod-character-wi
 import { GameDataService } from "./module/services/game-data-service.js"; // Game data by source (M20, D20)
 import { EquipmentEffectsManager } from "./module/services/equipment-effects-manager.js"; // Equipment UI/token effects
 import { MinimapManager } from "./module/services/minimap-manager.js"; // Minimap feature
+import { WodMinimapConfigDialog } from "./module/apps/wod-minimap-config-dialog.js"; // Minimap config dialog
 import { coreEffectsManager } from "./module/services/core-effects-manager.js"; // Core effects system
 import { TriggerManager } from "./module/services/trigger-manager.js"; // Tile/Region trigger system
 import { registerWodTriggerTabs } from "./module/ui/wod-trigger-tabs.js"; // Tile/Region config UI tabs
@@ -66,6 +67,36 @@ Hooks.once("init", async function() {
         config: true,
         default: false,
         type: Boolean
+    });
+
+    // Minimap world setting (stores the full config object)
+    game.settings.register('wodsystem', 'minimapConfig', {
+        name: 'Minimap Configuration',
+        hint: 'Minimap display settings for this world',
+        scope: 'world',
+        config: false,
+        type: Object,
+        default: {
+            enabled: true,
+            width: 200,
+            height: 200,
+            position: { vertical: 'top', horizontal: 'right' },
+            tokenDisplay: 'all-visible',
+            showSecretWalls: false,
+            coordinateMapping: { autoDetect: true, boundingBox: { minX: 0, minY: 0, maxX: 0, maxY: 0 } },
+            style: { fillColor: '#333333', strokeColor: '#ffffff', strokeWidth: 2 },
+            markers: []
+        }
+    });
+
+    // Settings menu button — opens the minimap config dialog from Configure Settings
+    game.settings.registerMenu('wodsystem', 'minimapConfig', {
+        name: 'Minimap',
+        label: 'Configure Minimap',
+        hint: 'Configure the minimap display, position, style, and markers for this world',
+        icon: 'fas fa-map',
+        type: WodMinimapConfigDialog,
+        restricted: true
     });
     
     // Register Actor Classes FIRST (before any async operations)
@@ -322,18 +353,37 @@ Hooks.on("ready", async () => {
     loginVideoSplash.initialize();
     
         
-    // Load Minimap dialogs and make them globally available
+    // Load Minimap dialogs and HUD
+    game.wod.MinimapConfigDialog = WodMinimapConfigDialog;
     Promise.all([
-        import("./module/apps/wod-minimap-config-dialog.js"),
         import("./module/apps/wod-minimap-marker-dialog.js"),
         import("./module/ui/minimap-hud.js")
-    ]).then(([configDialog, markerDialog, hud]) => {
-        // Make dialogs globally available
-        game.wod = game.wod || {};
-        game.wod.MinimapConfigDialog = configDialog.WodMinimapConfigDialog;
+    ]).then(async ([markerDialog, hud]) => {
         game.wod.MinimapMarkerDialog = markerDialog.WodMinimapMarkerDialog;
-        
-        // Initialize Minimap HUD
+
+        // One-time migration from per-scene flags to world setting.
+        // Only runs once (guarded by _migrated flag). After migration the stored
+        // config always has _migrated: true so this block is skipped on later loads.
+        try {
+            const worldConfig = game.settings.get('wodsystem', 'minimapConfig');
+            if (!worldConfig._migrated) {
+                // Start from whatever scene flags we have (may be empty object)
+                const sceneConfig = canvas?.scene?.flags?.wodsystem?.minimap || {};
+                const merged = foundry.utils.mergeObject(
+                    foundry.utils.deepClone(worldConfig),
+                    sceneConfig,
+                    { inplace: false }
+                );
+                // Always enable on first migration — the minimap should be visible
+                merged.enabled = true;
+                merged._migrated = true;
+                await game.settings.set('wodsystem', 'minimapConfig', merged);
+                console.log('WoD | Minimap config migrated to world settings');
+            }
+        } catch (e) {
+            console.warn('WoD | Could not migrate minimap config:', e);
+        }
+
         hud.MinimapHUD.initialize();
     });
 });

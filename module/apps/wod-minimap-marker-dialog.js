@@ -5,7 +5,7 @@ import { i18n as i18nHelper } from "../helpers/i18n.js";
  * Allows GM to create/edit markers for the minimap
  */
 export class WodMinimapMarkerDialog extends FormApplication {
-    constructor(scene, marker = null, options = {}) {
+    constructor(marker = null, options = {}) {
         if (!options.title) {
             if (game?.i18n) {
                 const localized = game.i18n.localize(marker ? 
@@ -22,7 +22,6 @@ export class WodMinimapMarkerDialog extends FormApplication {
         }
         
         super({}, options);
-        this.scene = scene;
         this.marker = marker;
     }
 
@@ -56,7 +55,6 @@ export class WodMinimapMarkerDialog extends FormApplication {
 
         // Merge our data with base data
         return foundry.utils.mergeObject(data, {
-            scene: this.scene,
             marker: marker,
             isEdit: !!this.marker,
             categoryOptions: (() => {
@@ -123,12 +121,10 @@ export class WodMinimapMarkerDialog extends FormApplication {
 
         try {
             if (this.marker) {
-                // Update existing marker
-                await manager.updateMarker(this.scene, this.marker.id, markerData);
+                await manager.updateMarker(null, this.marker.id, markerData);
                 ui.notifications.info(game.i18n.localize("WODSYSTEM.Minimap.Markers.Updated") || "Marker updated");
             } else {
-                // Create new marker
-                await manager.addMarker(this.scene, markerData);
+                await manager.addMarker(null, markerData);
                 ui.notifications.info(game.i18n.localize("WODSYSTEM.Minimap.Markers.Created") || "Marker created");
             }
 

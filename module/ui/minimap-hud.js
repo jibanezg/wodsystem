@@ -40,18 +40,17 @@ export class MinimapHUD {
             hud.render();
         });
 
-        // Hook into token movement
-        // Use a small delay to ensure canvas has updated before rendering
+        // Hook into token movement and elevation changes
         Hooks.on("updateToken", (tokenDocument, updateData, options, userId) => {
-            // Only update if position changed
-            if (updateData.x !== undefined || updateData.y !== undefined) {
-                // Small delay to ensure canvas tokens have updated
-                setTimeout(() => {
-                    hud.render();
-                }, 50);
+            if (updateData.x !== undefined || updateData.y !== undefined || updateData.elevation !== undefined) {
+                setTimeout(() => { hud.render(); }, 50);
             }
         });
-        
+
+        // Levels module: re-render when the viewed elevation changes
+        Hooks.on("levelsChangeLevel", () => { hud.render(); });
+        Hooks.on("levelChanged",      () => { hud.render(); });
+
         // Also listen for token refresh (when canvas updates)
         Hooks.on("refreshToken", (token, options) => {
             hud.render();
@@ -194,9 +193,12 @@ export class MinimapHUD {
                 
                 // Save pan offset
                 this._savePanOffset(finalOffsetX, finalOffsetY);
-                
+
                 this.isPanning = false;
                 this.element.css("cursor", "grab");
+
+                // Re-render with proper ctx transforms (bakes pan into canvas draw)
+                this.render();
             }
         });
         
@@ -246,41 +248,11 @@ export class MinimapHUD {
      */
     _applyPanOffset(offsetX, offsetY) {
         if (!this.contentContainer) return;
-        
-        // Get zoom
-        let zoom = 1.0;
-        try {
-            zoom = game.settings.get("wodsystem", "minimapZoom") || 1.0;
-        } catch (e) {
-            zoom = 1.0;
-        }
-        
-        // Get config to determine positioning offset
-        const manager = game.wod?.minimapManager;
-        let leftOffset = 0;
-        if (manager && canvas.scene) {
-            const config = manager.getSceneConfig(canvas.scene);
-            if (config) {
-                const width = config.width || 200;
-                const canvasWidth = width / zoom;
-                const position = config.position || { vertical: "top", horizontal: "right" };
-                const horizontal = position.horizontal || "right";
-                
-                if (horizontal === "right") {
-                    leftOffset = width - (canvasWidth * zoom);
-                } else if (horizontal === "center") {
-                    leftOffset = (width - (canvasWidth * zoom)) / 2;
-                }
-            }
-        }
-        
-        // Always use top-left as transform origin to avoid clipping issues
-        const transformOrigin = "top left";
-        
-        // Apply pan offset to content container (divide by zoom since pan is in container pixels)
+        // During drag: CSS translate for smooth real-time response (no canvas redraw)
+        // The full re-render with ctx transforms fires on mouse up via render()
         this.contentContainer.css({
-            "transform": `scale(${zoom}) translate(${(offsetX + leftOffset) / zoom}px, ${offsetY / zoom}px)`,
-            "transform-origin": transformOrigin
+            "transform": `translate(${offsetX}px, ${offsetY}px)`,
+            "transform-origin": "top left"
         });
     }
     
@@ -365,118 +337,87 @@ export class MinimapHUD {
         const manager = game.wod?.minimapManager;
         if (!manager) return;
 
-        // Set canvas size (container size stays fixed)
         const width = config.width || 200;
         const height = config.height || 200;
-        
-        // Get user's zoom preference instead of config zoom
-        // Use try-catch in case setting not registered yet
+
         let zoom = 1.0;
         try {
             zoom = game.settings.get("wodsystem", "minimapZoom") || 1.0;
-        } catch (e) {
-            zoom = 1.0;
-        }
+        } catch (e) {}
 
-        // Container maintains fixed size
-        this.element.css({
-            width: `${width}px`,
-            height: `${height}px`
-        });
-        
-        // Canvas size is scaled by zoom (to show more/less area)
-        // When zoom > 1, we show less area (zoomed in)
-        // When zoom < 1, we show more area (zoomed out)
-        const canvasWidth = width / zoom;
-        const canvasHeight = height / zoom;
-        
-        this.canvas.width = canvasWidth;
-        this.canvas.height = canvasHeight;
-        
-        // Store zoom for position calculation
-        this.currentZoom = zoom;
-        
-        // Apply zoom to content container (scale the content, not the container)
-        // Also apply pan offset
-        let panX = 0;
-        let panY = 0;
+        let panX = 0, panY = 0;
         try {
             const pan = game.settings.get("wodsystem", "minimapPan") || { x: 0, y: 0 };
             panX = pan.x || 0;
             panY = pan.y || 0;
-        } catch (e) {
-            // Pan setting not available
-        }
-        
+        } catch (e) {}
+
+        // Container: fixed display size
+        this.element.css({ width: `${width}px`, height: `${height}px` });
+
+        // Canvas: full resolution with DPR support — eliminates pixelation at any zoom
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = Math.round(width * dpr);
+        this.canvas.height = Math.round(height * dpr);
+        $(this.canvas).css({ width: `${width}px`, height: `${height}px` });
+
+        this.currentZoom = zoom;
+        this.panOffsetX = panX;
+        this.panOffsetY = panY;
+
+        // Content container: no CSS scale (zoom is baked into ctx transforms below)
         if (this.contentContainer) {
-            // Get position to determine positioning offset
-            const position = config.position || { vertical: "top", horizontal: "right" };
-            const horizontal = position.horizontal || "right";
-            
-            // Always use top-left as transform origin to avoid clipping issues
-            const transformOrigin = "top left";
-            
-            // Calculate positioning offset based on horizontal position
-            // When positioned on the right, we need to offset the content to align it properly
-            let leftOffset = 0;
-            if (horizontal === "right") {
-                // Content should align to the right edge
-                leftOffset = width - (canvasWidth * zoom);
-            } else if (horizontal === "center") {
-                // Content should be centered
-                leftOffset = (width - (canvasWidth * zoom)) / 2;
-            }
-            // For "left", leftOffset stays 0
-            
-            // Scale the content container, and apply pan offset
-            // Pan offset is in container pixels, so we need to divide by zoom
             this.contentContainer.css({
-                "transform": `scale(${zoom}) translate(${(panX + leftOffset) / zoom}px, ${panY / zoom}px)`,
-                "transform-origin": transformOrigin,
-                "width": `${canvasWidth}px`,
-                "height": `${canvasHeight}px`,
+                "transform": "",
+                "transform-origin": "",
+                "width": `${width}px`,
+                "height": `${height}px`,
                 "position": "relative"
             });
         }
-        
-        // Update pan offset application function to use new structure
-        this.panOffsetX = panX;
-        this.panOffsetY = panY;
-        
-        // Zoom display removed (no buttons anymore)
-        
-        // Position will apply the zoom transform
 
-        // Position the minimap (container position, not content)
+        // Position the minimap container
         this._positionMinimap(config.position);
 
-        // Clear canvas (use canvas dimensions, not container dimensions)
-        this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        // Clear canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Get walls and generate contour
+        // Apply ctx transforms: DPR scaling + zoom centered around canvas center + pan
+        // Equivalent CSS would be: translate(panX, panY) scale(zoom) with transform-origin 50% 50%
+        this.ctx.save();
+        this.ctx.scale(dpr, dpr);
+        this.ctx.translate(width / 2 + panX, height / 2 + panY);
+        this.ctx.scale(zoom, zoom);
+        this.ctx.translate(-width / 2, -height / 2);
+
+        // Get walls
         const walls = manager.readSceneWalls(canvas.scene, config);
         if (walls.length === 0) {
-            // Draw a message if no walls found
+            this.ctx.restore();
+            this.ctx.save();
+            this.ctx.scale(dpr, dpr);
             this.ctx.fillStyle = "#666666";
             this.ctx.font = "12px Arial";
             this.ctx.textAlign = "center";
-            this.ctx.fillText("No walls found", canvasWidth / 2, canvasHeight / 2);
+            this.ctx.fillText("No walls found", width / 2, height / 2);
+            this.ctx.restore();
             return;
         }
 
-        // Generate wall segments (actual wall lines, not a contour)
         const wallSegments = manager.generateWallSegments(walls);
-        
         if (wallSegments.length === 0) {
-            // Draw a message if no walls found
+            this.ctx.restore();
+            this.ctx.save();
+            this.ctx.scale(dpr, dpr);
             this.ctx.fillStyle = "#666666";
             this.ctx.font = "12px Arial";
             this.ctx.textAlign = "center";
-            this.ctx.fillText("No walls found", canvasWidth / 2, canvasHeight / 2);
+            this.ctx.fillText("No walls found", width / 2, height / 2);
+            this.ctx.restore();
             return;
         }
-        
-        // Calculate bounding box from all wall points
+
+        // Bounding box from wall points
         const allPoints = [];
         wallSegments.forEach(segment => {
             allPoints.push({ x: segment.x0, y: segment.y0 });
@@ -484,14 +425,23 @@ export class MinimapHUD {
         });
         const boundingBox = manager.calculateBoundingBox(allPoints);
 
-        // Draw walls directly (use canvas dimensions)
-        this._drawContour(wallSegments, config.style, boundingBox, canvasWidth, canvasHeight);
+        // Draw walls — mapSceneToMinimap maps to [0, config.width] space;
+        // ctx transforms handle zoom and pan
+        this._drawContour(wallSegments, config.style, boundingBox, width, height);
 
-        // Draw tokens (use canvas dimensions and zoom)
-        this._drawTokens(config, boundingBox, canvasWidth, canvasHeight, zoom);
+        this.ctx.restore();
 
-        // Draw markers (use canvas dimensions and zoom)
-        this._drawMarkers(config, boundingBox, canvasWidth, canvasHeight, zoom);
+        // Apply matching zoom/pan CSS to overlay containers (tokens/markers)
+        // This mirrors the ctx transform: scale(zoom) centered + translate(pan)
+        const overlayTransform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+        this.element.find(".wod-minimap-tokens, .wod-minimap-markers").css({
+            "transform": overlayTransform,
+            "transform-origin": "50% 50%"
+        });
+
+        // Draw tokens and markers in unzoomed [0, config.width] space
+        this._drawTokens(config, boundingBox, width, height, zoom);
+        this._drawMarkers(config, boundingBox, width, height, zoom);
     }
 
     /**

@@ -109,160 +109,50 @@ export class MinimapManager {
             }
         });
 
-        // Hook into scene updates
-        Hooks.on("updateScene", async (scene, updateData, options, userId) => {
-            if (updateData.flags?.wodsystem?.minimap !== undefined) {
-                manager.contourCache.delete(scene.id);
-                await manager._updateMinimapDisplay(scene);
+        // Refresh HUD when the minimap world setting changes
+        Hooks.on("updateSetting", (setting) => {
+            if (setting.key === 'wodsystem.minimapConfig') {
+                manager.contourCache.clear();
+                manager._updateMinimapDisplay(canvas.scene);
             }
         });
 
-        // Hook into scene controls to add minimap config button
+        // Hook into scene controls to add minimap toggle + config buttons (GM only)
         Hooks.on("getSceneControlButtons", (controls) => {
             if (!game.user.isGM) return;
-            
-            // Debug logging to help diagnose issues
-            if (game.settings.get('wodsystem', 'debugMode')) {
-                console.log('WoD Minimap | getSceneControlButtons called with:', typeof controls, controls);
-            }
-            
-            // Ensure controls is an array before calling find
-            if (!Array.isArray(controls)) {
-                if (game.settings.get('wodsystem', 'debugMode')) {
-                    console.warn('WoD Minimap | Controls is not an array:', typeof controls, controls);
-                }
-                return;
-            }
-            
-            // Add minimap button to the navigation control group
+            if (!Array.isArray(controls)) return;
+
             const navigationControl = controls.find(c => c.name === "navigation");
-            if (navigationControl) {
-                navigationControl.tools.push({
-                    name: "minimap-config",
-                    title: game.i18n.localize("WODSYSTEM.Minimap.Config.Title"),
-                    icon: "fas fa-map",
-                    button: true,
-                    onClick: () => {
-                        if (canvas?.scene) {
-                            manager._openConfigDialog(canvas.scene);
-                        }
-                    }
-                });
-            }
+            if (!navigationControl) return;
+
+            // Toggle visibility button — instantly shows/hides the minimap
+            navigationControl.tools.push({
+                name: "minimap-toggle",
+                title: "Toggle Minimap",
+                icon: "fas fa-map",
+                button: true,
+                onClick: async () => {
+                    const config = foundry.utils.deepClone(
+                        game.settings.get('wodsystem', 'minimapConfig')
+                    );
+                    config.enabled = !config.enabled;
+                    await game.settings.set('wodsystem', 'minimapConfig', config);
+                    ui.notifications.info(
+                        config.enabled ? "Minimap shown" : "Minimap hidden"
+                    );
+                }
+            });
+
+            // Config button — opens the full settings dialog
+            navigationControl.tools.push({
+                name: "minimap-config",
+                title: "Minimap Settings",
+                icon: "fas fa-cog",
+                button: true,
+                onClick: () => manager._openConfigDialog()
+            });
         });
 
-        // Hook into scene configuration dialog to add minimap button
-        Hooks.on("renderSceneConfig", (app, html, data) => {
-            
-            if (!game.user.isGM) {
-                return;
-            }
-            
-            // Ensure html is a jQuery object
-            const $html = html instanceof jQuery ? html : $(html);
-            
-            
-            // Wait for the form to be fully rendered
-            setTimeout(() => {
-                // Remove any existing button first to avoid duplicates
-                $html.find('.wod-minimap-config-btn').closest('.wod-minimap-config-group').remove();
-                
-                // Try to get the scene object
-                let scene = app.object || app.entity || data?.scene || data?.entity;
-                
-                // Try to get scene ID from form if we don't have the scene object
-                if (!scene) {
-                    const sceneIdInput = $html.find('input[name="sceneId"], input[name="_id"]');
-                    if (sceneIdInput.length) {
-                        const sceneId = sceneIdInput.val();
-                        if (sceneId) {
-                            scene = game.scenes.get(sceneId);
-                        }
-                    }
-                }
-                
-                // Last resort: try canvas scene
-                if (!scene && canvas?.scene) {
-                    scene = canvas.scene;
-                }
-                
-                // Get localized title
-                const title = game.i18n?.localize("WODSYSTEM.Minimap.Config.Title");
-                const buttonText = (title && title !== "WODSYSTEM.Minimap.Config.Title") 
-                    ? title 
-                    : "Minimap Configuration";
-                
-                // Create button with more visible styling
-                const button = $(`
-                    <div class="form-group wod-minimap-config-group" style="margin: 20px 0; padding: 15px; border: 2px solid #2D5016; border-radius: 4px; background: rgba(45, 80, 22, 0.1);">
-                        <button type="button" class="wod-minimap-config-btn" style="width: 100%; padding: 12px; background: #2D5016; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <i class="fas fa-map" style="font-size: 16px;"></i> ${buttonText}
-                        </button>
-                    </div>
-                `);
-                
-                // Store scene in closure for button click
-                const targetScene = scene;
-                
-                button.find('button').on("click", (event) => {
-                    event.preventDefault();
-                    
-                    if (targetScene) {
-                        manager._openConfigDialog(targetScene);
-                    } else {
-                        // Fallback: try canvas scene
-                        const fallbackScene = canvas?.scene;
-                        if (fallbackScene) {
-                            manager._openConfigDialog(fallbackScene);
-                        } else {
-                            ui.notifications.error("Error: Could not find scene to configure. Please try using the chat command '/minimap' instead.");
-                        }
-                    }
-                });
-                
-                // Strategy: Insert the button right before the "Save Changes" button
-                // This makes it visible in ALL tabs and is the most obvious location
-                
-                // Look for the Save Changes button - Foundry uses different structures
-                const saveButton = $html.find('button[type="submit"]').first();
-                const dialogButtons = $html.find('.dialog-buttons').first();
-                const footer = $html.find('footer').first();
-                const windowContent = $html.find('.window-content').first();
-                
-                
-                // Priority 1: Insert right before the Save Changes button
-                if (saveButton.length) {
-                    const saveParent = saveButton.parent();
-                    if (saveParent.hasClass('dialog-buttons') || saveParent.hasClass('form-group')) {
-                        saveParent.before(button);
-                    } else {
-                        saveButton.before(button);
-                    }
-                } 
-                // Priority 2: Insert before dialog buttons container
-                else if (dialogButtons.length) {
-                    dialogButtons.before(button);
-                }
-                // Priority 3: Insert in footer
-                else if (footer.length) {
-                    footer.prepend(button);
-                }
-                // Priority 4: Insert at end of window content (visible in all tabs)
-                else if (windowContent.length) {
-                    windowContent.append(button);
-                }
-                // Last resort: append to html
-                else {
-                    $html.append(button);
-                }
-                
-                // Verify button was created
-                const buttonExists = $html.find('.wod-minimap-config-btn').length > 0;
-                
-                if (!buttonExists) {
-                }
-            }, 200);
-        });
 
         // Register user setting for minimap zoom (each player can set their own)
         // Register immediately in initialize() to ensure it's available before ready
@@ -322,32 +212,13 @@ export class MinimapManager {
             });
         }
 
-        // Register chat command for minimap
-        Hooks.on("ready", () => {
-            if (game.user.isGM) {
-                game.settings.register("wodsystem", "minimapChatCommand", {
-                    name: "Enable Minimap Chat Command",
-                    hint: "Type '/minimap' in chat to open minimap configuration",
-                    scope: "world",
-                    config: false,
-                    default: true,
-                    type: Boolean
-                });
-            }
-        });
-
-        // Chat command handler
+        // Chat command handler (/minimap opens the config dialog)
         Hooks.on("chatMessage", (chatLog, message, chatData) => {
             if (!game.user.isGM) return;
-            
             const content = message.content?.toLowerCase() || "";
             if (content.startsWith("/minimap") || content.startsWith("!minimap")) {
-                if (canvas?.scene) {
-                    manager._openConfigDialog(canvas.scene);
-                } else {
-                    ui.notifications.warn("No active scene. Please activate a scene first.");
-                }
-                return false; // Prevent message from being sent
+                manager._openConfigDialog();
+                return false;
             }
         });
 
@@ -363,10 +234,11 @@ export class MinimapManager {
             return;
         }
 
-        // If GM and Levels is active, pre-calculate walls for each level
-        // This allows players to see walls for their level without needing access to level data
+        // If GM and Levels is active, pre-calculate walls for each level and persist
         if (game.user.isGM && game.modules.get("levels")?.active) {
-            await this._precalculateWallsByLevel(scene, config);
+            const mutableConfig = foundry.utils.deepClone(config);
+            await this._precalculateWallsByLevel(scene, mutableConfig);
+            await game.settings.set('wodsystem', 'minimapConfig', mutableConfig);
         }
 
         await this._updateMinimapDisplay(scene);
@@ -486,54 +358,15 @@ export class MinimapManager {
                 const wallData = wall.document || wall;
                 if (!wallData) return false;
                 
-                let wallBottom = null;
-                let wallTop = null;
-                
-                // Use the same extraction logic as above
-                // Method 1: Check range property
-                if (wallData.range && Array.isArray(wallData.range)) {
-                    wallBottom = wallData.range[0];
-                    wallTop = wallData.range[1] ?? wallData.range[0];
-                } else if (wallData.range && typeof wallData.range === 'object') {
-                    wallBottom = wallData.range.bottom ?? wallData.range.min;
-                    wallTop = wallData.range.top ?? wallData.range.max ?? wallBottom;
-                } else {
-                    const wallLevel = wallData.level ?? wallData.bottom ?? wallData.elevation;
-                    if (wallLevel !== null && wallLevel !== undefined) {
-                        wallBottom = wallLevel;
-                        wallTop = wallLevel;
-                    }
+                const { bottom: wallBottom, top: wallTop } = this._extractWallElevation(wallData);
+
+                if (wallBottom !== null || wallTop !== null) {
+                    const effBottom = wallBottom ?? -Infinity;
+                    const effTop    = wallTop    ??  Infinity;
+                    return level >= effBottom && level < effTop;
                 }
-                
-                // Method 2: Check flags.wall-height (Levels module stores level info here)
-                if (wallBottom === null && wallTop === null && wallData.flags) {
-                    const wallHeight = wallData.flags['wall-height'];
-                    if (wallHeight) {
-                        if (typeof wallHeight === 'object' && wallHeight !== null) {
-                            wallBottom = wallHeight.bottom ?? wallHeight.min;
-                            wallTop = wallHeight.top ?? wallHeight.max ?? wallBottom;
-                        }
-                    }
-                    
-                    const levelsFlags = wallData.flags.levels;
-                    if (wallBottom === null && wallTop === null && levelsFlags) {
-                        if (Array.isArray(levelsFlags.range)) {
-                            wallBottom = levelsFlags.range[0];
-                            wallTop = levelsFlags.range[1] ?? levelsFlags.range[0];
-                        } else if (typeof levelsFlags.range === 'object' && levelsFlags.range !== null) {
-                            wallBottom = levelsFlags.range.bottom ?? levelsFlags.range.min;
-                            wallTop = levelsFlags.range.top ?? levelsFlags.range.max ?? wallBottom;
-                        } else if (levelsFlags.level !== undefined) {
-                            wallBottom = levelsFlags.level;
-                            wallTop = levelsFlags.level;
-                        }
-                    }
-                }
-                
-                if (wallBottom !== null && wallTop !== null) {
-                    return level >= wallBottom && level <= wallTop;
-                }
-                return false;
+                // No elevation info — wall is not restricted, show on all levels
+                return true;
             });
             
             // Store only wall IDs to save space
@@ -546,14 +379,73 @@ export class MinimapManager {
         // Update config with walls by level
         config.wallsByLevel = Object.fromEntries(wallsByLevel);
         
-        // Save to scene flags - merge with existing config to preserve all settings
-        const currentFlags = scene.flags?.wodsystem?.minimap || {};
-        const mergedConfig = { ...currentFlags, ...config, wallsByLevel: config.wallsByLevel };
+        // wallsByLevel is now set directly on the config object.
+        // The caller (_updateObject or _initializeMinimapForScene) is responsible for saving
+        // the config to game.settings so it persists.
         
-        await scene.update({
-            "flags.wodsystem.minimap": mergedConfig
-        });
-        
+    }
+
+    /**
+     * Extract elevation range from a wall document, covering all known storage formats:
+     * - Wall Height module v2 (flags['wall-height'].top / .bottom)
+     * - Wall Height module v3+ (flags['wall-height'].wallHeightTop / .wallHeightBottom)
+     * - Levels module flags (flags.levels.rangeBottom / rangeTop, range array/object, level)
+     * - Legacy range property (wallData.range)
+     * - Foundry v12/v13 direct top/bottom when used as a range
+     * @param {Object} wallData - Wall document or object
+     * @returns {{bottom: number|null, top: number|null}}
+     */
+    _extractWallElevation(wallData) {
+        let bottom = null;
+        let top = null;
+
+        // Wall Height module flags — multiple key formats across versions
+        const wh = wallData.flags?.['wall-height'];
+        if (wh && typeof wh === 'object') {
+            // v3+ keys
+            bottom = wh.wallHeightBottom ?? wh.bottom ?? wh.min ?? null;
+            top    = wh.wallHeightTop    ?? wh.top    ?? wh.max ?? bottom;
+            if (bottom !== null || top !== null) return { bottom, top };
+        }
+
+        // Levels module flags
+        const lf = wallData.flags?.levels;
+        if (lf && typeof lf === 'object') {
+            if (lf.rangeBottom !== undefined || lf.rangeTop !== undefined) {
+                bottom = lf.rangeBottom ?? null;
+                top    = lf.rangeTop    ?? bottom;
+            } else if (Array.isArray(lf.range)) {
+                bottom = lf.range[0];
+                top    = lf.range[1] ?? lf.range[0];
+            } else if (lf.range && typeof lf.range === 'object') {
+                bottom = lf.range.bottom ?? lf.range.min ?? null;
+                top    = lf.range.top    ?? lf.range.max ?? bottom;
+            } else if (lf.level !== undefined) {
+                bottom = lf.level;
+                top    = lf.level;
+            }
+            if (bottom !== null || top !== null) return { bottom, top };
+        }
+
+        // Legacy wallData.range property
+        if (wallData.range) {
+            if (Array.isArray(wallData.range)) {
+                bottom = wallData.range[0];
+                top    = wallData.range[1] ?? wallData.range[0];
+                return { bottom, top };
+            } else if (typeof wallData.range === 'object') {
+                bottom = wallData.range.bottom ?? wallData.range.min ?? null;
+                top    = wallData.range.top    ?? wallData.range.max ?? bottom;
+                return { bottom, top };
+            }
+        }
+
+        // Direct top/bottom as a range (Foundry native or misc modules)
+        if (wallData.top !== undefined && wallData.bottom !== undefined) {
+            return { bottom: wallData.bottom, top: wallData.top };
+        }
+
+        return { bottom: null, top: null };
     }
 
     /**
@@ -562,8 +454,11 @@ export class MinimapManager {
      * @returns {Object|null} Configuration object or null if not configured
      */
     getSceneConfig(scene) {
-        if (!scene) return null;
-        return scene.flags?.wodsystem?.minimap || null;
+        try {
+            return game.settings.get('wodsystem', 'minimapConfig') || null;
+        } catch (e) {
+            return null;
+        }
     }
 
     /**
@@ -680,105 +575,28 @@ export class MinimapManager {
         const levelsActive = levelsModule?.active;
 
 
-        let walls = [];
-        
-        // For players: use pre-calculated walls by level from scene config
-        if (!isGM && levelsActive && currentLevel !== null) {
-            // Try to get walls from pre-calculated config (set by GM)
-            const wallsByLevel = config?.wallsByLevel;
-            
-            if (wallsByLevel && wallsByLevel[currentLevel]) {
-                const wallIds = wallsByLevel[currentLevel];
-                walls = wallIds.map(id => {
-                    const wall = scene.walls.get(id);
-                    if (!wall) {
-                    }
-                    return wall;
-                }).filter(Boolean);
-                
-            } else {
-                return [];
-            }
-        } else {
-            // For GM or when Levels is not active: use scene.walls
-            walls = Array.from(scene.walls.values());
-        }
+        // All users get all walls from scene — elevation filtering applied uniformly below
+        const walls = Array.from(scene.walls.values());
 
         // Filter walls by level and secret status
         const filteredWalls = walls.filter(wall => {
             const wallData = wall.document || wall;
             if (!wallData) return false;
-            
-            // Filter by level if Levels module is active (only for GM, players already filtered above)
-            if (currentLevel !== null && levelsActive && isGM) {
-                const wallId = wallData.id;
-                // Use the same extraction logic as _precalculateWallsByLevel
-                let wallBottom = null;
-                let wallTop = null;
-                
-                // Method 1: Check range property
-                if (wallData.range && Array.isArray(wallData.range)) {
-                    wallBottom = wallData.range[0];
-                    wallTop = wallData.range[1] ?? wallData.range[0];
-                } else if (wallData.range && typeof wallData.range === 'object') {
-                    wallBottom = wallData.range.bottom ?? wallData.range.min;
-                    wallTop = wallData.range.top ?? wallData.range.max ?? wallBottom;
-                } else {
-                    const wallLevel = wallData.level ?? wallData.bottom ?? wallData.elevation;
-                    if (wallLevel !== null && wallLevel !== undefined) {
-                        wallBottom = wallLevel;
-                        wallTop = wallLevel;
+
+            // Filter by elevation if Levels module is active
+            if (levelsActive && currentLevel !== null) {
+                const { bottom: wallBottom, top: wallTop } = this._extractWallElevation(wallData);
+
+                if (wallBottom !== null || wallTop !== null) {
+                    // Half-open interval [bottom, top): elevation 10 belongs to [10,20) not [9,10)
+                    // Missing boundary treated as ±Infinity
+                    const effBottom = wallBottom ?? -Infinity;
+                    const effTop    = wallTop    ??  Infinity;
+                    if (currentLevel < effBottom || currentLevel >= effTop) {
+                        return false;
                     }
                 }
-                
-                // Method 2: Check flags.wall-height (Levels module stores level info here)
-                if (wallBottom === null && wallTop === null && wallData.flags) {
-                    const wallHeight = wallData.flags['wall-height'];
-                    if (wallHeight) {
-                        if (typeof wallHeight === 'object' && wallHeight !== null) {
-                            wallBottom = wallHeight.bottom ?? wallHeight.min;
-                            wallTop = wallHeight.top ?? wallHeight.max ?? wallBottom;
-                        }
-                    }
-                    
-                    const levelsFlags = wallData.flags.levels;
-                    if (wallBottom === null && wallTop === null && levelsFlags) {
-                        if (Array.isArray(levelsFlags.range)) {
-                            wallBottom = levelsFlags.range[0];
-                            wallTop = levelsFlags.range[1] ?? levelsFlags.range[0];
-                        } else if (typeof levelsFlags.range === 'object' && levelsFlags.range !== null) {
-                            wallBottom = levelsFlags.range.bottom ?? levelsFlags.range.min;
-                            wallTop = levelsFlags.range.top ?? levelsFlags.range.max ?? wallBottom;
-                        } else if (levelsFlags.level !== undefined) {
-                            wallBottom = levelsFlags.level;
-                            wallTop = levelsFlags.level;
-                        }
-                    }
-                }
-                
-                // Method 3: Check data.range (might be nested)
-                if (wallBottom === null && wallTop === null && wallData.data) {
-                    const dataRange = wallData.data.range;
-                    if (dataRange) {
-                        if (Array.isArray(dataRange)) {
-                            wallBottom = dataRange[0];
-                            wallTop = dataRange[1] ?? dataRange[0];
-                        } else if (typeof dataRange === 'object' && dataRange !== null) {
-                            wallBottom = dataRange.bottom ?? dataRange.min;
-                            wallTop = dataRange.top ?? dataRange.max ?? wallBottom;
-                        }
-                    }
-                }
-                
-                // If wall has level info, check if current level is within range
-                if (wallBottom !== null && wallTop !== null) {
-                    const isOnCurrentLevel = currentLevel >= wallBottom && currentLevel <= wallTop;
-                    if (!isOnCurrentLevel) {
-                        return false; // Wall is not on current level
-                    }
-                } else {
-                    return false;
-                }
+                // Both null: no elevation restriction — show at all levels
             }
             // For players: walls from canvas.walls.placeables are already filtered by level
             
@@ -796,7 +614,21 @@ export class MinimapManager {
             return true;
         });
         
-        
+        // --- DIAGNOSTIC ---
+        const elevRanges = walls.map(w => {
+            const d = w.document || w;
+            return this._extractWallElevation(d);
+        });
+        const withElev = elevRanges.filter(r => r.bottom !== null).length;
+        const noElev   = elevRanges.filter(r => r.bottom === null).length;
+        console.log(`[WOD Minimap] currentLevel=${currentLevel} levelsActive=${levelsActive} isGM=${isGM}`);
+        console.log(`[WOD Minimap] total walls=${walls.length}  with elevation=${withElev}  no elevation=${noElev}  passed filter=${filteredWalls.length}`);
+        if (walls.length > 0) {
+            const unique = [...new Set(elevRanges.map(r => `[${r.bottom},${r.top}]`))];
+            console.log('[WOD Minimap] distinct elevation ranges:', unique.join('  '));
+        }
+        // --- END DIAGNOSTIC ---
+
         return filteredWalls;
     }
 
@@ -1212,10 +1044,8 @@ export class MinimapManager {
             throw new Error("Only GM can add markers");
         }
 
-        const config = this.getSceneConfig(scene) || this._getDefaultConfig();
-        if (!config.markers) {
-            config.markers = [];
-        }
+        const config = foundry.utils.deepClone(this.getSceneConfig() || this._getDefaultConfig());
+        if (!config.markers) config.markers = [];
 
         const marker = {
             id: foundry.utils.randomID(),
@@ -1230,8 +1060,7 @@ export class MinimapManager {
         };
 
         config.markers.push(marker);
-
-        await scene.setFlag("wodsystem", "minimap", config);
+        await game.settings.set('wodsystem', 'minimapConfig', config);
         return marker;
     }
 
@@ -1247,21 +1076,15 @@ export class MinimapManager {
             throw new Error("Only GM can update markers");
         }
 
-        const config = this.getSceneConfig(scene);
-        if (!config || !config.markers) {
-            throw new Error("Marker not found");
-        }
+        const config = foundry.utils.deepClone(this.getSceneConfig() || this._getDefaultConfig());
+        if (!config.markers) throw new Error("Marker not found");
 
         const markerIndex = config.markers.findIndex(m => m.id === markerId);
-        if (markerIndex === -1) {
-            throw new Error("Marker not found");
-        }
+        if (markerIndex === -1) throw new Error("Marker not found");
 
-        const marker = config.markers[markerIndex];
-        Object.assign(marker, markerData);
-
-        await scene.setFlag("wodsystem", "minimap", config);
-        return marker;
+        Object.assign(config.markers[markerIndex], markerData);
+        await game.settings.set('wodsystem', 'minimapConfig', config);
+        return config.markers[markerIndex];
     }
 
     /**
@@ -1275,18 +1098,11 @@ export class MinimapManager {
             throw new Error("Only GM can delete markers");
         }
 
-        const config = this.getSceneConfig(scene);
-        if (!config || !config.markers) {
-            return;
-        }
+        const config = foundry.utils.deepClone(this.getSceneConfig() || this._getDefaultConfig());
+        if (!config.markers) return;
 
-        const markerIndex = config.markers.findIndex(m => m.id === markerId);
-        if (markerIndex === -1) {
-            return;
-        }
-
-        config.markers.splice(markerIndex, 1);
-        await scene.setFlag("wodsystem", "minimap", config);
+        config.markers = config.markers.filter(m => m.id !== markerId);
+        await game.settings.set('wodsystem', 'minimapConfig', config);
     }
 
     /**
@@ -1307,13 +1123,11 @@ export class MinimapManager {
      * Open configuration dialog
      * @param {Scene} scene - The scene
      */
-    _openConfigDialog(scene) {
+    _openConfigDialog() {
         if (!game.wod?.MinimapConfigDialog) {
             return;
         }
-
-        const dialog = new game.wod.MinimapConfigDialog(scene);
-        dialog.render(true);
+        new game.wod.MinimapConfigDialog().render(true);
     }
 
     /**
@@ -1322,7 +1136,7 @@ export class MinimapManager {
      */
     _getDefaultConfig() {
         return {
-            enabled: false,
+            enabled: true,
             width: 200,
             height: 200,
             position: { vertical: "top", horizontal: "right" },

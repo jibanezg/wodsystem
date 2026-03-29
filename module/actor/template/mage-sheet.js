@@ -105,9 +105,6 @@ export class MageSheet extends WodActorSheet {
         const quintessenceIndices = Array.from({length: quintessenceCount}, (_, i) => i);
         const paradoxIndices = Array.from({length: totalParadox}, (_, i) => 19 - i);
         
-        // Get last added type
-        const lastAddedType = this.actor.getFlag('wodsystem', 'lastWheelAddType') || null;
-        
         // Check what's at this index
         const hasQuintessence = quintessenceIndices.includes(index);
         const hasParadox = paradoxIndices.includes(index);
@@ -165,32 +162,21 @@ export class MageSheet extends WodActorSheet {
                 }, { render: false });
             }
         }
-        // CLICKING EMPTY: Add to deque
+        // CLICKING EMPTY: Add to deque based on click position
         else {
-            // Determine what to add based on position and last added type
-            let addType;
-            if (lastAddedType === null) {
-                // First click - determine by position
-                addType = index < 10 ? 'quintessence' : 'paradox';
-            } else {
-                // Subsequent clicks - add same type as last time
-                addType = lastAddedType;
-            }
-            
-            // Check if we can add this type
+            const addType = index < 10 ? 'quintessence' : 'paradox';
+
             if (addType === 'quintessence') {
                 if (quintessenceCount < 10) {
                     await this.actor.update({
                         'system.advantages.primalEnergy.current': quintessenceCount + 1
                     }, { render: false });
-                    await this.actor.setFlag('wodsystem', 'lastWheelAddType', 'quintessence');
                 }
-            } else if (addType === 'paradox') {
+            } else {
                 if (totalParadox < 20) {
                     await this.actor.update({
                         'system.advantages.paradox.current': currentParadox + 1
                     }, { render: false });
-                    await this.actor.setFlag('wodsystem', 'lastWheelAddType', 'paradox');
                 }
             }
         }
